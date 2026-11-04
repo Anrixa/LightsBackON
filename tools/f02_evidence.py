@@ -181,7 +181,7 @@ def validate(record: Any, record_path: Path) -> list[str]:
             if identifier not in CASE_IDS:
                 errors.append(f"{path}: unknown case {identifier}")
         if case.get("status") != "PASS":
-            errors.append(f"{path}.status: expected PASS from an observed real-network test")
+            errors.append(f"{path}.status: expected PASS from an observed real-network test (found {case.get('status')!r})")
         relative = _text(case, "evidence_path", path, errors)
         digest = _hash(case, "evidence_sha256", path, errors)
         if not relative:
