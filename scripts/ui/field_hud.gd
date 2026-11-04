@@ -303,6 +303,10 @@ func _tools() -> PanelContainer:
 	box.add_child(row)
 	for i: int in mini(tools.size(), MAX_TOOL_SLOTS):
 		row.add_child(_slot(i + 1, str(tools[i]), i + 1 == selected))
+	if selected > MAX_TOOL_SLOTS and selected <= tools.size():
+		var extra: Dictionary = StatusChip.entry("tools", str(tools[selected - 1]))
+		_label(box, UiText.tf("offline.hud.fifth_tool", [UiText.t(str(extra["text_key"]))]),
+			"StrongLabel", "action")
 	if tools.size() > MAX_TOOL_SLOTS:  # the rest are on the tool radial; the note sits under the slots so the bar stays narrow
 		_label(box, UiText.tf("hud.tools_more", [tools.size() - MAX_TOOL_SLOTS]), "MutedLabel")
 	return card

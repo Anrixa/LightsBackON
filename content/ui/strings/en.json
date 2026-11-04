@@ -171,7 +171,7 @@
     "offline.menu.subtitle": "ALDER STREET  /  FIRST SHIFT",
     "offline.menu.title": "LIGHTS BACK ON",
     "offline.menu.description": "A storm knocked out the neighborhood. Explore the street, measure the faults, restore five services and bring the portable generator home.",
-    "offline.menu.controls": "Move: WASD / left stick     Look: Mouse / right stick\nInteract: E / A     Tool: mouse wheel or 1–4     Network tablet: Tab / LB     Pause: Esc / Menu",
+    "offline.menu.controls": "Move: WASD / left stick     Look: Mouse / right stick\nInteract: E / A     Tools: mouse wheel, keys 1–5, or D-pad left/right     Drop carried generator: G / X\nNetwork tablet: Tab / LB     Pause: Esc / Menu",
     "offline.menu.multiplayer_notice": "Offline development build. Steam multiplayer is not yet qualified.",
     "offline.menu.play": "START SOLO SHIFT",
     "offline.menu.quit": "QUIT GAME",
@@ -216,6 +216,11 @@
     "offline.menu.save_error": "Local save unavailable (%s). Existing files will not be overwritten.",
     "offline.menu.replace_title": "Start a new shift?",
     "offline.menu.replace_warning": "Starting a new shift will replace your current solo checkpoint. A backup of the previous checkpoint is kept. Continue?",
-    "offline.status.save_unavailable": "Saving disabled: %s. Existing progress was not erased."
+    "offline.status.save_unavailable": "Saving disabled: %s. Existing progress was not erased.",
+    "input.pad.dpad_left": "D-pad left",
+    "input.pad.dpad_right": "D-pad right",
+    "input.pad.dpad_up": "D-pad up",
+    "input.pad.dpad_down": "D-pad down",
+    "offline.hud.fifth_tool": "Equipped: %s (slot 5)"
   }
 }

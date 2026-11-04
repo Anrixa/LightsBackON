@@ -20,7 +20,8 @@ const MOUSE_KEYS: Dictionary = {MOUSE_BUTTON_LEFT: "input.mouse.left", MOUSE_BUT
 const PAD_BUTTON_KEYS: Dictionary = {JOY_BUTTON_A: "input.pad.a", JOY_BUTTON_B: "input.pad.b", JOY_BUTTON_X: "input.pad.x",
 	JOY_BUTTON_Y: "input.pad.y", JOY_BUTTON_BACK: "input.pad.back", JOY_BUTTON_START: "input.pad.start",
 	JOY_BUTTON_LEFT_SHOULDER: "input.pad.lb", JOY_BUTTON_RIGHT_SHOULDER: "input.pad.rb", JOY_BUTTON_LEFT_STICK: "input.pad.ls",
-	JOY_BUTTON_RIGHT_STICK: "input.pad.rs"}
+	JOY_BUTTON_RIGHT_STICK: "input.pad.rs", JOY_BUTTON_DPAD_UP: "input.pad.dpad_up", JOY_BUTTON_DPAD_DOWN: "input.pad.dpad_down",
+	JOY_BUTTON_DPAD_LEFT: "input.pad.dpad_left", JOY_BUTTON_DPAD_RIGHT: "input.pad.dpad_right"}
 const PAD_AXIS_KEYS: Dictionary = {JOY_AXIS_TRIGGER_LEFT: "input.pad.lt", JOY_AXIS_TRIGGER_RIGHT: "input.pad.rt"}
 
 static var _strings: Dictionary = {}
@@ -115,7 +116,7 @@ static func _event_label(ev: InputEvent, device: String) -> String:
 	if ev is InputEventJoypadButton:
 		var b: JoyButton = (ev as InputEventJoypadButton).button_index
 		if b >= JOY_BUTTON_DPAD_UP and b <= JOY_BUTTON_DPAD_RIGHT:
-			return t("input.pad.dpad")
+			return t(PAD_BUTTON_KEYS.get(b, "input.pad.dpad"))
 		return t(PAD_BUTTON_KEYS.get(b, "input.unbound"))
 	if ev is InputEventJoypadMotion:
 		var axis: JoyAxis = (ev as InputEventJoypadMotion).axis
