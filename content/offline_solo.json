@@ -21,6 +21,11 @@
     "environment_color": "#324A5B",
     "ambient_color": "#829DB0",
     "sun_color": "#FFF0D7",
-    "sun_energy": 1.35
+    "sun_energy": 1.35,
+    "sun_rotation_deg": [
+      -53,
+      24,
+      0
+    ]
   }
 }
