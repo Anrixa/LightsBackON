@@ -90,7 +90,8 @@ func _physics_process(delta: float) -> void:
 		velocity.y = 0.0
 	var before: Vector3 = global_position
 	move_and_slide()
-	if global_position.distance_squared_to(before) > 0.000001:
+	var horizontal: Vector2 = Vector2(global_position.x - before.x, global_position.z - before.z)
+	if horizontal.length_squared() > 0.000001:
 		moved.emit()
 
 
