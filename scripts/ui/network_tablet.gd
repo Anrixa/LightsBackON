@@ -171,8 +171,7 @@ func _on_resized() -> void:
 func _rebuild() -> void:
 	if _view.is_empty():
 		return
-	var had_focus: bool = is_inside_tree() and get_viewport().gui_get_focus_owner() != null \
-		and is_ancestor_of(get_viewport().gui_get_focus_owner())
+	var focus_token: String = _focus_token()
 	scale_percent = ThemeTokens.effective_percent(ui_scale_percent, screen_size())
 	theme = ThemeTokens.build(tokens, scale_percent)
 	for c: Node in get_children():
@@ -231,8 +230,8 @@ func _rebuild() -> void:
 	page.add_child(_footer())
 	_link_focus()
 	_fill_detail()
-	if had_focus:
-		_focus_default()
+	if focus_token != "":
+		_restore_focus(focus_token)
 
 
 ## Explicit focus exits between the regions (blueprint p.22: every control reachable by controller). Inside the map the
@@ -266,6 +265,56 @@ func _link_focus() -> void:
 		map.queue_sort()
 	else:
 		_neighbor(detail_scroll, SIDE_LEFT, tabs[1])
+
+
+## Identify the semantic focused control before rebuilding the tablet. Retain the
+## same focus after UI-scale or device-hint changes: rebuilding must not strand a
+## gamepad user back at the top-left map node during an inspection.
+func _focus_token() -> String:
+	if not is_inside_tree():
+		return ""
+	var current: Control = get_viewport().gui_get_focus_owner()
+	if current == null or not is_ancestor_of(current):
+		return ""
+	if current == close_button:
+		return "close"
+	if current == ping_button:
+		return "ping"
+	if current == detail_scroll:
+		return "evidence"
+	for key: String in tab_buttons:
+		if current == tab_buttons[key]:
+			return "tab:" + key
+	for i: int in zoom_buttons.size():
+		if current == zoom_buttons[i]:
+			return "zoom:" + str(i)
+	if map != null and tab == TAB_NETWORK:
+		for nid: String in map.nodes:
+			if current == map.nodes[nid]:
+				return "node:" + nid
+	return "default"
+
+
+func _restore_focus(token: String) -> void:
+	var next: Control = null
+	if token == "close":
+		next = close_button
+	elif token == "ping":
+		next = ping_button if ping_button.visible else close_button
+	elif token == "evidence":
+		next = detail_scroll
+	elif token.begins_with("tab:"):
+		next = tab_buttons.get(token.trim_prefix("tab:"), null) as Control
+	elif token.begins_with("zoom:"):
+		var idx: int = token.trim_prefix("zoom:").to_int()
+		if idx >= 0 and idx < zoom_buttons.size() and zoom_buttons[idx].visible:
+			next = zoom_buttons[idx]
+	elif token.begins_with("node:") and tab == TAB_NETWORK:
+		next = map.nodes.get(token.trim_prefix("node:"), null) as Control
+	if next != null and next.is_visible_in_tree():
+		next.grab_focus()
+	else:
+		_focus_default()
 
 
 func _neighbor(from: Control, side: Side, to: Control) -> void:

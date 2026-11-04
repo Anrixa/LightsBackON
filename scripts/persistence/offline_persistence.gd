@@ -19,6 +19,7 @@ const CONTRACT_ID: String = "C01"
 const PROFILE_FILE: String = "profile.json"
 const CHECKPOINT_FILE: String = "checkpoints/SOLO_C01.json"
 const SAVE_BUILD_ID: String = "offline-game"
+const HEADLESS_SANDBOX_ROOT: String = "user://test_runtime/headless_offline"
 
 var account_key: String = ""
 var _root: String = ""
@@ -27,9 +28,15 @@ var _revision: String = ""
 var _initialized: bool = false
 
 
-## Storage root override is strictly for isolated tests. Production uses user://.
-func initialize(storage_root: String = "user://") -> Dictionary:
-	_root = storage_root
+## Headless scene probes use their own sandbox. Do not let test scenes launched
+## by CI (or by an owner running --headless locally) overwrite played progress.
+## The override is for isolated unit tests, production windowed uses user://.
+static func runtime_root() -> String:
+	return HEADLESS_SANDBOX_ROOT if DisplayServer.get_name() == "headless" else "user://"
+
+
+func initialize(storage_root: String = "") -> Dictionary:
+	_root = runtime_root() if storage_root == "" else storage_root
 	_initialized = false
 	account_key = ""
 	var versions: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://content/versions.json"))
