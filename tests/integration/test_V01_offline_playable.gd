@@ -4,6 +4,7 @@ extends "res://tests/test_case.gd"
 
 const Offline := preload("res://scripts/gameplay/offline_c01_session.gd")
 const Transport := preload("res://scripts/network/transport_adapter.gd")
+const Restoration := preload("res://scripts/world/restoration_presentation.gd")
 const C01: String = "res://content/contracts/c01_alder_street"
 var _session: Offline
 
@@ -124,6 +125,49 @@ func test_V01_je_meter_and_basement_trunk_are_different_physical_actions() -> vo
 	assert_eq(_session.action_for("TRUNK_JE", "meter")["entity"], "R_JE_TRUNK")
 	assert_eq(_session.interact("TRUNK_JE", "meter")["code"], "NO_ACCESS",
 		"the basement is not safe to repair until the pump has drained it")
+
+
+
+func test_V01_windows_and_basement_water_follow_authoritative_state() -> void:
+	var world_scene: PackedScene = load("res://scenes/world/alder_street.tscn") as PackedScene
+	var world: Node3D = world_scene.instantiate()
+	var tree: SceneTree = Engine.get_main_loop() as SceneTree
+	tree.root.add_child(world)
+	var visuals: Restoration = Restoration.new()
+	visuals.setup(world)
+	visuals.apply(_session.host_state(), false)
+	assert_true(visuals.window_count("APT_W") > 0, "the authored kit window markers receive presentation panes")
+	assert_eq(visuals.state_of("APT_W"), "dark")
+	assert_true(visuals.flood_visible(), "the unpumped basement still visibly contains water")
+
+	var steps: Array = (JSON.parse_string(FileAccess.get_file_as_string(C01.path_join("solution.json"))) as Dictionary)["steps"]
+	for step: Dictionary in steps:
+		if step.has("note"):
+			if str(step["note"]).begins_with("2."):
+				break
+			continue
+		if step.has("ticks") or step.has("zone"):
+			continue
+		var result: Dictionary = _session.command(str(step["intent"]), str(step["entity"]), step.get("payload", {}))
+		assert_true(result.get("ok", false), "west restoration step accepted: %s" % str(step))
+		_session.tick_once()
+	visuals.apply(_session.host_state(), false)
+	assert_true(_session.grid.canonical_state()["nodes"]["APT_W"]["supplied"], "west branch really energized")
+	assert_eq(visuals.state_of("APT_W"), "grid", "west glass warms after the actual host repair")
+	assert_eq(visuals.state_of("PUB"), "dark", "dark services never light early")
+	assert_true(visuals.flood_visible(), "west restoration alone does not drain the basement")
+
+	assert_true(_session.command("place_item", "GEN_PORTABLE", {"action": "pickup"})["ok"])
+	assert_true(_session.command("place_item", "GEN_PORTABLE", {"action": "place", "anchor": "PAD_PUMP"})["ok"])
+	assert_true(_session.command("place_item", "GEN_PORTABLE", {"action": "connect", "route": "E_TEMP_PUMP"})["ok"])
+	assert_true(_session.command("place_item", "GEN_PORTABLE", {"action": "start"})["ok"])
+	for _tick: int in 120:
+		_session.tick_once()
+	visuals.apply(_session.host_state(), _session.mission.is_latched("LATCH_PUMP_DRAIN"))
+	assert_false(visuals.flood_visible(), "the pump latch removes flood water from presentation")
+	assert_eq(visuals.state_of("APT_W"), "grid", "the west branch remains supplied")
+	tree.root.remove_child(world)
+	world.free()
 
 
 func test_V01_windowed_game_has_actual_menu_and_mission_scenes() -> void:
