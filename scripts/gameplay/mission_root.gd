@@ -19,13 +19,13 @@ const MENU_PATH: String = "res://scenes/menu/main_menu.tscn"
 const HOST_TICK_SECONDS: float = 0.1
 const TOOL_LIST: Array[String] = OfflineSession.TOOL_LIST
 
-var session: RefCounted
-var player: CharacterBody3D
-var hud: Control
-var tablet: PanelContainer
-var onboarding: PanelContainer
-var accessibility: PanelContainer
-var settings: RefCounted
+var session: OfflineSession
+var player: PlayerController
+var hud: FieldHud
+var tablet: NetworkTablet
+var onboarding: OnboardingCard
+var accessibility: AccessibilityPanel
+var settings: AccessibilitySettings
 var _world: Node3D
 var _overlay: Control
 var _pause_panel: PanelContainer
@@ -92,7 +92,8 @@ func _make_lighting() -> void:
 	sun.name = "Sun"
 	sun.light_color = Color(str(visual["sun_color"]))
 	sun.light_energy = float(visual["sun_energy"])
-	sun.rotation_degrees = Vector3(-53.0, 24.0, 0.0)
+	var sun_angles: Array = visual["sun_rotation_deg"]
+	sun.rotation_degrees = Vector3(float(sun_angles[0]), float(sun_angles[1]), float(sun_angles[2]))
 	add_child(sun)
 
 
@@ -164,7 +165,8 @@ func _make_ui() -> void:
 	_pause_panel.visible = false
 	_overlay.add_child(_pause_panel)
 	_center(_pause_panel, Vector2(660.0, 510.0))
-	_pause_panel.add_child(accessibility)
+	var column: VBoxContainer = _pause_panel.find_child("PauseActions", true, false) as VBoxContainer
+	column.add_child(accessibility)
 	accessibility.visible = false
 
 	_complete_panel = _make_completion_panel()
@@ -186,6 +188,7 @@ func _make_pause_panel() -> PanelContainer:
 	margin.add_theme_constant_override("margin_bottom", 32)
 	panel.add_child(margin)
 	var column: VBoxContainer = VBoxContainer.new()
+	column.name = "PauseActions"
 	column.add_theme_constant_override("separation", 14)
 	margin.add_child(column)
 	_pause_label(column, "offline.pause.title", 34)
@@ -250,19 +253,21 @@ static func _center(control: Control, dimensions: Vector2) -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if session == null or _paused or tablet.visible or _finished:
+	if session == null or _paused or _finished:
 		return
 	_time_accumulator += delta
 	while _time_accumulator >= HOST_TICK_SECONDS:
 		_time_accumulator -= HOST_TICK_SECONDS
 		session.tick_once()
+	if tablet.visible:
+		return
 	_update_target()
 	var inside: bool = session.inside_van(player.global_position)
 	if inside != _last_position_zone:
 		_last_position_zone = inside
 		session.set_in_van_zone(inside)
 	_heartbeat_accumulator += delta
-	if _heartbeat_accumulator >= 1.0:
+	if _heartbeat_accumulator >= float(_interaction["lock_heartbeat_timeout_ticks"]) / 20.0:
 		_heartbeat_accumulator = 0.0
 		_send_heartbeats()
 	if player.global_position.y < float(_solo_tuning["player"]["fall_recovery_y_m"]):
@@ -337,7 +342,7 @@ func _select_slot(number: int) -> void:
 
 
 func _send_heartbeats() -> void:
-	for repair: Dictionary in session._content["repairs"]["repairs"]:
+	for repair: Dictionary in session.repair_definitions():
 		var id: String = str(repair["id"])
 		if session.interaction.lock_owner(id) == OfflineSession.PLAYER_ID and _in_range(OfflineSession.PLAYER_ID, id):
 			session.command("heartbeat", id, {})
