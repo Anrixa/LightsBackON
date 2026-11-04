@@ -455,14 +455,13 @@ func _on_mission_event(event: Dictionary) -> void:
 			_status.text = UiText.t("offline.status.drain")
 		"verified":
 			_status.text = UiText.t("offline.status.verified")
+			_save_checkpoint()
 		"trip":
 			_status.text = UiText.t("offline.status.trip")
 		"mission_complete":
 			_save_checkpoint()
 			_finish()
 		"checkpoint_due":
-			_save_checkpoint()
-		"verified":
 			_save_checkpoint()
 
 
