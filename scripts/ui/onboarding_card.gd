@@ -10,11 +10,14 @@ var guide: RefCounted = Guide.new()
 var instruction: Label
 var hint: Label
 var hint_button: Button
+var _tokens: Dictionary = {}
+var _idle_seconds: float = 0.0
+var _device: String = UiText.DEVICE_KBM
 
 
 func _init() -> void:
-	var tokens: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://content/ui/tokens.json"))
-	theme = ThemeTokens.build(tokens)
+	_tokens = JSON.parse_string(FileAccess.get_file_as_string("res://content/ui/tokens.json"))
+	theme = ThemeTokens.build(_tokens)
 	var layout: VBoxContainer = VBoxContainer.new()
 	add_child(layout)
 	instruction = Label.new()
@@ -25,6 +28,7 @@ func _init() -> void:
 	layout.add_child(hint)
 	hint_button = Button.new()
 	hint_button.text = UiText.t("guide.more_help")
+	hint_button.focus_mode = Control.FOCUS_NONE  # never steal active world input
 	hint_button.custom_minimum_size.y = ThemeTokens.BUTTON_HEIGHT_PX
 	hint_button.pressed.connect(show_hint)
 	layout.add_child(hint_button)
@@ -33,12 +37,41 @@ func _init() -> void:
 
 func observe(event_id: String) -> void:
 	if bool(guide.call("observe", event_id)):
+		_idle_seconds = 0.0
 		refresh()
 
 
 func set_hints_enabled(enabled: bool) -> void:
 	guide.call("set_hints_enabled", enabled)
 	hint_button.disabled = not enabled
+	if not enabled:
+		hint.text = ""
+
+
+## The visible button also advertises the remappable H / D-pad hint action.
+## Gameplay dispatch does not rely on pointer capture or GUI focus.
+func set_device(device: String) -> void:
+	_device = device
+	_update_binding()
+
+
+func set_ui_scale(percent: int) -> void:
+	var size: Vector2 = get_viewport_rect().size if is_inside_tree() else ThemeTokens.DESIGN_SIZE
+	var scale: float = ThemeTokens.effective_percent(percent, size)
+	theme = ThemeTokens.build(_tokens, scale)
+	hint_button.custom_minimum_size.y = float(ThemeTokens.px(ThemeTokens.BUTTON_HEIGHT_PX, scale))
+
+
+func advance_idle(delta: float) -> void:
+	_idle_seconds += maxf(delta, 0.0)
+	if hint.text == "":
+		var key: String = str(guide.call("idle_hint_key", _idle_seconds))
+		if key != "":
+			hint.text = UiText.t(key)
+
+
+func _update_binding() -> void:
+	hint_button.text = "%s (%s)" % [UiText.t("guide.more_help"), UiText.binding("onboarding_hint", _device)]
 
 
 func show_hint() -> void:
@@ -52,3 +85,4 @@ func refresh() -> void:
 	instruction.text = UiText.t(key) if key != "" else UiText.t("guide.complete")
 	hint.text = ""
 	hint_button.visible = key != ""
+	_update_binding()
