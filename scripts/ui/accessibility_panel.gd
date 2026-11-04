@@ -51,6 +51,11 @@ func set_ui_scale(percent: int) -> void:
 		toggle.add_theme_stylebox_override("focus", ThemeTokens.focus_box(_tokens, scale))
 
 
+## Refresh the visible controls after profile restore, not only after local clicks.
+func refresh() -> void:
+	_sync()
+
+
 func _build() -> void:
 	theme = ThemeTokens.build(_tokens)
 	var layout: VBoxContainer = VBoxContainer.new()
