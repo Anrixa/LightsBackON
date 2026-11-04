@@ -156,15 +156,13 @@ func test_G06_menu_has_separate_continue_and_new_shift_and_pause_saves() -> void
 	if menu == null or mission == null:
 		return
 	var menu_node: Node = menu.instantiate()
-	var menu_script: Script = menu_node.get_script()
-	assert_true(menu_script != null)
-	assert_true(menu_script.has_method("_continue_shift"))
-	assert_true(menu_script.has_method("_request_new_shift"))
+	assert_true(menu_node.get_script() != null)
+	assert_true(menu_node.has_method("_continue_shift"))
+	assert_true(menu_node.has_method("_request_new_shift"))
 	var mission_node: Node = mission.instantiate()
-	var mission_script: Script = mission_node.get_script()
-	assert_true(mission_script != null)
-	assert_true(mission_script.has_method("_save_checkpoint"))
-	assert_true(mission_script.has_method("_apply_restored_view"))
+	assert_true(mission_node.get_script() != null)
+	assert_true(mission_node.has_method("_save_checkpoint"))
+	assert_true(mission_node.has_method("_apply_restored_view"))
 	menu_node.free()
 	mission_node.free()
 
