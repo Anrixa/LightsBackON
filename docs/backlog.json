@@ -735,8 +735,14 @@
       "milestone_name": "Validation",
       "env": "split",
       "env_note": "",
-      "status": "IN_PROGRESS",
-      "evidence_file": "docs/evidence/A04.md"
+      "status": "CLOUD_VERIFIED",
+      "evidence_file": "docs/evidence/A04.md",
+      "pending_local": [
+        "Wire onboarding and accessibility panels into a running MissionRoot/menu; source guide progression from accepted gameplay events",
+        "Apply camera motion and flash preferences to real camera/VFX producers and persist preferences safely in the player profile",
+        "UX01 human/controller-only onboarding and first-repair discoverability test, including 150% readability",
+        "V07 dependency remains CLOUD_VERIFIED pending V01/G08 two-peer gates"
+      ]
     },
     {
       "id": "A05",
