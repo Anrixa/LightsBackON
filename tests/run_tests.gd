@@ -18,9 +18,15 @@ func _initialize() -> void:
 			filter = a.trim_prefix("--filter=")
 		elif a.begins_with("--dir="):
 			root_dir = a.trim_prefix("--dir=")
-	# the root window joins the tree after _initialize starts; scene tests (V01) need its World3D for physics queries
+	# The root window joins the tree after _initialize starts; scene tests need its physics world.
 	await process_frame
-	quit(_run(root_dir, filter))
+	var result: int = _run(root_dir, filter)
+	# The HUD/tablet legitimately queue_free() their previous child trees when reflowing.
+	# These queues need end-of-frame processing before quitting, otherwise the
+	# headless runner reports orphaned CanvasItems even though gameplay cleans them.
+	await process_frame
+	await process_frame
+	quit(result)
 
 
 func _collect(dir_path: String, out: Array[String]) -> void:
