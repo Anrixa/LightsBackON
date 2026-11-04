@@ -238,17 +238,9 @@ func _make_ui() -> void:
 	_complete_panel = _make_completion_panel()
 	_complete_panel.visible = false
 	_overlay.add_child(_complete_panel)
-	_layout_modal_panels(get_viewport_rect().size)
+	_layout_modal_panels(get_viewport().get_visible_rect().size)
 	get_viewport().size_changed.connect(_on_viewport_size_changed)
-	settings.apply_to_views(hud, tablet)
-	if _pause_panel != null:
-		var effective: float = ThemeTokens.effective_percent(int(settings.value("ui_scale_percent")),
-			get_viewport_rect().size)
-		_pause_panel.theme = ThemeTokens.build(_ui_tokens, effective)
-		_complete_panel.theme = ThemeTokens.build(_ui_tokens, effective)
-		accessibility.set_ui_scale(int(settings.value("ui_scale_percent")))
-		_layout_modal_panels(get_viewport_rect().size)
-	onboarding.set_hints_enabled(bool(settings.value("hints_enabled")))
+	_settings_changed(settings.snapshot(), false)
 
 
 func _make_pause_panel() -> PanelContainer:
@@ -336,9 +328,8 @@ static func _center(control: Control, dimensions: Vector2) -> void:
 
 
 func _on_viewport_size_changed() -> void:
-	_layout_modal_panels(get_viewport_rect().size)
-	if accessibility != null and settings != null:
-		accessibility.set_ui_scale(int(settings.value("ui_scale_percent")))
+	if settings != null:
+		_settings_changed(settings.snapshot(), false)
 
 
 ## Keep panels inside the same authored safe area as the HUD. The pause
@@ -606,6 +597,13 @@ func _toggle_accessibility() -> void:
 
 func _settings_changed(_values: Dictionary, persist: bool = true) -> void:
 	settings.apply_to_views(hud, tablet)
+	if _pause_panel != null and _complete_panel != null:
+		var effective: float = ThemeTokens.effective_percent(int(settings.value("ui_scale_percent")),
+			get_viewport().get_visible_rect().size)
+		_pause_panel.theme = ThemeTokens.build(_ui_tokens, effective)
+		_complete_panel.theme = ThemeTokens.build(_ui_tokens, effective)
+		accessibility.set_ui_scale(int(settings.value("ui_scale_percent")))
+		_layout_modal_panels(get_viewport().get_visible_rect().size)
 	onboarding.set_hints_enabled(bool(settings.value("hints_enabled")))
 	_refresh_hud()
 	if persist and _store != null and _store.account_key != "":
