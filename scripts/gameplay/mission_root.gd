@@ -15,6 +15,7 @@ const AccessibilityPanel := preload("res://scripts/ui/accessibility_panel.gd")
 const AccessibilitySettings := preload("res://scripts/ui/accessibility_settings.gd")
 const ThemeTokens := preload("res://scripts/ui/theme_tokens.gd")
 const UiText := preload("res://scripts/ui/ui_text.gd")
+const InputDeviceTracker := preload("res://scripts/ui/input_device_tracker.gd")
 const RestorationPresentation := preload("res://scripts/world/restoration_presentation.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 
@@ -40,6 +41,8 @@ var _pause_panel: PanelContainer
 var _complete_panel: PanelContainer
 var _status: Label
 var _resume_button: Button
+var _accessibility_button: Button
+var _active_device: String = UiText.DEVICE_KBM
 var _time_accumulator: float = 0.0
 var _heartbeat_accumulator: float = 0.0
 var _slot: int = 1
@@ -227,7 +230,7 @@ func _make_ui() -> void:
 	_pause_panel = _make_pause_panel()
 	_pause_panel.visible = false
 	_overlay.add_child(_pause_panel)
-	_center(_pause_panel, Vector2(660.0, 510.0))
+	# Modal dimensions reflow with the viewport and the selected UI scale.
 	var column: VBoxContainer = _pause_panel.find_child("PauseActions", true, false) as VBoxContainer
 	column.add_child(accessibility)
 	accessibility.visible = false
@@ -235,8 +238,16 @@ func _make_ui() -> void:
 	_complete_panel = _make_completion_panel()
 	_complete_panel.visible = false
 	_overlay.add_child(_complete_panel)
-	_center(_complete_panel, Vector2(660.0, 370.0))
+	_layout_modal_panels(get_viewport_rect().size)
+	get_viewport().size_changed.connect(_on_viewport_size_changed)
 	settings.apply_to_views(hud, tablet)
+	if _pause_panel != null:
+		var effective: float = ThemeTokens.effective_percent(int(settings.value("ui_scale_percent")),
+			get_viewport_rect().size)
+		_pause_panel.theme = ThemeTokens.build(_ui_tokens, effective)
+		_complete_panel.theme = ThemeTokens.build(_ui_tokens, effective)
+		accessibility.set_ui_scale(int(settings.value("ui_scale_percent")))
+		_layout_modal_panels(get_viewport_rect().size)
 	onboarding.set_hints_enabled(bool(settings.value("hints_enabled")))
 
 
@@ -250,13 +261,22 @@ func _make_pause_panel() -> PanelContainer:
 	margin.add_theme_constant_override("margin_top", 32)
 	margin.add_theme_constant_override("margin_bottom", 32)
 	panel.add_child(margin)
+	var scroll: ScrollContainer = ScrollContainer.new()
+	scroll.name = "PauseScroll"
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	scroll.follow_focus = true
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	margin.add_child(scroll)
 	var column: VBoxContainer = VBoxContainer.new()
 	column.name = "PauseActions"
+	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	column.add_theme_constant_override("separation", 14)
-	margin.add_child(column)
+	scroll.add_child(column)
 	_pause_label(column, "offline.pause.title", 34)
 	_resume_button = _button(column, "offline.pause.resume", _resume_play)
-	_button(column, "offline.pause.accessibility", _toggle_accessibility)
+	_accessibility_button = _button(column, "offline.pause.accessibility", _toggle_accessibility)
 	_button(column, "offline.pause.recover", _recover_player)
 	_button(column, "offline.pause.exit", _exit_to_menu)
 	return panel
@@ -313,6 +333,41 @@ static func _center(control: Control, dimensions: Vector2) -> void:
 	control.offset_right = dimensions.x * 0.5
 	control.offset_top = -dimensions.y * 0.5
 	control.offset_bottom = dimensions.y * 0.5
+
+
+func _on_viewport_size_changed() -> void:
+	_layout_modal_panels(get_viewport_rect().size)
+	if accessibility != null and settings != null:
+		accessibility.set_ui_scale(int(settings.value("ui_scale_percent")))
+
+
+## Keep panels inside the same authored safe area as the HUD. The pause
+## controls scroll when necessary rather than expanding beyond a small screen.
+func _layout_modal_panels(screen_size: Vector2) -> void:
+	if _pause_panel == null or _complete_panel == null:
+		return
+	var desired: int = int(settings.value("ui_scale_percent")) if settings != null else 100
+	var effective: float = ThemeTokens.effective_percent(desired, screen_size)
+	var margin: float = float(ThemeTokens.safe_area(_ui_tokens, screen_size))
+	var available: Vector2 = Vector2(maxf(1.0, screen_size.x - margin * 2.0),
+		maxf(1.0, screen_size.y - margin * 2.0))
+	_center(_pause_panel, Vector2(minf(660.0 * effective / 100.0, available.x),
+		minf(510.0 * effective / 100.0, available.y)))
+	_center(_complete_panel, Vector2(minf(660.0 * effective / 100.0, available.x),
+		minf(370.0 * effective / 100.0, available.y)))
+
+
+## Input labels follow the last *intentional* gamepad or keyboard/mouse input.
+## Re-render views only on device transitions, never on every stick frame.
+func _input(event: InputEvent) -> void:
+	var inferred: String = InputDeviceTracker.infer(event)
+	if inferred == "" or inferred == _active_device:
+		return
+	_active_device = inferred
+	if hud != null:
+		hud.set_device(inferred)
+	if tablet != null:
+		tablet.set_device(inferred)
 
 
 func _physics_process(delta: float) -> void:
@@ -516,6 +571,9 @@ func _toggle_pause() -> void:
 	if tablet.visible:
 		tablet.close()
 		return
+	if _paused and accessibility.visible:
+		_toggle_accessibility()
+		return
 	_paused = not _paused
 	player.set_controls_active(not _paused)
 	_pause_panel.visible = _paused
@@ -525,6 +583,9 @@ func _toggle_pause() -> void:
 		_resume_button.grab_focus()
 	else:
 		accessibility.visible = false
+		var focus_owner: Control = get_viewport().gui_get_focus_owner()
+		if focus_owner != null and _pause_panel.is_ancestor_of(focus_owner):
+			get_viewport().gui_release_focus()
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 
@@ -534,7 +595,13 @@ func _resume_play() -> void:
 
 
 func _toggle_accessibility() -> void:
+	if not _paused:
+		return
 	accessibility.visible = not accessibility.visible
+	if accessibility.visible:
+		accessibility.focus_first()
+	elif is_instance_valid(_accessibility_button):
+		_accessibility_button.grab_focus()
 
 
 func _settings_changed(_values: Dictionary, persist: bool = true) -> void:
