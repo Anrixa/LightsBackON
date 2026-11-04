@@ -1,6 +1,6 @@
 extends RefCounted
-## Local A04 preferences. The simulation never reads these values. Persistence
-## and connections to live camera/VFX consumers require a future running MissionRoot.
+## Local A04 preferences. Gameplay/simulation never reads these values.
+## The G06 offline profile saves a strictly validated snapshot through SaveService.
 
 signal changed(snapshot: Dictionary)
 
@@ -43,6 +43,32 @@ func set_value(key: String, next: Variant) -> bool:
 		return false
 	if _values[key] != checked:
 		_values[key] = checked
+		changed.emit(snapshot())
+	return true
+
+
+## Load an entire profile atomically: a malformed key, float, or partial record
+## never changes one preference while leaving the rest stale.
+func restore_snapshot(values: Dictionary) -> bool:
+	if values.size() != _values.size():
+		return false
+	for key: String in _values:
+		if not values.has(key):
+			return false
+		var v: Variant = values[key]
+		if key == "ui_scale_percent":
+			if typeof(v) != TYPE_INT:
+				return false
+			var limits: Dictionary = _config["ui_scale_percent"]
+			if int(v) < int(limits["min"]) or int(v) > int(limits["max"]):
+				return false
+		elif BOOLEAN_KEYS.has(key):
+			if typeof(v) != TYPE_BOOL:
+				return false
+		else:
+			return false
+	if values != _values:
+		_values = values.duplicate(true)
 		changed.emit(snapshot())
 	return true
 

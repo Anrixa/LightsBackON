@@ -4,9 +4,13 @@ extends Control
 
 const UiText := preload("res://scripts/ui/ui_text.gd")
 const ThemeTokens := preload("res://scripts/ui/theme_tokens.gd")
+const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 
 const MISSION_PATH: String = "res://scenes/mission/mission_root.tscn"
 var start_button: Button
+var continue_button: Button
+var _store: OfflinePersistence
+var _save_available: bool = false
 
 
 func _ready() -> void:
@@ -66,13 +70,63 @@ func _ready() -> void:
 	layout.add_child(warning)
 
 	start_button = Button.new()
-	start_button.text = UiText.t("offline.menu.play")
+	_store = OfflinePersistence.new()
+	var identity: Dictionary = _store.initialize()
+	var save_status: Dictionary = _store.checkpoint_status() if identity.get("ok", false) else identity
+	_save_available = bool(save_status.get("ok", false) and save_status.get("available", false))
+	var save_message: Label = Label.new()
+	save_message.name = "SaveStatus"
+	save_message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	save_message.text = UiText.t("offline.menu.progress_found") if _save_available else (
+		UiText.tf("offline.menu.save_error", [str(save_status.get("code", "UNAVAILABLE"))]) if not save_status.get("ok", false)
+		else UiText.t("offline.menu.no_progress"))
+	save_message.add_theme_color_override("font_color", ThemeTokens.color(tokens,
+		"fault" if not save_status.get("ok", false) else "text_muted"))
+	layout.add_child(save_message)
+
+	continue_button = Button.new()
+	continue_button.name = "ContinueButton"
+	continue_button.text = UiText.t("offline.menu.continue")
+	continue_button.custom_minimum_size.y = 56.0
+	continue_button.visible = _save_available
+	continue_button.pressed.connect(_continue_shift)
+	layout.add_child(continue_button)
+
+	start_button = Button.new()
+	start_button.name = "StartButton"
+	start_button.text = UiText.t("offline.menu.new_shift")
 	start_button.custom_minimum_size.y = 56.0
-	start_button.pressed.connect(func() -> void: get_tree().change_scene_to_file(MISSION_PATH))
+	start_button.pressed.connect(_request_new_shift)
 	layout.add_child(start_button)
+
+	var confirmation: ConfirmationDialog = ConfirmationDialog.new()
+	confirmation.name = "ReplaceCheckpointConfirmation"
+	confirmation.title = UiText.t("offline.menu.replace_title")
+	confirmation.dialog_text = UiText.t("offline.menu.replace_warning")
+	confirmation.confirmed.connect(func() -> void: _launch(false))
+	add_child(confirmation)
 	var quit_button: Button = Button.new()
 	quit_button.text = UiText.t("offline.menu.quit")
 	quit_button.custom_minimum_size.y = 48.0
 	quit_button.pressed.connect(func() -> void: get_tree().quit())
 	layout.add_child(quit_button)
-	start_button.grab_focus()
+	(continue_button if _save_available else start_button).grab_focus()
+
+
+
+func _request_new_shift() -> void:
+	if _save_available:
+		(get_node("ReplaceCheckpointConfirmation") as ConfirmationDialog).popup_centered()
+	else:
+		_launch(false)
+
+
+func _continue_shift() -> void:
+	if _save_available:
+		_launch(true)
+
+
+func _launch(resume: bool) -> void:
+	# The flag is scene-local launch state, not a save file or a gameplay authority.
+	get_tree().set_meta("offline_resume", resume)
+	get_tree().change_scene_to_file(MISSION_PATH)

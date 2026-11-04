@@ -15,6 +15,7 @@ const AccessibilitySettings := preload("res://scripts/ui/accessibility_settings.
 const ThemeTokens := preload("res://scripts/ui/theme_tokens.gd")
 const UiText := preload("res://scripts/ui/ui_text.gd")
 const RestorationPresentation := preload("res://scripts/world/restoration_presentation.gd")
+const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 
 const MENU_PATH: String = "res://scenes/menu/main_menu.tscn"
 const HOST_TICK_SECONDS: float = 0.1
@@ -29,6 +30,10 @@ var accessibility: AccessibilityPanel
 var settings: AccessibilitySettings
 var _world: Node3D
 var _world_fx: RestorationPresentation
+var _store: OfflinePersistence
+var _save_enabled: bool = false
+var _save_issue: String = ""
+var _restored_view: Dictionary = {}
 var _overlay: Control
 var _pause_panel: PanelContainer
 var _complete_panel: PanelContainer
@@ -61,10 +66,39 @@ func _ready() -> void:
 	if not errors.is_empty():
 		push_error("OFFLINE_C01_SETUP_FAILED: %s" % str(errors))
 		return
+	_store = OfflinePersistence.new()
+	var identity: Dictionary = _store.initialize()
+	_save_enabled = bool(identity.get("ok", false))
+	if not _save_enabled:
+		_save_issue = str(identity.get("code", "IDENTITY_ERROR"))
+	var resume: bool = bool(get_tree().get_meta("offline_resume", false))
+	get_tree().remove_meta("offline_resume")
+	if _save_enabled and resume:
+		var restored: Dictionary = _store.restore_into(session)
+		if restored.get("ok", false) and restored.get("available", false):
+			_restored_view = restored["view"]
+			if not (restored.get("issues", []) as Array).is_empty():
+				_save_issue = "Recovered from %s: %s" % [restored.get("source", ""),
+					str(restored.get("issues", []))]
+		else:
+			_save_enabled = false
+			_save_issue = str(restored.get("code", "MISSING_CHECKPOINT"))
+	if not _restored_view.is_empty():
+		_apply_restored_view(_restored_view)
 	session.set_tool(TOOL_LIST[_slot - 1])
 	_world_fx = RestorationPresentation.new()
 	_world_fx.setup(_world)
 	_make_ui()
+	if bool(identity.get("ok", false)):
+		var preference_result: Dictionary = _store.read_preferences(settings)
+		if not preference_result.get("ok", false):
+			_save_issue = str(preference_result.get("code", "BAD_PROFILE"))
+		else:
+			_settings_changed(settings.snapshot(), false)
+	if _save_issue != "":
+		_status.text = UiText.tf("offline.status.save_unavailable", [_save_issue])
+	if _save_enabled and not resume:
+		_save_checkpoint()
 	session.changed.connect(_refresh_hud)
 	session.action_replied.connect(_on_action_replied)
 	session.mission_event.connect(_on_mission_event)
@@ -73,6 +107,30 @@ func _ready() -> void:
 	session.set_in_van_zone(_last_position_zone)
 	_refresh_hud()
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	if session.completed():
+		_finish()
+
+
+func _apply_restored_view(view: Dictionary) -> void:
+	var p: Array = view["position_cm"]
+	player.global_position = Vector3(float(p[0]), float(p[1]), float(p[2])) / 100.0
+	player.rotation.y = float(view["yaw_millirad"]) / 1000.0
+	player.camera.rotation.x = float(view["pitch_millirad"]) / 1000.0
+	_slot = int(view["tool_slot"])
+	player.carrying = session.equipment.carrier_of(OfflineSession.GENERATOR) == OfflineSession.PLAYER_ID
+
+
+func _save_checkpoint() -> void:
+	if not _save_enabled or session == null or player == null:
+		return
+	var yaw: int = roundi(wrapf(player.rotation.y, -PI, PI) * 1000.0)
+	var pitch: int = roundi(player.camera.rotation.x * 1000.0)
+	var result: Dictionary = _store.write_checkpoint(session, player.position_cm(), yaw, pitch, _slot)
+	if not result.get("ok", false):
+		_save_enabled = false
+		_save_issue = str(result.get("code", "SAVE_ERROR"))
+		if _status != null:
+			_status.text = UiText.tf("offline.status.save_unavailable", [_save_issue])
 
 
 static func _json(path: String) -> Dictionary:
@@ -343,6 +401,7 @@ func _select_slot(number: int) -> void:
 	_slot = wrapi(number - 1, 0, TOOL_LIST.size()) + 1
 	session.set_tool(TOOL_LIST[_slot - 1])
 	_refresh_hud()
+	_save_checkpoint()
 
 
 func _send_heartbeats() -> void:
@@ -374,6 +433,8 @@ func _on_action_replied(envelope: Dictionary, reply: Dictionary) -> void:
 			onboarding.observe("repair_restored")
 	if kind == "place_item":
 		player.carrying = session.equipment.carrier_of(OfflineSession.GENERATOR) == OfflineSession.PLAYER_ID
+	if ["repair_step", "place_item", "toggle_switch", "recover_self", "request_extract"].has(kind):
+		_save_checkpoint()
 
 
 static func _action_verb(kind: String) -> String:
@@ -394,10 +455,14 @@ func _on_mission_event(event: Dictionary) -> void:
 			_status.text = UiText.t("offline.status.drain")
 		"verified":
 			_status.text = UiText.t("offline.status.verified")
+			_save_checkpoint()
 		"trip":
 			_status.text = UiText.t("offline.status.trip")
 		"mission_complete":
+			_save_checkpoint()
 			_finish()
+		"checkpoint_due":
+			_save_checkpoint()
 
 
 func _refresh_hud() -> void:
@@ -438,6 +503,7 @@ func _toggle_pause() -> void:
 	player.set_controls_active(not _paused)
 	_pause_panel.visible = _paused
 	if _paused:
+		_save_checkpoint()
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		_resume_button.grab_focus()
 	else:
@@ -454,10 +520,15 @@ func _toggle_accessibility() -> void:
 	accessibility.visible = not accessibility.visible
 
 
-func _settings_changed(_values: Dictionary) -> void:
+func _settings_changed(_values: Dictionary, persist: bool = true) -> void:
 	settings.apply_to_views(hud, tablet)
 	onboarding.set_hints_enabled(bool(settings.value("hints_enabled")))
 	_refresh_hud()
+	if persist and _store != null and _store.account_key != "":
+		var result: Dictionary = _store.write_preferences(settings)
+		if not result.get("ok", false):
+			_save_issue = str(result.get("code", "PROFILE_WRITE_ERROR"))
+			_status.text = UiText.tf("offline.status.save_unavailable", [_save_issue])
 
 
 func _recover_player() -> void:
@@ -491,5 +562,6 @@ func _finish() -> void:
 
 
 func _exit_to_menu() -> void:
+	_save_checkpoint()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	get_tree().change_scene_to_file(MENU_PATH)
