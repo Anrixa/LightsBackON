@@ -28,6 +28,9 @@ else
   echo "skipped: reference/tests not present"
 fi
 
+echo "== F02 real-network evidence validator unit tests (preflight only) =="
+if [ -n "$PY" ]; then "$PY" -m unittest discover -s tests/python -p 'test_*.py' -v || FAIL=1; fi
+
 echo "== godot =="
 if [ -f project.godot ] && [ -z "$GODOT_BIN" ]; then
   echo "FAIL: Godot 4.7.2 not found; set GODOT_BIN to the console exe (see docs/PC-RUNBOOK.md A.3)"; FAIL=1
