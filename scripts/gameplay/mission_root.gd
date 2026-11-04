@@ -91,7 +91,7 @@ func _make_lighting() -> void:
 	var sun: DirectionalLight3D = DirectionalLight3D.new()
 	sun.name = "Sun"
 	sun.light_color = Color(str(visual["sun_color"]))
-	sun.light_energy = float(visual["sun_energy"])
+	sun.light_energy = float(visual["sun_energy_percent"]) / 100.0
 	var sun_angles: Array = visual["sun_rotation_deg"]
 	sun.rotation_degrees = Vector3(float(sun_angles[0]), float(sun_angles[1]), float(sun_angles[2]))
 	add_child(sun)
@@ -270,7 +270,7 @@ func _physics_process(delta: float) -> void:
 	if _heartbeat_accumulator >= float(_interaction["lock_heartbeat_timeout_ticks"]) / 20.0:
 		_heartbeat_accumulator = 0.0
 		_send_heartbeats()
-	if player.global_position.y < float(_solo_tuning["player"]["fall_recovery_y_m"]):
+	if player.global_position.y < float(_solo_tuning["player"]["fall_recovery_cm"]) / 100.0:
 		_recover_player()
 
 
