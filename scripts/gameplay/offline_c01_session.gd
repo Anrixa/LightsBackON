@@ -30,6 +30,8 @@ const PROTOCOL_VERSION: int = 1
 const PUMP_ROUTE: String = "E_TEMP_PUMP"
 const GENERATOR: String = "GEN_PORTABLE"
 const PUMP_LATCH: String = "LATCH_PUMP_DRAIN"
+const EAST_REPAIR_ID: String = "R_JE_TRUNK"
+const EAST_WORK_MARKER: String = "TRUNK_JE"
 const TOOL_LIST: Array[String] = ["meter", "screwdriver", "puller", "cutter", "crimper"]
 
 var grid: PowerGrid
@@ -42,6 +44,7 @@ var outbox: IntentOutbox
 var _content: Dictionary = {}
 var _markers: Dictionary = {}
 var _repairs_by_panel: Dictionary = {}
+var _repair_targets: Dictionary = {}
 var _tuning: Dictionary = {}
 var _solo_tuning: Dictionary = {}
 var _tick: int = 0
@@ -73,10 +76,13 @@ func setup(range_check: Callable, position_of: Callable) -> Array[Dictionary]:
 	_solo_tuning = _json("res://content/offline_solo.json")
 	_markers.clear()
 	_repairs_by_panel.clear()
+	_repair_targets.clear()
 	for record: Dictionary in _content["world"]["markers"]:
 		_markers[str(record["id"])] = record
 	for repair: Dictionary in _content["repairs"]["repairs"]:
 		_repairs_by_panel[str(repair["panel"])] = repair
+		var point: String = EAST_WORK_MARKER if str(repair["id"]) == EAST_REPAIR_ID else str(repair["panel"])
+		_repair_targets[point] = repair
 
 	var errors: Array[Dictionary] = []
 	grid = PowerGrid.new()
@@ -204,12 +210,14 @@ func interact(target: String, tool: String) -> Dictionary:
 func action_for(target: String, tool: String) -> Dictionary:
 	if target == "ZONE_VAN":
 		return extraction_action()
-	if _repairs_by_panel.has(target):
-		var repair: Dictionary = _repairs_by_panel[target]
+	if _repair_targets.has(target):
+		var repair: Dictionary = _repair_targets[target]
 		var state: String = interaction.repair_state(str(repair["id"]))
 		if state == "restored":
 			return {"kind": "inspect", "entity": target, "payload": {}}
-		if not meter.readings(target, grid)["_panel"].has("tick"):
+		if not meter.readings(str(repair["panel"]), grid)["_panel"].has("tick"):
+			if target != str(repair["panel"]):
+				return {"blocked": UiText.t("offline.measure_junction_first")}
 			if tool != "meter":
 				return {"blocked": UiText.t("offline.select_meter")}
 			return {"kind": "inspect", "entity": target, "payload": {}}
@@ -223,6 +231,10 @@ func action_for(target: String, tool: String) -> Dictionary:
 		if required != "" and required != tool:
 			return {"blocked": UiText.tf("offline.select_tool", [UiText.t("tool." + required)])}
 		return {"kind": "repair_step", "entity": str(repair["id"]), "payload": {"step": step}}
+	if _repairs_by_panel.has(target) and meter.has_panel(target):
+		if tool != "meter":
+			return {"blocked": UiText.t("offline.select_meter")}
+		return {"kind": "inspect", "entity": target, "payload": {}}
 	if target == GENERATOR:
 		return _generator_action()
 	if target == "VAN_BAY" or target == "PAD_PUMP" or target == "STORE_PUMP_HOUSE":
@@ -250,9 +262,9 @@ func prompt_for(target: String, tool: String) -> Dictionary:
 	if target == "ZONE_VAN":
 		object_key = "offline.object.van"
 		verb_key = "offline.verb.depart"
-	elif _repairs_by_panel.has(target):
-		var record: Dictionary = _repairs_by_panel[target]
-		object_key = str(record["name_key"])
+	elif _repair_targets.has(target):
+		var record: Dictionary = _repair_targets[target]
+		object_key = "offline.object.exposed_trunk" if target == EAST_WORK_MARKER else "node.c01.jw"
 		var state: String = interaction.repair_state(str(record["id"]))
 		detail = UiText.t("status.repair." + state)
 		verb_key = "offline.verb.repair"
@@ -260,6 +272,9 @@ func prompt_for(target: String, tool: String) -> Dictionary:
 			verb_key = "offline.verb.measure"
 		elif str(plan.get("kind", "")) == "request_lock":
 			verb_key = "offline.verb.lock"
+	elif _repairs_by_panel.has(target) and meter.has_panel(target):
+		object_key = "node.c01.je" if target == "PANEL_JE" else "node.c01.jw"
+		verb_key = "offline.verb.measure"
 	elif target == GENERATOR:
 		object_key = "equipment.generator"
 		verb_key = "offline.verb." + str((plan.get("payload", {}) as Dictionary).get("action", "interact"))
@@ -317,7 +332,7 @@ func targets() -> Array[Dictionary]:
 	for id: String in _markers:
 		var marker: Dictionary = _markers[id]
 		var kind: String = str(marker["kind"])
-		if kind == "panel" and not _repairs_by_panel.has(id):
+		if kind == "panel" and not (_repair_targets.has(id) or meter.has_panel(id)):
 			continue
 		if kind == "anchor" and equipment.carrier_of(GENERATOR) != PLAYER_ID:
 			continue
@@ -332,12 +347,10 @@ func targets() -> Array[Dictionary]:
 
 func entity_position(entity: String) -> Vector3:
 	var marker_id: String = entity
-	if _repairs_by_panel.has(entity):
-		marker_id = entity
-	elif entity.begins_with("R_"):
+	if entity.begins_with("R_"):
 		for repair: Dictionary in _content["repairs"]["repairs"]:
 			if str(repair["id"]) == entity:
-				marker_id = str(repair["panel"])
+				marker_id = EAST_WORK_MARKER if entity == EAST_REPAIR_ID else str(repair["panel"])
 				break
 	elif entity == GENERATOR:
 		var anchor: String = equipment.anchor_of(GENERATOR)
