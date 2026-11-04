@@ -206,6 +206,8 @@
     "offline.status.drain": "Pump house drained. The east repair can now be accessed.",
     "offline.status.verified": "Grid supply stable for 10 seconds. Stow the generator and return to the van.",
     "offline.status.trip": "Breaker protection tripped. Check the measured network before resetting.",
-    "offline.status.recovered": "Returned to the van. The network and completed repairs were preserved."
+    "offline.status.recovered": "Returned to the van. The network and completed repairs were preserved.",
+    "offline.measure_junction_first": "Read the JE junction meter before working on the exposed trunk.",
+    "offline.object.exposed_trunk": "Exposed cable work point"
   }
 }
