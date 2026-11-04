@@ -32,6 +32,7 @@ const ACTIONS: Dictionary = {
 	"tool_radial": [["joy_button", JOY_BUTTON_RIGHT_SHOULDER, 0]],
 	"drop_item": [["key", KEY_G, 0], ["joy_button", JOY_BUTTON_X, 0]],
 	"map_meter": [["key", KEY_TAB, 0], ["joy_button", JOY_BUTTON_BACK, 0]],
+	"onboarding_hint": [["key", KEY_H, 0], ["joy_button", JOY_BUTTON_DPAD_UP, 0]],
 	"ping": [["mouse", MOUSE_BUTTON_MIDDLE, 0], ["joy_button", JOY_BUTTON_LEFT_SHOULDER, 0]],
 	"sprint": [["key", KEY_SHIFT, 0], ["joy_button", JOY_BUTTON_LEFT_STICK, 0]],
 	"crouch": [["key", KEY_CTRL, 0], ["joy_button", JOY_BUTTON_RIGHT_STICK, 0]],
