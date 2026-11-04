@@ -100,11 +100,30 @@ func test_V01_authored_targets_map_to_real_markers() -> void:
 	for record: Dictionary in entities:
 		ids.append(str(record["id"]))
 		assert_false((record["position"] as Vector3) == Vector3.INF)
-	assert_true(ids.has("GEN_PORTABLE") and ids.has("PANEL_JW") and ids.has("PANEL_JE"))
+	assert_true(ids.has("GEN_PORTABLE") and ids.has("PANEL_JW") and ids.has("PANEL_JE") and ids.has("TRUNK_JE"))
 	assert_true(ids.has("SW_SIGN"))
 	assert_false(ids.has("PAD_PUMP"), "pad is only selectable while carrying")
 	assert_true(_session.inside_van(Vector3(4.5, 1.0, 15.0)))
 	assert_false(_session.inside_van(Vector3(60.0, 1.0, 30.0)))
+
+
+
+func test_V01_je_meter_and_basement_trunk_are_different_physical_actions() -> void:
+	assert_eq(_session.entity_position("R_JE_TRUNK"), _session.entity_position("TRUNK_JE"),
+		"host validates the east repair at the drained basement work point")
+	assert_ne(_session.entity_position("TRUNK_JE"), _session.entity_position("PANEL_JE"),
+		"measuring JE is not the same location as the exposed cable")
+	var blocked: Dictionary = _session.action_for("TRUNK_JE", "meter")
+	assert_true(blocked.has("blocked"), "the basement work point cannot diagnose an unseen JE fault")
+	assert_eq(_session.interact("TRUNK_JE", "meter")["code"], "SELECT_TOOL",
+		"a shortcut through the basement cannot provide a fake meter reading")
+	assert_eq(_session.action_for("PANEL_JE", "meter")["kind"], "inspect")
+	assert_true(_session.interact("PANEL_JE", "meter")["ok"])
+	assert_eq(_session.action_for("PANEL_JE", "meter")["kind"], "inspect",
+		"the cabinet remains a meter target, never a remote repair button")
+	assert_eq(_session.action_for("TRUNK_JE", "meter")["entity"], "R_JE_TRUNK")
+	assert_eq(_session.interact("TRUNK_JE", "meter")["code"], "NO_ACCESS",
+		"the basement is not safe to repair until the pump has drained it")
 
 
 func test_V01_windowed_game_has_actual_menu_and_mission_scenes() -> void:
