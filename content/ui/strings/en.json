@@ -208,6 +208,14 @@
     "offline.status.trip": "Breaker protection tripped. Check the measured network before resetting.",
     "offline.status.recovered": "Returned to the van. The network and completed repairs were preserved.",
     "offline.measure_junction_first": "Read the JE junction meter before working on the exposed trunk.",
-    "offline.object.exposed_trunk": "Exposed cable work point"
+    "offline.object.exposed_trunk": "Exposed cable work point",
+    "offline.menu.continue": "CONTINUE SHIFT",
+    "offline.menu.new_shift": "NEW SOLO SHIFT",
+    "offline.menu.no_progress": "No saved shift yet. A local checkpoint is created when you start.",
+    "offline.menu.progress_found": "Saved solo shift found. Continue from your last safe checkpoint.",
+    "offline.menu.save_error": "Local save unavailable (%s). Existing files will not be overwritten.",
+    "offline.menu.replace_title": "Start a new shift?",
+    "offline.menu.replace_warning": "Starting a new shift will replace your current solo checkpoint. A backup of the previous checkpoint is kept. Continue?",
+    "offline.status.save_unavailable": "Saving disabled: %s. Existing progress was not erased."
   }
 }
