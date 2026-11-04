@@ -11,11 +11,16 @@ var start_button: Button
 var continue_button: Button
 var _store: OfflinePersistence
 var _save_available: bool = false
+var _tokens: Dictionary = {}
+var _scroll: ScrollContainer
+var _panel: PanelContainer
+var _margin: MarginContainer
 
 
 func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	var tokens: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://content/ui/tokens.json"))
+	_tokens = tokens
 	theme = ThemeTokens.build(tokens)
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
@@ -25,22 +30,31 @@ func _ready() -> void:
 	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(background)
 
-	var middle: CenterContainer = CenterContainer.new()
-	middle.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(middle)
+	# The menu contains localized multi-line guidance and three actions. A fixed
+	# centered panel clips those controls at smaller windows and text sizes.
+	# Scroll only when necessary, and follow keyboard/controller focus.
+	_scroll = ScrollContainer.new()
+	_scroll.name = "MenuScroll"
+	_scroll.follow_focus = true
+	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	_scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(_scroll)
 
-	var panel: PanelContainer = PanelContainer.new()
-	panel.custom_minimum_size = Vector2(620.0, 500.0)
-	middle.add_child(panel)
-	var margin: MarginContainer = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 44)
-	margin.add_theme_constant_override("margin_right", 44)
-	margin.add_theme_constant_override("margin_top", 42)
-	margin.add_theme_constant_override("margin_bottom", 42)
-	panel.add_child(margin)
+	var middle: CenterContainer = CenterContainer.new()
+	middle.name = "MenuCenter"
+	middle.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	middle.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_scroll.add_child(middle)
+
+	_panel = PanelContainer.new()
+	_panel.name = "MenuPanel"
+	middle.add_child(_panel)
+	_margin = MarginContainer.new()
+	_panel.add_child(_margin)
 	var layout: VBoxContainer = VBoxContainer.new()
 	layout.add_theme_constant_override("separation", 18)
-	margin.add_child(layout)
+	_margin.add_child(layout)
 
 	var eyebrow: Label = Label.new()
 	eyebrow.text = UiText.t("offline.menu.subtitle")
@@ -110,8 +124,27 @@ func _ready() -> void:
 	quit_button.custom_minimum_size.y = 48.0
 	quit_button.pressed.connect(func() -> void: get_tree().quit())
 	layout.add_child(quit_button)
+	resized.connect(func() -> void: _layout_for_size(size))
+	_layout_for_size(size)
 	(continue_button if _save_available else start_button).grab_focus()
 
+
+## Treat 620 px as a maximum, not a fixed minimum. Preserve a safe border
+## and let the actions remain scrollable at narrow resolutions.
+func _layout_for_size(viewport_size: Vector2) -> void:
+	if _scroll == null or _panel == null or _margin == null:
+		return
+	var safe: int = ThemeTokens.safe_area(_tokens, viewport_size)
+	var available_width: float = maxf(220.0, viewport_size.x - float(safe * 2))
+	var panel_width: float = minf(620.0, available_width)
+	_scroll.offset_left = float(safe)
+	_scroll.offset_top = float(safe)
+	_scroll.offset_right = -float(safe)
+	_scroll.offset_bottom = -float(safe)
+	_panel.custom_minimum_size = Vector2(panel_width, 0.0)
+	var inset: int = mini(44, maxi(14, roundi(panel_width * 0.06)))
+	for side: String in ["left", "right", "top", "bottom"]:
+		_margin.add_theme_constant_override("margin_" + side, inset)
 
 
 func _request_new_shift() -> void:
