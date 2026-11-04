@@ -27,5 +27,14 @@
       0
     ],
     "sun_energy_percent": 135
+  },
+  "restoration": {
+    "dark_glass_color": "#1E3444",
+    "grid_glass_color": "#FFD180",
+    "temporary_glass_color": "#A5DBF4",
+    "pane_width_cm": 150,
+    "pane_height_cm": 150,
+    "light_range_cm": 480,
+    "light_energy_percent": 55
   }
 }
