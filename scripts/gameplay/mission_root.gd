@@ -7,6 +7,7 @@ const WorldScene := preload("res://scenes/world/alder_street.tscn")
 const PlayerController := preload("res://scripts/actors/first_person_controller.gd")
 const OfflineSession := preload("res://scripts/gameplay/offline_c01_session.gd")
 const TargetSelector := preload("res://scripts/interaction/target_selector.gd")
+const InteractionVisibility := preload("res://scripts/interaction/interaction_visibility.gd")
 const FieldHud := preload("res://scripts/ui/field_hud.gd")
 const NetworkTablet := preload("res://scripts/ui/network_tablet.gd")
 const OnboardingCard := preload("res://scripts/ui/onboarding_card.gd")
@@ -338,7 +339,11 @@ func _physics_process(delta: float) -> void:
 
 func _update_target() -> void:
 	var aim: Camera3D = player.camera
-	var selected: String = TargetSelector.select(aim.global_position, -aim.global_transform.basis.z, session.targets(),
+	var candidates: Array[Dictionary] = []
+	for candidate: Dictionary in session.targets():
+		if _can_see(candidate["position"], float(candidate["radius"])):
+			candidates.append(candidate)
+	var selected: String = TargetSelector.select(aim.global_position, -aim.global_transform.basis.z, candidates,
 		float(_interaction["ray_length_cm"]) / 100.0, float(_interaction["aim_assist_cone_deg"]))
 	if selected == "" and session.in_van_zone() and (session.mission.verified() or
 			int(session.mission.canonical_state()["countdown_left"]) >= 0):
@@ -356,7 +361,16 @@ func _in_range(player_id: String, entity: String) -> bool:
 	var target_position: Vector3 = session.entity_position(entity)
 	if target_position == Vector3.INF:
 		return false
-	return player.camera.global_position.distance_to(target_position) <= float(_interaction["ray_length_cm"]) / 100.0
+	return _can_see(target_position, session.radius_for(entity))
+
+
+## The same physics sight check gates both prompt candidates and host commands.
+func _can_see(target_position: Vector3, radius_m: float) -> bool:
+	if player == null or player.camera == null:
+		return false
+	var space: PhysicsDirectSpaceState3D = get_world_3d().direct_space_state
+	return InteractionVisibility.can_reach(space, player.camera.global_position, target_position,
+		float(_interaction["ray_length_cm"]) / 100.0, radius_m, [player.get_rid()] as Array[RID])
 
 
 func _position_cm(player_id: String) -> Vector3i:
@@ -382,8 +396,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		_select_slot(_slot + 1)
 	elif event.is_action_pressed("tool_prev"):
 		_select_slot(_slot - 1)
+	elif event.is_action_pressed("drop_item"):
+		if session.equipment.carrier_of(OfflineSession.GENERATOR) == OfflineSession.PLAYER_ID:
+			session.command("place_item", OfflineSession.GENERATOR, {"action": "drop"})
 	else:
-		for i: int in range(4):
+		for i: int in range(TOOL_LIST.size()):
 			if event.is_action_pressed("tool_slot_" + str(i + 1)):
 				_select_slot(i + 1)
 				break
