@@ -15,6 +15,10 @@ var carrying: bool = false
 var _movement: Dictionary = {}
 var _tuning: Dictionary = {}
 var _look: Dictionary = {}
+var _camera_rest_position: Vector3 = Vector3.ZERO
+var _reduce_camera_motion: bool = true
+var _step_phase: float = 0.0
+var _camera_bob_y: float = 0.0
 
 
 func _ready() -> void:
@@ -38,6 +42,7 @@ func _ready() -> void:
 	camera.position.y = float(dimensions["camera_height_cm"]) / 100.0 - body_height_m * 0.5
 	camera.fov = float(_look["fov_deg"])
 	camera.current = true
+	_camera_rest_position = camera.position
 	add_child(camera)
 
 	collision_layer = 1
@@ -55,6 +60,25 @@ func set_controls_active(active: bool) -> void:
 	if not active:
 		velocity.x = 0.0
 		velocity.z = 0.0
+		_reset_camera_motion()
+
+
+## Only cosmetic displacement is suppressed; look/pitch and movement remain available.
+func set_reduce_camera_motion(reduced: bool) -> void:
+	_reduce_camera_motion = reduced
+	if reduced:
+		_reset_camera_motion()
+
+
+func camera_motion_offset_y() -> float:
+	return _camera_bob_y
+
+
+func _reset_camera_motion() -> void:
+	_step_phase = 0.0
+	_camera_bob_y = 0.0
+	if camera != null:
+		camera.position = _camera_rest_position
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -91,8 +115,22 @@ func _physics_process(delta: float) -> void:
 	var before: Vector3 = global_position
 	move_and_slide()
 	var horizontal: Vector2 = Vector2(global_position.x - before.x, global_position.z - before.z)
+	_update_camera_motion(delta, horizontal.length())
 	if horizontal.length_squared() > 0.000001:
 		moved.emit()
+
+
+## Distance-driven walking bob; no gameplay transform or aiming rotation changes.
+func _update_camera_motion(delta: float, walked_m: float) -> void:
+	if camera == null or _reduce_camera_motion:
+		return
+	var moving: bool = walked_m > 0.0 and is_on_floor()
+	if moving:
+		_step_phase += walked_m * float(ProjectSettings.get_setting("a04_presentation/camera_bob_cycles_per_meter")) * TAU
+	var target: float = sin(_step_phase) * float(ProjectSettings.get_setting("a04_presentation/camera_bob_amplitude_cm")) / 100.0 if moving else 0.0
+	var weight: float = minf(1.0, delta * float(ProjectSettings.get_setting("a04_presentation/camera_bob_smoothing_per_second")))
+	_camera_bob_y = lerpf(_camera_bob_y, target, weight)
+	camera.position = _camera_rest_position + Vector3(0.0, _camera_bob_y, 0.0)
 
 
 func _pitch(delta_radians: float) -> void:

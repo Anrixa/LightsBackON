@@ -738,7 +738,7 @@
       "status": "CLOUD_VERIFIED",
       "evidence_file": "docs/evidence/A04.md",
       "pending_local": [
-        "Apply camera-motion and reduced-flash preferences to live camera/VFX effect producers and verify those effects on physical hardware (profile persistence and UI reflow are wired as of PR #39)",
+        "Repeat live camera bob suppression and monotone reduced-flash restoration on physical Windows GPU; confirm status remains legible during power recovery and settings change mid-transition (PR #43 cloud automation does not qualify hardware)",
         "UX01 human/controller-only onboarding and first-repair discoverability test, including 150% readability",
         "V07 dependency remains CLOUD_VERIFIED pending V01/G08 two-peer gates"
       ]

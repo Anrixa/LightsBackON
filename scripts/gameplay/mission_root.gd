@@ -334,6 +334,26 @@ func _on_viewport_size_changed() -> void:
 
 ## Keep panels inside the same authored safe area as the HUD. The pause
 ## controls scroll when necessary rather than expanding beyond a small screen.
+## Keep the tutorial in the center gap between top-corner HUD cards.
+## At small viewports, shrink it without moving the reticle or controls.
+func _layout_onboarding(screen_size: Vector2) -> void:
+	if onboarding == null:
+		return
+	var effective: float = ThemeTokens.effective_percent(int(settings.value("ui_scale_percent")), screen_size)
+	var safe: float = float(ThemeTokens.safe_area(_ui_tokens, screen_size))
+	var side: float = float(ThemeTokens.px(420.0, effective))
+	var gap_width: float = maxf(screen_size.x * 0.23, screen_size.x - 2.0 * side - 2.0 * safe)
+	var width: float = minf(560.0 * effective / 100.0, gap_width)
+	var height: float = minf(260.0 * effective / 100.0, screen_size.y * 0.44)
+	onboarding.offset_left = -width * 0.5
+	onboarding.offset_right = width * 0.5
+	onboarding.offset_top = safe
+	onboarding.offset_bottom = safe + height
+	if _status != null:
+		_status.offset_top = safe + height + 8.0
+		_status.offset_bottom = _status.offset_top + float(ThemeTokens.px(50.0, effective))
+
+
 func _layout_modal_panels(screen_size: Vector2) -> void:
 	if _pause_panel == null or _complete_panel == null:
 		return
@@ -359,6 +379,17 @@ func _input(event: InputEvent) -> void:
 		hud.set_device(inferred)
 	if tablet != null:
 		tablet.set_device(inferred)
+	if onboarding != null:
+		onboarding.set_device(inferred)
+
+
+## Effects and onboarding are presentation only; mission simulation retains its
+## fixed authoritative tick in _physics_process.
+func _process(delta: float) -> void:
+	if _world_fx != null:
+		_world_fx.advance(delta)
+	if onboarding != null and not _paused and not _finished and tablet != null and not tablet.visible:
+		onboarding.advance_idle(delta)
 
 
 func _physics_process(delta: float) -> void:
@@ -434,7 +465,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if _paused or tablet.visible:
 		return
-	if event.is_action_pressed("map_meter"):
+	if event.is_action_pressed("onboarding_hint"):
+		onboarding.show_hint()
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("map_meter"):
 		_open_tablet()
 	elif event.is_action_pressed("interact") or event.is_action_pressed("tool_primary"):
 		_interact()
@@ -598,6 +632,13 @@ func _toggle_accessibility() -> void:
 func _settings_changed(_values: Dictionary, persist: bool = true) -> void:
 	settings.apply_to_views(hud, tablet)
 	accessibility.refresh()
+	if player != null:
+		player.set_reduce_camera_motion(bool(settings.value("reduce_camera_motion")))
+	if _world_fx != null:
+		_world_fx.set_reduce_flashes(bool(settings.value("reduce_flashes")))
+	if onboarding != null:
+		onboarding.set_ui_scale(int(settings.value("ui_scale_percent")))
+		_layout_onboarding(get_viewport().get_visible_rect().size)
 	if _pause_panel != null and _complete_panel != null:
 		var effective: float = ThemeTokens.effective_percent(int(settings.value("ui_scale_percent")),
 			get_viewport().get_visible_rect().size)
