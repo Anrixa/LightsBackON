@@ -26,6 +26,16 @@ bash tools/run_tests.sh
 
 The Windows CI uses `tools/setup_godot_windows.sh` and `tools/run_tests.sh` through Git Bash. See `.github/workflows/ci.yml` for the exact environment and export pipeline.
 
+## Offline-first playable C01 (Steam not required)
+
+The Windows build now has a **Start Solo Shift** entry point. The boot scene keeps its log and internal save-soak mode, then opens a windowed main menu. Select **Start Solo Shift** to enter the authored Alder Street graybox as a colliding first-person worker, with the field HUD, network tablet, onboarding hints, and local pause/accessibility menu. All power and repair state transitions still pass through the existing authoritative C01 host command handlers. Steam mode remains disabled and unqualified.
+
+To run from a checked-out Godot 4.7.2 project, open `project.godot` and press **F6** in the boot scene or **F5** to run the main project. In a Windows export, launch `LightsBackOn.exe` normally (without `--headless`). The export templates and exact verification commands are in `docs/PC-RUNBOOK.md`.
+
+Controls in this development build: WASD / left stick to move, mouse / right stick to look, E / south face button or primary tool to interact, mouse wheel or 1–4 to select a tool, Tab / left shoulder for the network tablet, and Esc / menu button to pause. Physical repair actions depend on meter evidence, repair locks, isolation, the selected tool, and host validation; generator placement and extraction use authored world pads/zones. UI presentation settings are currently session-local, and camera/VFX preferences await actual live effect producers.
+
+**Acceptance boundary:** CI's headless scene instantiation and known-solution trace are not proof of controller feel, visual performance, real-world reachability, or co-op. Steam F02/F06, G08, V09 and human UX gates remain outstanding. No account or Steamworks access is needed for this offline development route.
+
 ## Source layout
 
 | Path | Purpose |

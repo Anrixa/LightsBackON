@@ -1,9 +1,10 @@
 extends Node
 ## Boot scene (F01 placeholder). Logs the build identity so an exported build can be matched to its manifest.
-## Real boot flow (profile load, Steam init, main menu) arrives with later tasks.
+## Windowed solo builds enter the main menu. Headless CI keeps the reproducible boot log and save-soak hooks.
 
 const SaveSoak := preload("res://scripts/persistence/save_soak.gd")
 const MANIFEST_PATH: String = "res://build_manifest.json"
+const MENU_PATH: String = "res://scenes/menu/main_menu.tscn"
 
 
 func _ready() -> void:
@@ -11,6 +12,10 @@ func _ready() -> void:
 	var mode: String = SaveSoak.requested_mode(OS.get_cmdline_user_args())
 	if mode != "":
 		_run_save_soak(mode)
+	elif DisplayServer.get_name() != "headless":
+		# The exported headless smoke retains the same boot line; only a real
+		# windowed launch enters the playable offline-first main menu.
+		get_tree().call_deferred("change_scene_to_file", MENU_PATH)
 
 
 ## G06 kill test hooks (internal builds only; see save_soak.gd).
