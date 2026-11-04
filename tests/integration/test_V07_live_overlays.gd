@@ -99,6 +99,23 @@ func test_V07_pause_settings_controller_focus_is_explicit_and_back_is_hierarchic
 		"hidden pause controls cannot keep controller focus")
 
 
+func test_V07_restored_minimum_ui_scale_enters_accessibility_on_enabled_button() -> void:
+	var model: RefCounted = _scene.get("settings")
+	var panel: PanelContainer = _scene.get("accessibility")
+	assert_true(model.call("set_value", "ui_scale_percent", 80))
+	_scene.call("_settings_changed", model.call("snapshot"), false)
+	assert_true((panel.get("scale_down") as Button).disabled, "scale-down disabled at its 80% lower bound")
+	assert_false((panel.get("scale_up") as Button).disabled)
+	assert_eq((panel.get("scale_label") as Label).text, UiText.tf("accessibility.scale", [80]),
+		"the panel reflects actual loaded preferences, not startup defaults")
+	_scene.call("_toggle_pause")
+	_scene.call("_toggle_accessibility")
+	assert_eq(_tree.root.gui_get_focus_owner(), panel.get("scale_up"),
+		"controller focus enters on the first enabled action at the lower bound")
+	_scene.call("_toggle_pause")
+	_scene.call("_toggle_pause")
+
+
 func test_V07_paused_or_open_tablet_never_sends_a_world_interaction() -> void:
 	var session: RefCounted = _scene.get("session")
 	var grid: RefCounted = session.get("grid")
