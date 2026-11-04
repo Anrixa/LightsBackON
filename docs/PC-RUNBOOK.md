@@ -301,6 +301,42 @@ This is the most important test in the whole plan. You need:
 - A **phone with a mobile hotspot**, so PC 2 is on a different network from PC 1.
 - A USB stick (or another private way to copy a folder to PC 2).
 
+### D.0 Qualification record and evidence integrity (before testing)
+
+F02 still requires owner approval for any Steam extension, test App ID, or Steamworks interaction. The repository's existing Steam mode intentionally returns STEAM_NOT_QUALIFIED until the real gate passes. **Do not use an unapproved extension, App ID 480, or any paid Steamworks feature.**
+
+On PC 1, after updating the canonical repository, create a new, initially failing observation record in Git Bash:
+
+```bash
+cd /c/LightsBackOn
+py -3 tools/f02_evidence.py init build/f02/F02-record.json
+py -3 tools/f02_evidence.py verify build/f02/F02-record.json
+```
+
+The second command **must fail** on the blank record. This is expected and proves that an absent real test cannot be reported as qualified. The record lives in the ignored `build/` directory. No account identifiers, public IP addresses, unredacted screenshots, Steam credentials or `steam_appid.txt` belong in Git.
+
+After the approved Steam spike has produced real observations, copy **redacted** text logs into `build/f02/logs/`. Edit `build/f02/F02-record.json` to capture:
+
+- Exact Godot version and Godot binary SHA-256; export-template SHA-256; extension name, source revision, license and binary SHA-256; peer class and Steamworks runtime version.
+- Exported Windows EXE/PCK hashes and build ID, plus candidate A/B/C actually tested.
+- Independently observed PC/account/friends-only/network conditions, confirmed by the tester without recording public IPs.
+- A `PASS` or `FAIL` for each of the seven named tests, each with a relative `logs/<file>.txt` attachment and SHA-256 of its exact bytes.
+- Explicit human review of the original two-network observations and log redaction.
+
+For each redacted log file, calculate the digest in PowerShell:
+
+```powershell
+(Get-FileHash -Algorithm SHA256 -LiteralPath "C:\LightsBackOn\build\f02\logs\example.txt").Hash.ToLowerInvariant()
+```
+
+Once complete, re-run:
+
+```bash
+py -3 tools/f02_evidence.py verify build/f02/F02-record.json
+```
+
+`F02_RECORD_STRUCTURALLY_COMPLETE` means only that the record is complete, hashes match, and obvious account/network identifiers were not left in text logs. **It cannot verify that the devices, Steam accounts or networks actually differed.** The tester must inspect the original evidence before marking F02 DONE; the status remains BLOCKED otherwise.
+
 ### D.1 Prepare PC 2 (about 15 minutes)
 1. **Do (on PC 2):** install Steam and sign in with the **second** Steam account.
 2. **Do (on both PCs):** in Steam click **Friends** > **Add a Friend**, and add the other account. Accept the request on the other PC.
@@ -358,6 +394,9 @@ This only checks that the program starts; it does **not** count as the real test
 5. **If an item fails:** tell Claude on PC 1 exactly which item and what happened. Claude may fix it or switch to candidate B; then repeat D.4 and D.5.
 
 ### D.6 Record and save (PC 1)
+
+Before submitting evidence, run the D.0 validator again and retain the exact output. Its success is a *preflight*, not the Steam acceptance result. If any required observation or hash fails, leave F02 BLOCKED; do not put passwords, raw account IDs, IP addresses or unredacted logs in the PR.
+
 1. **Do:** paste your Notepad results into the Claude session and say:
    ```
    Here are the two-network results. Write docs/evidence/F02.md, pin the tuple in the manifest, set F02 DONE only if every item passed,
