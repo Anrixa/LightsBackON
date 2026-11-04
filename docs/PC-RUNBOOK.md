@@ -120,6 +120,16 @@ You can stop after any session and continue another day. Sessions A-C need only 
 
 ## Session B: get the code and run every test (about 15 minutes)
 
+**After the 5 Nov 2026 organization transfer:** this repository is `Anrixa/LightsBackON`. For an existing local checkout, in Git Bash first run:
+
+```bash
+cd /c/LightsBackOn
+git remote set-url origin https://github.com/Anrixa/LightsBackON.git
+git remote -v
+```
+
+The fetch and push `origin` addresses must both reference `Anrixa/LightsBackON`. For a fresh clone, use the canonical URL shown in B.1. Do not rerun the original bootstrap or push directly to `main`; use a task branch and PR.
+
 ### B.1 Get the project
 1. **Do:** in Git Bash, check whether you already have the project:
    ```
@@ -128,7 +138,7 @@ You can stop after any session and continue another day. Sessions A-C need only 
    - If it lists files (`CLAUDE.md`, `docs`, ...), go to step 2.
    - If it says "No such file or directory", type:
      ```
-     git clone https://github.com/AnrixaLabs/LightsBackON.git /c/LightsBackOn
+     git clone https://github.com/Anrixa/LightsBackON.git /c/LightsBackOn
      ```
      (A browser window may ask you to sign in to GitHub: sign in and allow access.) Then skip to step 3.
 2. **Do:** update it:
@@ -268,7 +278,7 @@ You can stop after any session and continue another day. Sessions A-C need only 
    git commit -m "F01: local Windows launch evidence; F01, G01-G03 DONE"
    git push -u origin task/F01-local-launch
    ```
-   **You should see:** the last command prints a link like `https://github.com/AnrixaLabs/LightsBackON/pull/new/task/F01-local-launch`.
+   **You should see:** the last command prints a link like `https://github.com/Anrixa/LightsBackON/pull/new/task/F01-local-launch`.
 2. **Do:** open that link in your browser. Click **Create pull request**, then **Create pull request** again.
 3. **Do:** wait about 2 minutes. On the PR page, the checks **linux** and **windows** turn into green ticks.
 4. **Do:** click **Merge pull request** > **Confirm merge**.

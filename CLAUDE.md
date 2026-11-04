@@ -2,7 +2,7 @@
 
 A Windows/Steam game in which 1-4 players (or one) restore a storm-damaged neighborhood by diagnosing and repairing an
 abstract power network. Godot 4.7.2 (standard, not .NET), typed GDScript. Owner: Levon (Anrixa).
-Repo: github.com/AnrixaLabs/LightsBackON. Local checkout: `C:\LightsBackOn`.
+Repo: github.com/Anrixa/LightsBackON. Local checkout: `C:\LightsBackOn`.
 
 **State today (30 Oct 2026):** grid, repair, save, mission, sync and reward logic exist as headless-tested GDScript (G01-G03 and F01 DONE,
 the rest of F/G/V logic CLOUD_VERIFIED). F02 (Steam, two PCs) is BLOCKED on a second Steam account, so work continues in **local desktop
