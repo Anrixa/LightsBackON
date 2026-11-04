@@ -1,12 +1,12 @@
 {
   "_note": "Offline-first Alder Street C01 playable-scene settings. Steam qualification and network gates remain unchanged.",
   "player": {
-    "look_sensitivity": 0.0024,
+    "look_microradians_per_pixel": 2400,
     "pitch_min_deg": -80,
     "pitch_max_deg": 80,
-    "gravity_m_s2": 9.8,
-    "fall_recovery_y_m": -6,
-    "pad_look_rad_s": 2.4
+    "gravity_cm_s2": 980,
+    "fall_recovery_cm": -600,
+    "pad_look_milliradians_per_second": 2400
   },
   "selection_radius_cm": {
     "panel": 48,
@@ -21,11 +21,11 @@
     "environment_color": "#324A5B",
     "ambient_color": "#829DB0",
     "sun_color": "#FFF0D7",
-    "sun_energy": 1.35,
     "sun_rotation_deg": [
       -53,
       24,
       0
-    ]
+    ],
+    "sun_energy_percent": 135
   }
 }
