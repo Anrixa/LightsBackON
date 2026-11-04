@@ -40,7 +40,7 @@
       "id": "DS02",
       "title": "Comparative research sampling and rubric",
       "issue": "https://github.com/Anrixa/LightsBackON/issues/45",
-      "status": "NOT_STARTED",
+      "status": "CLOUD_VERIFIED",
       "target_date": "2026-11-12",
       "depends_on": [
         "DS01"
@@ -49,6 +49,16 @@
         "20-30 genuinely deep-scored candidate titles or explain shortfall",
         "Up to 1000 metadata-screened only if verifiably collected",
         "Transferable design decisions with citations and confidence"
+      ],
+      "verified_source_sample": 28,
+      "deep_scored_sample": 28,
+      "evidence_file": "docs/evidence/DS02.md",
+      "result_file": "docs/design/DS02-comparative-report.md",
+      "raw_sources_file": "docs/design/DS02-source-sample.json",
+      "verified_branch_head": "85958e7503f880d5b6a2789d29d71a0f8eab450f",
+      "pending_acceptance": [
+        "DS01 remains IN_PROGRESS until real GPU/controller menu screenshots and human visual review are recorded",
+        "DS02 source-only relevance observations do not establish firsthand gameplay, accessibility or GTX1650 performance"
       ]
     },
     {
