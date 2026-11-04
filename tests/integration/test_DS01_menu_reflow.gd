@@ -37,12 +37,16 @@ func test_DS01_primary_and_secondary_actions_remain_focusable() -> void:
 	var tree: SceneTree = Engine.get_main_loop() as SceneTree
 	var menu: Control = MenuScene.instantiate() as Control
 	tree.root.add_child(menu)
-	var start: Button = menu.get_node("MenuScroll/MenuCenter/MenuPanel/MarginContainer/VBoxContainer/StartButton") as Button
-	var resume: Button = menu.get_node("MenuScroll/MenuCenter/MenuPanel/MarginContainer/VBoxContainer/ContinueButton") as Button
-	assert_true(start != null and resume != null, "new and continue actions retain their IDs")
-	assert_eq(start.focus_mode, Control.FOCUS_ALL)
-	assert_eq(resume.focus_mode, Control.FOCUS_ALL)
-	menu.call("_layout_for_size", Vector2(440.0, 350.0))
-	assert_true(start.is_inside_tree() and resume.is_inside_tree(), "reflow does not remove actions")
+	var start: Button = menu.get("start_button") as Button
+	var resume: Button = menu.get("continue_button") as Button
+	assert_true(start != null and resume != null, "menu exposes both shift actions")
+	if start != null and resume != null:
+		assert_eq(start.focus_mode, Control.FOCUS_ALL)
+		assert_eq(resume.focus_mode, Control.FOCUS_ALL)
+		var scroll: ScrollContainer = menu.get_node("MenuScroll") as ScrollContainer
+		assert_true(scroll.is_ancestor_of(start) and scroll.is_ancestor_of(resume),
+			"shift actions participate in the focus-following scroll area")
+		menu.call("_layout_for_size", Vector2(440.0, 350.0))
+		assert_true(start.is_inside_tree() and resume.is_inside_tree(), "reflow does not remove actions")
 	tree.root.remove_child(menu)
 	menu.free()
