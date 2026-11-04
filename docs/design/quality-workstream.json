@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "title": "Lights Back On professional visual/UX hardening",
+  "created_utc": "2026-11-05",
+  "canonical_backlog": "docs/backlog.json",
+  "canonical_tasks_unmodified": true,
+  "parent_issue": "https://github.com/Anrixa/LightsBackON/issues/42",
+  "planning_note": "Dates are goals, not automation jobs. Dependency-blocked targets are relative to verified project gates, and the owner's physical Windows test is required for visual qualification.",
+  "visual_identity": {
+    "name": "Stormglass / Civic Revival",
+    "description": "Readable cool rainy blue-hour worksite contrasted with warm powered windows, honest temporary/grid/dark states and tangible repair tools.",
+    "constraints": [
+      "ADR-004 tokens and original licensed assets",
+      "Godot Compatibility renderer / GTX 1650 baseline",
+      "No false host-authoritative power lighting",
+      "WCAG AA rendered contrast and 48px targets",
+      "Reduce Flashes/Camera Motion immediately and after reload",
+      "No Steam account for offline milestones"
+    ]
+  },
+  "tasks": [
+    {
+      "id": "DS01",
+      "title": "Sourced benchmark and live menu accessibility/reflow",
+      "issue": "https://github.com/Anrixa/LightsBackON/issues/44",
+      "status": "IN_PROGRESS",
+      "target_date": "2026-11-08",
+      "depends_on": [
+        "V07",
+        "A04"
+      ],
+      "acceptance": [
+        "Initial benchmark logs actual verified sample",
+        "Menu scrolls in short windows; focus follows actions",
+        "Headless tests + Linux/Windows CI pass",
+        "Human GPU screenshots recorded later"
+      ]
+    },
+    {
+      "id": "DS02",
+      "title": "Comparative research sampling and rubric",
+      "issue": "https://github.com/Anrixa/LightsBackON/issues/45",
+      "status": "NOT_STARTED",
+      "target_date": "2026-11-12",
+      "depends_on": [
+        "DS01"
+      ],
+      "acceptance": [
+        "20-30 genuinely deep-scored candidate titles or explain shortfall",
+        "Up to 1000 metadata-screened only if verifiably collected",
+        "Transferable design decisions with citations and confidence"
+      ]
+    },
+    {
+      "id": "DS03",
+      "title": "Alder Street original art benchmark",
+      "issue": "https://github.com/Anrixa/LightsBackON/issues/46",
+      "status": "BLOCKED_ON_GATE",
+      "target_after": "V09+7 working days",
+      "depends_on": [
+        "V09",
+        "A01",
+        "D01"
+      ],
+      "acceptance": [
+        "State-accurate day/dark/restored screenshots",
+        "Original licensed art and palette consistency",
+        "Exported Windows GTX1650 P95 and memory results",
+        "Owner visual review"
+      ]
+    },
+    {
+      "id": "DS04",
+      "title": "Authoritative power-return and safe effects",
+      "issue": "https://github.com/Anrixa/LightsBackON/issues/47",
+      "status": "NOT_STARTED",
+      "target_date_code": "2026-11-16",
+      "target_after_hardware": "V09",
+      "depends_on": [
+        "A02",
+        "A04"
+      ],
+      "acceptance": [
+        "No host-authority bypass",
+        "Immediate persisted reduced-flash/motion states",
+        "Headless tests and owner/GPU verification"
+      ]
+    },
+    {
+      "id": "DS05",
+      "title": "Controller, onboarding and localization usability",
+      "issue": "https://github.com/Anrixa/LightsBackON/issues/48",
+      "status": "NOT_STARTED",
+      "target_date_code": "2026-11-19",
+      "target_after_human": "V09",
+      "depends_on": [
+        "V07",
+        "A04",
+        "H03"
+      ],
+      "acceptance": [
+        "All menu actions keyboard/controller accessible",
+        "80-150% + 35% pseudo-locale/720p reflow",
+        "Physical controller-only UX01 first repair",
+        "Rendered contrast and meaningful game feedback"
+      ]
+    },
+    {
+      "id": "DS06",
+      "title": "Professional launch imagery and visual gate",
+      "issue": "https://github.com/Anrixa/LightsBackON/issues/49",
+      "status": "BLOCKED_ON_GATE",
+      "target_after": "DS03+DS05+10 working days",
+      "depends_on": [
+        "DS03",
+        "DS05",
+        "D01",
+        "D06",
+        "B05"
+      ],
+      "acceptance": [
+        "Approved original artwork provenance/license record",
+        "Images match actual build and implemented features",
+        "Owner and real-hardware screenshots + performance gate",
+        "No publishing actions without owner request"
+      ]
+    }
+  ]
+}
