@@ -164,13 +164,13 @@ func test_V07_pause_overlay_reflows_and_scrolls_at_small_viewports() -> void:
 		_scene.call("_layout_modal_panels", size)
 		var rect: Rect2 = pause.get_rect()
 		var restored: Rect2 = (_scene.get("_complete_panel") as PanelContainer).get_rect()
-		var safe: float = float(_scene._ui_tokens["safe_area_px"]) * minf(size.x / 1920.0, size.y / 1080.0)
+		var safe: float = float((_scene.get("_ui_tokens") as Dictionary)["safe_area_px"]) * minf(size.x / 1920.0, size.y / 1080.0)
 		var allowed: Vector2 = size - Vector2(safe, safe) * 2.0
 		assert_true(rect.size.x <= allowed.x + 2.0 and rect.size.y <= allowed.y + 2.0,
 			"pause fits %s: %s inside %s" % [size, rect, allowed])
 		assert_true(restored.size.x <= allowed.x + 2.0 and restored.size.y <= allowed.y + 2.0,
 			"results fit %s" % str(size))
-	_scene.call("_layout_modal_panels", _scene.get_viewport_rect().size)
+	_scene.call("_layout_modal_panels", _scene.get_viewport().get_visible_rect().size)
 
 
 func test_V07_headless_scene_tests_cannot_replace_windowed_player_progress() -> void:
