@@ -5,7 +5,8 @@
     "pitch_min_deg": -80,
     "pitch_max_deg": 80,
     "gravity_m_s2": 9.8,
-    "fall_recovery_y_m": -6.0
+    "fall_recovery_y_m": -6,
+    "pad_look_rad_s": 2.4
   },
   "selection_radius_cm": {
     "panel": 48,
