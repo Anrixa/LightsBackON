@@ -1,0 +1,62 @@
+{
+  "_note": "A04. Presentation preferences and a non-spoiler, event-driven first-repair tutorial; no authoritative gameplay changes.",
+  "settings_schema": 1,
+  "defaults": {
+    "ui_scale_percent": 100,
+    "reduce_camera_motion": true,
+    "reduce_flashes": true,
+    "hints_enabled": true
+  },
+  "ui_scale_percent": {
+    "min": 80,
+    "max": 150,
+    "step": 10
+  },
+  "idle_hint_seconds": [
+    20,
+    45,
+    90
+  ],
+  "steps": [
+    {
+      "id": "MOVE",
+      "event": "player_moved",
+      "text_key": "guide.step.move",
+      "hint_keys": [
+        "guide.hint.move.1",
+        "guide.hint.move.2",
+        "guide.hint.move.3"
+      ]
+    },
+    {
+      "id": "MEASURE",
+      "event": "meter_measured",
+      "text_key": "guide.step.measure",
+      "hint_keys": [
+        "guide.hint.measure.1",
+        "guide.hint.measure.2",
+        "guide.hint.measure.3"
+      ]
+    },
+    {
+      "id": "ISOLATE",
+      "event": "junction_isolated",
+      "text_key": "guide.step.isolate",
+      "hint_keys": [
+        "guide.hint.isolate.1",
+        "guide.hint.isolate.2",
+        "guide.hint.isolate.3"
+      ]
+    },
+    {
+      "id": "REPAIR",
+      "event": "repair_restored",
+      "text_key": "guide.step.repair",
+      "hint_keys": [
+        "guide.hint.repair.1",
+        "guide.hint.repair.2",
+        "guide.hint.repair.3"
+      ]
+    }
+  ]
+}
