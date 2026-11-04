@@ -586,10 +586,9 @@
       "status": "CLOUD_VERIFIED",
       "evidence_file": "docs/evidence/V07.md",
       "pending_local": [
-        "UX01: a person runs the HUD and network tablet controller-only (stick focus, pan, zoom, evidence scroll feel)",
-        "V01 is CLOUD_VERIFIED (waits on G08)",
-        "wire the HUD into MissionRoot once it exists",
-        "deferred owner looks, provisionally approved 30 Oct 2026: objective icons and 150 % readability (docs/PC-WORK.md section 5)"
+        "UX01: a person runs the live HUD, network tablet, pause/accessibility and scroll controls with a physical controller; measure focus/pan/zoom/evidence scroll feel and 150% readability",
+        "V01 is CLOUD_VERIFIED (waits on real G08 two-peer gate), so the V07 acceptance ceiling remains CLOUD_VERIFIED",
+        "Owner review of actual windowed UI captures/objective icons and the 150% scaled responsive overlays; provisional screen references approved 30 Oct 2026 (docs/PC-WORK.md section 5)"
       ]
     },
     {
