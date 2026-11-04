@@ -14,6 +14,7 @@ const AccessibilityPanel := preload("res://scripts/ui/accessibility_panel.gd")
 const AccessibilitySettings := preload("res://scripts/ui/accessibility_settings.gd")
 const ThemeTokens := preload("res://scripts/ui/theme_tokens.gd")
 const UiText := preload("res://scripts/ui/ui_text.gd")
+const RestorationPresentation := preload("res://scripts/world/restoration_presentation.gd")
 
 const MENU_PATH: String = "res://scenes/menu/main_menu.tscn"
 const HOST_TICK_SECONDS: float = 0.1
@@ -27,6 +28,7 @@ var onboarding: OnboardingCard
 var accessibility: AccessibilityPanel
 var settings: AccessibilitySettings
 var _world: Node3D
+var _world_fx: RestorationPresentation
 var _overlay: Control
 var _pause_panel: PanelContainer
 var _complete_panel: PanelContainer
@@ -60,6 +62,8 @@ func _ready() -> void:
 		push_error("OFFLINE_C01_SETUP_FAILED: %s" % str(errors))
 		return
 	session.set_tool(TOOL_LIST[_slot - 1])
+	_world_fx = RestorationPresentation.new()
+	_world_fx.setup(_world)
 	_make_ui()
 	session.changed.connect(_refresh_hud)
 	session.action_replied.connect(_on_action_replied)
@@ -400,6 +404,8 @@ func _refresh_hud() -> void:
 	if hud == null or session == null:
 		return
 	hud.apply(session.hud_view(_slot, _target, TOOL_LIST[_slot - 1]))
+	if _world_fx != null:
+		_world_fx.apply(session.host_state(), session.mission.is_latched(OfflineSession.PUMP_LATCH))
 
 
 func _refresh_tablet() -> void:
