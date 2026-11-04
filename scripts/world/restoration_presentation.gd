@@ -39,8 +39,8 @@ func setup(world: Node3D) -> void:
 	_grid = Color(str(d["grid_glass_color"]))
 	_temporary = Color(str(d["temporary_glass_color"]))
 	_max_energy = float(d["light_energy_percent"]) / 100.0
-	_normal_duration = float(d["normal_transition_ms"]) / 1000.0
-	_reduced_duration = float(d["reduced_transition_ms"]) / 1000.0
+	_normal_duration = float(ProjectSettings.get_setting("a04_presentation/normal_transition_ms")) / 1000.0
+	_reduced_duration = float(ProjectSettings.get_setting("a04_presentation/reduced_transition_ms")) / 1000.0
 	var glass: QuadMesh = QuadMesh.new()
 	glass.size = Vector2(float(d["pane_width_cm"]), float(d["pane_height_cm"])) / 100.0
 	for service: String in SERVICES:
