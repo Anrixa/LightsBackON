@@ -43,7 +43,7 @@ func test_G06_local_checkpoint_resume_preserves_causes_and_discards_stale_measur
 	assert_true(_session.command("request_lock", "R_JW_FUSE")["ok"])
 	for tool_and_step: Array in [["", "diagnose"], ["", "isolate"], ["screwdriver", "open"],
 			["puller", "remove"], ["puller", "install"], ["", "close"], ["meter", "test"], ["", "restore"]]:
-		assert_true(_session.set_tool(str(tool_and_step[0]))["ok"])
+		assert_true(_session.command("equip", "", {"tool": str(tool_and_step[0])})["ok"])
 		assert_true(_session.command("repair_step", "R_JW_FUSE", {"step": str(tool_and_step[1])})["ok"])
 		_session.tick_once()
 	assert_true(_session.grid.canonical_state()["nodes"]["APT_W"]["supplied"])
@@ -155,14 +155,18 @@ func test_G06_menu_has_separate_continue_and_new_shift_and_pause_saves() -> void
 	assert_true(menu != null and mission != null)
 	if menu == null or mission == null:
 		return
-	var menu_script: Script = menu.instantiate().get_script()
+	var menu_node: Node = menu.instantiate()
+	var menu_script: Script = menu_node.get_script()
 	assert_true(menu_script != null)
 	assert_true(menu_script.has_method("_continue_shift"))
 	assert_true(menu_script.has_method("_request_new_shift"))
-	var mission_script: Script = mission.instantiate().get_script()
+	var mission_node: Node = mission.instantiate()
+	var mission_script: Script = mission_node.get_script()
 	assert_true(mission_script != null)
 	assert_true(mission_script.has_method("_save_checkpoint"))
 	assert_true(mission_script.has_method("_apply_restored_view"))
+	menu_node.free()
+	mission_node.free()
 
 
 func _fresh_session() -> Offline:
