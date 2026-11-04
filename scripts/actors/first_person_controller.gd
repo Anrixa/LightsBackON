@@ -126,9 +126,9 @@ func _update_camera_motion(delta: float, walked_m: float) -> void:
 		return
 	var moving: bool = walked_m > 0.0 and is_on_floor()
 	if moving:
-		_step_phase += walked_m * float(_look["bob_cycles_per_meter"]) * TAU
-	var target: float = sin(_step_phase) * float(_look["bob_amplitude_cm"]) / 100.0 if moving else 0.0
-	var weight: float = minf(1.0, delta * float(_look["bob_smoothing_per_second"]))
+		_step_phase += walked_m * float(ProjectSettings.get_setting("a04_presentation/camera_bob_cycles_per_meter")) * TAU
+	var target: float = sin(_step_phase) * float(ProjectSettings.get_setting("a04_presentation/camera_bob_amplitude_cm")) / 100.0 if moving else 0.0
+	var weight: float = minf(1.0, delta * float(ProjectSettings.get_setting("a04_presentation/camera_bob_smoothing_per_second")))
 	_camera_bob_y = lerpf(_camera_bob_y, target, weight)
 	camera.position = _camera_rest_position + Vector3(0.0, _camera_bob_y, 0.0)
 
