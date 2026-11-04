@@ -62,16 +62,16 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event is InputEventMouseMotion:
 		var motion: Vector2 = (event as InputEventMouseMotion).relative
-		rotation.y -= motion.x * float(_tuning["look_sensitivity"])
-		_pitch(-motion.y * float(_tuning["look_sensitivity"]))
+		rotation.y -= motion.x * float(_tuning["look_microradians_per_pixel"]) / 1000000.0
+		_pitch(-motion.y * float(_tuning["look_microradians_per_pixel"]) / 1000000.0)
 
 
 func _physics_process(delta: float) -> void:
 	if not enabled:
 		return
 	var pad: Vector2 = Input.get_vector("look_left", "look_right", "look_up", "look_down")
-	rotation.y -= pad.x * float(_tuning["pad_look_rad_s"]) * delta
-	_pitch(-pad.y * float(_tuning["pad_look_rad_s"]) * delta)
+	rotation.y -= pad.x * float(_tuning["pad_look_milliradians_per_second"]) / 1000.0 * delta
+	_pitch(-pad.y * float(_tuning["pad_look_milliradians_per_second"]) / 1000.0 * delta)
 
 	var input_axis: Vector2 = Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	var direction: Vector3 = (global_transform.basis * Vector3(input_axis.x, 0.0, input_axis.y)).normalized()
@@ -85,7 +85,7 @@ func _physics_process(delta: float) -> void:
 	velocity.x = direction.x * float(speed) / 1000.0
 	velocity.z = direction.z * float(speed) / 1000.0
 	if not is_on_floor():
-		velocity.y -= float(_tuning["gravity_m_s2"]) * delta
+		velocity.y -= float(_tuning["gravity_cm_s2"]) / 100.0 * delta
 	elif velocity.y < 0.0:
 		velocity.y = 0.0
 	var before: Vector3 = global_position
