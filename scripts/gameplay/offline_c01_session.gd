@@ -214,7 +214,8 @@ func action_for(target: String, tool: String) -> Dictionary:
 		var repair: Dictionary = _repair_targets[target]
 		var state: String = interaction.repair_state(str(repair["id"]))
 		if state == "restored":
-			return {"kind": "inspect", "entity": target, "payload": {}}
+			# The exposed trunk is not a meter panel. No fake inspection action.
+			return {} if target == EAST_WORK_MARKER else {"kind": "inspect", "entity": target, "payload": {}}
 		if not meter.readings(str(repair["panel"]), grid)["_panel"].has("tick"):
 			if target != str(repair["panel"]):
 				return {"blocked": UiText.t("offline.measure_junction_first")}
