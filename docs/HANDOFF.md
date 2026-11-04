@@ -1,5 +1,7 @@
 # Handoff: how to run Lights Back On with Claude Code (cloud first, then local)
 
+**Canonical repository (5 Nov 2026):** https://github.com/Anrixa/LightsBackON, transferred from `AnrixaLabs/LightsBackON`. The original first-time bootstrap checklist below is archival; do not rerun it against the populated repository. All new branches, PRs and CI must target `Anrixa/LightsBackON`.
+
 Prepared 29 Oct 2026 from Development Blueprint v1.0. **Since 30 Oct 2026 work runs in local Claude Code desktop sessions (ADR-015);
 use prompt P7.** Sections 1-6 describe the original cloud-first plan and stay as history.
 **Git is the shared memory** between cloud and local sessions: the backlog status, `docs/evidence/`, ADRs and the code are what carry over.
@@ -12,8 +14,7 @@ Conversations do not.
    - `docs/blueprint/` : the PDF plus `README.md`, `02-Implementation-Backlog.json`, `03-...md`, `04-...md`, `05-...json`, `06-...md`, `design/*.png`
    - `reference/` : the Python reference model, its `tests/` and `data/first_shift.json`, unchanged
    If you do not have these, say so in the first session; Claude Code will not invent them.
-3. **Decide repo visibility.** `AnrixaLabs/LightsBackON` looked public (it can be cloned anonymously) and is currently empty. The blueprint contains the
-   commercial plan. Claude Code on the web works with private repos through the GitHub connection, so making it private costs nothing.
+3. **Historical repository decision (already completed).** The project originated at `AnrixaLabs/LightsBackON`; the canonical repository is now `Anrixa/LightsBackON` (public as of 5 Nov 2026). Do not repeat the repository initialization, recreate the project or change its visibility without owner approval.
 4. `git add -A && git commit -m "Add blueprint, handoff pack and tooling" && git push -u origin main`. **Cloud sessions only see what is on GitHub**; an empty repo gives them nothing.
 5. **Connect GitHub to Claude Code on the web** (claude.ai/code onboarding with the Claude GitHub App, or `/web-setup` from a terminal that has `gh`),
    then create/keep the **Default** environment with **Trusted** network access. No setup script is needed; the repo's SessionStart hook installs Godot.
