@@ -15,6 +15,8 @@ func _init() -> void:
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(PATH))
 	_config = parsed if parsed is Dictionary else {}
 	_values = (_config.get("defaults", {}) as Dictionary).duplicate(true)
+	# JSON.parse_string decodes numeric literals as floats; the UI scale is an integer setting.
+	_values["ui_scale_percent"] = int(_values["ui_scale_percent"])
 
 
 func value(key: String) -> Variant:
