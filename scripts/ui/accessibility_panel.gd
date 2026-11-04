@@ -32,7 +32,9 @@ func set_settings(model: RefCounted) -> void:
 ## enabled button rather than leaving the controller on a hidden pause action.
 func focus_first() -> void:
 	if is_inside_tree() and is_visible_in_tree():
-		scale_down.grab_focus()
+		# At the 80% minimum the decrement button is disabled. Focus the
+		# increment button instead, so controller entry always succeeds.
+		(scale_up if scale_down.disabled else scale_down).grab_focus()
 
 
 ## Match the actual effective viewport scale of the HUD and tablet and keep
