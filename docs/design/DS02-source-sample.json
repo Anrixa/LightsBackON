@@ -1,0 +1,730 @@
+{
+  "schema_version": 1,
+  "as_of_utc": "2026-11-05",
+  "study_id": "DS02",
+  "method": "Purposive, non-random primary-source storefront review; no gameplay sessions, sales evidence, or large-scale scraping.",
+  "sample_size": {
+    "metadata_screened": 28,
+    "deep_scored": 28,
+    "attempted_1000_candidate_crawl": false
+  },
+  "metric_note": "English and All are kept distinct. Counts and percentages are storefront snapshots, never unit sales, and may change. The scoring is relevance of stated mechanics for Lights Back On, not assessed UX quality.",
+  "rubric_scale": {
+    "0": "No relevant mechanic advertised / verified single-player for co-op axis",
+    "1": "Indirect analogy only",
+    "2": "Partial mechanic overlap",
+    "3": "Strong documented overlap",
+    "4": "Direct prominent overlap with the game's repair/cooperation/restoration goals",
+    "null": "No defensible evidence from the listing (never score absence of observation as failure)"
+  },
+  "rubric_axes": [
+    "task_pattern",
+    "visible_transformation",
+    "tool_or_interaction_identity",
+    "cooperative_task_signals",
+    "accessibility_quality",
+    "hardware_performance"
+  ],
+  "records": [
+    {
+      "steam_app_id": 1290000,
+      "title": "PowerWash Simulator",
+      "source_url": "https://store.steampowered.com/app/1290000/",
+      "source_kind": "Steam product listing",
+      "review_snapshot_utc": "2026-11-05",
+      "review_metric": {
+        "scope": "English",
+        "count": 38627,
+        "positive_percent": 97
+      },
+      "mechanic_family": "restoration",
+      "storefront_observation": "First-person pressure-washing transforms dirty surfaces; online cooperative jobs are listed.",
+      "transfer_hypothesis": "Progressively reveal cleaned areas and expose task completion without pinpointing puzzle solutions.",
+      "rubric": {
+        "task_pattern": 4,
+        "visible_transformation": 4,
+        "tool_or_interaction_identity": 4,
+        "cooperative_task_signals": 3,
+        "accessibility_quality": null,
+        "hardware_performance": null
+      },
+      "confidence": "medium",
+      "confidence_note": "First-party storefront copy and listed features support mechanic relevance; no hands-on, accessibility audit or benchmark was performed."
+    },
+    {
+      "steam_app_id": 1190970,
+      "title": "House Flipper 2",
+      "source_url": "https://store.steampowered.com/app/1190970/",
+      "source_kind": "Steam product listing",
+      "review_snapshot_utc": "2026-11-05",
+      "review_metric": {
+        "scope": "English",
+        "count": 9765,
+        "positive_percent": 86
+      },
+      "mechanic_family": "restoration",
+      "storefront_observation": "Cleaning, renovation and building are offered solo and in 2–4 player online co-op.",
+      "transfer_hypothesis": "Stage before/after changes at neighborhood scale; keep tool actions identifiable.",
+      "rubric": {
+        "task_pattern": 4,
+        "visible_transformation": 4,
+        "tool_or_interaction_identity": 4,
+        "cooperative_task_signals": 3,
+        "accessibility_quality": null,
+        "hardware_performance": null
+      },
+      "confidence": "medium",
+      "confidence_note": "First-party storefront copy and listed features support mechanic relevance; no hands-on, accessibility audit or benchmark was performed."
+    },
+    {
+      "steam_app_id": 1161580,
+      "title": "Hardspace: Shipbreaker",
+      "source_url": "https://store.steampowered.com/app/1161580/",
+      "source_kind": "Steam product listing",
+      "review_snapshot_utc": "2026-11-05",
+      "review_metric": {
+        "scope": "English",
+        "count": 16352,
+        "positive_percent": 89
+      },
+      "mechanic_family": "technical",
+      "storefront_observation": "First-person salvage uses cutting tools to dismantle ships for contracts.",
+      "transfer_hypothesis": "Show a tool's safe work boundary and stage irreversible state changes.",
+      "rubric": {
+        "task_pattern": 4,
+        "visible_transformation": 3,
+        "tool_or_interaction_identity": 4,
+        "cooperative_task_signals": 0,
+        "accessibility_quality": null,
+        "hardware_performance": null
+      },
+      "confidence": "medium",
+      "confidence_note": "First-party storefront copy and listed features support mechanic relevance; no hands-on, accessibility audit or benchmark was performed."
+    },
+    {
+      "steam_app_id": 1644940,
+      "title": "Loddlenaut",
+      "source_url": "https://store.steampowered.com/app/1644940/",
+      "source_kind": "Steam product listing",
+      "review_snapshot_utc": "2026-11-05",
+      "review_metric": {
+        "scope": "English",
+        "count": 3003,
+        "positive_percent": 98
+      },
+      "mechanic_family": "restoration",
+      "storefront_observation": "A custodian removes pollution and helps living creatures recover on an ocean planet.",
+      "transfer_hypothesis": "Give each repaired service an unmistakable environment-level response.",
+      "rubric": {
+        "task_pattern": 3,
+        "visible_transformation": 4,
+        "tool_or_interaction_identity": 3,
+        "cooperative_task_signals": 0,
+        "accessibility_quality": null,
+        "hardware_performance": null
+      },
+      "confidence": "medium",
+      "confidence_note": "First-party storefront copy and listed features support mechanic relevance; no hands-on, accessibility audit or benchmark was performed."
+    },
+    {
+      "steam_app_id": 1190000,
+      "title": "Car Mechanic Simulator 2021",
+      "source_url": "https://store.steampowered.com/app/1190000/",
+      "source_kind": "Steam product listing",
+      "review_snapshot_utc": "2026-11-05",
+      "review_metric": {
+        "scope": "English",
+        "count": 17228,
+        "positive_percent": 95
+      },
+      "mechanic_family": "technical",
+      "storefront_observation": "Service business repairs complex vehicles using equipment; store lists single-player.",
+      "transfer_hypothesis": "Separate inspect, diagnose, open and repair affordances in the HUD.",
+      "rubric": {
+        "task_pattern": 4,
+        "visible_transformation": 3,
+        "tool_or_interaction_identity": 4,
+        "cooperative_task_signals": 0,
+        "accessibility_quality": null,
+        "hardware_performance": null
+      },
+      "confidence": "medium",
+      "confidence_note": "First-party storefront copy and listed features support mechanic relevance; no hands-on, accessibility audit or benchmark was performed."
+    },
+    {
+      "steam_app_id": 1599600,
+      "title": "PlateUp!",
+      "source_url": "https://store.steampowered.com/app/1599600/",
+      "source_kind": "Steam product listing",
+      "review_snapshot_utc": "2026-11-05",
+      "review_metric": {
+        "scope": "English",
+        "count": 12668,
+        "positive_percent": 96
+      },
+      "mechanic_family": "cooperation",
+      "storefront_observation": "Players cook, manage stations and coordinate restaurant tasks with friends.",
+      "transfer_hypothesis": "Expose teammates' station/task ownership in small readable status chips.",
+      "rubric": {
+        "task_pattern": 3,
+        "visible_transformation": 2,
+        "tool_or_interaction_identity": 3,
+        "cooperative_task_signals": 4,
+        "accessibility_quality": null,
+        "hardware_performance": null
+      },
+      "confidence": "medium",
+      "confidence_note": "First-party storefront copy and listed features support mechanic relevance; no hands-on, accessibility audit or benchmark was performed."
+    },
+    {
+      "steam_app_id": 1016920,
+      "title": "Unrailed!",
+      "source_url": "https://store.steampowered.com/app/1016920/",
+      "source_kind": "Steam product listing",
+      "review_snapshot_utc": "2026-11-05",
+      "review_metric": {
+        "scope": "English",
+        "count": 4687,
+        "positive_percent": 94
+      },
+      "mechanic_family": "cooperation",
+      "storefront_observation": "Friends cooperate to construct track and upgrade a train under continuous risk.",
+      "transfer_hypothesis": "Use location-based pings and equipment silhouettes to convey shared work.",
+      "rubric": {
+        "task_pattern": 3,
+        "visible_transformation": 3,
+        "tool_or_interaction_identity": 3,
+        "cooperative_task_signals": 4,
+        "accessibility_quality": null,
+        "hardware_performance": null
+      },
+      "confidence": "medium",
+      "confidence_note": "First-party storefront copy and listed features support mechanic relevance; no hands-on, accessibility audit or benchmark was performed."
+    },
+    {
+      "steam_app_id": 1080020,
+      "title": "Electrician Simulator",
+      "source_url": "https://store.steampowered.com/app/1080020/",
+      "source_kind": "Steam product listing",
+      "review_snapshot_utc": "2026-11-05",
+      "review_metric": {
+        "scope": "English",
+        "count": 1171,
+        "positive_percent": 74
+      },
+      "mechanic_family": "technical",
+      "storefront_observation": "Installs sockets, lays wire and fixes electrical equipment with safety checks.",
+      "transfer_hypothesis": "Make diagnostic observations distinct from repair commands, and signal unsafe preconditions.",
+      "rubric": {
+        "task_pattern": 4,
+        "visible_transformation": 3,
+        "tool_or_interaction_identity": 4,
+        "cooperative_task_signals": 0,
+        "accessibility_quality": null,
+        "hardware_performance": null
+      },
+      "confidence": "medium",
+      "confidence_note": "First-party storefront copy and listed features support mechanic relevance; no hands-on, accessibility audit or benchmark was performed."
+    },
+    {
+      "steam_app_id": 621060,
+      "title": "PC Building Simulator",
+      "source_url": "https://store.steampowered.com/app/621060/",
+      "source_kind": "Steam product listing",
+      "review_snapshot_utc": "2026-11-05",
+      "review_metric": {
+        "scope": "English",
+        "count": 19771,
+        "positive_percent": 94
+      },
+      "mechanic_family": "technical",
+      "storefront_observation": "Players diagnose, repair and assemble PCs with identifiable components.",
+      "transfer_hypothesis": "Use clearly named components and visible instrument results; avoid false zero readings.",
+      "rubric": {
+        "task_pattern": 4,
+        "visible_transformation": 3,
+        "tool_or_interaction_identity": 4,
+        "cooperative_task_signals": 0,
+        "accessibility_quality": null,
+        "hardware_performance": null
+      },
+      "confidence": "medium",
+      "confidence_note": "First-party storefront copy and listed features support mechanic relevance; no hands-on, accessibility audit or benchmark was performed."
+    },
+    {
+      "steam_app_id": 914010,
+      "title": "Train Station Renovation",
+      "source_url": "https://store.steampowered.com/app/914010/",
+      "source_kind": "Steam product listing",
+      "review_snapshot_utc": "2026-11-05",
+      "review_metric": {
+        "scope": "All",
+        "count": 1986,
+        "positive_percent": 84
+      },
+      "mechanic_family": "restoration",
+      "storefront_observation": "Players restore abandoned train stations, progressing across distinct job sites.",
+      "transfer_hypothesis": "Use legible site-wide milestone changes rather than only a completion banner.",
+      "rubric": {
+        "task_pattern": 3,
+        "visible_transformation": 4,
+        "tool_or_interaction_identity": 3,
+        "cooperative_task_signals": 0,
+        "accessibility_quality": null,
+        "hardware_performance": null
+      },
+      "confidence": "medium",
+      "confidence_note": "First-party storefront copy and listed features support mechanic relevance; no hands-on, accessibility audit or benchmark was performed."
+    },
+    {
+      "steam_app_id": 1759870,
+      "title": "The Repair House: Restoration Sim",
+      "source_url": "https://store.steampowered.com/app/1759870/",
+      "source_kind": "Steam product listing",
+      "review_snapshot_utc": "2026-11-05",
+      "review_metric": {
+        "scope": "All",
+        "count": 95,
+        "positive_percent": 52
+      },
+      "mechanic_family": "technical",
+      "storefront_observation": "Players dismantle, clean and refurbish objects with workshop tools.",
+      "transfer_hypothesis": "Prioritize action sequencing, but treat reception as mixed rather than successful-sales evidence.",
+      "rubric": {
+        "task_pattern": 4,
+        "visible_transformation": 3,
+        "tool_or_interaction_identity": 4,
+        "cooperative_task_signals": 0,
+        "accessibility_quality": null,
+        "hardware_performance": null
+      },
+      "confidence": "medium",
+      "confidence_note": "First-party storefront copy and listed features support mechanic relevance; no hands-on, accessibility audit or benchmark was performed."
+    },
+    {
+      "steam_app_id": 246900,
+      "title": "Viscera Cleanup Detail",
+      "source_url": "https://store.steampowered.com/app/246900/",
+      "source_kind": "Steam product listing",
+      "review_snapshot_utc": "2026-11-05",
+      "review_metric": {
+        "scope": "English",
+        "count": 10461,
+        "positive_percent": 92
+      },
+      "mechanic_family": "restoration",
+      "storefront_observation": "First-person janitorial cleanup is available in single-player and online co-op.",
+      "transfer_hypothesis": "Make ownership of cleaning tasks and residual work obvious to collaborators.",
+      "rubric": {
+        "task_pattern": 3,
+        "visible_transformation": 4,
+        "tool_or_interaction_identity": 4,
+        "cooperative_task_signals": 3,
+        "accessibility_quality": null,
+        "hardware_performance": null
+      },
+      "confidence": "medium",
+      "confidence_note": "First-party storefront copy and listed features support mechanic relevance; no hands-on, accessibility audit or benchmark was performed."
+    },
+    {
+      "steam_app_id": 1040200,
+      "title": "Crime Scene Cleaner",
+      "source_url": "https://store.steampowered.com/app/1040200/",
+      "source_kind": "Steam product listing",
+      "review_snapshot_utc": "2026-11-05",
+      "review_metric": {
+        "scope": "English",
+        "count": 15814,
+        "positive_percent": 98
+      },
+      "mechanic_family": "restoration",
+      "storefront_observation": "First-person cleaning jobs reward players for restoring each crime scene.",
+      "transfer_hypothesis": "Show per-area progress grounded in actual state, not decorative percentages.",
+      "rubric": {
+        "task_pattern": 4,
+        "visible_transformation": 4,
+        "tool_or_interaction_identity": 4,
+        "cooperative_task_signals": 0,
+        "accessibility_quality": null,
+        "hardware_performance": null
+      },
+      "confidence": "medium",
+      "confidence_note": "First-party storefront copy and listed features support mechanic relevance; no hands-on, accessibility audit or benchmark was performed."
+    },
+    {
+      "steam_app_id": 1149620,
+      "title": "Gas Station Simulator",
+      "source_url": "https://store.steampowered.com/app/1149620/",
+      "source_kind": "Steam product listing",
+      "review_snapshot_utc": "2026-11-05",
+      "review_metric": {
+        "scope": "English",
+        "count": 10704,
+        "positive_percent": 87
+      },
+      "mechanic_family": "restoration",
+      "storefront_observation": "Players restore and expand an abandoned gas station with several services.",
+      "transfer_hypothesis": "Show the exterior gradually returning to usefulness; avoid scope-heavy economy additions.",
+      "rubric": {
+        "task_pattern": 3,
+        "visible_transformation": 4,
+        "tool_or_interaction_identity": 3,
+        "cooperative_task_signals": 0,
+        "accessibility_quality": null,
+        "hardware_performance": null
+      },
+      "confidence": "medium",
+      "confidence_note": "First-party storefront copy and listed features support mechanic relevance; no hands-on, accessibility audit or benchmark was performed."
+    },
+    {
+      "steam_app_id": 2201940,
+      "title": "Ship Graveyard Simulator 2",
+      "source_url": "https://store.steampowered.com/app/2201940/",
+      "source_kind": "Steam product listing",
+      "review_snapshot_utc": "2026-11-05",
+      "review_metric": {
+        "scope": "English",
+        "count": 2005,
+        "positive_percent": 75
+      },
+      "mechanic_family": "technical",
+      "storefront_observation": "Players use handheld gear to dismantle ships and salvage materials; online co-op listed.",
+      "transfer_hypothesis": "Show tool impact and cooperative shared-object status while keeping repair logic authoritative.",
+      "rubric": {
+        "task_pattern": 3,
+        "visible_transformation": 3,
+        "tool_or_interaction_identity": 4,
+        "cooperative_task_signals": 3,
+        "accessibility_quality": null,
+        "hardware_performance": null
+      },
+      "confidence": "medium",
+      "confidence_note": "First-party storefront copy and listed features support mechanic relevance; no hands-on, accessibility audit or benchmark was performed."
+    },
+    {
+      "steam_app_id": 1650550,
+      "title": "Workshop Simulator",
+      "source_url": "https://store.steampowered.com/app/1650550/",
+      "source_kind": "Steam product listing",
+      "review_snapshot_utc": "2026-11-05",
+      "review_metric": {
+        "scope": "All",
+        "count": 284,
+        "positive_percent": 67
+      },
+      "mechanic_family": "technical",
+      "storefront_observation": "Restoration consists of dismantling, cleaning, sanding and painting objects.",
+      "transfer_hypothesis": "Teach a short clear action ladder with immediate object-level feedback.",
+      "rubric": {
+        "task_pattern": 4,
+        "visible_transformation": 3,
+        "tool_or_interaction_identity": 4,
+        "cooperative_task_signals": 0,
+        "accessibility_quality": null,
+        "hardware_performance": null
+      },
+      "confidence": "medium",
+      "confidence_note": "First-party storefront copy and listed features support mechanic relevance; no hands-on, accessibility audit or benchmark was performed."
+    },
+    {
+      "steam_app_id": 1593030,
+      "title": "Terra Nil",
+      "source_url": "https://store.steampowered.com/app/1593030/",
+      "source_kind": "Steam product listing",
+      "review_snapshot_utc": "2026-11-05",
+      "review_metric": {
+        "scope": "English",
+        "count": 5034,
+        "positive_percent": 85
+      },
+      "mechanic_family": "restoration",
+      "storefront_observation": "Environmental recovery turns wasteland into living ecosystems in a strategy perspective.",
+      "transfer_hypothesis": "Use a cool-to-warm neighborhood transformation without imitating the art style.",
+      "rubric": {
+        "task_pattern": 3,
+        "visible_transformation": 4,
+        "tool_or_interaction_identity": 1,
+        "cooperative_task_signals": 0,
+        "accessibility_quality": null,
+        "hardware_performance": null
+      },
+      "confidence": "medium",
+      "confidence_note": "First-party storefront copy and listed features support mechanic relevance; no hands-on, accessibility audit or benchmark was performed."
+    },
+    {
+      "steam_app_id": 1284190,
+      "title": "The Planet Crafter",
+      "source_url": "https://store.steampowered.com/app/1284190/",
+      "source_kind": "Steam product listing",
+      "review_snapshot_utc": "2026-11-05",
+      "review_metric": {
+        "scope": "English",
+        "count": 38175,
+        "positive_percent": 95
+      },
+      "mechanic_family": "systems",
+      "storefront_observation": "Solo/online players terraform a planet by changing oxygen, heat and pressure.",
+      "transfer_hypothesis": "Show an intermediate temporary-power state separate from full restoration.",
+      "rubric": {
+        "task_pattern": 3,
+        "visible_transformation": 4,
+        "tool_or_interaction_identity": 2,
+        "cooperative_task_signals": 3,
+        "accessibility_quality": null,
+        "hardware_performance": null
+      },
+      "confidence": "medium",
+      "confidence_note": "First-party storefront copy and listed features support mechanic relevance; no hands-on, accessibility audit or benchmark was performed."
+    },
+    {
+      "steam_app_id": 526870,
+      "title": "Satisfactory",
+      "source_url": "https://store.steampowered.com/app/526870/",
+      "source_kind": "Steam product listing",
+      "review_snapshot_utc": "2026-11-05",
+      "review_metric": {
+        "scope": "English",
+        "count": 138728,
+        "positive_percent": 97
+      },
+      "mechanic_family": "systems",
+      "storefront_observation": "First-person solo/co-op factory building exposes interdependent machines and power networks.",
+      "transfer_hypothesis": "Provide a compact readable systems map, not overwhelming numerical telemetry.",
+      "rubric": {
+        "task_pattern": 4,
+        "visible_transformation": 3,
+        "tool_or_interaction_identity": 3,
+        "cooperative_task_signals": 3,
+        "accessibility_quality": null,
+        "hardware_performance": null
+      },
+      "confidence": "medium",
+      "confidence_note": "First-party storefront copy and listed features support mechanic relevance; no hands-on, accessibility audit or benchmark was performed."
+    },
+    {
+      "steam_app_id": 427520,
+      "title": "Factorio",
+      "source_url": "https://store.steampowered.com/app/427520/",
+      "source_kind": "Steam product listing",
+      "review_snapshot_utc": "2026-11-05",
+      "review_metric": {
+        "scope": "English",
+        "count": 118802,
+        "positive_percent": 98
+      },
+      "mechanic_family": "systems",
+      "storefront_observation": "Players arrange and troubleshoot automated factory systems and logistics.",
+      "transfer_hypothesis": "Keep circuit/map consequences causal and distinguish potential from active routes.",
+      "rubric": {
+        "task_pattern": 4,
+        "visible_transformation": 2,
+        "tool_or_interaction_identity": 2,
+        "cooperative_task_signals": 3,
+        "accessibility_quality": null,
+        "hardware_performance": null
+      },
+      "confidence": "medium",
+      "confidence_note": "First-party storefront copy and listed features support mechanic relevance; no hands-on, accessibility audit or benchmark was performed."
+    },
+    {
+      "steam_app_id": 341800,
+      "title": "Keep Talking and Nobody Explodes",
+      "source_url": "https://store.steampowered.com/app/341800/",
+      "source_kind": "Steam product listing",
+      "review_snapshot_utc": "2026-11-05",
+      "review_metric": {
+        "scope": "English",
+        "count": 8144,
+        "positive_percent": 98
+      },
+      "mechanic_family": "cooperation",
+      "storefront_observation": "One person examines a bomb while another guides them with a separate manual.",
+      "transfer_hypothesis": "Build descriptive nonspoiler evidence and teamwork hints without mandatory voice chat.",
+      "rubric": {
+        "task_pattern": 4,
+        "visible_transformation": 1,
+        "tool_or_interaction_identity": 3,
+        "cooperative_task_signals": 4,
+        "accessibility_quality": null,
+        "hardware_performance": null
+      },
+      "confidence": "medium",
+      "confidence_note": "First-party storefront copy and listed features support mechanic relevance; no hands-on, accessibility audit or benchmark was performed."
+    },
+    {
+      "steam_app_id": 1435790,
+      "title": "Escape Simulator",
+      "source_url": "https://store.steampowered.com/app/1435790/",
+      "source_kind": "Steam product listing",
+      "review_snapshot_utc": "2026-11-05",
+      "review_metric": {
+        "scope": "English",
+        "count": 9020,
+        "positive_percent": 95
+      },
+      "mechanic_family": "cooperation",
+      "storefront_observation": "First-person puzzle rooms permit solo or online cooperative object manipulation.",
+      "transfer_hypothesis": "Keep inspection targets and work-state prompts discoverable with controller input.",
+      "rubric": {
+        "task_pattern": 4,
+        "visible_transformation": 2,
+        "tool_or_interaction_identity": 4,
+        "cooperative_task_signals": 3,
+        "accessibility_quality": null,
+        "hardware_performance": null
+      },
+      "confidence": "medium",
+      "confidence_note": "First-party storefront copy and listed features support mechanic relevance; no hands-on, accessibility audit or benchmark was performed."
+    },
+    {
+      "steam_app_id": 865360,
+      "title": "We Were Here Together",
+      "source_url": "https://store.steampowered.com/app/865360/",
+      "source_kind": "Steam product listing",
+      "review_snapshot_utc": "2026-11-05",
+      "review_metric": {
+        "scope": "English",
+        "count": 5027,
+        "positive_percent": 82
+      },
+      "mechanic_family": "cooperation",
+      "storefront_observation": "Two players collaborate on first-person puzzles while separated by challenges.",
+      "transfer_hypothesis": "Support useful pings and shared objective language; no voice-only requirement.",
+      "rubric": {
+        "task_pattern": 4,
+        "visible_transformation": 2,
+        "tool_or_interaction_identity": 2,
+        "cooperative_task_signals": 4,
+        "accessibility_quality": null,
+        "hardware_performance": null
+      },
+      "confidence": "medium",
+      "confidence_note": "First-party storefront copy and listed features support mechanic relevance; no hands-on, accessibility audit or benchmark was performed."
+    },
+    {
+      "steam_app_id": 548430,
+      "title": "Deep Rock Galactic",
+      "source_url": "https://store.steampowered.com/app/548430/",
+      "source_kind": "Steam product listing",
+      "review_snapshot_utc": "2026-11-05",
+      "review_metric": {
+        "scope": "English",
+        "count": 171609,
+        "positive_percent": 97
+      },
+      "mechanic_family": "cooperation",
+      "storefront_observation": "First-person 1–4 player cooperative mining uses class equipment and destructible caves.",
+      "transfer_hypothesis": "Differentiate roles by equipment shape and concise team status without combat systems.",
+      "rubric": {
+        "task_pattern": 3,
+        "visible_transformation": 3,
+        "tool_or_interaction_identity": 4,
+        "cooperative_task_signals": 4,
+        "accessibility_quality": null,
+        "hardware_performance": null
+      },
+      "confidence": "medium",
+      "confidence_note": "First-party storefront copy and listed features support mechanic relevance; no hands-on, accessibility audit or benchmark was performed."
+    },
+    {
+      "steam_app_id": 1458140,
+      "title": "Pacific Drive",
+      "source_url": "https://store.steampowered.com/app/1458140/",
+      "source_kind": "Steam product listing",
+      "review_snapshot_utc": "2026-11-05",
+      "review_metric": {
+        "scope": "English",
+        "count": 14417,
+        "positive_percent": 82
+      },
+      "mechanic_family": "technical",
+      "storefront_observation": "A lone driver scavenges and maintains a vehicle in atmospheric hazardous environments.",
+      "transfer_hypothesis": "Use clearly authored storm conditions and tool-readiness cues; avoid driving scope.",
+      "rubric": {
+        "task_pattern": 3,
+        "visible_transformation": 3,
+        "tool_or_interaction_identity": 3,
+        "cooperative_task_signals": 0,
+        "accessibility_quality": null,
+        "hardware_performance": null
+      },
+      "confidence": "medium",
+      "confidence_note": "First-party storefront copy and listed features support mechanic relevance; no hands-on, accessibility audit or benchmark was performed."
+    },
+    {
+      "steam_app_id": 361420,
+      "title": "ASTRONEER",
+      "source_url": "https://store.steampowered.com/app/361420/",
+      "source_kind": "Steam product listing",
+      "review_snapshot_utc": "2026-11-05",
+      "review_metric": {
+        "scope": "English",
+        "count": 54135,
+        "positive_percent": 91
+      },
+      "mechanic_family": "systems",
+      "storefront_observation": "Solo/online players terraform terrain, build bases and manage resources.",
+      "transfer_hypothesis": "Make power routing visually traceable through spatial installations.",
+      "rubric": {
+        "task_pattern": 3,
+        "visible_transformation": 4,
+        "tool_or_interaction_identity": 3,
+        "cooperative_task_signals": 3,
+        "accessibility_quality": null,
+        "hardware_performance": null
+      },
+      "confidence": "medium",
+      "confidence_note": "First-party storefront copy and listed features support mechanic relevance; no hands-on, accessibility audit or benchmark was performed."
+    },
+    {
+      "steam_app_id": 1856030,
+      "title": "Fresh Start Cleaning Simulator",
+      "source_url": "https://store.steampowered.com/app/1856030/",
+      "source_kind": "Steam product listing",
+      "review_snapshot_utc": "2026-11-05",
+      "review_metric": {
+        "scope": "English",
+        "count": 1501,
+        "positive_percent": 86
+      },
+      "mechanic_family": "restoration",
+      "storefront_observation": "First-person cleanup restores colorful nature with puzzles and growth.",
+      "transfer_hypothesis": "Provide immediate before/after environmental proof of progress.",
+      "rubric": {
+        "task_pattern": 3,
+        "visible_transformation": 4,
+        "tool_or_interaction_identity": 3,
+        "cooperative_task_signals": 0,
+        "accessibility_quality": null,
+        "hardware_performance": null
+      },
+      "confidence": "medium",
+      "confidence_note": "First-party storefront copy and listed features support mechanic relevance; no hands-on, accessibility audit or benchmark was performed."
+    },
+    {
+      "steam_app_id": 544550,
+      "title": "Stationeers",
+      "source_url": "https://store.steampowered.com/app/544550/",
+      "source_kind": "Steam product listing",
+      "review_snapshot_utc": "2026-11-05",
+      "review_metric": {
+        "scope": "English",
+        "count": 5985,
+        "positive_percent": 88
+      },
+      "mechanic_family": "systems",
+      "storefront_observation": "Solo and online builders operate complex atmospheric and electrical space-station systems.",
+      "transfer_hypothesis": "Maintain explicit unknown/measured values and reject unsafe topology actions.",
+      "rubric": {
+        "task_pattern": 4,
+        "visible_transformation": 2,
+        "tool_or_interaction_identity": 3,
+        "cooperative_task_signals": 3,
+        "accessibility_quality": null,
+        "hardware_performance": null
+      },
+      "confidence": "medium",
+      "confidence_note": "First-party storefront copy and listed features support mechanic relevance; no hands-on, accessibility audit or benchmark was performed."
+    }
+  ]
+}
