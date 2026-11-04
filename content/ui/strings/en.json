@@ -216,6 +216,11 @@
     "offline.menu.save_error": "Local save unavailable (%s). Existing files will not be overwritten.",
     "offline.menu.replace_title": "Start a new shift?",
     "offline.menu.replace_warning": "Starting a new shift will replace your current solo checkpoint. A backup of the previous checkpoint is kept. Continue?",
-    "offline.status.save_unavailable": "Saving disabled: %s. Existing progress was not erased."
+    "offline.status.save_unavailable": "Saving disabled: %s. Existing progress was not erased.",
+    "input.pad.dpad_left": "D-pad left",
+    "input.pad.dpad_right": "D-pad right",
+    "input.pad.dpad_up": "D-pad up",
+    "input.pad.dpad_down": "D-pad down",
+    "offline.hud.fifth_tool": "Equipped: %s (slot 5)"
   }
 }
