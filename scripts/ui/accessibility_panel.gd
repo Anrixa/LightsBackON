@@ -28,6 +28,27 @@ func set_settings(model: RefCounted) -> void:
 	_sync()
 
 
+## The pause overlay owns focus; entering settings explicitly focuses its first
+## enabled button rather than leaving the controller on a hidden pause action.
+func focus_first() -> void:
+	if is_inside_tree() and is_visible_in_tree():
+		scale_down.grab_focus()
+
+
+## Match the actual effective viewport scale of the HUD and tablet and keep
+## every control large enough to select by gamepad or mouse.
+func set_ui_scale(percent: int) -> void:
+	var viewport_size: Vector2 = get_viewport_rect().size if is_inside_tree() else ThemeTokens.DESIGN_SIZE
+	var scale: float = ThemeTokens.effective_percent(percent, viewport_size)
+	theme = ThemeTokens.build(_tokens, scale)
+	var height: float = float(ThemeTokens.px(ThemeTokens.BUTTON_HEIGHT_PX, scale))
+	for button: Button in [scale_down, scale_up]:
+		button.custom_minimum_size = Vector2(float(ThemeTokens.px(int(_tokens["min_target_px"]), scale)), height)
+	for toggle: CheckBox in [motion_toggle, flash_toggle, hints_toggle]:
+		toggle.custom_minimum_size.y = height
+		toggle.add_theme_stylebox_override("focus", ThemeTokens.focus_box(_tokens, scale))
+
+
 func _build() -> void:
 	theme = ThemeTokens.build(_tokens)
 	var layout: VBoxContainer = VBoxContainer.new()
@@ -59,6 +80,7 @@ func _build() -> void:
 func _button(parent: Control, title: String) -> Button:
 	var button: Button = Button.new()
 	button.text = title
+	button.focus_mode = Control.FOCUS_ALL
 	button.custom_minimum_size = Vector2(float(_tokens["min_target_px"]), float(ThemeTokens.BUTTON_HEIGHT_PX))
 	parent.add_child(button)
 	return button
@@ -67,6 +89,7 @@ func _button(parent: Control, title: String) -> Button:
 func _toggle(parent: Control, key: String) -> CheckBox:
 	var checkbox: CheckBox = CheckBox.new()
 	checkbox.text = UiText.t(key)
+	checkbox.focus_mode = Control.FOCUS_ALL
 	checkbox.custom_minimum_size.y = ThemeTokens.BUTTON_HEIGHT_PX
 	checkbox.add_theme_stylebox_override("focus", ThemeTokens.focus_box(_tokens, 100.0))
 	parent.add_child(checkbox)
