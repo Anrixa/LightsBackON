@@ -15,6 +15,8 @@ var _lights: Dictionary = {}
 var _materials: Dictionary = {}
 var _last_status: Dictionary = {}
 var _water: Node3D
+var _grid_color: Color
+var _temporary_color: Color
 
 
 func setup(world: Node3D) -> void:
@@ -24,6 +26,8 @@ func setup(world: Node3D) -> void:
 	_last_status.clear()
 	var config: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(CONFIG_PATH))
 	var d: Dictionary = config["restoration"]
+	_grid_color = Color(str(d["grid_glass_color"]))
+	_temporary_color = Color(str(d["temporary_glass_color"]))
 	_materials = {
 		"dark": _material(Color(str(d["dark_glass_color"])), false),
 		"grid": _material(Color(str(d["grid_glass_color"])), true),
@@ -81,9 +85,7 @@ func apply(state: Dictionary, drained: bool) -> void:
 		if _lights.has(service):
 			var light: OmniLight3D = _lights[service]
 			light.visible = next != "dark"
-			light.light_color = Color(str(
-				(JSON.parse_string(FileAccess.get_file_as_string(CONFIG_PATH)) as Dictionary)["restoration"][
-					"temporary_glass_color" if next == "temporary" else "grid_glass_color"]))
+			light.light_color = _temporary_color if next == "temporary" else _grid_color
 	if _water != null:
 		_water.visible = not drained
 
