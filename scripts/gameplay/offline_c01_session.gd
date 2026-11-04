@@ -346,6 +346,17 @@ func targets() -> Array[Dictionary]:
 	return out
 
 
+## Same authored selection radius is used by client reticle and host range verdict.
+func radius_for(entity: String) -> float:
+	if entity == GENERATOR:
+		return _radius("equipment")
+	if entity.begins_with("R_"):
+		return _radius("panel")
+	if _markers.has(entity):
+		return _radius(str((_markers[entity] as Dictionary)["kind"]))
+	return 0.0
+
+
 func entity_position(entity: String) -> Vector3:
 	var marker_id: String = entity
 	if entity.begins_with("R_"):
