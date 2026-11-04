@@ -597,6 +597,7 @@ func _toggle_accessibility() -> void:
 
 func _settings_changed(_values: Dictionary, persist: bool = true) -> void:
 	settings.apply_to_views(hud, tablet)
+	accessibility.refresh()
 	if _pause_panel != null and _complete_panel != null:
 		var effective: float = ThemeTokens.effective_percent(int(settings.value("ui_scale_percent")),
 			get_viewport().get_visible_rect().size)
