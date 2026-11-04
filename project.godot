@@ -179,6 +179,15 @@ tool_slot_5={
 ])
 }
 
+; A04 cosmetic tuning lives outside content/, protecting C01 save content_revision.
+[a04_presentation]
+
+camera_bob_amplitude_cm=1.2
+camera_bob_cycles_per_meter=1.4
+camera_bob_smoothing_per_second=12.0
+normal_transition_ms=420
+reduced_transition_ms=1250
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
