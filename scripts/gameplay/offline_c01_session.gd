@@ -43,6 +43,7 @@ var _content: Dictionary = {}
 var _markers: Dictionary = {}
 var _repairs_by_panel: Dictionary = {}
 var _tuning: Dictionary = {}
+var _solo_tuning: Dictionary = {}
 var _tick: int = 0
 var _last_zone_state: bool = false
 var _position_of: Callable
@@ -69,6 +70,7 @@ func setup(range_check: Callable, position_of: Callable) -> Array[Dictionary]:
 		"comms": _json("res://content/comms.json")
 	}
 	_tuning = _json("res://content/interaction.json")
+	_solo_tuning = _json("res://content/offline_solo.json")
 	_markers.clear()
 	_repairs_by_panel.clear()
 	for record: Dictionary in _content["world"]["markers"]:
@@ -306,6 +308,10 @@ func _generator_action() -> Dictionary:
 
 ## Returns only potentially interactable scene IDs. Equipment uses its authoritative
 ## anchor, never a hard-coded visual duplicate at the starting van.
+func repair_definitions() -> Array:
+	return (_content["repairs"]["repairs"] as Array).duplicate(true)
+
+
 func targets() -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	for id: String in _markers:
@@ -346,8 +352,7 @@ func entity_position(entity: String) -> Vector3:
 
 
 func _radius(kind: String) -> float:
-	var tuning: Dictionary = _json("res://content/offline_solo.json")
-	return float((tuning["selection_radius_cm"] as Dictionary).get(kind, 45)) / 100.0
+	return float((_solo_tuning["selection_radius_cm"] as Dictionary).get(kind, 45)) / 100.0
 
 
 func inside_van(position: Vector3) -> bool:
