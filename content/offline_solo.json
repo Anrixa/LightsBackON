@@ -15,10 +15,7 @@
     "anchor": 60
   },
   "camera": {
-    "fov_deg": 78,
-    "bob_amplitude_cm": 1.2,
-    "bob_cycles_per_meter": 1.4,
-    "bob_smoothing_per_second": 12
+    "fov_deg": 78
   },
   "presentation": {
     "environment_color": "#324A5B",
@@ -38,8 +35,6 @@
     "pane_width_cm": 150,
     "pane_height_cm": 150,
     "light_range_cm": 480,
-    "light_energy_percent": 55,
-    "normal_transition_ms": 420,
-    "reduced_transition_ms": 1250
+    "light_energy_percent": 55
   }
 }
