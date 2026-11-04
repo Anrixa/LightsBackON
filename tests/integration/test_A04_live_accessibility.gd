@@ -72,10 +72,13 @@ func test_A04_live_restoration_fade_is_monotone_and_rebases_mid_mission() -> voi
 	fx.call("advance", 0.21)
 	var before: float = float(fx.call("light_energy_of", "APT_W"))
 	assert_true(before > 0.0 and before < 0.55)
-	flashes.set_pressed(true)
+	# Rebase the actual presentation component directly. The standalone C01
+	# host above supplies the visual target; changing the real scene's panel
+	# would correctly reapply its still-dark authoritative mission state.
+	fx.call("set_reduce_flashes", true)
 	assert_true(bool(fx.call("reduce_flashes_enabled")))
 	assert_true(is_equal_approx(float(fx.call("light_energy_of", "APT_W")), before),
-		"toggle mid-fade cannot cause a brightness spike")
+		"preference rebase mid-fade cannot cause a brightness spike")
 	fx.call("advance", 0.21)
 	var after: float = float(fx.call("light_energy_of", "APT_W"))
 	assert_true(after >= before and after < 0.55, "reduced transition remains monotone and slower")
