@@ -33,8 +33,11 @@ func test_V01_Dpad_cycles_all_five_tools_and_fifth_key_is_present() -> void:
 func test_V01_fifth_tool_is_named_even_when_HUD_only_shows_four_slots() -> void:
 	var tree: SceneTree = Engine.get_main_loop() as SceneTree
 	var hud: FieldHud = FieldHud.new()
-	tree.root.add_child(hud)
+	# This test measures a fixed canvas; unpin FULL_RECT anchors before sizing
+	# it so Godot does not emit the invalid opposite-anchor size warning.
+	hud.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	hud.size = Vector2(1920, 1080)
+	tree.root.add_child(hud)
 	var view: Dictionary = Fixture.worst_hud_view()
 	view["selected_slot"] = 5
 	hud.apply(view)
