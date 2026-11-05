@@ -50,6 +50,8 @@ CASES = {
     "plain_label_lifetime": ["--filter=QA53_plain_labels"],
     "project_label_lifetime": ["--filter=QA53_themed_labels"],
     "dialog_lifetime": ["--filter=QA53_unused_confirmation"],
+    "plain_shaped_labels": ["--filter=QA53_explicitly_shaped_plain"],
+    "project_shaped_labels": ["--filter=QA53_explicitly_shaped_project"],
     "menu_reflow_frame_settled": ["--filter=DS01", "--settle-frames=30"],
     "font_menu_frame_settled": ["--filter=QA53_multiple", "--settle-frames=30"],
 }
