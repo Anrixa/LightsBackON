@@ -221,15 +221,6 @@
     "input.pad.dpad_right": "D-pad right",
     "input.pad.dpad_up": "D-pad up",
     "input.pad.dpad_down": "D-pad down",
-    "offline.hud.fifth_tool": "Equipped: %s (slot 5)",
-    "offline.prompt.next_step": "Next: %s",
-    "repair.step.diagnose": "Diagnose the measured fault",
-    "repair.step.isolate": "Isolate the feed",
-    "repair.step.open": "Open the panel",
-    "repair.step.remove": "Remove the failed part",
-    "repair.step.install": "Fit the replacement",
-    "repair.step.close": "Close the panel",
-    "repair.step.test": "Test the repair",
-    "repair.step.restore": "Restore supply"
+    "offline.hud.fifth_tool": "Equipped: %s (slot 5)"
   }
 }
