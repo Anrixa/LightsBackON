@@ -1,4 +1,4 @@
-# Separate QA51 investigation; the normal release/build CI is unchanged.
+# Separate QA51/QA52 resource investigation; normal release/build CI unchanged.
 # Trigger only on instrument changes or an explicit owner-requested dispatch.
 name: qa51-resource-probe
 
@@ -9,6 +9,9 @@ on:
       - tests/python/test_qa_resource_probe.py
       - scripts/ui/network_tablet.gd
       - scripts/ui/field_hud.gd
+      - scripts/gameplay/offline_c01_session.gd
+      - scripts/gameplay/offline_outbox_bridge.gd
+      - tests/integration/test_QA52_session_lifetime.gd
       - .github/workflows/qa-resource-probe.yml
   workflow_dispatch:
 
