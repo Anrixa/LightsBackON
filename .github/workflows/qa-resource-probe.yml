@@ -13,6 +13,7 @@ on:
       - scripts/gameplay/offline_outbox_bridge.gd
       - tests/integration/test_QA52_session_lifetime.gd
       - tests/integration/test_QA53_font_lifetime.gd
+      - tests/run_tests.gd
       - scripts/ui/theme_tokens.gd
       - scripts/ui/main_menu.gd
       - .github/workflows/qa-resource-probe.yml
