@@ -105,11 +105,15 @@ tests: 2 passed, 0 failed, 10 assertions
         for case, method in stages.items():
             self.assertEqual(CASES[case],
                              ["--dir=res://tests/diagnostics", f"--filter={method}"])
-            # Do not mistake exploratory evidence for zero-memory-growth proof.
-            self.assertEqual(regression_violations(case, {
-                "CanvasItem": 9, "ObjectDB": 99,
-                "ShapedText": 13, "FontRID": 3,
-            }), [])
+            observed = {"CanvasItem": 0, "ObjectDB": 0,
+                        "ShapedText": 0, "FontRID": 0}
+            if case == "qa54_real_no_reflow":
+                observed.update({"ObjectDB": 12, "ShapedText": 2, "FontRID": 1})
+            self.assertEqual(regression_violations(case, observed), [], case)
+            self.assertEqual(regression_violations(
+                case, {**observed, "ObjectDB": observed["ObjectDB"] + 1}),
+                [f"ObjectDB={observed['ObjectDB'] + 1} exceeds {observed['ObjectDB']}"],
+                f"{case} must detect growth above the cross-OS measured limit")
 
     def test_script_error_cannot_be_hidden_by_passing_summary(self):
         parsed = parse_log("SCRIPT ERROR: Invalid set index\ntests: 5 passed, 0 failed, 7 assertions")
