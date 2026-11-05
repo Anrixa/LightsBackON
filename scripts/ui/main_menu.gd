@@ -14,6 +14,7 @@ var _save_available: bool = false
 var _tokens: Dictionary = {}
 var _scroll: ScrollContainer
 var _panel: PanelContainer
+var _heading: Label
 var _margin: MarginContainer
 
 
@@ -59,14 +60,17 @@ func _ready() -> void:
 	var eyebrow: Label = Label.new()
 	eyebrow.text = UiText.t("offline.menu.subtitle")
 	eyebrow.theme_type_variation = "StrongLabel"
+	eyebrow.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	eyebrow.add_theme_color_override("font_color", ThemeTokens.color(tokens, "restored"))
 	layout.add_child(eyebrow)
 
-	var heading: Label = Label.new()
-	heading.text = UiText.t("offline.menu.title")
-	heading.add_theme_font_size_override("font_size", 46)
-	heading.add_theme_color_override("font_color", ThemeTokens.color(tokens, "text"))
-	layout.add_child(heading)
+	_heading = Label.new()
+	_heading.name = "MenuHeading"
+	_heading.text = UiText.t("offline.menu.title")
+	_heading.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_heading.add_theme_font_size_override("font_size", 46)
+	_heading.add_theme_color_override("font_color", ThemeTokens.color(tokens, "text"))
+	layout.add_child(_heading)
 
 	var description: Label = Label.new()
 	description.text = UiText.t("offline.menu.description")
@@ -135,6 +139,12 @@ func _layout_for_size(viewport_size: Vector2) -> void:
 	if _scroll == null or _panel == null or _margin == null:
 		return
 	var safe: int = ThemeTokens.safe_area(_tokens, viewport_size)
+	var effective: float = ThemeTokens.effective_percent(100, viewport_size)
+	# Match the rest of the UI's design-canvas scaling; the original hardcoded
+	# 46px heading remained huge on 720p even when the panel got narrower.
+	theme = ThemeTokens.build(_tokens, effective)
+	if _heading != null:
+		_heading.add_theme_font_size_override("font_size", ThemeTokens.px(46.0, effective))
 	var available_width: float = maxf(220.0, viewport_size.x - float(safe * 2))
 	var panel_width: float = minf(620.0, available_width)
 	_scroll.offset_left = float(safe)

@@ -18,6 +18,7 @@ const FocusScroll := preload("res://scripts/ui/focus_scroll.gd")
 
 const MAP_INTENTS: Array[String] = ["inspect", "ping"]
 const DETAIL_WIDTH_PX: int = 480
+const DETAIL_MAX_CONTENT_FRACTION: float = 0.44
 const SECTION_GAP_PX: int = 16
 const TAB_NETWORK: String = "network"
 const TAB_OBJECTIVES: String = "objectives"
@@ -42,6 +43,7 @@ var _status_text: String = ""
 var _previous_focus: Control = null
 var _detail: VBoxContainer
 var detail_scroll: ScrollContainer
+var _objective_scroll: ScrollContainer
 var _body_left: PanelContainer
 
 
@@ -179,6 +181,7 @@ func _rebuild() -> void:
 		c.queue_free()
 	tab_buttons.clear()
 	zoom_buttons.clear()
+	_objective_scroll = null
 	var s: float = scale_percent
 	var margin: MarginContainer = MarginContainer.new()
 	var safe: int = ThemeTokens.safe_area(tokens, screen_size())
@@ -206,10 +209,14 @@ func _rebuild() -> void:
 	if tab == TAB_NETWORK:
 		_body_left.add_child(map)
 	else:
-		_body_left.add_child(_objective_list())
+		_objective_scroll = _objective_list()
+		_body_left.add_child(_objective_scroll)
 	var detail_panel: PanelContainer = PanelContainer.new()
 	detail_panel.name = "Detail"
-	detail_panel.custom_minimum_size.x = ThemeTokens.px(DETAIL_WIDTH_PX, s)
+	# Keep a usable map at 720p instead of letting the fixed evidence width
+	# consume the available screen once safe margins have been applied.
+	var content_width: float = maxf(1.0, screen_size().x - float(safe * 2))
+	detail_panel.custom_minimum_size.x = minf(ThemeTokens.px(DETAIL_WIDTH_PX, s), content_width * DETAIL_MAX_CONTENT_FRACTION)
 	body.add_child(detail_panel)
 	var detail_box: VBoxContainer = VBoxContainer.new()
 	detail_panel.add_child(detail_box)
@@ -239,7 +246,8 @@ func _rebuild() -> void:
 func _link_focus() -> void:
 	var footer: Array[Button] = []
 	for b: Button in zoom_buttons:
-		footer.append(b)
+		if b.visible:
+			footer.append(b)
 	footer.append(close_button)
 	for i: int in footer.size():
 		if i > 0:
@@ -248,7 +256,7 @@ func _link_focus() -> void:
 			_neighbor(footer[i], SIDE_RIGHT, footer[i + 1])
 		_neighbor(footer[i], SIDE_TOP, ping_button if footer[i].visible and tab == TAB_NETWORK else detail_scroll)
 	var tabs: Array = tab_buttons.values()
-	var first: Control = map.nodes[_view["order"][0]] if tab == TAB_NETWORK else detail_scroll
+	var first: Control = map.nodes[_view["order"][0]] if tab == TAB_NETWORK else _objective_scroll
 	for b: Button in tabs:
 		_neighbor(b, SIDE_BOTTOM, first)
 	_neighbor(tabs[0], SIDE_RIGHT, tabs[1])
@@ -264,7 +272,10 @@ func _link_focus() -> void:
 		map.exits = {SIDE_TOP: tabs[0], SIDE_RIGHT: detail_scroll, SIDE_BOTTOM: footer[0]}
 		map.queue_sort()
 	else:
-		_neighbor(detail_scroll, SIDE_LEFT, tabs[1])
+		_neighbor(_objective_scroll, SIDE_TOP, tabs[1])
+		_neighbor(_objective_scroll, SIDE_RIGHT, detail_scroll)
+		_neighbor(_objective_scroll, SIDE_BOTTOM, close_button)
+		_neighbor(detail_scroll, SIDE_LEFT, _objective_scroll)
 
 
 ## Identify the semantic focused control before rebuilding the tablet. Retain the
@@ -282,6 +293,8 @@ func _focus_token() -> String:
 		return "ping"
 	if current == detail_scroll:
 		return "evidence"
+	if current == _objective_scroll:
+		return "objectives"
 	for key: String in tab_buttons:
 		if current == tab_buttons[key]:
 			return "tab:" + key
@@ -303,6 +316,8 @@ func _restore_focus(token: String) -> void:
 		next = ping_button if ping_button.visible else close_button
 	elif token == "evidence":
 		next = detail_scroll
+	elif token == "objectives":
+		next = _objective_scroll if tab == TAB_OBJECTIVES else detail_scroll
 	elif token.begins_with("tab:"):
 		next = tab_buttons.get(token.trim_prefix("tab:"), null) as Control
 	elif token.begins_with("zoom:"):
@@ -323,7 +338,9 @@ func _neighbor(from: Control, side: Side, to: Control) -> void:
 
 func _header() -> Control:
 	var s: float = scale_percent
-	var row: HBoxContainer = HBoxContainer.new()
+	# Stack title and tabs: a 35% longer pseudo-locale must not push the
+	# Network/Objectives controller tabs out of the viewport at 720p.
+	var row: VBoxContainer = VBoxContainer.new()
 	var titles: VBoxContainer = VBoxContainer.new()
 	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	titles.add_theme_constant_override("separation", ThemeTokens.px(4, s))
@@ -332,8 +349,9 @@ func _header() -> Control:
 	ctx.uppercase = true
 	_label(titles, UiText.t("tablet.title"), "HeaderLarge")
 	_label(titles, UiText.t("tablet.subtitle"), "MutedLabel")
-	var tabs: HBoxContainer = HBoxContainer.new()
-	tabs.size_flags_vertical = Control.SIZE_SHRINK_END
+	var tabs: HFlowContainer = HFlowContainer.new()
+	tabs.name = "Tabs"
+	tabs.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(tabs)
 	var group: ButtonGroup = ButtonGroup.new()
 	for t: String in [TAB_NETWORK, TAB_OBJECTIVES]:
@@ -348,37 +366,53 @@ func _header() -> Control:
 
 
 func _footer() -> Control:
-	var row: HBoxContainer = HBoxContainer.new()
+	# Legends and primary actions get independent wrapping rows. A single
+	# horizontal strip overflows at 720p and with the +35% pseudo-locale.
+	var column: VBoxContainer = VBoxContainer.new()
+	column.add_theme_constant_override("separation", ThemeTokens.px(8, scale_percent))
 	var legend: HFlowContainer = HFlowContainer.new()
 	legend.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	legend.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	legend.add_theme_constant_override("h_separation", ThemeTokens.px(24, scale_percent))
-	row.add_child(legend)
+	column.add_child(legend)
 	for entry: Array in LEGEND:
 		legend.add_child(StatusChip.make(tokens, scale_percent, entry[0], entry[1]))
+	var actions: HFlowContainer = HFlowContainer.new()
+	actions.name = "FooterActions"
+	actions.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	actions.add_theme_constant_override("h_separation", ThemeTokens.px(8, scale_percent))
+	column.add_child(actions)
 	for z: Array in [["tablet.zoom_out", -1], ["tablet.zoom_in", 1]]:
-		var b: Button = _button(row, UiText.t(z[0]))
+		var b: Button = _button(actions, UiText.t(z[0]))
 		b.name = "Zoom_%s" % ("out" if int(z[1]) < 0 else "in")
 		b.pressed.connect(_zoom.bind(int(z[1])))
 		zoom_buttons.append(b)
-	var center: Button = _button(row, UiText.t("tablet.center"))
+	var center: Button = _button(actions, UiText.t("tablet.center"))
 	center.name = "Center"
 	center.pressed.connect(func() -> void: map.center_view())
 	zoom_buttons.append(center)
 	for b: Button in zoom_buttons:
-		b.visible = tab == TAB_NETWORK  # map tools leave with the map rather than sitting disabled without a reason
-	close_button = _button(row, UiText.tf("prompt.binding", [UiText.binding("map_meter", device), UiText.t("tablet.close")]))
+		b.visible = tab == TAB_NETWORK
+	close_button = _button(actions, UiText.tf("prompt.binding", [UiText.binding("map_meter", device), UiText.t("tablet.close")]))
 	close_button.name = "Close"
 	close_button.pressed.connect(close)
-	return row
+	return column
 
 
-func _objective_list() -> Control:
+func _objective_list() -> ScrollContainer:
+	# Objective descriptions can exceed the remaining panel height in pseudo-
+	# locale. Keep the list scrollable by D-pad/right stick and the footer fixed.
+	var scroll: FocusScroll = FocusScroll.new()
+	scroll.name = "ObjectivesScroll"
+	scroll.setup(tokens, scale_percent)
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var box: VBoxContainer = VBoxContainer.new()
 	box.name = "ObjectiveList"
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(box)
 	for o: Dictionary in _objectives:
 		box.add_child(StatusChip.make(tokens, scale_percent, "objectives", str(o["status"]), UiText.t(str(o["text_key"])), true))
-	return box
+	return scroll
 
 
 func _fill_detail() -> void:
