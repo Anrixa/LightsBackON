@@ -87,7 +87,7 @@ tests: 2 passed, 0 failed, 10 assertions
         self.assertEqual(CASES["menu_reflow_frame_settled"],
                          ["--filter=DS01", "--settle-frames=30"])
         self.assertEqual(CASES["font_menu_frame_settled"],
-                         ["--filter=QA53_multiple", "--settle-frames=30"])
+                         ["--dir=res://tests/diagnostics", "--filter=QA53_multiple", "--settle-frames=30"])
 
     def test_script_error_cannot_be_hidden_by_passing_summary(self):
         parsed = parse_log("SCRIPT ERROR: Invalid set index\ntests: 5 passed, 0 failed, 7 assertions")
