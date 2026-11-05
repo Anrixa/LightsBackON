@@ -235,7 +235,8 @@ func _render(service: String, fade: Dictionary, progress: float, eased: float) -
 		var local_progress: float = clampf((progress - delay) / (1.0 - delay), 0.0, 1.0)
 		var local_eased: float = _smoothstep(local_progress)
 		var pane_energy: float = lerpf(float(initial_levels[i]), float(fade["target_energy"]), local_eased)
-		var pane_color: Color = (initial_colors[i] as Color).lerp(target_color, local_eased)
+		var pane_start_color: Color = initial_colors[i]
+		var pane_color: Color = pane_start_color.lerp(target_color, local_eased)
 		levels[i] = pane_energy
 		colors[i] = pane_color
 		var material: StandardMaterial3D = materials[i] as StandardMaterial3D
