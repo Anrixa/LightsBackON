@@ -270,3 +270,28 @@ func test_QA60_feedback_banner_obeys_720p_and_narrow_safe_area() -> void:
 		assert_true(banner.offset_bottom < dimensions.y * 0.75,
 			"feedback is displayed above the central interaction zone")
 	_scene.call("_layout_onboarding", _scene.get_viewport().get_visible_rect().size)
+
+
+func test_QA61_live_checkpoint_guidance_does_not_replay_durable_steps() -> void:
+	var card: PanelContainer = _scene.get("onboarding")
+	var guide: RefCounted = card.get("guide")
+	var session: RefCounted = _scene.get("session")
+	assert_eq(guide.call("step_id"), "MOVE", "new shift begins at real movement")
+	_scene.call("_sync_onboarding_progress", true)
+	assert_eq(guide.call("step_id"), "MEASURE", "a resumed shift never restarts at the van")
+	# A controlled presentation fixture models durable isolation from a restored
+	# checkpoint. The meter snapshot remains intentionally absent on disk.
+	var service: RefCounted = session.get("interaction")
+	var states: Dictionary = service.get("_state")
+	states["R_JW_FUSE"] = 2
+	service.set("_state", states)
+	_scene.call("_sync_onboarding_progress", true)
+	assert_eq(guide.call("step_id"), "MEASURE",
+		"isolated-but-unmeasured progress must ask for a fresh reading")
+	var meter: RefCounted = session.get("meter")
+	assert_true(bool((meter.call("inspect", "PANEL_JW", session.get("grid")) as Dictionary)["ok"]))
+	_scene.call("_sync_onboarding_progress", false)
+	assert_eq(guide.call("step_id"), "REPAIR",
+		"fresh authoritative meter evidence and durable isolation resume the repair")
+	assert_eq((card.get("instruction") as Label).text, UiText.t("guide.step.repair"))
+
