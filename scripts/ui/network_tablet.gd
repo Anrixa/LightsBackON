@@ -87,6 +87,10 @@ func set_device(input_device: String) -> void:
 
 
 func open() -> void:
+	# The evidence pane belongs to this opening, not to a prior tablet visit.
+	_status_text = ""
+	if _detail != null:
+		_fill_detail()
 	_previous_focus = get_viewport().gui_get_focus_owner() if is_inside_tree() else null
 	visible = true
 	_focus_default()
@@ -94,6 +98,7 @@ func open() -> void:
 
 func close() -> void:
 	visible = false
+	_status_text = ""
 	if _previous_focus != null and is_instance_valid(_previous_focus) and _previous_focus.is_visible_in_tree():
 		_previous_focus.grab_focus()
 	elif is_inside_tree() and get_viewport().gui_get_focus_owner() != null:
@@ -131,6 +136,11 @@ func ping_selected() -> void:
 
 
 func on_reply(envelope: Dictionary, reply: Dictionary) -> void:
+	# Delayed replies must not mutate a closed read-only view. In particular,
+	# closing and reopening the same selected node must start without a stale
+	# success or refusal from the previous tablet visit.
+	if not is_visible_in_tree():
+		return
 	var kind: String = str(envelope.get("type", ""))
 	if kind != "inspect" and kind != "ping":
 		return

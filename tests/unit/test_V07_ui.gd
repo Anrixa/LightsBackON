@@ -100,6 +100,26 @@ func test_V07_inspect_goes_through_the_host_and_its_answer_is_shown() -> void:
 	assert_eq(_sent.size(), count, "a building without a meter panel sends nothing")
 
 
+## QA70: tablet feedback must belong to the current open modal, never an
+## asynchronous response delivered after closing or a previous visit's status.
+func test_QA70_tablet_feedback_is_cleared_and_hidden_replies_are_ignored() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
+	tablet.open()
+	var target: String = str(tablet.selected)
+	tablet.on_reply({"type": "ping", "entity": target}, {"ok": true})
+	assert_true(str(tablet.get("_status_text")) != "", "the current open tablet shows outcomes")
+	tablet.close()
+	assert_eq(str(tablet.get("_status_text")), "", "closing clears transient feedback")
+	tablet.on_reply({"type": "ping", "entity": target},
+		{"ok": false, "key": "network.refused.rate_limited"})
+	assert_eq(str(tablet.get("_status_text")), "", "a hidden tablet ignores delayed replies")
+	tablet.open()
+	assert_eq(str(tablet.get("_status_text")), "", "a new visit starts without a stale refusal")
+	tablet.on_reply({"type": "ping", "entity": target}, {"ok": true})
+	assert_true(str(tablet.get("_status_text")) != "", "fresh outcomes still render")
+	tablet.close()
+
+
 # ---------- acceptance: controller focus complete ----------
 
 func test_V07_directional_focus_reaches_every_control_from_every_control() -> void:
