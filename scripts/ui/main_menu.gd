@@ -22,9 +22,7 @@ func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	var tokens: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://content/ui/tokens.json"))
 	_tokens = tokens
-	# Assign the viewport-scaled Theme once, after the menu tree is built.
-	# Building a second theme during _layout_for_size() immediately replaces
-	# the first and leaves unnecessary font/style resources in the renderer.
+	theme = ThemeTokens.build(tokens)
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 	var background: ColorRect = ColorRect.new()
