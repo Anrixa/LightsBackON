@@ -437,7 +437,8 @@ func test_QA69_tablet_fall_recovery_keeps_save_and_modal_safe() -> void:
 	var session: RefCounted = _scene.get("session")
 	_scene.call("_open_tablet")
 	var tablet: PanelContainer = _scene.get("tablet")
-	player.global_position = Vector3(-8.0, -5.0, -8.0)
+	# Authored fall-recovery threshold is -6 m; exercise the real trigger.
+	player.global_position = Vector3(-8.0, -8.0, -8.0)
 	player.velocity = Vector3(0.0, -7.0, 0.0)
 	_scene.call("_physics_process", 0.12)
 	var current: Vector3i = player.call("position_cm")
