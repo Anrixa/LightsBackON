@@ -120,6 +120,28 @@ func test_QA70_tablet_feedback_is_cleared_and_hidden_replies_are_ignored() -> vo
 	tablet.close()
 
 
+## QA71: selection changes update directional links from the evidence/ping
+## region; returning with a D-pad must never jump to the previous node.
+func test_QA71_evidence_and_ping_left_focus_follow_current_selection() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
+	tablet.open()
+	var order: Array = (tablet.get("_view") as Dictionary)["order"]
+	assert_true(order.size() > 1)
+	var previous: String = str(order[0])
+	var next: String = str(order[1])
+	assert_eq(str(tablet.selected), previous)
+	tablet.select(next)
+	assert_eq(tablet.detail_scroll.find_valid_focus_neighbor(SIDE_LEFT), tablet.map.nodes[next],
+		"evidence D-pad Left returns to the newly selected node")
+	assert_eq(tablet.ping_button.find_valid_focus_neighbor(SIDE_LEFT), tablet.map.nodes[next],
+		"Ping D-pad Left returns to the newly selected node")
+	tablet.select(previous)
+	assert_eq(tablet.detail_scroll.find_valid_focus_neighbor(SIDE_LEFT), tablet.map.nodes[previous],
+		"reversing selection also updates the evidence back-link")
+	assert_eq(tablet.ping_button.find_valid_focus_neighbor(SIDE_LEFT), tablet.map.nodes[previous])
+	tablet.close()
+
+
 # ---------- acceptance: controller focus complete ----------
 
 func test_V07_directional_focus_reaches_every_control_from_every_control() -> void:
