@@ -71,6 +71,24 @@ tests: 2 passed, 0 failed, 10 assertions
         # visible without asserting that remaining RID warnings are resolved.
         self.assertEqual(regression_violations("menu_reflow", escaped), [])
 
+    def test_qa53_isolated_font_resources_and_menu_regression_ceilings(self):
+        zero = dict.fromkeys(("CanvasItem", "ObjectDB", "ShapedText", "FontRID"), 0)
+        for case in ("font_theme", "plain_label_lifetime", "project_label_lifetime",
+                     "plain_shaped_labels", "project_shaped_labels", "dialog_lifetime"):
+            self.assertEqual(regression_violations(case, zero), [], case)
+            self.assertEqual(regression_violations(case, {**zero, "ShapedText": 1}),
+                             ["ShapedText=1 exceeds 0"], case)
+        # These limits prevent further growth, not a claim that the existing
+        # menu warnings are harmless or that the exported game is leak-free.
+        menu = {"CanvasItem": 2, "ObjectDB": 15, "ShapedText": 4, "FontRID": 1}
+        self.assertEqual(regression_violations("menu_reflow", menu), [])
+        self.assertEqual(regression_violations(
+            "menu_reflow", {**menu, "CanvasItem": 3}), ["CanvasItem=3 exceeds 2"])
+        self.assertEqual(CASES["menu_reflow_frame_settled"],
+                         ["--filter=DS01", "--settle-frames=30"])
+        self.assertEqual(CASES["font_menu_frame_settled"],
+                         ["--filter=QA53_multiple", "--settle-frames=30"])
+
     def test_script_error_cannot_be_hidden_by_passing_summary(self):
         parsed = parse_log("SCRIPT ERROR: Invalid set index\ntests: 5 passed, 0 failed, 7 assertions")
         self.assertTrue(parsed["script_error"])
