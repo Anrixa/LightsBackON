@@ -89,6 +89,25 @@ tests: 2 passed, 0 failed, 10 assertions
         self.assertEqual(CASES["font_menu_frame_settled"],
                          ["--dir=res://tests/diagnostics", "--filter=QA53_multiple", "--settle-frames=30"])
 
+    def test_qa54_menu_component_cases_are_independent(self):
+        # Stage-by-stage fixtures must run in separate engine processes.
+        stages = {
+            "qa54_structure": "QA54_structure_only",
+            "qa54_text": "QA54_structured_text",
+            "qa54_buttons": "QA54_buttons",
+            "qa54_dialog": "QA54_dialog",
+            "qa54_reflow": "QA54_reflow",
+            "qa54_signals": "QA54_signals_and_focus",
+        }
+        for case, method in stages.items():
+            self.assertEqual(CASES[case],
+                             ["--dir=res://tests/diagnostics", f"--filter={method}"])
+            # Do not mistake exploratory evidence for zero-memory-growth proof.
+            self.assertEqual(regression_violations(case, {
+                "CanvasItem": 9, "ObjectDB": 99,
+                "ShapedText": 13, "FontRID": 3,
+            }), [])
+
     def test_script_error_cannot_be_hidden_by_passing_summary(self):
         parsed = parse_log("SCRIPT ERROR: Invalid set index\ntests: 5 passed, 0 failed, 7 assertions")
         self.assertTrue(parsed["script_error"])
