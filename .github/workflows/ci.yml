@@ -56,6 +56,20 @@ jobs:
         run: echo "GODOT_BIN=$(bash tools/setup_godot_windows.sh)" >> "$GITHUB_ENV"
       - name: Run all checks (Windows rerun of the cloud tests)
         run: bash tools/run_tests.sh
+      - name: Parse QA56 Windows capture script (no game/GPU launched)
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $parseErrors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path "tools/Start-QA56-WindowsCapture.ps1"),
+            [ref]$tokens, [ref]$parseErrors
+          ) | Out-Null
+          if ($parseErrors.Count -gt 0) {
+            $parseErrors | Format-List | Out-String | Write-Error
+            exit 1
+          }
+          Write-Output "QA56_POWERSHELL_PARSE=PASS"
       - name: Install Windows export templates (SHA512-verified)
         run: GODOT_TEMPLATES_DIR="$APPDATA/Godot/export_templates/${GODOT_VERSION%-stable}.stable" bash tools/setup_export_templates.sh
       - name: Write build manifest
