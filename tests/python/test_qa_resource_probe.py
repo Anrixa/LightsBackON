@@ -36,7 +36,8 @@ ERROR: 1 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were le
         leaked = {"CanvasItem": 340, "ObjectDB": 814, "DummyTexture": 4}
         self.assertEqual(len(regression_violations("tablet_objectives_only", leaked)), 2)
         # Residual ObjectDB warnings stay visible but are not silently declared a fix.
-        self.assertEqual(regression_violations("power_scene", leaked), [])
+        self.assertEqual(regression_violations("menu_reflow", leaked), [],
+                         "unqualified renderer/font warnings remain visible, not falsely gated")
 
     def test_qa52_isolates_existing_test_families(self):
         self.assertEqual(CASES["v07_unit"], ["--filter=V07_ui"])
