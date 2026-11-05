@@ -196,3 +196,27 @@ func test_V01_windowed_game_has_actual_menu_and_mission_scenes() -> void:
 	tree.root.remove_child(mission_root)
 	mission_root.free()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+
+func test_QA61_live_repair_prompt_identifies_step_and_wrong_tool_without_spoiling_fault() -> void:
+	assert_true(_session.interact("PANEL_JW", "meter")["ok"], "inspect the real panel")
+	assert_true(_session.interact("PANEL_JW", "meter")["ok"], "acquire the real host repair lock")
+	assert_true(_session.interact("PANEL_JW", "meter")["ok"], "diagnose using the actual measurement")
+	var isolate: Dictionary = _session.prompt_for("PANEL_JW", "meter")
+	assert_true(str(isolate["detail_text"]).contains(UiText.t("repair.step.isolate")),
+		"before isolation the player can read the next legal repair step")
+	assert_true(_session.interact("PANEL_JW", "meter")["ok"], "isolate the branch through host validation")
+	assert_true(_session.interact("PANEL_JW", "meter")["ok"],
+		"changed network invalidates measurements, so inspect again before opening")
+	var blocked: Dictionary = _session.action_for("PANEL_JW", "meter")
+	assert_eq(blocked["next_step"], "open")
+	assert_true(blocked.has("blocked"), "wrong tool is still a refusal, never a command")
+	var guidance: String = str(_session.prompt_for("PANEL_JW", "meter")["detail_text"])
+	assert_true(guidance.contains(UiText.t("repair.step.open")))
+	assert_true(guidance.contains(UiText.t("tool.screwdriver")))
+	assert_false(guidance.contains("component open") or guidance.contains("feed cable broken"),
+		"step hints describe the authorized operation, not an inferred fault")
+	var allowed: Dictionary = _session.prompt_for("PANEL_JW", "screwdriver")
+	assert_true(str(allowed["detail_text"]).contains(UiText.t("repair.step.open")))
+	assert_false(str(allowed["detail_text"]).contains("Required tool"))
+
