@@ -47,6 +47,8 @@ CASES = {
     "font_menu_single": ["--filter=QA53_single"],
     "font_menu_repeated": ["--filter=QA53_multiple"],
     "font_ui_lifetime": ["--filter=QA53"],
+    "plain_label_lifetime": ["--filter=QA53_plain_labels"],
+    "project_label_lifetime": ["--filter=QA53_themed_labels"],
 }
 # Measured on both hosted OSes after eliminating unparented Objectives maps.
 # These cases must never recreate detached UI trees with leaked canvas/texture RIDs.
