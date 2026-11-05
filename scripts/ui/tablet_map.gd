@@ -67,8 +67,10 @@ func zoom() -> float:
 
 
 func set_zoom_index(i: int) -> void:
-	_wanted_zoom_index = clampi(i, 0, _max_zoom_index)
-	zoom_index = _wanted_zoom_index
+	# A narrow viewport limits the rendered zoom, not the player's preference.
+	# Restore the requested level when the map has room again.
+	_wanted_zoom_index = clampi(i, 0, ZOOM_LEVELS.size() - 1)
+	zoom_index = mini(_wanted_zoom_index, _max_zoom_index)
 	queue_sort()
 
 
