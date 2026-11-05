@@ -65,11 +65,13 @@ func _build() -> void:
 	title.text = UiText.t("accessibility.title")
 	title.theme_type_variation = "HeaderMedium"
 	layout.add_child(title)
-	var scale_row: HBoxContainer = HBoxContainer.new()
+	var scale_row: HFlowContainer = HFlowContainer.new()
+	scale_row.name = "ScaleRow"
+	# Translation expansion must wrap rather than pushing the +/- controls off-screen.
 	layout.add_child(scale_row)
 	scale_down = _button(scale_row, UiText.t("accessibility.scale_down"))
 	scale_label = Label.new()
-	scale_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scale_label.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	scale_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	scale_row.add_child(scale_label)
 	scale_up = _button(scale_row, UiText.t("accessibility.scale_up"))
@@ -121,6 +123,14 @@ func _sync() -> void:
 	scale_label.text = UiText.tf("accessibility.scale", [percent])
 	scale_down.disabled = percent <= int(_tokens["ui_scale_percent"]["min"])
 	scale_up.disabled = percent >= int(_tokens["ui_scale_percent"]["max"])
+	# At either bound the focused button becomes disabled; move to its usable
+	# sibling immediately so D-pad users are never left on a dead control.
+	if is_inside_tree() and is_visible_in_tree():
+		var focused: Control = get_viewport().gui_get_focus_owner()
+		if focused == scale_down and scale_down.disabled:
+			scale_up.grab_focus()
+		elif focused == scale_up and scale_up.disabled:
+			scale_down.grab_focus()
 	motion_toggle.set_pressed_no_signal(bool(settings.call("value", "reduce_camera_motion")))
 	flash_toggle.set_pressed_no_signal(bool(settings.call("value", "reduce_flashes")))
 	hints_toggle.set_pressed_no_signal(bool(settings.call("value", "hints_enabled")))
