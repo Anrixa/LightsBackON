@@ -62,3 +62,31 @@ func idle_hint_key(idle_seconds: float) -> String:
 		return ""
 	var keys: Array = (_steps[_index] as Dictionary)["hint_keys"]
 	return str(keys[mini(tier, keys.size() - 1)])
+
+
+## Reconcile this presentation guide against the player's own authoritative
+## repair progress after a checkpoint reload. Meter snapshots are intentionally
+## *not* saved, so an unfinished repair must be measured again first.
+## Never move backwards or infer an unknown fault from a mission marker.
+func sync_from_world(measured: bool, isolated: bool, restored: bool, resumed: bool = false) -> bool:
+	var next_index: int = _index
+	if restored:
+		next_index = maxi(next_index, _after_event("repair_restored"))
+	elif isolated and measured:
+		next_index = maxi(next_index, _after_event("junction_isolated"))
+	elif measured:
+		next_index = maxi(next_index, _after_event("meter_measured"))
+	elif resumed:
+		next_index = maxi(next_index, _after_event("player_moved"))
+	if next_index == _index:
+		return false
+	_index = next_index
+	_hint_level = -1
+	return true
+
+
+func _after_event(event_id: String) -> int:
+	for i: int in range(_steps.size()):
+		if str((_steps[i] as Dictionary)["event"]) == event_id:
+			return i + 1
+	return 0
