@@ -89,6 +89,8 @@ func test_DS05_tablet_objectives_scroll_with_35_percent_longer_text() -> void:
 	overlay.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
 	overlay.size = Vector2(1280, 720)
 	tablet.call("_show_tab", "objectives")
+	assert_eq(tablet.get("map"), null,
+		"Objectives must never allocate an unparented network map")
 	tablet.call("set_ui_scale", 150)
 	var scroll: ScrollContainer = tablet.get("_objective_scroll")
 	assert_true(scroll != null and scroll.is_inside_tree())
@@ -113,6 +115,10 @@ func test_DS05_tablet_objectives_scroll_with_35_percent_longer_text() -> void:
 	assert_eq(_tree.root.gui_get_focus_owner(), tablet.get("_objective_scroll"),
 		"controller focus must survive UI scale rebuild")
 	assert_true((tablet.get("close_button") as Button).is_visible_in_tree())
+	tablet.call("_show_tab", "network")
+	var network_map: Node = tablet.get("map")
+	assert_true(network_map != null and network_map.is_inside_tree(),
+		"returning to Network builds a parented, usable map")
 	tablet.call("close")
 	assert_false(tablet.visible)
 	assert_true(bool((_scene.get("player") as Node).get("enabled")),

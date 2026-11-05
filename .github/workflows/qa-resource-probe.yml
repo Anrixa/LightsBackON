@@ -1,0 +1,54 @@
+# Separate QA51 investigation; the normal release/build CI is unchanged.
+# Trigger only on instrument changes or an explicit owner-requested dispatch.
+name: qa51-resource-probe
+
+on:
+  pull_request:
+    paths:
+      - tools/qa_resource_probe.py
+      - tests/python/test_qa_resource_probe.py
+      - scripts/ui/network_tablet.gd
+      - scripts/ui/field_hud.gd
+      - .github/workflows/qa-resource-probe.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qa51-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  isolate-resource-lifetimes:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install pinned Godot 4.7.2
+        run: |
+          if [ "$RUNNER_OS" = Linux ]; then
+            echo "GODOT_BIN=$(bash tools/setup_godot_linux.sh)" >> "$GITHUB_ENV"
+          else
+            echo "GODOT_BIN=$(bash tools/setup_godot_windows.sh)" >> "$GITHUB_ENV"
+          fi
+      - name: Import project and compile scripts
+        run: '"$GODOT_BIN" --headless --path . --import'
+      - name: Run baseline, pure and live-scene isolates
+        run: python tools/qa_resource_probe.py --out-dir "build/qa-resources/$RUNNER_OS"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qa51-${{ runner.os }}-${{ github.sha }}
+          path: build/qa-resources/
+          retention-days: 14
