@@ -415,6 +415,13 @@ func _physics_process(delta: float) -> void:
 	while _time_accumulator >= HOST_TICK_SECONDS:
 		_time_accumulator -= HOST_TICK_SECONDS
 		session.tick_once()
+	# The tablet stops world interaction, not host time. Keep an in-range
+	# repair lock alive while reading the map; missing heartbeats here used to
+	# release a valid lock after two seconds of tablet use.
+	_heartbeat_accumulator += delta
+	if _heartbeat_accumulator >= float(_interaction["lock_heartbeat_timeout_ticks"]) / 20.0:
+		_heartbeat_accumulator = 0.0
+		_send_heartbeats()
 	if tablet.visible:
 		return
 	_update_target()
@@ -422,10 +429,6 @@ func _physics_process(delta: float) -> void:
 	if inside != _last_position_zone:
 		_last_position_zone = inside
 		session.set_in_van_zone(inside)
-	_heartbeat_accumulator += delta
-	if _heartbeat_accumulator >= float(_interaction["lock_heartbeat_timeout_ticks"]) / 20.0:
-		_heartbeat_accumulator = 0.0
-		_send_heartbeats()
 	if player.global_position.y < float(_solo_tuning["player"]["fall_recovery_cm"]) / 100.0:
 		_recover_player()
 
