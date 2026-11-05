@@ -87,6 +87,10 @@ func set_device(input_device: String) -> void:
 
 
 func open() -> void:
+	# The evidence pane belongs to this opening, not to a prior tablet visit.
+	_status_text = ""
+	if _detail != null:
+		_fill_detail()
 	_previous_focus = get_viewport().gui_get_focus_owner() if is_inside_tree() else null
 	visible = true
 	_focus_default()
