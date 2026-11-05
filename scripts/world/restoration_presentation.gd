@@ -1,15 +1,23 @@
 extends RefCounted
-## Presentation-only restoration: authoritative power state selects the target.
-## Reduced flashes uses a longer monotone fade, never brightness pulses.
+## Presentation-only recovery cues. The host's grid snapshot determines whether
+## a service has grid, temporary or no power; animations never decide supply.
+## All fades are monotone, including when accessibility changes mid-transition.
 
 const TabletPresenter := preload("res://scripts/ui/tablet_presenter.gd")
 const CONFIG_PATH: String = "res://content/offline_solo.json"
 const SERVICES: Array[String] = ["APT_W", "MARKET", "PUB", "APT_E", "WORKSHOP"]
+# Offset successive panes over the first 35% of a fade. A code-side cosmetic
+# value, not a puzzle rule or a reason to change the C01 content revision.
+const PANE_CASCADE_FRACTION: float = 0.35
 
 var _world: Node3D
 var _panes: Dictionary = {}
 var _lights: Dictionary = {}
 var _materials: Dictionary = {}
+var _pane_energies: Dictionary = {}
+var _pane_colors: Dictionary = {}
+var _labels: Dictionary = {}
+var _base_labels: Dictionary = {}
 var _last_status: Dictionary = {}
 var _colors: Dictionary = {}
 var _energies: Dictionary = {}
@@ -29,6 +37,10 @@ func setup(world: Node3D) -> void:
 	_panes.clear()
 	_lights.clear()
 	_materials.clear()
+	_pane_energies.clear()
+	_pane_colors.clear()
+	_labels.clear()
+	_base_labels.clear()
 	_last_status.clear()
 	_colors.clear()
 	_energies.clear()
@@ -47,20 +59,34 @@ func setup(world: Node3D) -> void:
 		var building: Node3D = world.get_node_or_null(NodePath("Buildings/" + service)) as Node3D
 		if building == null:
 			continue
+		# Preserve the authored name on every sign. The second line describes
+		# measured supply, so a color-blind player need not infer it from glow.
+		var label: Label3D = building.get_node_or_null("Label") as Label3D
+		if label != null:
+			_labels[service] = label
+			_base_labels[service] = label.text
 		var panes: Array[MeshInstance3D] = []
+		var materials: Array[StandardMaterial3D] = []
+		var levels: Array[float] = []
+		var colors: Array[Color] = []
 		var markers: Array[Node] = building.find_children("WindowLight", "Marker3D", true, false)
-		var material: StandardMaterial3D = _material(_dark)
-		_materials[service] = material
 		for node: Node in markers:
 			var marker: Marker3D = node as Marker3D
 			var pane: MeshInstance3D = MeshInstance3D.new()
 			pane.name = "PowerGlass"
 			pane.mesh = glass
+			var material: StandardMaterial3D = _material(_dark)
 			pane.material_override = material
 			pane.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 			marker.add_child(pane)
 			panes.append(pane)
+			materials.append(material)
+			levels.append(0.0)
+			colors.append(_dark)
 		_panes[service] = panes
+		_materials[service] = materials
+		_pane_energies[service] = levels
+		_pane_colors[service] = colors
 		_colors[service] = _dark
 		_energies[service] = 0.0
 		if markers.is_empty():
@@ -78,8 +104,8 @@ func setup(world: Node3D) -> void:
 	_water = world.get_node_or_null("Props/FLOOD_WATER") as Node3D
 
 
-## Rebase ongoing transitions at the current rendered intensity on a settings
-## change. This preserves continuity even if a power state changes mid-fade.
+## Rebase from CURRENT rendered pane and lamp values, never from a theoretical
+## target. Changing Reduce Flashes while the lights turn on or off cannot jump.
 func set_reduce_flashes(enabled: bool) -> void:
 	if _reduce_flashes == enabled:
 		return
@@ -107,6 +133,11 @@ func apply(state: Dictionary, drained: bool) -> void:
 		if _last_status.get(service, "") == next:
 			continue
 		_last_status[service] = next
+		# This label switches with the HOST snapshot, not at the end of a fade.
+		# Animation is visual evidence, never the source of gameplay truth.
+		if _labels.has(service):
+			var sign: Label3D = _labels[service]
+			sign.text = str(_base_labels[service]) + "\n" + _power_caption(next)
 		var color: Color = _dark
 		if next == "grid":
 			color = _grid
@@ -124,13 +155,10 @@ func advance(delta: float) -> void:
 		var f: Dictionary = _fades[service]
 		f["elapsed"] = float(f["elapsed"]) + maxf(0.0, delta)
 		var duration: float = _reduced_duration if _reduce_flashes else _normal_duration
-		var t: float = clampf(float(f["elapsed"]) / maxf(duration, 0.001), 0.0, 1.0)
-		var eased: float = t * t * (3.0 - 2.0 * t)
-		var start_color: Color = f["start_color"]
-		var end_color: Color = f["target_color"]
-		var energy: float = lerpf(float(f["start_energy"]), float(f["target_energy"]), eased)
-		_render(service, start_color.lerp(end_color, eased), energy)
-		if t >= 1.0:
+		var progress: float = clampf(float(f["elapsed"]) / maxf(duration, 0.001), 0.0, 1.0)
+		var eased: float = _smoothstep(progress)
+		_render(service, f, progress, eased)
+		if progress >= 1.0:
 			_fades.erase(service)
 		else:
 			_fades[service] = f
@@ -144,6 +172,11 @@ func light_energy_of(service: String) -> float:
 	return float(_energies.get(service, 0.0))
 
 
+func pane_energy_of(service: String, index: int) -> float:
+	var levels: Array = _pane_energies.get(service, [])
+	return float(levels[index]) if index >= 0 and index < levels.size() else 0.0
+
+
 func window_count(service: String) -> int:
 	return (_panes.get(service, []) as Array).size()
 
@@ -152,30 +185,75 @@ func state_of(service: String) -> String:
 	return str(_last_status.get(service, ""))
 
 
+func state_label_of(service: String) -> String:
+	if not _labels.has(service):
+		return ""
+	return (_labels[service] as Label3D).text
+
+
 func flood_visible() -> bool:
 	return _water != null and _water.visible
 
 
 func _fade(service: String, target_color: Color, target_energy: float) -> Dictionary:
-	return {"start_color": _colors.get(service, _dark), "target_color": target_color,
-		"start_energy": float(_energies.get(service, 0.0)), "target_energy": target_energy,
-		"elapsed": 0.0}
+	return {
+		"start_color": _colors.get(service, _dark),
+		"target_color": target_color,
+		"start_energy": float(_energies.get(service, 0.0)),
+		"target_energy": target_energy,
+		"start_pane_energy": (_pane_energies.get(service, []) as Array).duplicate(),
+		"start_pane_color": (_pane_colors.get(service, []) as Array).duplicate(),
+		"elapsed": 0.0,
+	}
 
 
-func _render(service: String, color: Color, energy: float) -> void:
+func _render(service: String, fade: Dictionary, progress: float, eased: float) -> void:
+	var start_color: Color = fade["start_color"]
+	var target_color: Color = fade["target_color"]
+	var color: Color = start_color.lerp(target_color, eased)
+	var energy: float = lerpf(float(fade["start_energy"]), float(fade["target_energy"]), eased)
 	_colors[service] = color
 	_energies[service] = energy
-	var material: StandardMaterial3D = _materials.get(service) as StandardMaterial3D
-	if material != null:
-		material.albedo_color = color
-		material.emission_enabled = energy > 0.001
-		material.emission = color
-		material.emission_energy_multiplier = energy / maxf(_max_energy, 0.001)
 	if _lights.has(service):
 		var bulb: OmniLight3D = _lights[service]
 		bulb.visible = energy > 0.001
 		bulb.light_color = color
 		bulb.light_energy = energy
+
+	# Each window has its own authored material. On startup, sign updates,
+	# interruption or an accessibility toggle, the previous rendered window
+	# intensity is retained as the next starting value.
+	var materials: Array = _materials.get(service, [])
+	var levels: Array = _pane_energies.get(service, [])
+	var colors: Array = _pane_colors.get(service, [])
+	var initial_levels: Array = fade["start_pane_energy"]
+	var initial_colors: Array = fade["start_pane_color"]
+	for i: int in range(materials.size()):
+		var delay: float = 0.0
+		if materials.size() > 1:
+			delay = PANE_CASCADE_FRACTION * float(i) / float(materials.size() - 1)
+		var local_progress: float = clampf((progress - delay) / (1.0 - delay), 0.0, 1.0)
+		var local_eased: float = _smoothstep(local_progress)
+		var pane_energy: float = lerpf(float(initial_levels[i]), float(fade["target_energy"]), local_eased)
+		var pane_color: Color = (initial_colors[i] as Color).lerp(target_color, local_eased)
+		levels[i] = pane_energy
+		colors[i] = pane_color
+		var material: StandardMaterial3D = materials[i] as StandardMaterial3D
+		material.albedo_color = pane_color
+		material.emission_enabled = pane_energy > 0.001
+		material.emission = pane_color
+		material.emission_energy_multiplier = pane_energy / maxf(_max_energy, 0.001)
+
+
+static func _power_caption(status: String) -> String:
+	match status:
+		"grid": return "[+] GRID POWER"
+		"temporary": return "[~] TEMPORARY POWER"
+	return "[-] NO POWER"
+
+
+static func _smoothstep(t: float) -> float:
+	return t * t * (3.0 - 2.0 * t)
 
 
 static func _material(color: Color) -> StandardMaterial3D:
