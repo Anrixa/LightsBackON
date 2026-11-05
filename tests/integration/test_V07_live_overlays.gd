@@ -295,3 +295,59 @@ func test_QA61_live_checkpoint_guidance_does_not_replay_durable_steps() -> void:
 		"fresh authoritative meter evidence and durable isolation resume the repair")
 	assert_eq((card.get("instruction") as Label).text, UiText.t("guide.step.repair"))
 
+
+
+## QA62: mission completion must be an actionable modal, not a mouse-only dead end.
+func test_QA62_results_grab_controller_focus_and_block_world_input() -> void:
+	var results: PanelContainer = _scene.get("_complete_panel")
+	var player: Node = _scene.get("player")
+	var session: RefCounted = _scene.get("session")
+	var grid: RefCounted = session.get("grid")
+	_scene.set("_target", "PANEL_JW")
+	var initial_hash: String = str(grid.call("canonical_hash"))
+	_scene.call("_finish")
+	var menu: Button = results.find_child("ReturnToMenu", true, false) as Button
+	assert_true(results.visible)
+	assert_true(menu != null, "results must expose a named, keyboard/controller-focusable exit")
+	assert_eq(_tree.root.gui_get_focus_owner(), menu, "results are navigable without a pointer")
+	assert_false(bool(player.get("enabled")), "completion must not reactivate player movement")
+	assert_eq(Input.mouse_mode, Input.MOUSE_MODE_VISIBLE)
+	var action: InputEventAction = InputEventAction.new()
+	action.action = "interact"
+	action.pressed = true
+	_scene.call("_unhandled_input", action)
+	assert_eq(str(grid.call("canonical_hash")), initial_hash,
+		"world interactions cannot leak through the completed results overlay")
+	_scene.call("_finish")
+	assert_eq(_tree.root.gui_get_focus_owner(), menu, "duplicate completion leaves focus intact")
+
+
+func test_QA62_completion_closes_visible_tablet_before_focusing_results() -> void:
+	_scene.call("_open_tablet")
+	var tablet: PanelContainer = _scene.get("tablet")
+	assert_true(tablet.visible)
+	assert_false(bool((_scene.get("player") as Node).get("enabled")))
+	_scene.call("_on_mission_event", {"type": "mission_complete"})
+	var results: PanelContainer = _scene.get("_complete_panel")
+	var menu: Button = results.find_child("ReturnToMenu", true, false) as Button
+	assert_false(tablet.visible, "a full-screen tablet cannot obstruct finished results")
+	assert_true(results.visible)
+	assert_eq(_tree.root.gui_get_focus_owner(), menu,
+		"closing the tablet must not restore stale hidden focus over the results")
+	assert_false(bool((_scene.get("player") as Node).get("enabled")),
+		"tablet closed callback cannot re-enable movement after completion")
+
+
+func test_QA62_completion_replaces_paused_modal_without_hidden_focus() -> void:
+	_scene.call("_toggle_pause")
+	_scene.call("_toggle_accessibility")
+	assert_true((_scene.get("_pause_panel") as PanelContainer).visible)
+	assert_true((_scene.get("accessibility") as PanelContainer).visible)
+	_scene.call("_finish")
+	var results: PanelContainer = _scene.get("_complete_panel")
+	var menu: Button = results.find_child("ReturnToMenu", true, false) as Button
+	assert_false((_scene.get("_pause_panel") as PanelContainer).visible)
+	assert_false((_scene.get("accessibility") as PanelContainer).visible)
+	assert_true(results.visible)
+	assert_eq(_tree.root.gui_get_focus_owner(), menu)
+	assert_false(bool((_scene.get("player") as Node).get("enabled")))
