@@ -57,7 +57,7 @@ LEAK_PATTERNS = (
 )
 TEST_SUMMARY = re.compile(r"tests: (\d+) passed, (\d+) failed, (\d+) assertions")
 LEAK_DETAIL = re.compile(r"(?im)^.*(?:leaked instance|orphaned|RID allocations|ObjectDB instances|RIDs of type).*?$")
-LEAKED_CLASS = re.compile(r"(?m)^Leaked instance: ([A-Za-z0-9_]+):\\d+ - Reference count:")
+LEAKED_CLASS = re.compile(r"(?m)^Leaked instance: ([A-Za-z0-9_]+):\d+ - Reference count:")
 
 
 def parse_log(log: str) -> dict[str, object]:
