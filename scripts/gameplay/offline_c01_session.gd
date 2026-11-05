@@ -33,6 +33,19 @@ const GENERATOR: String = "GEN_PORTABLE"
 const PUMP_LATCH: String = "LATCH_PUMP_DRAIN"
 const EAST_REPAIR_ID: String = "R_JE_TRUNK"
 const EAST_WORK_MARKER: String = "TRUNK_JE"
+## UI-only step-to-result wording reuses the existing localized repair states.
+## Keeping language outside content/ avoids invalidating durable C01 checkpoints.
+const NEXT_REPAIR_STATES: Dictionary = {
+	"diagnose": "status.repair.diagnosed",
+	"isolate": "status.repair.isolated",
+	"open": "status.repair.opened",
+	"remove": "status.repair.component_removed",
+	"install": "status.repair.replacement_installed",
+	"close": "status.repair.closed",
+	"test": "status.repair.tested",
+	"restore": "status.repair.restored",
+}
+
 const TOOL_LIST: Array[String] = ["meter", "screwdriver", "puller", "cutter", "crimper"]
 
 var grid: PowerGrid
@@ -297,8 +310,9 @@ func prompt_for(target: String, tool: String) -> Dictionary:
 	# The next permitted repair operation is shown even when the selected
 	# tool is wrong; it describes the action, never guesses the fault.
 	var step: String = str(plan.get("next_step", (plan.get("payload", {}) as Dictionary).get("step", "")))
-	if _repair_targets.has(target) and step != "" and UiText.has("repair.step." + step):
-		var next_text: String = UiText.tf("offline.prompt.next_step", [UiText.t("repair.step." + step)])
+	if _repair_targets.has(target) and NEXT_REPAIR_STATES.has(step):
+		var next_text: String = "%s: %s" % [UiText.t("offline.verb.repair"),
+			UiText.t(str(NEXT_REPAIR_STATES[step]))]
 		detail = next_text if detail == "" else "%s\n%s" % [next_text, detail]
 	return {"object_key": object_key, "action": "interact", "verb_key": verb_key,
 		"detail_text": detail}
