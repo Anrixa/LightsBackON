@@ -50,6 +50,11 @@ func _collect(dir_path: String, out: Array[String]) -> void:
 	for name in names:
 		var p := dir_path.path_join(name)
 		if DirAccess.dir_exists_absolute(p):
+			# Diagnostic stress fixtures intentionally create/tear down multiple
+			# menu scenes. Keep the canonical gameplay test count and shutdown
+			# diagnostics comparable; run them explicitly with --dir below.
+			if dir_path == "res://tests" and name == "diagnostics":
+				continue
 			_collect(p, out)
 		elif name.begins_with("test_") and name.ends_with(".gd") and p != TEST_CASE_PATH:
 			out.append(p)
