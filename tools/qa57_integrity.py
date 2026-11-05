@@ -108,17 +108,39 @@ def assess(
     else:
         if metadata.get("process_samples") != len(resources):
             problems.append("process sample count differs from metadata")
+        if len(frames) < 1000 or len(resources) < 30:
+            problems.append("too few raw frame/process samples")
         try:
             last_frame_s = finite_nonnegative(frames[-1]["elapsed_ms"], "elapsed_ms") / 1000.0
             last_memory_s = finite_nonnegative(resources[-1]["elapsed_s"], "elapsed_s")
             step = finite_nonnegative(str(metadata.get("sample_seconds")), "sample_seconds")
+            if not 1.0 <= step <= 10.0:
+                raise ValueError("sample_seconds must be in 1..10")
             tolerance = max(10.0, step * 2.0 + 5.0)
             if abs(last_frame_s - last_memory_s) > tolerance:
                 problems.append("frame/process timelines diverge")
         except (KeyError, ValueError) as exc:
             problems.append(f"invalid capture timeline: {exc}")
-        if not any(row.get("gpu_dedicated_bytes", "").strip() for row in resources):
-            problems.append("dedicated GPU counter was not observed")
+        valid_gpu = sum(bool(row.get("gpu_dedicated_bytes", "").strip()) for row in resources)
+        if valid_gpu < 20:
+            problems.append("insufficient dedicated GPU counter samples")
+
+    # The exported QA56 probe uses the same monotonic clock for elapsed and
+    # frame_ms. Check internal deltas so partially copied/stale frames cannot
+    # quietly produce a misleading low P95 while elapsed time jumps forward.
+    previous_time: float | None = None
+    try:
+        for row in frames:
+            elapsed = finite_nonnegative(row["elapsed_ms"], "elapsed_ms")
+            delta = finite_nonnegative(row["frame_ms"], "frame_ms")
+            if delta <= 0:
+                raise ValueError("frame_ms must be positive")
+            if previous_time is not None:
+                if elapsed <= previous_time or abs((elapsed - previous_time) - delta) > 0.015:
+                    raise ValueError("frame intervals differ from monotonic elapsed times")
+            previous_time = elapsed
+    except (KeyError, ValueError) as exc:
+        problems.append(f"invalid frame clock continuity: {exc}")
 
     # Each F9 marker has a monotonic expected ordinal. A contiguous sequence
     # alone is insufficient: verify meaningful duration and scene coverage.
