@@ -177,8 +177,10 @@ func _rebuild() -> void:
 	scale_percent = ThemeTokens.effective_percent(ui_scale_percent, screen_size())
 	theme = ThemeTokens.build(tokens, scale_percent)
 	for c: Node in get_children():
-		remove_child(c)
+		# Queue deletion while still inside the SceneTree; detached nodes can
+		# otherwise survive a synchronous headless fixture's teardown.
 		c.queue_free()
+		remove_child(c)
 	tab_buttons.clear()
 	zoom_buttons.clear()
 	_objective_scroll = null
