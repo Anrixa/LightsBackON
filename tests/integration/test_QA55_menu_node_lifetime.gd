@@ -11,6 +11,16 @@ func test_QA55_start_button_owned_by_menu() -> void:
 	var menu: Control = Menu.instantiate() as Control
 	tree.root.add_child(menu)
 	var start: Button = menu.get("start_button") as Button
-	assert_true(start != null and start.get_parent() != null, "start action should be attached to scene")
+	assert_true(start != null, "start action must be initialized")
+	if start == null:
+		tree.root.remove_child(menu)
+		menu.free()
+		return
+	assert_true(start.get_parent() != null, "start action must be attached to the menu")
+	var start_weak: WeakRef = weakref(start)
 	tree.root.remove_child(menu)
 	menu.free()
+	menu = null
+	start = null
+	assert_true(start_weak.get_ref() == null,
+		"visible start button must be freed when the menu is destroyed")
