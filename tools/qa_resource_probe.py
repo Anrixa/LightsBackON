@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Isolate Godot headless lifetime warnings without suppressing engine diagnostics.
 
-QA #51 / QA52: A passing test suite does not imply its exit-time RID/ObjectDB warnings
+QA #51 / QA52 / QA53: A passing test suite does not imply its exit-time RID/ObjectDB warnings
 are harmless. Run a no-fixture baseline and small, reproducible fixture groups
 as separate Godot processes so teardown costs can be compared on both CI OSes.
 This is diagnostic evidence, not a physical GPU memory benchmark.
@@ -42,6 +42,11 @@ CASES = {
     "v07_live": ["--filter=V07_live"],
     "a04_live": ["--filter=A04_live"],
     "v01_offline": ["--filter=V01_offline"],
+    # QA53: distinguish a font/theme cache from a real control ownership leak.
+    "font_theme": ["--filter=QA53_theme"],
+    "font_menu_single": ["--filter=QA53_single"],
+    "font_menu_repeated": ["--filter=QA53_multiple"],
+    "font_ui_lifetime": ["--filter=QA53"],
 }
 # Measured on both hosted OSes after eliminating unparented Objectives maps.
 # These cases must never recreate detached UI trees with leaked canvas/texture RIDs.
