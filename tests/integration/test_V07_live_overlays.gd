@@ -407,6 +407,54 @@ func test_QA66_tablet_preserves_map_zoom_and_pan_during_reflow_and_tabs() -> voi
 	tablet.call("close")
 
 
+## QA67: the tablet must show responses in the currently visible evidence
+## pane. Late asynchronous replies cannot describe a different selected node.
+func test_QA67_tablet_ping_outcomes_are_visible_without_content_revision_changes() -> void:
+	_scene.call("_open_tablet")
+	var panel: PanelContainer = _scene.get("tablet")
+	var view: Dictionary = panel.get("_view")
+	var selected: String = str(panel.get("selected"))
+	var node: Dictionary = view["nodes"][selected]
+	var name_text: String = UiText.t(str(node["name_key"]))
+	panel.call("on_reply", {"type": "ping", "entity": selected},
+		{"ok": false, "key": "network.refused.rate_limited"})
+	var denied: String = str(panel.get("_status_text"))
+	assert_true(denied.contains(UiText.t("network.refused.rate_limited")),
+		"tablet must show host rejection rather than hiding it behind the modal")
+	assert_true(denied.contains(name_text), "rejection identifies the affected node")
+	panel.call("on_reply", {"type": "ping", "entity": selected}, {"ok": true})
+	assert_eq(str(panel.get("_status_text")),
+		UiText.tf("offline.status.accepted", [UiText.tf("tablet.ping_branch", [name_text])]),
+		"accepted pings are acknowledged in the same evidence pane")
+	panel.call("close")
+
+
+func test_QA67_late_inspection_and_ping_replies_do_not_cross_node_selection() -> void:
+	_scene.call("_open_tablet")
+	var panel: PanelContainer = _scene.get("tablet")
+	var view: Dictionary = panel.get("_view")
+	var order: Array = view["order"]
+	assert_true(order.size() >= 2)
+	var first: String = str(order[0])
+	var second: String = str(order[1])
+	panel.call("select", first)
+	panel.call("select", second)
+	assert_eq(str(panel.get("_status_text")), "")
+	panel.call("on_reply", {"type": "ping", "entity": first}, {"ok": true})
+	assert_eq(str(panel.get("_status_text")), "", "a stale ping cannot claim another node was pinged")
+	var first_panel: String = str((view["nodes"][first] as Dictionary).get("panel", ""))
+	if first_panel != "":
+		panel.call("on_reply", {"type": "inspect", "entity": first_panel}, {"ok": true})
+		if first_panel != str((view["nodes"][second] as Dictionary).get("panel", "")):
+			assert_eq(str(panel.get("_status_text")), "",
+				"a delayed meter reply must not mark a different panel as inspected")
+	panel.call("on_reply", {"type": "ping", "entity": second}, {"ok": true})
+	assert_true(str(panel.get("_status_text")).contains(
+		UiText.t(str((view["nodes"][second] as Dictionary)["name_key"]))),
+		"the newly selected node still receives its actual reply")
+	panel.call("close")
+
+
 ## QA63: recover_self acknowledges before the physical player is teleported.
 ## A pre-teleport checkpoint write on a fallen/out-of-bounds transform fails
 ## BAD_VIEW and permanently disables otherwise healthy persistence.

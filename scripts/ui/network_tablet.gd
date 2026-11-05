@@ -131,13 +131,26 @@ func ping_selected() -> void:
 
 
 func on_reply(envelope: Dictionary, reply: Dictionary) -> void:
-	if envelope.get("type") != "inspect":
+	var kind: String = str(envelope.get("type", ""))
+	if kind != "inspect" and kind != "ping":
 		return
-	if reply.get("ok", false):
-		_status_text = UiText.t("tablet.inspected")
+	# An asynchronous reply is about the original target, not whichever node
+	# the player happens to be reading when it arrives. Drop stale replies rather
+	# than falsely labeling a different branch as inspected or pinged.
+	var node: Dictionary = (_view.get("nodes", {}) as Dictionary).get(selected, {})
+	if node.is_empty():
+		return
+	var expected: String = str(node.get("panel", "")) if kind == "inspect" else selected
+	if expected == "" or str(envelope.get("entity", "")) != expected:
+		return
+	var accepted: bool = bool(reply.get("ok", false))
+	var key: String = str(reply.get("key", ""))
+	var refusal: String = UiText.t(key if UiText.has(key) else "network.refused.generic")
+	if kind == "inspect":
+		_status_text = UiText.t("tablet.inspected") if accepted else UiText.tf("tablet.inspect_refused", [refusal])
 	else:
-		var key: String = str(reply.get("key", ""))
-		_status_text = UiText.tf("tablet.inspect_refused", [UiText.t(key if UiText.has(key) else "network.refused.generic")])
+		var description: String = UiText.tf("tablet.ping_branch", [UiText.t(str(node["name_key"]))])
+		_status_text = UiText.tf("offline.status.accepted", [description]) if accepted else "%s: %s" % [description, refusal]
 	if _detail != null:
 		_fill_detail()
 
