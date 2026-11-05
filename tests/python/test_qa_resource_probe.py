@@ -36,7 +36,7 @@ ERROR: 1 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were le
         leaked = {"CanvasItem": 340, "ObjectDB": 814, "DummyTexture": 4}
         self.assertEqual(len(regression_violations("tablet_objectives_only", leaked)), 2)
         # Residual ObjectDB warnings stay visible but are not silently declared a fix.
-        self.assertEqual(regression_violations("menu_reflow", leaked), [],
+        self.assertEqual(regression_violations("v07_unit", leaked), [],
                          "unqualified renderer/font warnings remain visible, not falsely gated")
 
     def test_qa52_isolates_existing_test_families(self):
@@ -69,7 +69,7 @@ tests: 2 passed, 0 failed, 10 assertions
             )
         # The separate text-renderer and menu lifecycle investigation remains
         # visible without asserting that remaining RID warnings are resolved.
-        self.assertEqual(regression_violations("menu_reflow", escaped), [])
+        self.assertEqual(regression_violations("v07_unit", escaped), [])
 
     def test_qa53_isolated_font_resources_and_menu_regression_ceilings(self):
         zero = dict.fromkeys(("CanvasItem", "ObjectDB", "ShapedText", "FontRID"), 0)
