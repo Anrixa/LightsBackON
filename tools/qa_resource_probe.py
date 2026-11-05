@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Isolate Godot headless lifetime warnings without suppressing engine diagnostics.
 
-QA #51 / QA52 / QA53: A passing test suite does not imply its exit-time RID/ObjectDB warnings
+QA #51 / QA52 / QA53 / QA54 / QA55: A passing test suite does not imply its exit-time RID/ObjectDB warnings
 are harmless. Run a no-fixture baseline and small, reproducible fixture groups
 as separate Godot processes so teardown costs can be compared on both CI OSes.
 This is diagnostic evidence, not a physical GPU memory benchmark.
@@ -67,6 +67,9 @@ CASES = {
     "qa54_packed_unentered": ["--dir=res://tests/diagnostics", "--filter=QA54_packed_scene_not_entered"],
     "qa54_packed_scriptless": ["--dir=res://tests/diagnostics", "--filter=QA54_packed_scene_without_script"],
     "qa54_real_no_reflow": ["--dir=res://tests/diagnostics", "--filter=QA54_actual_menu_without_reflow"],
+    # QA55 production regression exercises the actual button owner and reads
+    # the source to detect any reintroduced unparented double-allocation.
+    "qa55_menu_lifetime": ["--filter=QA55"],
 }
 # Measured on both hosted OSes after eliminating unparented Objectives maps.
 # These cases must never recreate detached UI trees with leaked canvas/texture RIDs.
@@ -81,23 +84,30 @@ RID_LIMITS = {
     "power_scene": {"ObjectDB": 0, "CanvasItem": 0, "DummyTexture": 0},
     "v07_live": {"ObjectDB": 0, "CanvasItem": 0, "DummyTexture": 0},
     "a04_live": {"ObjectDB": 0, "CanvasItem": 0, "DummyTexture": 0},
-    # QA53: these intentionally independent controls and font resources produce
-    # zero warnings on both hosted OSes. Existing menu teardown residue is
-    # bounded separately below, NOT declared fixed or release-acceptable.
+    # QA53: independent controls and font resources showed zero warnings.
+    # QA55 also removed the actual menu ownership defect: all menu isolates
+    # have now shown zero exit-time warnings on both hosted OSes.
     "font_theme": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
     "plain_label_lifetime": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
     "project_label_lifetime": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
     "plain_shaped_labels": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
     "project_shaped_labels": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
     "dialog_lifetime": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
-    "font_menu_single": {"CanvasItem": 0, "ObjectDB": 12, "ShapedText": 2, "FontRID": 1},
-    "font_menu_repeated": {"CanvasItem": 3, "ObjectDB": 18, "ShapedText": 6, "FontRID": 1},
-    "font_menu_frame_settled": {"CanvasItem": 3, "ObjectDB": 18, "ShapedText": 6, "FontRID": 1},
-    "menu_reflow": {"CanvasItem": 2, "ObjectDB": 15, "ShapedText": 4, "FontRID": 1},
-    "menu_reflow_frame_settled": {"CanvasItem": 2, "ObjectDB": 15, "ShapedText": 4, "FontRID": 1},
-    # QA54: all eight independent synthetic/PackedScene-only controls are
-    # completely clean on hosted Linux and Windows 4.7.2. The actual menu
-    # still reports the original 12/2/1 residue with layout disabled.
+    "font_menu_single": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0, "DummyTexture": 0},
+    "font_menu_repeated": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0, "DummyTexture": 0},
+    "font_menu_frame_settled": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0, "DummyTexture": 0},
+    "menu_reflow": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0, "DummyTexture": 0},
+    "menu_reflow_frame_settled": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0, "DummyTexture": 0},
+    # QA55: after removing the duplicate, never-parented StartButton,
+    # previously leaking production menu/reflow/text cases are zero on
+    # independently hosted 4.7.2 Linux and Windows.
+    "menu_geometry_only": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0, "DummyTexture": 0},
+    "menu_focus_only": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0, "DummyTexture": 0},
+    "v01_offline": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0, "DummyTexture": 0},
+    "font_ui_lifetime": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0, "DummyTexture": 0},
+    "qa55_menu_lifetime": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0, "DummyTexture": 0},
+    # QA54 diagnostics now also run clean. Keeping them protects against
+    # reintroducing teardown warnings during future UI refactors.
     "qa54_structure": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
     "qa54_text": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
     "qa54_buttons": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
@@ -106,7 +116,7 @@ RID_LIMITS = {
     "qa54_signals": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
     "qa54_packed_unentered": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
     "qa54_packed_scriptless": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
-    "qa54_real_no_reflow": {"CanvasItem": 0, "ObjectDB": 12, "ShapedText": 2, "FontRID": 1},
+    "qa54_real_no_reflow": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0, "DummyTexture": 0},
 }
 
 LEAK_PATTERNS = (

@@ -87,7 +87,7 @@ func _ready() -> void:
 	warning.add_theme_color_override("font_color", ThemeTokens.color(tokens, "action"))
 	layout.add_child(warning)
 
-	start_button = Button.new()
+	# The visible StartButton is created once after checkpoint status is known.
 	_store = OfflinePersistence.new()
 	var identity: Dictionary = _store.initialize()
 	var save_status: Dictionary = _store.checkpoint_status() if identity.get("ok", false) else identity

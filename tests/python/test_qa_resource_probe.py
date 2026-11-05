@@ -78,12 +78,13 @@ tests: 2 passed, 0 failed, 10 assertions
             self.assertEqual(regression_violations(case, zero), [], case)
             self.assertEqual(regression_violations(case, {**zero, "ShapedText": 1}),
                              ["ShapedText=1 exceeds 0"], case)
-        # These limits prevent further growth, not a claim that the existing
-        # menu warnings are harmless or that the exported game is leak-free.
-        menu = {"CanvasItem": 2, "ObjectDB": 15, "ShapedText": 4, "FontRID": 1}
+        # QA55 removed the orphaned production StartButton. The previously
+        # observed menu/FontRID exit warnings now all have measured zero caps.
+        menu = {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0,
+                "DummyTexture": 0}
         self.assertEqual(regression_violations("menu_reflow", menu), [])
         self.assertEqual(regression_violations(
-            "menu_reflow", {**menu, "CanvasItem": 3}), ["CanvasItem=3 exceeds 2"])
+            "menu_reflow", {**menu, "CanvasItem": 1}), ["CanvasItem=1 exceeds 0"])
         self.assertEqual(CASES["menu_reflow_frame_settled"],
                          ["--filter=DS01", "--settle-frames=30"])
         self.assertEqual(CASES["font_menu_frame_settled"],
@@ -106,14 +107,30 @@ tests: 2 passed, 0 failed, 10 assertions
             self.assertEqual(CASES[case],
                              ["--dir=res://tests/diagnostics", f"--filter={method}"])
             observed = {"CanvasItem": 0, "ObjectDB": 0,
-                        "ShapedText": 0, "FontRID": 0}
-            if case == "qa54_real_no_reflow":
-                observed.update({"ObjectDB": 12, "ShapedText": 2, "FontRID": 1})
+                        "ShapedText": 0, "FontRID": 0, "DummyTexture": 0}
             self.assertEqual(regression_violations(case, observed), [], case)
             self.assertEqual(regression_violations(
                 case, {**observed, "ObjectDB": observed["ObjectDB"] + 1}),
                 [f"ObjectDB={observed['ObjectDB'] + 1} exceeds {observed['ObjectDB']}"],
                 f"{case} must detect growth above the cross-OS measured limit")
+
+    def test_qa55_recovered_menu_is_zero_warning_gated(self):
+        # All of these formerly warned in QA53/QA54: a new orphaned
+        # never-parented Button must fail on both hosted OSes.
+        recovered = (
+            "font_menu_single", "font_menu_repeated", "font_ui_lifetime",
+            "font_menu_frame_settled", "menu_reflow", "menu_reflow_frame_settled",
+            "menu_geometry_only", "menu_focus_only", "v01_offline",
+            "qa54_real_no_reflow", "qa55_menu_lifetime",
+        )
+        kinds = ("CanvasItem", "ObjectDB", "ShapedText", "FontRID", "DummyTexture")
+        zero = dict.fromkeys(kinds, 0)
+        self.assertEqual(CASES["qa55_menu_lifetime"], ["--filter=QA55"])
+        for case in recovered:
+            self.assertEqual(regression_violations(case, zero), [], case)
+            for kind in kinds:
+                self.assertEqual(regression_violations(case, {**zero, kind: 1}),
+                                 [f"{kind}=1 exceeds 0"], (case, kind))
 
     def test_script_error_cannot_be_hidden_by_passing_summary(self):
         parsed = parse_log("SCRIPT ERROR: Invalid set index\ntests: 5 passed, 0 failed, 7 assertions")

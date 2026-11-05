@@ -1,4 +1,4 @@
-# Separate QA51/QA52 resource investigation; normal release/build CI unchanged.
+# Dedicated QA51-QA55 resource regression investigation; release/build CI remains separate.
 # Trigger only on instrument changes or an explicit owner-requested dispatch.
 name: qa51-resource-probe
 
@@ -12,6 +12,7 @@ on:
       - scripts/gameplay/offline_c01_session.gd
       - scripts/gameplay/offline_outbox_bridge.gd
       - tests/integration/test_QA52_session_lifetime.gd
+      - tests/integration/test_QA55_menu_node_lifetime.gd
       - tests/diagnostics/test_QA53_font_lifetime.gd
       - tests/diagnostics/test_QA54_menu_components.gd
       - tests/diagnostics/qa54_no_layout_menu.gd
