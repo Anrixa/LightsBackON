@@ -54,6 +54,19 @@ CASES = {
     "project_shaped_labels": ["--dir=res://tests/diagnostics", "--filter=QA53_explicitly_shaped_project"],
     "menu_reflow_frame_settled": ["--filter=DS01", "--settle-frames=30"],
     "font_menu_frame_settled": ["--dir=res://tests/diagnostics", "--filter=QA53_multiple", "--settle-frames=30"],
+    # QA54 synthetic bisection of the menu's smallest independently-built
+    # groups. Keep limits observational until two-OS baseline proves a bound.
+    "qa54_structure": ["--dir=res://tests/diagnostics", "--filter=QA54_structure_only"],
+    "qa54_text": ["--dir=res://tests/diagnostics", "--filter=QA54_structured_text"],
+    "qa54_buttons": ["--dir=res://tests/diagnostics", "--filter=QA54_buttons"],
+    "qa54_dialog": ["--dir=res://tests/diagnostics", "--filter=QA54_dialog"],
+    "qa54_reflow": ["--dir=res://tests/diagnostics", "--filter=QA54_reflow"],
+    "qa54_signals": ["--dir=res://tests/diagnostics", "--filter=QA54_signals_and_focus"],
+    # Real PackedScene/script variation locates the boundary between a
+    # generic UI tree and the production MainMenu._ready() lifecycle.
+    "qa54_packed_unentered": ["--dir=res://tests/diagnostics", "--filter=QA54_packed_scene_not_entered"],
+    "qa54_packed_scriptless": ["--dir=res://tests/diagnostics", "--filter=QA54_packed_scene_without_script"],
+    "qa54_real_no_reflow": ["--dir=res://tests/diagnostics", "--filter=QA54_actual_menu_without_reflow"],
 }
 # Measured on both hosted OSes after eliminating unparented Objectives maps.
 # These cases must never recreate detached UI trees with leaked canvas/texture RIDs.
@@ -82,6 +95,18 @@ RID_LIMITS = {
     "font_menu_frame_settled": {"CanvasItem": 3, "ObjectDB": 18, "ShapedText": 6, "FontRID": 1},
     "menu_reflow": {"CanvasItem": 2, "ObjectDB": 15, "ShapedText": 4, "FontRID": 1},
     "menu_reflow_frame_settled": {"CanvasItem": 2, "ObjectDB": 15, "ShapedText": 4, "FontRID": 1},
+    # QA54: all eight independent synthetic/PackedScene-only controls are
+    # completely clean on hosted Linux and Windows 4.7.2. The actual menu
+    # still reports the original 12/2/1 residue with layout disabled.
+    "qa54_structure": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
+    "qa54_text": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
+    "qa54_buttons": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
+    "qa54_dialog": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
+    "qa54_reflow": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
+    "qa54_signals": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
+    "qa54_packed_unentered": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
+    "qa54_packed_scriptless": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
+    "qa54_real_no_reflow": {"CanvasItem": 0, "ObjectDB": 12, "ShapedText": 2, "FontRID": 1},
 }
 
 LEAK_PATTERNS = (

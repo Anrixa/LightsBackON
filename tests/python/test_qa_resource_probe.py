@@ -89,6 +89,32 @@ tests: 2 passed, 0 failed, 10 assertions
         self.assertEqual(CASES["font_menu_frame_settled"],
                          ["--dir=res://tests/diagnostics", "--filter=QA53_multiple", "--settle-frames=30"])
 
+    def test_qa54_menu_component_cases_are_independent(self):
+        # Stage-by-stage fixtures must run in separate engine processes.
+        stages = {
+            "qa54_structure": "QA54_structure_only",
+            "qa54_text": "QA54_structured_text",
+            "qa54_buttons": "QA54_buttons",
+            "qa54_dialog": "QA54_dialog",
+            "qa54_reflow": "QA54_reflow",
+            "qa54_signals": "QA54_signals_and_focus",
+            "qa54_packed_unentered": "QA54_packed_scene_not_entered",
+            "qa54_packed_scriptless": "QA54_packed_scene_without_script",
+            "qa54_real_no_reflow": "QA54_actual_menu_without_reflow",
+        }
+        for case, method in stages.items():
+            self.assertEqual(CASES[case],
+                             ["--dir=res://tests/diagnostics", f"--filter={method}"])
+            observed = {"CanvasItem": 0, "ObjectDB": 0,
+                        "ShapedText": 0, "FontRID": 0}
+            if case == "qa54_real_no_reflow":
+                observed.update({"ObjectDB": 12, "ShapedText": 2, "FontRID": 1})
+            self.assertEqual(regression_violations(case, observed), [], case)
+            self.assertEqual(regression_violations(
+                case, {**observed, "ObjectDB": observed["ObjectDB"] + 1}),
+                [f"ObjectDB={observed['ObjectDB'] + 1} exceeds {observed['ObjectDB']}"],
+                f"{case} must detect growth above the cross-OS measured limit")
+
     def test_script_error_cannot_be_hidden_by_passing_summary(self):
         parsed = parse_log("SCRIPT ERROR: Invalid set index\ntests: 5 passed, 0 failed, 7 assertions")
         self.assertTrue(parsed["script_error"])

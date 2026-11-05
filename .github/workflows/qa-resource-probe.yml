@@ -13,6 +13,8 @@ on:
       - scripts/gameplay/offline_outbox_bridge.gd
       - tests/integration/test_QA52_session_lifetime.gd
       - tests/diagnostics/test_QA53_font_lifetime.gd
+      - tests/diagnostics/test_QA54_menu_components.gd
+      - tests/diagnostics/qa54_no_layout_menu.gd
       - tests/run_tests.gd
       - scripts/ui/theme_tokens.gd
       - scripts/ui/main_menu.gd
