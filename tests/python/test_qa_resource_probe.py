@@ -98,6 +98,9 @@ tests: 2 passed, 0 failed, 10 assertions
             "qa54_dialog": "QA54_dialog",
             "qa54_reflow": "QA54_reflow",
             "qa54_signals": "QA54_signals_and_focus",
+            "qa54_packed_unentered": "QA54_packed_scene_not_entered",
+            "qa54_packed_scriptless": "QA54_packed_scene_without_script",
+            "qa54_real_no_reflow": "QA54_actual_menu_without_reflow",
         }
         for case, method in stages.items():
             self.assertEqual(CASES[case],
