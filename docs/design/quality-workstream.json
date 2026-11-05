@@ -83,7 +83,7 @@
       "id": "DS04",
       "title": "Authoritative power-return and safe effects",
       "issue": "https://github.com/Anrixa/LightsBackON/issues/47",
-      "status": "NOT_STARTED",
+      "status": "CLOUD_VERIFIED",
       "target_date_code": "2026-11-16",
       "target_after_hardware": "V09",
       "depends_on": [
@@ -94,7 +94,15 @@
         "No host-authority bypass",
         "Immediate persisted reduced-flash/motion states",
         "Headless tests and owner/GPU verification"
-      ]
+      ],
+      "code_phase": "HOST_DRIVEN_CUES_CI_VERIFIED",
+      "evidence_file": "docs/evidence/DS04.md",
+      "pending_acceptance": [
+        "Final documentation/tracker head must pass Linux + Windows CI and Windows export/headless smoke before merge",
+        "Real Windows GPU 720p/1080p capture, rendered contrast and photosensitivity assessment",
+        "V09 and A02 prerequisites, owner physical-controller/human visual approval"
+      ],
+      "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/41941291414"
     },
     {
       "id": "DS05",
