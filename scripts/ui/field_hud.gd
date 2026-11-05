@@ -85,8 +85,10 @@ func _rebuild() -> void:
 	scale_percent = ThemeTokens.effective_percent(ui_scale_percent, size if size.x > 0.0 else ThemeTokens.DESIGN_SIZE)
 	theme = ThemeTokens.build(tokens, scale_percent)
 	for c: Node in get_children():
-		remove_child(c)
+		# Queue deletion while still inside the SceneTree; detached nodes can
+		# otherwise survive a synchronous headless fixture's teardown.
 		c.queue_free()
+		remove_child(c)
 	compact_tools = false
 	objective_card = _objectives()
 	crew_card = _crew()
