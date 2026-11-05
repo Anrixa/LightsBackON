@@ -177,10 +177,8 @@ func _rebuild() -> void:
 	scale_percent = ThemeTokens.effective_percent(ui_scale_percent, screen_size())
 	theme = ThemeTokens.build(tokens, scale_percent)
 	for c: Node in get_children():
-		# Queue deletion while still inside the SceneTree; detached nodes can
-		# otherwise survive a synchronous headless fixture's teardown.
-		c.queue_free()
 		remove_child(c)
+		c.queue_free()
 	tab_buttons.clear()
 	zoom_buttons.clear()
 	_objective_scroll = null
@@ -426,9 +424,8 @@ func _fill_detail() -> void:
 	if _detail == null:
 		return
 	for c: Node in _detail.get_children():
-		# Queue while attached so the SceneTree owns the deferred deletion.
-		c.queue_free()
 		_detail.remove_child(c)
+		c.queue_free()
 	var v: Dictionary = _view["nodes"].get(selected, {})
 	if v.is_empty():
 		return
