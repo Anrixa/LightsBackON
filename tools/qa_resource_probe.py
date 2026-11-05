@@ -9,6 +9,7 @@ This is diagnostic evidence, not a physical GPU memory benchmark.
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 from datetime import datetime, timezone
 import json
 import os
@@ -56,6 +57,7 @@ LEAK_PATTERNS = (
 )
 TEST_SUMMARY = re.compile(r"tests: (\d+) passed, (\d+) failed, (\d+) assertions")
 LEAK_DETAIL = re.compile(r"(?im)^.*(?:leaked instance|orphaned|RID allocations|ObjectDB instances|RIDs of type).*?$")
+LEAKED_CLASS = re.compile(r"(?m)^Leaked instance: ([A-Za-z0-9_]+):\\d+ - Reference count:")
 
 
 def parse_log(log: str) -> dict[str, object]:
@@ -65,7 +67,9 @@ def parse_log(log: str) -> dict[str, object]:
         matches = pattern.findall(log)
         counts[label] = sum(int(value) for value in matches)
     summary = TEST_SUMMARY.search(log)
+    owners: Counter[str] = Counter(LEAKED_CLASS.findall(log))
     return {
+        "leaked_object_classes": dict(sorted(owners.items(), key=lambda kv: (-kv[1], kv[0]))),
         "counts": counts,
         "passed": int(summary.group(1)) if summary else None,
         "failed": int(summary.group(2)) if summary else None,
@@ -147,7 +151,9 @@ def main() -> int:
               f"leaks={case['counts']} delta={case['delta_from_empty']} "
               f"probe={'PASS' if case['probe_passed'] else 'FAIL'}")
         if case["counts"]["CanvasItem"] or case["counts"]["ObjectDB"]:
-            for line in case["warning_excerpt"][:8]:
+            print("  QA52_OBJECT_CLASSES " + json.dumps(
+                dict(list(case["leaked_object_classes"].items())[:12]), sort_keys=True))
+            for line in case["warning_excerpt"][:5]:
                 print("  QA51_OWNER " + line[:260])
     (args.out_dir / "summary.json").write_text(
         json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8"
