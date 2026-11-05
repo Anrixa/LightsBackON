@@ -45,6 +45,9 @@ var _detail: VBoxContainer
 var detail_scroll: ScrollContainer
 var _objective_scroll: ScrollContainer
 var _body_left: PanelContainer
+var _map_wanted_zoom: int = 2
+var _map_offset: Vector2 = Vector2.ZERO
+var _map_view_saved: bool = false
 
 
 func _init() -> void:
@@ -174,6 +177,12 @@ func _rebuild() -> void:
 	if _view.is_empty():
 		return
 	var focus_token: String = _focus_token()
+	# Recreating the map for a live state refresh, a locale/device reflow or
+	# tab navigation must not reset the player\'s zoom and pan to defaults.
+	if map != null:
+		_map_wanted_zoom = int(map.get("_wanted_zoom_index"))
+		_map_offset = map.offset
+		_map_view_saved = true
 	scale_percent = ThemeTokens.effective_percent(ui_scale_percent, screen_size())
 	theme = ThemeTokens.build(tokens, scale_percent)
 	for c: Node in get_children():
@@ -206,6 +215,9 @@ func _rebuild() -> void:
 		map = TabletMap.new()
 		map.name = "Map"
 		map.setup(tokens, s, _view)
+		map.set_zoom_index(_map_wanted_zoom)
+		if _map_view_saved:
+			map.offset = _map_offset
 		map.node_activated.connect(func(nid: String) -> void:
 			select(nid)
 			inspect_selected())
