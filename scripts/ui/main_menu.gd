@@ -11,6 +11,8 @@ var start_button: Button
 var continue_button: Button
 var _store: OfflinePersistence
 var _save_available: bool = false
+var _save_ready: bool = false
+var _save_message: Label
 var _tokens: Dictionary = {}
 var _scroll: ScrollContainer
 var _panel: PanelContainer
@@ -91,16 +93,10 @@ func _ready() -> void:
 	_store = OfflinePersistence.new()
 	var identity: Dictionary = _store.initialize()
 	var save_status: Dictionary = _store.checkpoint_status() if identity.get("ok", false) else identity
-	_save_available = bool(save_status.get("ok", false) and save_status.get("available", false))
-	var save_message: Label = Label.new()
-	save_message.name = "SaveStatus"
-	save_message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	save_message.text = UiText.t("offline.menu.progress_found") if _save_available else (
-		UiText.tf("offline.menu.save_error", [str(save_status.get("code", "UNAVAILABLE"))]) if not save_status.get("ok", false)
-		else UiText.t("offline.menu.no_progress"))
-	save_message.add_theme_color_override("font_color", ThemeTokens.color(tokens,
-		"fault" if not save_status.get("ok", false) else "text_muted"))
-	layout.add_child(save_message)
+	_save_message = Label.new()
+	_save_message.name = "SaveStatus"
+	_save_message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	layout.add_child(_save_message)
 
 	continue_button = Button.new()
 	continue_button.name = "ContinueButton"
@@ -121,16 +117,18 @@ func _ready() -> void:
 	confirmation.name = "ReplaceCheckpointConfirmation"
 	confirmation.title = UiText.t("offline.menu.replace_title")
 	confirmation.dialog_text = UiText.t("offline.menu.replace_warning")
-	confirmation.confirmed.connect(func() -> void: _launch(false))
+	confirmation.confirmed.connect(func() -> void: _launch(false, true))
 	add_child(confirmation)
 	var quit_button: Button = Button.new()
+	quit_button.name = "QuitButton"
 	quit_button.text = UiText.t("offline.menu.quit")
 	quit_button.custom_minimum_size.y = 48.0
 	quit_button.pressed.connect(func() -> void: get_tree().quit())
 	layout.add_child(quit_button)
 	resized.connect(func() -> void: _layout_for_size(size))
 	_layout_for_size(size)
-	(continue_button if _save_available else start_button).grab_focus()
+	_apply_save_status(save_status)
+	(continue_button if _save_available else start_button if _save_ready else quit_button).grab_focus()
 
 
 ## Treat 620 px as a maximum, not a fixed minimum. Preserve a safe border
@@ -157,7 +155,25 @@ func _layout_for_size(viewport_size: Vector2) -> void:
 		_margin.add_theme_constant_override("margin_" + side, inset)
 
 
+## A checkpoint that cannot be read must not become a deceptively playable but
+## unsaveable new shift. Keep its files untouched and expose the actual fault.
+func _apply_save_status(status: Dictionary) -> void:
+	_save_ready = bool(status.get("ok", false))
+	_save_available = _save_ready and bool(status.get("available", false))
+	continue_button.visible = _save_available
+	start_button.disabled = not _save_ready
+	_save_message.text = UiText.t("offline.menu.progress_found") if _save_available else (
+		UiText.tf("offline.menu.save_error", [str(status.get("code", "UNAVAILABLE"))]) if not _save_ready
+		else UiText.t("offline.menu.no_progress"))
+	_save_message.add_theme_color_override("font_color", ThemeTokens.color(_tokens,
+		"fault" if not _save_ready else "text_muted"))
+
+
 func _request_new_shift() -> void:
+	# The checkpoint may have changed since the menu first opened.
+	_apply_save_status(_store.checkpoint_status())
+	if not _save_ready:
+		return
 	if _save_available:
 		(get_node("ReplaceCheckpointConfirmation") as ConfirmationDialog).popup_centered()
 	else:
@@ -165,11 +181,18 @@ func _request_new_shift() -> void:
 
 
 func _continue_shift() -> void:
+	_apply_save_status(_store.checkpoint_status())
 	if _save_available:
 		_launch(true)
 
 
-func _launch(resume: bool) -> void:
+func _launch(resume: bool, replacement_confirmed: bool = false) -> void:
+	_apply_save_status(_store.checkpoint_status())
+	if not _save_ready or (resume and not _save_available):
+		return
+	if not resume and _save_available and not replacement_confirmed:
+		(get_node("ReplaceCheckpointConfirmation") as ConfirmationDialog).popup_centered()
+		return
 	# The flag is scene-local launch state, not a save file or a gameplay authority.
 	get_tree().set_meta("offline_resume", resume)
 	get_tree().change_scene_to_file(MISSION_PATH)
