@@ -56,3 +56,37 @@ func _assert_menus_released(count: int) -> void:
 		assert_true(ref.get_ref() == null, "menu-owned theme was released")
 	for ref: WeakRef in weak_styles:
 		assert_true(ref.get_ref() == null, "menu-owned panel style was released")
+
+
+## Minimal label controls distinguish Godot's headless TextServer cache
+## from our project-specific font and dynamic menu/theme construction.
+func test_QA53_plain_labels_without_project_theme_are_released() -> void:
+	_assert_labels_released(3, false)
+
+
+func test_QA53_themed_labels_are_released() -> void:
+	_assert_labels_released(3, true)
+
+
+func _assert_labels_released(count: int, use_project_theme: bool) -> void:
+	var tree: SceneTree = Engine.get_main_loop() as SceneTree
+	var tokens: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://content/ui/tokens.json"))
+	var weak_controls: Array[WeakRef] = []
+	for i: int in count:
+		var root: Control = Control.new()
+		root.size = Vector2(440, 350)
+		tree.root.add_child(root)
+		if use_project_theme:
+			root.theme = ThemeTokens.build(tokens)
+		var label: Label = Label.new()
+		label.text = "Panel %d: an example wrapped label" % i
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		label.custom_minimum_size.x = 120.0
+		root.add_child(label)
+		weak_controls.append(weakref(label))
+		tree.root.remove_child(root)
+		root.free()
+		root = null
+		label = null
+	for ref: WeakRef in weak_controls:
+		assert_true(ref.get_ref() == null, "Control/Label nodes are explicitly freed")
