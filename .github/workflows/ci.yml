@@ -89,6 +89,11 @@ jobs:
         run: |
           cp build_manifest.json build/windows/
           sha256sum build/windows/* | tee build/SHA256SUMS.txt
+      - name: QA57 verify exported EXE/PCK + manifest source pin (no GPU launch)
+        shell: pwsh
+        run: |
+          & ./tools/Start-QA56-WindowsCapture.ps1 `
+            -Executable build/windows/LightsBackOn.exe -PreflightOnly
       - uses: actions/upload-artifact@v4
         with:
           name: windows-build-${{ github.sha }}
