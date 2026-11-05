@@ -75,6 +75,11 @@ jobs:
       - name: QA57 diagnose worktree cleanliness before manifest
         run: |
           git status --short --untracked-files=all
+      - name: QA57 inventory missing Godot script UID sidecars
+        run: |
+          git ls-files --others --exclude-standard '*.gd.uid' | while IFS= read -r filename; do
+            printf 'QA57_UID_FILE=%s|%s\n' "$filename" "$(tr -d '\r\n' < "$filename")"
+          done
       - name: Write build manifest
         run: python tools/build_manifest.py --godot "$GODOT_BIN"
       - name: Export Windows release build
