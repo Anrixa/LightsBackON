@@ -54,6 +54,14 @@ CASES = {
     "project_shaped_labels": ["--dir=res://tests/diagnostics", "--filter=QA53_explicitly_shaped_project"],
     "menu_reflow_frame_settled": ["--filter=DS01", "--settle-frames=30"],
     "font_menu_frame_settled": ["--dir=res://tests/diagnostics", "--filter=QA53_multiple", "--settle-frames=30"],
+    # QA54 synthetic bisection of the menu's smallest independently-built
+    # groups. Keep limits observational until two-OS baseline proves a bound.
+    "qa54_structure": ["--dir=res://tests/diagnostics", "--filter=QA54_structure_only"],
+    "qa54_text": ["--dir=res://tests/diagnostics", "--filter=QA54_structured_text"],
+    "qa54_buttons": ["--dir=res://tests/diagnostics", "--filter=QA54_buttons"],
+    "qa54_dialog": ["--dir=res://tests/diagnostics", "--filter=QA54_dialog"],
+    "qa54_reflow": ["--dir=res://tests/diagnostics", "--filter=QA54_reflow"],
+    "qa54_signals": ["--dir=res://tests/diagnostics", "--filter=QA54_signals_and_focus"],
 }
 # Measured on both hosted OSes after eliminating unparented Objectives maps.
 # These cases must never recreate detached UI trees with leaked canvas/texture RIDs.
