@@ -37,8 +37,12 @@ if ([string]$manifest.git_commit -notmatch '^[0-9a-f]{40}
 $rows = New-Object "System.Collections.Generic.List[object]"
 $counterAvailable = $false
 $timedOut = $false
+$engineLog = Join-Path $out "godot.log"
+# Read the boot identity from the *running exported PCK*, not only the
+# adjacent human-readable manifest. This detects a stale/copied PCK sidecar.
+$quotedEngineLog = '\"' + $engineLog + '\"'
 $game = Start-Process -FilePath $Executable -WorkingDirectory (Split-Path $Executable) `
-    -ArgumentList @("--", "--qa56-capture", "--qa56-id=$session") -PassThru
+    -ArgumentList @("--log-file", $quotedEngineLog, "--", "--qa56-capture", "--qa56-id=$session") -PassThru
 Write-Output "QA56_SESSION=$session PID=$($game.Id)"
 Write-Output "QA56_ACTION=Use F9 to mark successive scenarios; navigate menu, mission, tablet, settings, pause, return, then QUIT."
 try {
@@ -82,6 +86,17 @@ try {
     }
 }
 $videoControllers = @($videoControllers | Where-Object { $_ })
+# Godot's source-linked build identity comes from res://build_manifest.json
+# loaded by the actual running PCK. Keep the original log for local review.
+$runtimeBootVerified = $false
+$engineLogHash = ""
+if (Test-Path -LiteralPath $engineLog -PathType Leaf) {
+    $logText = Get-Content -LiteralPath $engineLog -Raw
+    $expectedBoot = 'Lights Back On boot \\| engine 4[.]7[.]2[^\\r\\n]* \\| build ' +
+        [regex]::Escape([string]$manifest.build_id)
+    $runtimeBootVerified = [regex]::IsMatch($logText, $expectedBoot)
+    $engineLogHash = (Get-FileHash -LiteralPath $engineLog -Algorithm SHA256).Hash.ToLowerInvariant()
+}
 $metadata = [ordered]@{
     schema_version = 1
     session_id = $session
@@ -95,6 +110,8 @@ $metadata = [ordered]@{
     git_dirty = [bool]$manifest.git_dirty
     engine_version = [string]$manifest.engine_version
     sample_seconds = $SampleSeconds
+    runtime_boot_manifest_verified = $runtimeBootVerified
+    runtime_log_sha256 = $engineLogHash
     frame_csv_sha256 = ""
     resource_csv_sha256 = ""
     godot_expected_version = "4.7.2"
@@ -154,6 +171,7 @@ $qa57Args = @(
     "--frames", (Join-Path $out "frames.csv"),
     "--resources", (Join-Path $out "resources.csv"),
     "--report", (Join-Path $out "report.json"),
+    "--boot-log", $engineLog,
     "--output", (Join-Path $out "integrity.json")
 )
 if ($null -ne $py) {
