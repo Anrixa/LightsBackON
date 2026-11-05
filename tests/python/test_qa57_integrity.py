@@ -136,10 +136,17 @@ class CaptureIntegrityTests(unittest.TestCase):
         self.assertIn("insufficient dedicated GPU counter samples", result["failures"])
 
     def test_stale_exported_pck_boot_identity_is_rejected(self):
-        self.data[0]["build_id"] = "WRONG_BUILD"
-        result = check(self.data)
-        # The generated test boot line follows the matching metadata. A
-        # separate runtime-verification failure must still refuse acceptance.
+        metadata, frames, resources, summary = self.data
+        prior_id = metadata["build_id"]
+        metadata["build_id"] = "20261105T120100Z-bbbbbbbbbb"
+        log_line = "Lights Back On boot | engine 4.7.2.stable.official | build " + prior_id
+        result = assess(metadata, frames, resources, summary,
+                        frame_sha256="d" * 64, resource_sha256="e" * 64,
+                        boot_log_sha256="f" * 64, boot_log_text=log_line)
+        self.assertIn("running exported build ID does not match manifest",
+                      result["failures"])
+
+    def test_runtime_boot_verification_flag_is_required(self):
         self.data[0]["runtime_boot_manifest_verified"] = False
         result = check(self.data)
         self.assertIn("actual exported PCK boot identity was not verified",
