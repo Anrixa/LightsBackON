@@ -204,7 +204,7 @@ func test_QA61_live_repair_prompt_identifies_step_and_wrong_tool_without_spoilin
 	assert_true(_session.interact("PANEL_JW", "meter")["ok"], "acquire the real host repair lock")
 	assert_true(_session.interact("PANEL_JW", "meter")["ok"], "diagnose using the actual measurement")
 	var isolate: Dictionary = _session.prompt_for("PANEL_JW", "meter")
-	assert_true(str(isolate["detail_text"]).contains(UiText.t("repair.step.isolate")),
+	assert_true(str(isolate["detail_text"]).contains(UiText.t("status.repair.isolated")),
 		"before isolation the player can read the next legal repair step")
 	assert_true(_session.interact("PANEL_JW", "meter")["ok"], "isolate the branch through host validation")
 	assert_true(_session.interact("PANEL_JW", "meter")["ok"],
@@ -213,11 +213,11 @@ func test_QA61_live_repair_prompt_identifies_step_and_wrong_tool_without_spoilin
 	assert_eq(blocked["next_step"], "open")
 	assert_true(blocked.has("blocked"), "wrong tool is still a refusal, never a command")
 	var guidance: String = str(_session.prompt_for("PANEL_JW", "meter")["detail_text"])
-	assert_true(guidance.contains(UiText.t("repair.step.open")))
+	assert_true(guidance.contains(UiText.t("status.repair.opened")))
 	assert_true(guidance.contains(UiText.t("tool.screwdriver")))
 	assert_false(guidance.contains("component open") or guidance.contains("feed cable broken"),
 		"step hints describe the authorized operation, not an inferred fault")
 	var allowed: Dictionary = _session.prompt_for("PANEL_JW", "screwdriver")
-	assert_true(str(allowed["detail_text"]).contains(UiText.t("repair.step.open")))
+	assert_true(str(allowed["detail_text"]).contains(UiText.t("status.repair.opened")))
 	assert_false(str(allowed["detail_text"]).contains("Required tool"))
 
