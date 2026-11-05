@@ -197,3 +197,76 @@ func test_V07_headless_scene_tests_cannot_replace_windowed_player_progress() -> 
 	var store: RefCounted = _scene.get("_store")
 	assert_true(str(store.call("profile_path")).begins_with(Persistence.HEADLESS_SANDBOX_ROOT))
 	assert_false(str(store.call("profile_path")).begins_with("user://profiles/"))
+
+
+## QA60: live action feedback must convey gameplay, not internal command noise.
+func test_QA60_heartbeat_and_tool_ack_cannot_replace_real_repair_feedback() -> void:
+	var banner: Label = _scene.get("_status")
+	_scene.call("_on_action_replied", {"type": "inspect", "payload": {}}, {"ok": true})
+	var meaningful: String = banner.text
+	assert_eq(meaningful, UiText.tf("offline.status.accepted", [UiText.t("offline.verb.measure")]))
+	_scene.call("_on_action_replied", {"type": "heartbeat", "payload": {}}, {"ok": true})
+	assert_eq(banner.text, meaningful, "an accepted 2-second lock heartbeat is not a new player action")
+	_scene.call("_on_action_replied", {"type": "heartbeat", "payload": {}},
+		{"ok": false, "message": "Synthetic heartbeat rejected"})
+	assert_eq(banner.text, meaningful, "internal heartbeat errors must not mask the repair instruction")
+	_scene.call("_select_slot", 2)
+	assert_eq(banner.text, meaningful, "equipping a tool already changes the loadout and must not mask feedback")
+	assert_eq(int(_scene.get("_slot")), 2)
+
+
+func test_QA60_action_refusal_is_legible_and_transient_when_playing() -> void:
+	var banner: Label = _scene.get("_status")
+	var tuning: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://content/offline_solo.json"))
+	var duration: float = float(tuning["feedback"]["important_seconds"])
+	_scene.call("_on_action_replied", {"type": "repair_step", "payload": {"step": "test"}},
+		{"ok": false, "message": "Move closer to the panel"})
+	assert_eq(banner.text, "Move closer to the panel", "the actual host refusal is shown, not a generic OK")
+	assert_true(is_equal_approx(float(_scene.get("_feedback_remaining_s")), duration))
+	_scene.call("_process", duration * 0.5)
+	assert_false(banner.text.is_empty(), "a host refusal must remain visible long enough to read")
+	_scene.call("_process", duration * 0.6)
+	assert_eq(banner.text, "", "a stale refusal must not permanently cover the first repair")
+
+
+func test_QA60_feedback_clock_does_not_expire_behind_pause_or_tablet() -> void:
+	var banner: Label = _scene.get("_status")
+	var duration: float = float((JSON.parse_string(FileAccess.get_file_as_string(
+		"res://content/offline_solo.json")) as Dictionary)["feedback"]["normal_seconds"])
+	_scene.call("_show_feedback", "Read the panel", false, false)
+	assert_eq(banner.text, "Read the panel")
+	_scene.call("_toggle_pause")
+	_scene.call("_process", duration + 1.0)
+	assert_eq(banner.text, "Read the panel", "pause should not consume an unseen status timeout")
+	_scene.call("_toggle_pause")
+	_scene.call("_open_tablet")
+	_scene.call("_process", duration + 1.0)
+	assert_eq(banner.text, "Read the panel", "tablet should not consume an unseen status timeout")
+	(_scene.get("tablet") as PanelContainer).call("close")
+	_scene.call("_process", duration + 1.0)
+	assert_eq(banner.text, "", "feedback expires only after the player returns to the world")
+
+
+func test_QA60_save_failure_remains_visible_after_activity_and_timeout() -> void:
+	var banner: Label = _scene.get("_status")
+	_scene.call("_show_feedback", "Saving disabled: failure", true, true)
+	_scene.call("_on_action_replied", {"type": "repair_step", "payload": {"step": "isolate"}}, {"ok": true})
+	_scene.call("_on_mission_event", {"type": "trip"})
+	_scene.call("_process", 120.0)
+	assert_eq(banner.text, "Saving disabled: failure",
+		"critical lost-save protection must survive ordinary actions, grid events and timeout")
+	assert_true(bool(_scene.get("_feedback_persistent")))
+
+
+func test_QA60_feedback_banner_obeys_720p_and_narrow_safe_area() -> void:
+	var banner: Label = _scene.get("_status")
+	var tokens: Dictionary = _scene.get("_ui_tokens")
+	for dimensions: Vector2 in [Vector2(440, 350), Vector2(960, 540),
+			Vector2(1280, 720), Vector2(1920, 1080)]:
+		_scene.call("_layout_onboarding", dimensions)
+		var safe: float = float((preload("res://scripts/ui/theme_tokens.gd")).safe_area(tokens, dimensions))
+		assert_true(banner.offset_right - banner.offset_left <= dimensions.x - safe * 2.0 + 0.001,
+			"feedback must not exceed viewport safe width at %s" % str(dimensions))
+		assert_true(banner.offset_bottom < dimensions.y * 0.75,
+			"feedback is displayed above the central interaction zone")
+	_scene.call("_layout_onboarding", _scene.get_viewport().get_visible_rect().size)
