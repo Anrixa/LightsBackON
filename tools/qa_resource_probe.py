@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Isolate Godot headless lifetime warnings without suppressing engine diagnostics.
 
-QA #51 / QA52: A passing test suite does not imply its exit-time RID/ObjectDB warnings
+QA #51 / QA52 / QA53: A passing test suite does not imply its exit-time RID/ObjectDB warnings
 are harmless. Run a no-fixture baseline and small, reproducible fixture groups
 as separate Godot processes so teardown costs can be compared on both CI OSes.
 This is diagnostic evidence, not a physical GPU memory benchmark.
@@ -42,6 +42,18 @@ CASES = {
     "v07_live": ["--filter=V07_live"],
     "a04_live": ["--filter=A04_live"],
     "v01_offline": ["--filter=V01_offline"],
+    # QA53: distinguish a font/theme cache from a real control ownership leak.
+    "font_theme": ["--dir=res://tests/diagnostics", "--filter=QA53_theme"],
+    "font_menu_single": ["--dir=res://tests/diagnostics", "--filter=QA53_single"],
+    "font_menu_repeated": ["--dir=res://tests/diagnostics", "--filter=QA53_multiple"],
+    "font_ui_lifetime": ["--dir=res://tests/diagnostics", "--filter=QA53"],
+    "plain_label_lifetime": ["--dir=res://tests/diagnostics", "--filter=QA53_plain_labels"],
+    "project_label_lifetime": ["--dir=res://tests/diagnostics", "--filter=QA53_themed_labels"],
+    "dialog_lifetime": ["--dir=res://tests/diagnostics", "--filter=QA53_unused_confirmation"],
+    "plain_shaped_labels": ["--dir=res://tests/diagnostics", "--filter=QA53_explicitly_shaped_plain"],
+    "project_shaped_labels": ["--dir=res://tests/diagnostics", "--filter=QA53_explicitly_shaped_project"],
+    "menu_reflow_frame_settled": ["--filter=DS01", "--settle-frames=30"],
+    "font_menu_frame_settled": ["--dir=res://tests/diagnostics", "--filter=QA53_multiple", "--settle-frames=30"],
 }
 # Measured on both hosted OSes after eliminating unparented Objectives maps.
 # These cases must never recreate detached UI trees with leaked canvas/texture RIDs.
@@ -56,6 +68,20 @@ RID_LIMITS = {
     "power_scene": {"ObjectDB": 0, "CanvasItem": 0, "DummyTexture": 0},
     "v07_live": {"ObjectDB": 0, "CanvasItem": 0, "DummyTexture": 0},
     "a04_live": {"ObjectDB": 0, "CanvasItem": 0, "DummyTexture": 0},
+    # QA53: these intentionally independent controls and font resources produce
+    # zero warnings on both hosted OSes. Existing menu teardown residue is
+    # bounded separately below, NOT declared fixed or release-acceptable.
+    "font_theme": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
+    "plain_label_lifetime": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
+    "project_label_lifetime": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
+    "plain_shaped_labels": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
+    "project_shaped_labels": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
+    "dialog_lifetime": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
+    "font_menu_single": {"CanvasItem": 0, "ObjectDB": 12, "ShapedText": 2, "FontRID": 1},
+    "font_menu_repeated": {"CanvasItem": 3, "ObjectDB": 18, "ShapedText": 6, "FontRID": 1},
+    "font_menu_frame_settled": {"CanvasItem": 3, "ObjectDB": 18, "ShapedText": 6, "FontRID": 1},
+    "menu_reflow": {"CanvasItem": 2, "ObjectDB": 15, "ShapedText": 4, "FontRID": 1},
+    "menu_reflow_frame_settled": {"CanvasItem": 2, "ObjectDB": 15, "ShapedText": 4, "FontRID": 1},
 }
 
 LEAK_PATTERNS = (

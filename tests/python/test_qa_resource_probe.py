@@ -36,7 +36,7 @@ ERROR: 1 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were le
         leaked = {"CanvasItem": 340, "ObjectDB": 814, "DummyTexture": 4}
         self.assertEqual(len(regression_violations("tablet_objectives_only", leaked)), 2)
         # Residual ObjectDB warnings stay visible but are not silently declared a fix.
-        self.assertEqual(regression_violations("menu_reflow", leaked), [],
+        self.assertEqual(regression_violations("v07_unit", leaked), [],
                          "unqualified renderer/font warnings remain visible, not falsely gated")
 
     def test_qa52_isolates_existing_test_families(self):
@@ -69,7 +69,25 @@ tests: 2 passed, 0 failed, 10 assertions
             )
         # The separate text-renderer and menu lifecycle investigation remains
         # visible without asserting that remaining RID warnings are resolved.
-        self.assertEqual(regression_violations("menu_reflow", escaped), [])
+        self.assertEqual(regression_violations("v07_unit", escaped), [])
+
+    def test_qa53_isolated_font_resources_and_menu_regression_ceilings(self):
+        zero = dict.fromkeys(("CanvasItem", "ObjectDB", "ShapedText", "FontRID"), 0)
+        for case in ("font_theme", "plain_label_lifetime", "project_label_lifetime",
+                     "plain_shaped_labels", "project_shaped_labels", "dialog_lifetime"):
+            self.assertEqual(regression_violations(case, zero), [], case)
+            self.assertEqual(regression_violations(case, {**zero, "ShapedText": 1}),
+                             ["ShapedText=1 exceeds 0"], case)
+        # These limits prevent further growth, not a claim that the existing
+        # menu warnings are harmless or that the exported game is leak-free.
+        menu = {"CanvasItem": 2, "ObjectDB": 15, "ShapedText": 4, "FontRID": 1}
+        self.assertEqual(regression_violations("menu_reflow", menu), [])
+        self.assertEqual(regression_violations(
+            "menu_reflow", {**menu, "CanvasItem": 3}), ["CanvasItem=3 exceeds 2"])
+        self.assertEqual(CASES["menu_reflow_frame_settled"],
+                         ["--filter=DS01", "--settle-frames=30"])
+        self.assertEqual(CASES["font_menu_frame_settled"],
+                         ["--dir=res://tests/diagnostics", "--filter=QA53_multiple", "--settle-frames=30"])
 
     def test_script_error_cannot_be_hidden_by_passing_summary(self):
         parsed = parse_log("SCRIPT ERROR: Invalid set index\ntests: 5 passed, 0 failed, 7 assertions")
