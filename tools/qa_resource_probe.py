@@ -32,6 +32,9 @@ CASES = {
     # individual legacy UI/world fixture families after the orphaned map fix.
     # Filter by exact file token or test-method token, not an ad-hoc scene guess.
     "menu_reflow": ["--filter=DS01"],
+    "menu_geometry_only": ["--filter=DS01_menu_reflows"],
+    "menu_focus_only": ["--filter=DS01_primary"],
+    "offline_ownership": ["--filter=QA52_lifetime"],
     "v07_unit": ["--filter=V07_ui"],
     "v07_hud_layout": ["--filter=V07_hud_fits"],
     "v07_tablet_layout": ["--filter=V07_tablet_fits"],
