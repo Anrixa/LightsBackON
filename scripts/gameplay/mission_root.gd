@@ -422,15 +422,17 @@ func _physics_process(delta: float) -> void:
 	if _heartbeat_accumulator >= float(_interaction["lock_heartbeat_timeout_ticks"]) / 20.0:
 		_heartbeat_accumulator = 0.0
 		_send_heartbeats()
-	if tablet.visible:
-		return
-	_update_target()
+	# Tablet is a world-interaction modal, not a suspension of safety or
+	# authoritative zone tracking. Gravity/host time continue underneath it.
 	var inside: bool = session.inside_van(player.global_position)
 	if inside != _last_position_zone:
 		_last_position_zone = inside
 		session.set_in_van_zone(inside)
 	if player.global_position.y < float(_solo_tuning["player"]["fall_recovery_cm"]) / 100.0:
 		_recover_player()
+	if tablet.visible:
+		return
+	_update_target()
 
 
 func _update_target() -> void:
