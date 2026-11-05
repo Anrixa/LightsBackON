@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Isolate Godot headless lifetime warnings without suppressing engine diagnostics.
 
-QA #51: A passing test suite does not imply its exit-time RID/ObjectDB warnings
+QA #51 / QA52: A passing test suite does not imply its exit-time RID/ObjectDB warnings
 are harmless. Run a no-fixture baseline and small, reproducible fixture groups
 as separate Godot processes so teardown costs can be compared on both CI OSes.
 This is diagnostic evidence, not a physical GPU memory benchmark.
@@ -27,6 +27,17 @@ CASES = {
     "tablet_objectives_only": ["--filter=DS05_tablet"],
     "tablet_footer_only": ["--filter=DS05_network"],
     "tablet_scene": ["--filter=DS05"],
+    # QA52: isolate residual teardown warnings by independently running the
+    # individual legacy UI/world fixture families after the orphaned map fix.
+    # Filter by exact file token or test-method token, not an ad-hoc scene guess.
+    "menu_reflow": ["--filter=DS01"],
+    "v07_unit": ["--filter=V07_ui"],
+    "v07_hud_layout": ["--filter=V07_hud_fits"],
+    "v07_tablet_layout": ["--filter=V07_tablet_fits"],
+    "v07_focus": ["--filter=V07_directional_focus"],
+    "v07_live": ["--filter=V07_live"],
+    "a04_live": ["--filter=A04_live"],
+    "v01_offline": ["--filter=V01_offline"],
 }
 # Measured on both hosted OSes after eliminating unparented Objectives maps.
 # These cases must never recreate detached UI trees with leaked canvas/texture RIDs.
