@@ -296,7 +296,8 @@ func _make_completion_panel() -> PanelContainer:
 	result.name = "Score"
 	result.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	column.add_child(result)
-	_button(column, "offline.complete.menu", _exit_to_menu)
+	var menu_button: Button = _button(column, "offline.complete.menu", _exit_to_menu)
+	menu_button.name = "ReturnToMenu"
 	return panel
 
 
@@ -734,6 +735,14 @@ func _finish() -> void:
 	if _finished:
 		return
 	_finished = true
+	# A mission can finish while the tablet is visible (host ticks continue under
+	# it). Close any other modal before showing the results; _finished already
+	# guards the tablet closed callback against re-enabling player controls.
+	if tablet.visible:
+		tablet.close()
+	_paused = false
+	_pause_panel.visible = false
+	accessibility.visible = false
 	player.set_controls_active(false)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_complete_panel.visible = true
@@ -742,6 +751,10 @@ func _finish() -> void:
 	if score != null:
 		score.text = UiText.tf("offline.complete.score", [int(results.get("stars", 0)),
 			int(results.get("required_restored", 0)), int(results.get("required_total", 0))])
+	# Keyboard/controller users must be able to exit without a mouse, including
+	# when a finished checkpoint opens straight into this screen.
+	var menu_button: Button = _complete_panel.find_child("ReturnToMenu", true, false) as Button
+	menu_button.grab_focus()
 
 
 func _exit_to_menu() -> void:
