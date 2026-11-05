@@ -38,6 +38,8 @@ class QA56AnalyzerTests(unittest.TestCase):
         self.assertEqual(report["gpu_dedicated"]["peak_mib"], 100.0)
         self.assertIn("MainMenu", report["scenes"])
         self.assertIn("MissionRoot", report["scenes"])
+        self.assertEqual(set(report["segments"]), {"0", "1"})
+        self.assertEqual(report["segments"]["1"]["p95_ms"], 16.7)
 
     def test_missing_gpu_is_unknown_not_zero(self):
         report = analyze(frame_rows(), memory_rows(gpu=""))
