@@ -12,7 +12,6 @@ import csv
 import json
 import math
 from pathlib import Path
-from statistics import median
 
 
 def percentile(values: list[float], percent: float) -> float:
@@ -47,6 +46,7 @@ def analyze(frames: list[dict[str, str]],
     if not frames or not memory:
         raise ValueError("both frame and process resource samples are required")
     grouped: dict[str, list[float]] = {}
+    segmented: dict[str, list[float]] = {}
     intervals: list[float] = []
     last_frame_t = -1.0
     for row in frames:
@@ -64,6 +64,7 @@ def analyze(frames: list[dict[str, str]],
         if not segment.isdecimal():
             raise ValueError("bad segment")
         grouped.setdefault(name, []).append(delta)
+        segmented.setdefault(segment, []).append(delta)
         intervals.append(delta)
     if not intervals:
         raise ValueError("no frames after five-second warm-up")
@@ -98,7 +99,8 @@ def analyze(frames: list[dict[str, str]],
     gpu_count = sum(m["gpu"] is not None for m in mem_samples)
     completeness = (window_seconds >= 120.0 and len(intervals) >= 1000
                     and len(mem_samples) >= 30 and gpu_count >= 20
-                    and "MainMenu" in grouped and "MissionRoot" in grouped)
+                    and "MainMenu" in grouped and "MissionRoot" in grouped
+                    and len(segmented) >= 2)
     return {
         "schema_version": 1,
         "release_gate": "PENDING_PHYSICAL_REVIEW",
@@ -118,6 +120,11 @@ def analyze(frames: list[dict[str, str]],
             name: {"count": len(values), "p95_ms": percentile(values, 0.95),
                    "max_ms": round(max(values), 3)}
             for name, values in sorted(grouped.items())
+        },
+        "segments": {
+            name: {"count": len(values), "p95_ms": percentile(values, 0.95),
+                   "max_ms": round(max(values), 3)}
+            for name, values in sorted(segmented.items(), key=lambda item: int(item[0]))
         },
         "windows_process_memory_samples": len(mem_samples),
         "ram_working_set": series("ram"),
