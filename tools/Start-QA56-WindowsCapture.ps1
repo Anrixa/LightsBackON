@@ -92,7 +92,7 @@ $runtimeBootVerified = $false
 $engineLogHash = ""
 if (Test-Path -LiteralPath $engineLog -PathType Leaf) {
     $logText = Get-Content -LiteralPath $engineLog -Raw
-    $expectedBoot = 'Lights Back On boot \\| engine 4[.]7[.]2[^\\r\\n]* \\| build ' +
+    $expectedBoot = 'Lights Back On boot \| engine 4[.]7[.]2[^\r\n]* \| build ' +
         [regex]::Escape([string]$manifest.build_id)
     $runtimeBootVerified = [regex]::IsMatch($logText, $expectedBoot)
     $engineLogHash = (Get-FileHash -LiteralPath $engineLog -Algorithm SHA256).Hash.ToLowerInvariant()
