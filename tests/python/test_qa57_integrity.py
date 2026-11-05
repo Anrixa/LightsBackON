@@ -35,6 +35,8 @@ def samples():
         "build_manifest_sha256": "c" * 64,
         "frame_csv_sha256": "d" * 64,
         "resource_csv_sha256": "e" * 64,
+        "runtime_log_sha256": "f" * 64,
+        "runtime_boot_manifest_verified": True,
         "process_samples": len(resources), "sample_seconds": 2,
         "exited_naturally": True, "process_exit_code": 0,
         "capture_timed_out": False,
@@ -46,8 +48,11 @@ def samples():
 
 def check(data):
     m, f, r, s = data
+    boot_line = ("Lights Back On boot | engine 4.7.2.stable.official | build "
+                 + str(m["build_id"]))
     return assess(m, f, r, s, frame_sha256="d" * 64,
-                  resource_sha256="e" * 64)
+                  resource_sha256="e" * 64,
+                  boot_log_sha256="f" * 64, boot_log_text=boot_line)
 
 
 class CaptureIntegrityTests(unittest.TestCase):
@@ -129,6 +134,21 @@ class CaptureIntegrityTests(unittest.TestCase):
             row["gpu_dedicated_bytes"] = ""
         result = check(self.data)
         self.assertIn("insufficient dedicated GPU counter samples", result["failures"])
+
+    def test_stale_exported_pck_boot_identity_is_rejected(self):
+        self.data[0]["build_id"] = "WRONG_BUILD"
+        result = check(self.data)
+        # The generated test boot line follows the matching metadata. A
+        # separate runtime-verification failure must still refuse acceptance.
+        self.data[0]["runtime_boot_manifest_verified"] = False
+        result = check(self.data)
+        self.assertIn("actual exported PCK boot identity was not verified",
+                      result["failures"])
+
+    def test_runtime_engine_log_sha256_is_required(self):
+        self.data[0]["runtime_log_sha256"] = "0" * 64
+        result = check(self.data)
+        self.assertIn("runtime boot log checksum mismatch", result["failures"])
 
     def test_fake_base_release_claim_rejected(self):
         self.data[3]["release_gate"] = "APPROVED"
