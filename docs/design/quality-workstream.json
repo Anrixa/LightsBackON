@@ -108,7 +108,7 @@
       "id": "DS05",
       "title": "Controller, onboarding and localization usability",
       "issue": "https://github.com/Anrixa/LightsBackON/issues/48",
-      "status": "IN_PROGRESS",
+      "status": "CLOUD_VERIFIED",
       "target_date_code": "2026-11-19",
       "target_after_human": "V09",
       "depends_on": [
@@ -122,13 +122,14 @@
         "Physical controller-only UX01 first repair",
         "Rendered contrast and meaningful game feedback"
       ],
-      "code_phase": "CONTROLLER_PSEUDOLOCALE_REFLOW_IN_REVIEW",
+      "code_phase": "CONTROLLER_PSEUDOLOCALE_REFLOW_LINUX_CI_VERIFIED",
       "evidence_file": "docs/evidence/DS05.md",
       "pending_acceptance": [
-        "Linux/Windows CI at final PR source head, Windows export/headless boot",
-        "Physical Windows controller-only first-repair UX01 with 80-150% UI and realistic localized labels",
-        "Rendered contrast and focus visibility, real 720p/1080p screenshots, V09/H03 dependency acceptance"
-      ]
+        "Final PR source head must pass Linux + Windows CI, Windows release export/headless smoke before merge",
+        "Physical Windows controller-only first-repair UX01 with 80-150% UI and translated labels",
+        "Rendered contrast/focus visibility, real 720p/1080p screenshots, V09/H03 dependency acceptance"
+      ],
+      "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/41943442867"
     },
     {
       "id": "DS06",
