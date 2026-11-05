@@ -95,6 +95,18 @@ RID_LIMITS = {
     "font_menu_frame_settled": {"CanvasItem": 3, "ObjectDB": 18, "ShapedText": 6, "FontRID": 1},
     "menu_reflow": {"CanvasItem": 2, "ObjectDB": 15, "ShapedText": 4, "FontRID": 1},
     "menu_reflow_frame_settled": {"CanvasItem": 2, "ObjectDB": 15, "ShapedText": 4, "FontRID": 1},
+    # QA54: all eight independent synthetic/PackedScene-only controls are
+    # completely clean on hosted Linux and Windows 4.7.2. The actual menu
+    # still reports the original 12/2/1 residue with layout disabled.
+    "qa54_structure": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
+    "qa54_text": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
+    "qa54_buttons": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
+    "qa54_dialog": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
+    "qa54_reflow": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
+    "qa54_signals": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
+    "qa54_packed_unentered": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
+    "qa54_packed_scriptless": {"CanvasItem": 0, "ObjectDB": 0, "ShapedText": 0, "FontRID": 0},
+    "qa54_real_no_reflow": {"CanvasItem": 0, "ObjectDB": 12, "ShapedText": 2, "FontRID": 1},
 }
 
 LEAK_PATTERNS = (
