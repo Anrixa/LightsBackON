@@ -114,11 +114,17 @@ func focusables() -> Array[Control]:
 
 
 func select(nid: String) -> void:
-	if nid == selected:
+	if nid == selected or not (_view.get("nodes", {}) as Dictionary).has(nid):
 		return
 	selected = nid
 	_status_text = ""
 	_fill_detail()
+	# The evidence and Ping controls navigate back to the current node, not
+	# whichever node was selected when _link_focus() last rebuilt the tablet.
+	if tab == TAB_NETWORK and map != null and map.nodes.has(nid):
+		var current_node: Control = map.nodes[nid] as Control
+		_neighbor(detail_scroll, SIDE_LEFT, current_node)
+		_neighbor(ping_button, SIDE_LEFT, current_node)
 
 
 func inspect_selected() -> void:
