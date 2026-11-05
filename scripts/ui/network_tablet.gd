@@ -500,7 +500,9 @@ func _zoom(step: int) -> void:
 	# Controller tool actions may still arrive while the Objectives tab is open.
 	if tab != TAB_NETWORK or map == null:
 		return
-	map.set_zoom_index(map.zoom_index + step)
+	# Step from the requested level. The effective level may be temporarily
+	# capped by a narrow viewport, and must not erase that choice.
+	map.set_zoom_index(int(map.get("_wanted_zoom_index")) + step)
 	map.ensure_visible(selected)
 
 
