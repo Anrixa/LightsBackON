@@ -100,3 +100,44 @@ func test_A04_every_guide_and_accessibility_key_is_localized() -> void:
 			"accessibility.scale_up", "accessibility.reduce_motion", "accessibility.reduce_flashes",
 			"accessibility.hints", "guide.more_help", "guide.complete"]:
 		assert_true(UiText.has(key), key)
+
+
+## QA61: tutorial state is a projection of accepted/loaded gameplay, not a
+## separately persisted progress flag. Only the first legitimate repair unlocks completion.
+func test_QA61_resumed_guide_rechecks_unsaved_meter_evidence() -> void:
+	var guide: RefCounted = Guide.new()
+	assert_true(bool(guide.call("sync_from_world", false, true, false, true)))
+	assert_eq(guide.call("step_id"), "MEASURE",
+		"restored isolation cannot skip inspecting again because meter snapshots are not saved")
+	assert_false(bool(guide.call("observe", "junction_isolated")),
+		"an already-durable isolation event cannot be replayed to bypass measurement")
+	assert_true(bool(guide.call("sync_from_world", true, true, false, false)))
+	assert_eq(guide.call("step_id"), "REPAIR",
+		"new meter evidence plus durable isolation skips the impossible repeated isolate step")
+	assert_false(bool(guide.call("sync_from_world", false, false, false, true)),
+		"an obsolete checkpoint flag must not move the guide backwards")
+	assert_true(bool(guide.call("sync_from_world", false, false, true, true)))
+	assert_true(bool(guide.call("completed")), "an already-restored first repair is not retaught")
+	assert_eq(guide.call("request_hint_key"), "")
+
+
+func test_QA61_resumed_card_restarts_hints_only_on_genuine_progress() -> void:
+	var card: PanelContainer = GuideCard.new()
+	var guide: RefCounted = card.get("guide")
+	card.call("show_hint")
+	assert_false((card.get("hint") as Label).text.is_empty())
+	card.call("sync_from_world", false, false, false, true)
+	assert_eq(guide.call("step_id"), "MEASURE")
+	assert_eq((card.get("hint") as Label).text, "", "stale movement hints are erased")
+	card.call("show_hint")
+	assert_false((card.get("hint") as Label).text.is_empty())
+	card.call("sync_from_world", false, false, false, true)
+	assert_false((card.get("hint") as Label).text.is_empty(),
+		"reconciling the same step never erases help the player requested")
+	card.call("sync_from_world", true, false, false, false)
+	assert_eq(guide.call("step_id"), "ISOLATE")
+	card.call("sync_from_world", false, false, true, true)
+	assert_eq((card.get("instruction") as Label).text, UiText.t("guide.complete"))
+	assert_false((card.get("hint_button") as Button).visible)
+	card.free()
+

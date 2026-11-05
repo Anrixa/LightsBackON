@@ -95,6 +95,8 @@ func _ready() -> void:
 	_world_fx = RestorationPresentation.new()
 	_world_fx.setup(_world)
 	_make_ui()
+	if not _restored_view.is_empty():
+		_sync_onboarding_progress(true)
 	if bool(identity.get("ok", false)):
 		var preference_result: Dictionary = _store.read_preferences(settings)
 		if not preference_result.get("ok", false):
@@ -526,6 +528,29 @@ func _on_player_moved() -> void:
 		onboarding.observe("player_moved")
 
 
+## This is a UI-only projection of durable repair state and current meter
+## snapshots. Loading a checkpoint deliberately erases meter snapshots, so
+## partially completed repairs first guide the player to inspect again.
+func _sync_onboarding_progress(resumed: bool = false) -> void:
+	if session == null or onboarding == null:
+		return
+	var any_measured: bool = false
+	var measured_isolation: bool = false
+	var any_restored: bool = false
+	for repair: Dictionary in session.repair_definitions():
+		var stage: String = session.interaction.repair_state(str(repair["id"]))
+		if stage == "restored":
+			any_restored = true
+		var reading: Dictionary = session.meter.readings(str(repair["panel"]), session.grid)
+		var measured: bool = (reading.get("_panel", {}) as Dictionary).has("tick")
+		if measured:
+			any_measured = true
+			if ["isolated", "opened", "component_removed", "replacement_installed",
+					"closed", "tested", "restored"].has(stage):
+				measured_isolation = true
+	onboarding.sync_from_world(any_measured, measured_isolation, any_restored, resumed)
+
+
 func _on_action_replied(envelope: Dictionary, reply: Dictionary) -> void:
 	var kind: String = str(envelope["type"])
 	# Heartbeats are a recurring internal lock-liveness command, not a player
@@ -548,6 +573,8 @@ func _on_action_replied(envelope: Dictionary, reply: Dictionary) -> void:
 			onboarding.observe("junction_isolated")
 		elif step == "restore":
 			onboarding.observe("repair_restored")
+	if kind == "inspect" or kind == "repair_step":
+		_sync_onboarding_progress()
 	if kind == "place_item":
 		player.carrying = session.equipment.carrier_of(OfflineSession.GENERATOR) == OfflineSession.PLAYER_ID
 	if ["repair_step", "place_item", "toggle_switch", "recover_self", "request_extract"].has(kind):
