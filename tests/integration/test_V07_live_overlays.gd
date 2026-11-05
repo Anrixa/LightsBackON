@@ -429,6 +429,32 @@ func test_QA68_map_zoom_preference_survives_temporary_fit_limit() -> void:
 	tablet.call("close")
 
 
+## QA69: gravity and host time keep running beneath the map. Falling while
+## reading the tablet must not strand a player or persist an invalid position.
+func test_QA69_tablet_fall_recovery_keeps_save_and_modal_safe() -> void:
+	var store: Persistence = _qa63_isolated_store()
+	var player: CharacterBody3D = _scene.get("player") as CharacterBody3D
+	var session: RefCounted = _scene.get("session")
+	_scene.call("_open_tablet")
+	var tablet: PanelContainer = _scene.get("tablet")
+	player.global_position = Vector3(-8.0, -5.0, -8.0)
+	player.velocity = Vector3(0.0, -7.0, 0.0)
+	_scene.call("_physics_process", 0.12)
+	var current: Vector3i = player.call("position_cm")
+	var checkpoint: Dictionary = store.checkpoint_status()
+	assert_true(bool(_scene.get("_save_enabled")), "tablet recovery must not disable saving")
+	assert_true(bool(checkpoint.get("ok", false)) and bool(checkpoint.get("available", false)),
+		"tablet recovery writes the repaired position")
+	assert_eq((checkpoint.get("view", {}) as Dictionary).get("position_cm", []),
+		[current.x, current.y, current.z])
+	assert_eq(player.velocity, Vector3.ZERO)
+	assert_eq(bool(session.call("in_van_zone")),
+		bool(session.call("inside_van", player.global_position)), "host zone matches the recovered player")
+	assert_true(tablet.visible, "recovery must not bypass the player's open read-only modal")
+	assert_false(bool(player.get("enabled")), "world controls stay disabled until closing the tablet")
+	tablet.call("close")
+
+
 ## QA67: the tablet must show responses in the currently visible evidence
 ## pane. Late asynchronous replies cannot describe a different selected node.
 func test_QA67_tablet_ping_outcomes_are_visible_without_content_revision_changes() -> void:
