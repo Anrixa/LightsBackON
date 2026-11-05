@@ -400,9 +400,9 @@ func _footer() -> Control:
 func _objective_list() -> ScrollContainer:
 	# Objective descriptions can exceed the remaining panel height in pseudo-
 	# locale. Keep the list scrollable by D-pad/right stick and the footer fixed.
-	var scroll: ScrollContainer = FocusScroll.new()
+	var scroll: FocusScroll = FocusScroll.new()
 	scroll.name = "ObjectivesScroll"
-	(scroll as FocusScroll).setup(tokens, scale_percent)
+	scroll.setup(tokens, scale_percent)
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var box: VBoxContainer = VBoxContainer.new()
