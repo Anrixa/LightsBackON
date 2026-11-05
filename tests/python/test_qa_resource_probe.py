@@ -56,6 +56,20 @@ tests: 2 passed, 0 failed, 10 assertions
         })
         self.assertEqual(parsed["passed"], 2)
 
+    def test_qa52_live_host_lifetime_rejects_refcount_regressions(self):
+        clean = {"CanvasItem": 0, "ObjectDB": 0, "DummyTexture": 0}
+        for case in ("offline_ownership", "power_scene", "v07_live", "a04_live"):
+            self.assertEqual(regression_violations(case, clean), [])
+            escaped = {**clean, "ObjectDB": 1}
+            self.assertEqual(
+                regression_violations(case, escaped),
+                ["ObjectDB=1 exceeds 0"],
+                f"{case} must catch a leaked host or outbox graph",
+            )
+        # The separate text-renderer and menu lifecycle investigation remains
+        # visible without asserting that remaining RID warnings are resolved.
+        self.assertEqual(regression_violations("menu_reflow", escaped), [])
+
     def test_script_error_cannot_be_hidden_by_passing_summary(self):
         parsed = parse_log("SCRIPT ERROR: Invalid set index\ntests: 5 passed, 0 failed, 7 assertions")
         self.assertTrue(parsed["script_error"])
