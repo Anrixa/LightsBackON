@@ -8,6 +8,7 @@ const Persistence := preload("res://scripts/persistence/offline_persistence.gd")
 
 var _scene: Node3D
 var _tree: SceneTree
+var _qa63_root: String = ""
 
 
 func before_each() -> void:
@@ -23,6 +24,9 @@ func after_each() -> void:
 	_scene = null
 	_tree.root.get_viewport().gui_release_focus()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	if _qa63_root != "":
+		_qa63_remove_tree(_qa63_root)
+		_qa63_root = ""
 
 
 func test_V07_intentional_device_detection_ignores_release_and_stick_noise() -> void:
@@ -351,3 +355,69 @@ func test_QA62_completion_replaces_paused_modal_without_hidden_focus() -> void:
 	assert_true(results.visible)
 	assert_eq(_tree.root.gui_get_focus_owner(), menu)
 	assert_false(bool((_scene.get("player") as Node).get("enabled")))
+
+
+## QA63: recover_self acknowledges before the physical player is teleported.
+## A pre-teleport checkpoint write on a fallen/out-of-bounds transform fails
+## BAD_VIEW and permanently disables otherwise healthy persistence.
+func test_QA63_fall_recovery_saves_only_the_relocated_player_position() -> void:
+	var store: Persistence = _qa63_isolated_store()
+	var player: CharacterBody3D = _scene.get("player") as CharacterBody3D
+	var session: RefCounted = _scene.get("session")
+	var grid: RefCounted = session.get("grid")
+	var original_hash: String = str(grid.call("canonical_hash"))
+	player.global_position = Vector3(-8.0, -5.0, -8.0)
+	assert_false(bool(store.checkpoint_status().get("available", false)))
+	_scene.call("_recover_player")
+	var position: Vector3i = player.call("position_cm")
+	var saved: Dictionary = store.checkpoint_status()
+	assert_true(bool(_scene.get("_save_enabled")),
+		"the invalid old position cannot disable future checkpoints")
+	assert_true(saved.get("ok", false), str(saved))
+	assert_true(saved.get("available", false), "successful recovery must create a durable checkpoint")
+	assert_eq((saved.get("view", {}) as Dictionary).get("position_cm", []),
+		[position.x, position.y, position.z], "reopening the shift must start at the recovered van spawn")
+	assert_eq(str(grid.call("canonical_hash")), original_hash, "recovering a player does not reset the grid")
+	assert_eq(player.velocity, Vector3.ZERO, "no falling velocity carries over after recovery")
+
+
+func test_QA63_pause_recover_replaces_old_position_before_resume() -> void:
+	var store: Persistence = _qa63_isolated_store()
+	var player: CharacterBody3D = _scene.get("player") as CharacterBody3D
+	player.global_position = Vector3(44.0, 1.0, 23.0)
+	_scene.call("_toggle_pause")
+	var before: Dictionary = store.checkpoint_status()
+	assert_true(before.get("available", false), "pause saves the pre-recovery checkpoint")
+	var old_position: Array = (before.get("view", {}) as Dictionary).get("position_cm", [])
+	_scene.call("_recover_player")
+	var after: Dictionary = store.checkpoint_status()
+	var position: Vector3i = player.call("position_cm")
+	assert_true(bool(_scene.get("_save_enabled")))
+	assert_ne((after.get("view", {}) as Dictionary).get("position_cm", []), old_position,
+		"pause-menu recovery cannot keep the last location in the save")
+	assert_eq((after.get("view", {}) as Dictionary).get("position_cm", []),
+		[position.x, position.y, position.z], "save the new location before dismissing the pause menu")
+	assert_false(bool(_scene.get("_paused")), "successful pause-menu recovery resumes play")
+
+
+func _qa63_isolated_store() -> Persistence:
+	# Test saves must never mutate the user's normal profile or other suites'
+	# headless checkpoint sandbox.
+	_qa63_root = "user://test_runtime/qa63_%d_%d" % [Time.get_ticks_usec(), randi()]
+	var store: Persistence = Persistence.new()
+	var result: Dictionary = store.initialize(_qa63_root)
+	assert_true(result.get("ok", false), str(result))
+	_scene.set("_store", store)
+	_scene.set("_save_enabled", true)
+	return store
+
+
+static func _qa63_remove_tree(path: String) -> void:
+	var dir: DirAccess = DirAccess.open(path)
+	if dir == null:
+		return
+	for filename: String in dir.get_files():
+		DirAccess.remove_absolute(path.path_join(filename))
+	for directory: String in dir.get_directories():
+		_qa63_remove_tree(path.path_join(directory))
+	DirAccess.remove_absolute(path)
