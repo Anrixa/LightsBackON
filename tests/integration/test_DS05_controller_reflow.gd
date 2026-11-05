@@ -58,7 +58,7 @@ func test_DS05_accessibility_bounds_never_strand_controller_focus() -> void:
 	_scene.call("_toggle_accessibility")
 	var down: Button = panel.get("scale_down")
 	var up: Button = panel.get("scale_up")
-	var row: Control = down.get_parent()
+	var row: Control = down.get_parent() as Control
 	assert_true(row is HFlowContainer, "translated scale controls wrap at 720p")
 	model.call("set_value", "ui_scale_percent", 90)
 	_scene.call("_settings_changed", model.call("snapshot"), false)
@@ -131,7 +131,7 @@ func test_DS05_network_footer_keeps_close_in_focus_graph_after_reflow() -> void:
 	assert_true((tablet.call("focusables") as Array).has(close))
 	for b: Button in zoom:
 		assert_true(b.is_visible_in_tree(), "map tools remain available on network tab")
-	var footer: Control = close.get_parent()
+	var footer: Control = close.get_parent() as Control
 	assert_true(footer is HFlowContainer, "footer actions wrap rather than clip")
 	assert_true(close.get_focus_neighbor(SIDE_LEFT) != NodePath(""),
 		"Close has an explicit D-pad path from the preceding map tool")
