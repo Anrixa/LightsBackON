@@ -23,6 +23,10 @@ CASES = {
     "empty": ["--dir=res://tests/qa51_empty_no_scripts"],
     "pure": ["--filter=SIM08"],
     "power_scene": ["--filter=DS04"],
+    "tablet_menu_only": ["--filter=DS05_menu"],
+    "tablet_bounds_only": ["--filter=DS05_accessibility"],
+    "tablet_objectives_only": ["--filter=DS05_tablet"],
+    "tablet_footer_only": ["--filter=DS05_network"],
     "tablet_scene": ["--filter=DS05"],
 }
 LEAK_PATTERNS = (
@@ -113,6 +117,9 @@ def main() -> int:
               f"tests={case['passed']} failures={case['failed']} "
               f"leaks={case['counts']} delta={case['delta_from_empty']} "
               f"probe={'PASS' if case['probe_passed'] else 'FAIL'}")
+        if case["counts"]["CanvasItem"] or case["counts"]["ObjectDB"]:
+            for line in case["warning_excerpt"][:8]:
+                print("  QA51_OWNER " + line[:260])
     (args.out_dir / "summary.json").write_text(
         json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
