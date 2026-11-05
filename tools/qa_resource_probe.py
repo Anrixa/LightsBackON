@@ -43,17 +43,17 @@ CASES = {
     "a04_live": ["--filter=A04_live"],
     "v01_offline": ["--filter=V01_offline"],
     # QA53: distinguish a font/theme cache from a real control ownership leak.
-    "font_theme": ["--filter=QA53_theme"],
-    "font_menu_single": ["--filter=QA53_single"],
-    "font_menu_repeated": ["--filter=QA53_multiple"],
-    "font_ui_lifetime": ["--filter=QA53"],
-    "plain_label_lifetime": ["--filter=QA53_plain_labels"],
-    "project_label_lifetime": ["--filter=QA53_themed_labels"],
-    "dialog_lifetime": ["--filter=QA53_unused_confirmation"],
-    "plain_shaped_labels": ["--filter=QA53_explicitly_shaped_plain"],
-    "project_shaped_labels": ["--filter=QA53_explicitly_shaped_project"],
+    "font_theme": ["--dir=res://tests/diagnostics", "--filter=QA53_theme"],
+    "font_menu_single": ["--dir=res://tests/diagnostics", "--filter=QA53_single"],
+    "font_menu_repeated": ["--dir=res://tests/diagnostics", "--filter=QA53_multiple"],
+    "font_ui_lifetime": ["--dir=res://tests/diagnostics", "--filter=QA53"],
+    "plain_label_lifetime": ["--dir=res://tests/diagnostics", "--filter=QA53_plain_labels"],
+    "project_label_lifetime": ["--dir=res://tests/diagnostics", "--filter=QA53_themed_labels"],
+    "dialog_lifetime": ["--dir=res://tests/diagnostics", "--filter=QA53_unused_confirmation"],
+    "plain_shaped_labels": ["--dir=res://tests/diagnostics", "--filter=QA53_explicitly_shaped_plain"],
+    "project_shaped_labels": ["--dir=res://tests/diagnostics", "--filter=QA53_explicitly_shaped_project"],
     "menu_reflow_frame_settled": ["--filter=DS01", "--settle-frames=30"],
-    "font_menu_frame_settled": ["--filter=QA53_multiple", "--settle-frames=30"],
+    "font_menu_frame_settled": ["--dir=res://tests/diagnostics", "--filter=QA53_multiple", "--settle-frames=30"],
 }
 # Measured on both hosted OSes after eliminating unparented Objectives maps.
 # These cases must never recreate detached UI trees with leaked canvas/texture RIDs.
