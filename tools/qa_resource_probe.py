@@ -62,6 +62,11 @@ CASES = {
     "qa54_dialog": ["--dir=res://tests/diagnostics", "--filter=QA54_dialog"],
     "qa54_reflow": ["--dir=res://tests/diagnostics", "--filter=QA54_reflow"],
     "qa54_signals": ["--dir=res://tests/diagnostics", "--filter=QA54_signals_and_focus"],
+    # Real PackedScene/script variation locates the boundary between a
+    # generic UI tree and the production MainMenu._ready() lifecycle.
+    "qa54_packed_unentered": ["--dir=res://tests/diagnostics", "--filter=QA54_packed_scene_not_entered"],
+    "qa54_packed_scriptless": ["--dir=res://tests/diagnostics", "--filter=QA54_packed_scene_without_script"],
+    "qa54_real_no_reflow": ["--dir=res://tests/diagnostics", "--filter=QA54_actual_menu_without_reflow"],
 }
 # Measured on both hosted OSes after eliminating unparented Objectives maps.
 # These cases must never recreate detached UI trees with leaked canvas/texture RIDs.
