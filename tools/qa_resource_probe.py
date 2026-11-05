@@ -49,6 +49,7 @@ CASES = {
     "font_ui_lifetime": ["--filter=QA53"],
     "plain_label_lifetime": ["--filter=QA53_plain_labels"],
     "project_label_lifetime": ["--filter=QA53_themed_labels"],
+    "dialog_lifetime": ["--filter=QA53_unused_confirmation"],
 }
 # Measured on both hosted OSes after eliminating unparented Objectives maps.
 # These cases must never recreate detached UI trees with leaked canvas/texture RIDs.
