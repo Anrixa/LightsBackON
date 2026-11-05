@@ -9,7 +9,6 @@ This is diagnostic evidence, not a physical GPU memory benchmark.
 from __future__ import annotations
 
 import argparse
-from collections import Counter
 from datetime import datetime, timezone
 import json
 import os
@@ -29,6 +28,14 @@ CASES = {
     "tablet_footer_only": ["--filter=DS05_network"],
     "tablet_scene": ["--filter=DS05"],
 }
+# Measured on both hosted OSes after eliminating unparented Objectives maps.
+# These cases must never recreate detached UI trees with leaked canvas/texture RIDs.
+RID_LIMITS = {
+    "tablet_objectives_only": {"CanvasItem": 0, "DummyTexture": 0},
+    "tablet_footer_only": {"CanvasItem": 0, "DummyTexture": 0},
+    "tablet_scene": {"CanvasItem": 0, "DummyTexture": 0},
+}
+
 LEAK_PATTERNS = (
     ("CanvasItem", re.compile(r'(\d+) RIDs of type "CanvasItem" were leaked')),
     ("ObjectDB", re.compile(r"(\d+) ObjectDB instances were leaked")),
@@ -57,6 +64,15 @@ def parse_log(log: str) -> dict[str, object]:
     }
 
 
+def regression_violations(case: str, counts: dict[str, int]) -> list[str]:
+    """Bound the specific detached-control regression without hiding other leaks."""
+    return [
+        f"{kind}={counts[kind]} exceeds {ceiling}"
+        for kind, ceiling in RID_LIMITS.get(case, {}).items()
+        if counts[kind] > ceiling
+    ]
+
+
 def run_case(godot: str, case: str, out_dir: Path, timeout: int) -> dict[str, object]:
     args = [godot, "--headless", "--verbose", "--path", ".", "-s",
             "res://tests/run_tests.gd", "--", *CASES[case]]
@@ -78,10 +94,12 @@ def run_case(godot: str, case: str, out_dir: Path, timeout: int) -> dict[str, ob
     # No tests found is intentional only for the empty baseline.
     summary_ok = (parsed["passed"] == 0 if case == "empty" else
                   isinstance(parsed["passed"], int) and parsed["passed"] > 0)
+    violations = regression_violations(case, parsed["counts"])
     passed = (not timed_out and returncode == 0 and
               parsed["failed"] in (None, 0) and
-              not parsed["script_error"] and summary_ok)
+              not parsed["script_error"] and summary_ok and not violations)
     return {
+        "regression_violations": violations,
         "case": case,
         "runner_args": CASES[case],
         "exit_code": returncode,

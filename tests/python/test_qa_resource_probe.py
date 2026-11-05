@@ -1,7 +1,7 @@
 """QA51 parser tests: prove that diagnostic warnings remain visible as counts."""
 import unittest
 
-from tools.qa_resource_probe import parse_log
+from tools.qa_resource_probe import parse_log, regression_violations
 
 
 class ResourceProbeTests(unittest.TestCase):
@@ -29,6 +29,14 @@ ERROR: 1 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were le
         self.assertEqual((parsed["passed"], parsed["failed"], parsed["assertions"]),
                          (263, 0, 8243))
         self.assertEqual(len(parsed["warning_excerpt"]), 5)
+
+    def test_detached_tablet_map_leak_fails_bounded_gate(self):
+        clean = {"CanvasItem": 0, "ObjectDB": 58, "DummyTexture": 0}
+        self.assertEqual(regression_violations("tablet_scene", clean), [])
+        leaked = {"CanvasItem": 340, "ObjectDB": 814, "DummyTexture": 4}
+        self.assertEqual(len(regression_violations("tablet_objectives_only", leaked)), 2)
+        # Residual ObjectDB warnings stay visible but are not silently declared a fix.
+        self.assertEqual(regression_violations("power_scene", leaked), [])
 
     def test_script_error_cannot_be_hidden_by_passing_summary(self):
         parsed = parse_log("SCRIPT ERROR: Invalid set index\ntests: 5 passed, 0 failed, 7 assertions")
