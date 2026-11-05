@@ -41,6 +41,14 @@ func observe(event_id: String) -> void:
 		refresh()
 
 
+## Resume presentation from durable world progress, without saving a separate
+## tutorial flag that could diverge from the restored repair state.
+func sync_from_world(measured: bool, isolated: bool, restored: bool, resumed: bool = false) -> void:
+	if bool(guide.call("sync_from_world", measured, isolated, restored, resumed)):
+		_idle_seconds = 0.0
+		refresh()
+
+
 func set_hints_enabled(enabled: bool) -> void:
 	guide.call("set_hints_enabled", enabled)
 	hint_button.disabled = not enabled
