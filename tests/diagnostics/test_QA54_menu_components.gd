@@ -7,6 +7,8 @@ extends "res://tests/test_case.gd"
 ## already provided by QA53_single and DS01; no game code is patched here.
 
 const ThemeTokens := preload("res://scripts/ui/theme_tokens.gd")
+const MenuScene := preload("res://scenes/menu/main_menu.tscn")
+const NoLayoutMenu := preload("res://tests/diagnostics/qa54_no_layout_menu.gd")
 
 const STRUCTURE: int = 0
 const TEXT: int = 1
@@ -38,6 +40,44 @@ func test_QA54_reflow() -> void:
 
 func test_QA54_signals_and_focus() -> void:
 	_assert_released(SIGNALS)
+
+
+func test_QA54_packed_scene_not_entered() -> void:
+	var menu: Control = MenuScene.instantiate() as Control
+	var menu_ref: WeakRef = weakref(menu)
+	menu.free()
+	menu = null
+	assert_true(menu_ref.get_ref() == null, "unentered packed menu releases its node")
+
+
+func test_QA54_packed_scene_without_script() -> void:
+	var tree: SceneTree = Engine.get_main_loop() as SceneTree
+	var menu: Control = MenuScene.instantiate() as Control
+	menu.set_script(null)
+	var menu_ref: WeakRef = weakref(menu)
+	tree.root.add_child(menu)
+	menu.size = Vector2(1280.0, 720.0)
+	tree.root.remove_child(menu)
+	menu.free()
+	menu = null
+	assert_true(menu_ref.get_ref() == null, "scriptless packed menu releases its node")
+
+
+func test_QA54_actual_menu_without_reflow() -> void:
+	# Use the actual shipping MainMenu._ready(), all text/controls,
+	# persistence and signal wiring, but override only responsive relayout.
+	var tree: SceneTree = Engine.get_main_loop() as SceneTree
+	var menu: Control = MenuScene.instantiate() as Control
+	menu.set_script(NoLayoutMenu)
+	var menu_ref: WeakRef = weakref(menu)
+	tree.root.add_child(menu)
+	menu.size = Vector2(1280.0, 720.0)
+	assert_true(menu.get_node_or_null("MenuScroll/MenuCenter/MenuPanel") != null,
+		"actual inherited _ready must construct the production UI")
+	tree.root.remove_child(menu)
+	menu.free()
+	menu = null
+	assert_true(menu_ref.get_ref() == null, "real menu variant frees its node")
 
 
 func _assert_released(stage: int) -> void:
