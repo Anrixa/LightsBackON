@@ -72,6 +72,9 @@ jobs:
           Write-Output "QA56_POWERSHELL_PARSE=PASS"
       - name: Install Windows export templates (SHA512-verified)
         run: GODOT_TEMPLATES_DIR="$APPDATA/Godot/export_templates/${GODOT_VERSION%-stable}.stable" bash tools/setup_export_templates.sh
+      - name: QA57 diagnose worktree cleanliness before manifest
+        run: |
+          git status --short --untracked-files=all
       - name: Write build manifest
         run: python tools/build_manifest.py --godot "$GODOT_BIN"
       - name: Export Windows release build
