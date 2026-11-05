@@ -65,6 +65,8 @@ def assess(
     *,
     frame_sha256: str,
     resource_sha256: str,
+    boot_log_sha256: str,
+    boot_log_text: str,
 ) -> dict[str, object]:
     """Return a bounded audit report instead of silently endorsing bad data."""
     problems: list[str] = []
@@ -83,6 +85,19 @@ def assess(
         problems.append("frame CSV checksum mismatch")
     if metadata.get("resource_csv_sha256") != resource_sha256:
         problems.append("resource CSV checksum mismatch")
+    if not HEX64.fullmatch(str(metadata.get("runtime_log_sha256", ""))):
+        problems.append("runtime log SHA256 missing or malformed")
+    if metadata.get("runtime_log_sha256") != boot_log_sha256:
+        problems.append("runtime boot log checksum mismatch")
+    if metadata.get("runtime_boot_manifest_verified") is not True:
+        problems.append("actual exported PCK boot identity was not verified")
+    # Verify the log independently of the PowerShell metadata assertion.
+    # Reading the build ID from the exported game is stronger than trusting
+    # an adjacent (potentially stale) build_manifest.json alone.
+    boot_id = re.escape(str(metadata.get("build_id", "")))
+    actual_boot = rf"Lights Back On boot \| engine 4[.]7[.]2[^\r\n]* \| build {boot_id}"
+    if not boot_id or not re.search(actual_boot, boot_log_text):
+        problems.append("running exported build ID does not match manifest")
     if not isinstance(metadata.get("build_id"), str) or not metadata.get("build_id"):
         problems.append("build_id is missing")
     if not str(metadata.get("engine_version", "")).startswith("4.7.2."):
@@ -199,6 +214,7 @@ def main() -> int:
     parser.add_argument("--frames", type=Path, required=True)
     parser.add_argument("--resources", type=Path, required=True)
     parser.add_argument("--report", type=Path, required=True)
+    parser.add_argument("--boot-log", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     meta = json.loads(args.metadata.read_text(encoding="utf-8-sig"))
@@ -212,6 +228,9 @@ def main() -> int:
         base_report,
         frame_sha256=sha256_file(args.frames),
         resource_sha256=sha256_file(args.resources),
+        boot_log_sha256=sha256_file(args.boot_log) if args.boot_log.is_file() else "",
+        boot_log_text=args.boot_log.read_text(encoding="utf-8-sig", errors="replace")
+        if args.boot_log.is_file() else "",
     )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
