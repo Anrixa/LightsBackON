@@ -17,6 +17,10 @@
   "camera": {
     "fov_deg": 78
   },
+  "feedback": {
+    "normal_seconds": 4,
+    "important_seconds": 9
+  },
   "presentation": {
     "environment_color": "#324A5B",
     "ambient_color": "#829DB0",
