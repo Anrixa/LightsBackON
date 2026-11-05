@@ -1,6 +1,6 @@
 extends Node
-## QA56 opt-in local frame-interval logger for exported Windows builds.
-## It is not a GPU-present timestamp or end-to-end input-latency measurement.
+## QA56/QA58 opt-in local frame + observed viewport logger for Windows exports.
+## Viewport size is not monitor-present timing or proof of a physical GPU.
 ## No network, personal identifiers, or telemetry upload. Disabled by default.
 
 const FLUSH_EVERY_FRAMES: int = 240
@@ -38,7 +38,7 @@ func configure(session_id: String) -> bool:
 	if _log == null:
 		push_warning("QA56: failed to open local capture")
 		return false
-	_log.store_line("elapsed_ms,frame_ms,scene,segment")
+	_log.store_line("elapsed_ms,frame_ms,scene,segment,viewport_w,viewport_h")
 	_started_usec = Time.get_ticks_usec()
 	_last_usec = 0
 	set_process(true)
@@ -64,8 +64,10 @@ func _process(_delta: float) -> void:
 				scene_name = "Other"
 		var elapsed_ms: float = float(now_usec - _started_usec) / 1000.0
 		var interval_ms: float = float(now_usec - _last_usec) / 1000.0
-		_pending.append("%.3f,%.3f,%s,%d" % [
-			elapsed_ms, interval_ms, scene_name, _segment
+		var viewport_size: Vector2i = Vector2i(get_viewport().get_visible_rect().size)
+		_pending.append("%.3f,%.3f,%s,%d,%d,%d" % [
+			elapsed_ms, interval_ms, scene_name, _segment,
+			viewport_size.x, viewport_size.y
 		])
 		if _pending.size() >= FLUSH_EVERY_FRAMES:
 			_flush()
