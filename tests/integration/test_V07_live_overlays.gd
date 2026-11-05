@@ -377,6 +377,36 @@ func test_QA64_tablet_keeps_repair_heartbeat_clock_advancing() -> void:
 	(_scene.get("tablet") as PanelContainer).call("close")
 
 
+## QA66: live authoritative refreshes and scale/device rebuilds must preserve
+## the current map viewport rather than silently resetting the player's work.
+func test_QA66_tablet_preserves_map_zoom_and_pan_during_reflow_and_tabs() -> void:
+	_scene.call("_open_tablet")
+	var tablet: PanelContainer = _scene.get("tablet")
+	var close: Button = tablet.get("close_button") as Button
+	close.grab_focus()
+	var original: Container = tablet.get("map") as Container
+	original.call("set_zoom_index", 0)
+	var saved_offset: Vector2 = Vector2(-24.0, -18.0)
+	original.set("offset", saved_offset)
+	tablet.call("set_device", UiText.DEVICE_PAD)
+	var refreshed: Container = tablet.get("map") as Container
+	assert_ne(refreshed, original, "reflow constructs a new map")
+	assert_eq(int(refreshed.get("zoom_index")), 0, "user zoom survives input-device hints")
+	assert_eq(refreshed.get("offset"), saved_offset, "user pan survives the rebuild")
+	assert_eq(_tree.root.gui_get_focus_owner(), tablet.get("close_button"),
+		"reflow must retain the focused close action")
+	_scene.call("_refresh_tablet")
+	assert_eq(int((tablet.get("map") as Container).get("zoom_index")), 0,
+		"authoritative state refresh cannot reset the map zoom")
+	tablet.call("_show_tab", "objectives")
+	assert_true(tablet.get("map") == null, "inactive map is not leaked behind objectives")
+	tablet.call("_show_tab", "network")
+	var returned: Container = tablet.get("map") as Container
+	assert_eq(int(returned.get("zoom_index")), 0, "tab round-trip retains the last map zoom")
+	assert_eq(returned.get("offset"), saved_offset, "tab round-trip restores the pan when still in range")
+	tablet.call("close")
+
+
 ## QA63: recover_self acknowledges before the physical player is teleported.
 ## A pre-teleport checkpoint write on a fallen/out-of-bounds transform fails
 ## BAD_VIEW and permanently disables otherwise healthy persistence.
