@@ -407,6 +407,28 @@ func test_QA66_tablet_preserves_map_zoom_and_pan_during_reflow_and_tabs() -> voi
 	tablet.call("close")
 
 
+## QA68: a temporary viewport fit limit cannot discard the zoom preference.
+func test_QA68_map_zoom_preference_survives_temporary_fit_limit() -> void:
+	_scene.call("_open_tablet")
+	var tablet: PanelContainer = _scene.get("tablet")
+	var live_map: Container = tablet.get("map") as Container
+	# Simulate the fit limit calculated for a very narrow tablet.
+	live_map.set("_max_zoom_index", 1)
+	live_map.call("set_zoom_index", 4)
+	assert_eq(int(live_map.get("_wanted_zoom_index")), 4,
+		"the requested zoom is independent from the current viewport limit")
+	assert_eq(int(live_map.get("zoom_index")), 1, "rendered zoom is safely capped")
+	# Zoom-out must step from the preferred zoom, not the temporarily capped value.
+	tablet.call("_zoom", -1)
+	assert_eq(int(live_map.get("_wanted_zoom_index")), 3)
+	assert_eq(int(live_map.get("zoom_index")), 1)
+	live_map.set("_max_zoom_index", 4)
+	live_map.call("set_zoom_index", int(live_map.get("_wanted_zoom_index")))
+	assert_eq(int(live_map.get("zoom_index")), 3,
+		"the chosen zoom is restored when the viewport permits it")
+	tablet.call("close")
+
+
 ## QA67: the tablet must show responses in the currently visible evidence
 ## pane. Late asynchronous replies cannot describe a different selected node.
 func test_QA67_tablet_ping_outcomes_are_visible_without_content_revision_changes() -> void:
