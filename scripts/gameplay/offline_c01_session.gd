@@ -17,6 +17,7 @@ const MissionDirector := preload("res://scripts/simulation/mission_director.gd")
 const SessionHost := preload("res://scripts/network/session_host.gd")
 const Comms := preload("res://scripts/network/comms_service.gd")
 const IntentOutbox := preload("res://scripts/ui/intent_outbox.gd")
+const OfflineOutboxBridge := preload("res://scripts/gameplay/offline_outbox_bridge.gd")
 const HudPresenter := preload("res://scripts/ui/hud_presenter.gd")
 const TabletPresenter := preload("res://scripts/ui/tablet_presenter.gd")
 const UiText := preload("res://scripts/ui/ui_text.gd")
@@ -116,8 +117,12 @@ func setup(range_check: Callable, position_of: Callable) -> Array[Dictionary]:
 	if not admitted.get("ok", false):
 		errors.append({"code": "OFFLINE_ADMISSION_FAILED", "message": str(admitted)})
 		return errors
-	outbox = IntentOutbox.new(SESSION_ID, func(bytes: PackedByteArray) -> Dictionary: return host.receive(PEER_ID, bytes))
-	outbox.replied.connect(_on_reply)
+	# A closure bound to this RefCounted session forms a cycle through outbox.
+	# The bridge keeps only weak references, so exiting a scene releases the
+	# authoritative host and its complete offline state without manual disposal.
+	var bridge: RefCounted = OfflineOutboxBridge.new(host, self, PEER_ID)
+	outbox = IntentOutbox.new(SESSION_ID, Callable(bridge, "send"))
+	outbox.replied.connect(Callable(bridge, "on_reply"))
 	return errors
 
 
