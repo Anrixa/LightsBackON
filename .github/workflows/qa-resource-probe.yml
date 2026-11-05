@@ -7,6 +7,8 @@ on:
     paths:
       - tools/qa_resource_probe.py
       - tests/python/test_qa_resource_probe.py
+      - scripts/ui/network_tablet.gd
+      - scripts/ui/field_hud.gd
       - .github/workflows/qa-resource-probe.yml
   workflow_dispatch:
 
