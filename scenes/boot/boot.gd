@@ -60,7 +60,7 @@ func _start_qa56_capture_if_requested() -> void:
 	if not QA56FrameProbe.valid_session_id(session_id):
 		push_warning("QA56: invalid or missing session ID; capture disabled")
 		return
-	var probe: Node = QA56FrameProbe.new()
+	var probe := QA56FrameProbe.new()
 	probe.name = "QA56FrameProbe"
 	get_tree().root.add_child(probe)
 	if not probe.configure(session_id):
