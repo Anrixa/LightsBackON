@@ -578,7 +578,11 @@ func _on_action_replied(envelope: Dictionary, reply: Dictionary) -> void:
 		_sync_onboarding_progress()
 	if kind == "place_item":
 		player.carrying = session.equipment.carrier_of(OfflineSession.GENERATOR) == OfflineSession.PLAYER_ID
-	if ["repair_step", "place_item", "toggle_switch", "recover_self", "request_extract"].has(kind):
+	# Recovery moves the physical player only after this reply returns. Saving here
+	# would persist the old (possibly out-of-bounds) position and can disable
+	# checkpoint writes when BAD_VIEW is returned. _recover_player saves after
+	# the authoritative recovery and the local teleport both succeed.
+	if ["repair_step", "place_item", "toggle_switch", "request_extract"].has(kind):
 		_save_checkpoint()
 
 
@@ -726,6 +730,9 @@ func _recover_player() -> void:
 	player.velocity = Vector3.ZERO
 	_last_position_zone = session.inside_van(player.global_position)
 	session.set_in_van_zone(_last_position_zone)
+	# Store the recovered transform, never the invalid pre-teleport position.
+	# The host reply above has already applied durable lock/item recovery.
+	_save_checkpoint()
 	_show_feedback(UiText.t("offline.status.recovered"), true)
 	if _paused:
 		_toggle_pause()
