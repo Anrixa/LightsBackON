@@ -90,3 +90,23 @@ func _assert_labels_released(count: int, use_project_theme: bool) -> void:
 		label = null
 	for ref: WeakRef in weak_controls:
 		assert_true(ref.get_ref() == null, "Control/Label nodes are explicitly freed")
+
+
+func test_QA53_unused_confirmation_dialogs_are_released() -> void:
+	# Compare the only native Window subtree created by the MainMenu with
+	# bare Label probes. The main menu normally never opens this dialog on a
+	# fresh profile, yet it eagerly allocates one per menu instance.
+	var tree: SceneTree = Engine.get_main_loop() as SceneTree
+	var refs: Array[WeakRef] = []
+	for _i: int in 3:
+		var dialog: ConfirmationDialog = ConfirmationDialog.new()
+		dialog.name = "UnusedConfirmation"
+		dialog.title = "Replace existing progress?"
+		dialog.dialog_text = "Continue with a new shift?"
+		tree.root.add_child(dialog)
+		refs.append(weakref(dialog))
+		tree.root.remove_child(dialog)
+		dialog.free()
+		dialog = null
+	for ref: WeakRef in refs:
+		assert_true(ref.get_ref() == null, "unused ConfirmationDialogs must free")
