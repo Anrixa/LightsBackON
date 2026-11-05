@@ -111,7 +111,24 @@ class CaptureIntegrityTests(unittest.TestCase):
         for row in self.data[2]:
             row["gpu_dedicated_bytes"] = ""
         result = check(self.data)
-        self.assertIn("dedicated GPU counter was not observed", result["failures"])
+        self.assertIn("insufficient dedicated GPU counter samples", result["failures"])
+
+    def test_mismatched_frame_interval_fails_integrity(self):
+        # The engine writes both fields from the same monotonic time source.
+        self.data[1][180]["frame_ms"] = "1.0"
+        result = check(self.data)
+        self.assertTrue(any("frame clock continuity" in x for x in result["failures"]))
+
+    def test_unsupported_sample_period_fails_closed(self):
+        self.data[0]["sample_seconds"] = 999
+        result = check(self.data)
+        self.assertTrue(any("sample_seconds must be in 1..10" in x for x in result["failures"]))
+
+    def test_too_few_gpu_samples_is_insufficient(self):
+        for row in self.data[2][10:]:
+            row["gpu_dedicated_bytes"] = ""
+        result = check(self.data)
+        self.assertIn("insufficient dedicated GPU counter samples", result["failures"])
 
     def test_fake_base_release_claim_rejected(self):
         self.data[3]["release_gate"] = "APPROVED"
