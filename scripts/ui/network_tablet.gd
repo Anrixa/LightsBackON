@@ -18,6 +18,7 @@ const FocusScroll := preload("res://scripts/ui/focus_scroll.gd")
 
 const MAP_INTENTS: Array[String] = ["inspect", "ping"]
 const DETAIL_WIDTH_PX: int = 480
+const DETAIL_MAX_CONTENT_FRACTION: float = 0.44
 const SECTION_GAP_PX: int = 16
 const TAB_NETWORK: String = "network"
 const TAB_OBJECTIVES: String = "objectives"
@@ -215,7 +216,7 @@ func _rebuild() -> void:
 	# Keep a usable map at 720p instead of letting the fixed evidence width
 	# consume the available screen once safe margins have been applied.
 	var content_width: float = maxf(1.0, screen_size().x - float(safe * 2))
-	detail_panel.custom_minimum_size.x = minf(ThemeTokens.px(DETAIL_WIDTH_PX, s), content_width * 0.44)
+	detail_panel.custom_minimum_size.x = minf(ThemeTokens.px(DETAIL_WIDTH_PX, s), content_width * DETAIL_MAX_CONTENT_FRACTION)
 	body.add_child(detail_panel)
 	var detail_box: VBoxContainer = VBoxContainer.new()
 	detail_panel.add_child(detail_box)
