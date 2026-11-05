@@ -5,6 +5,7 @@ extends "res://tests/test_case.gd"
 const Offline := preload("res://scripts/gameplay/offline_c01_session.gd")
 const Transport := preload("res://scripts/network/transport_adapter.gd")
 const Restoration := preload("res://scripts/world/restoration_presentation.gd")
+const UiText := preload("res://scripts/ui/ui_text.gd")
 const C01: String = "res://content/contracts/c01_alder_street"
 var _session: Offline
 
