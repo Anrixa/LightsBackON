@@ -41,7 +41,7 @@ def samples():
     }
     summary = {"capture_completeness": "COMPLETE_FOR_REVIEW",
                "release_gate": "PENDING_PHYSICAL_REVIEW"}
-    return meta, frames, resources, summary
+    return [meta, frames, resources, summary]
 
 
 def check(data):
