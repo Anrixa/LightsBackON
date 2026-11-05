@@ -5,7 +5,8 @@ param(
     [string]$Executable = "build\windows\LightsBackOn.exe",
     [string]$OutputDirectory = "build\qa56",
     [ValidateRange(120, 3600)][int]$MaxSeconds = 900,
-    [ValidateRange(1, 10)][int]$SampleSeconds = 2
+    [ValidateRange(1, 10)][int]$SampleSeconds = 2,
+    [switch]$PreflightOnly
 )
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
@@ -15,21 +16,59 @@ if (-not [IO.Path]::IsPathRooted($Executable)) { $Executable = Join-Path $repo $
 if (-not [IO.Path]::IsPathRooted($OutputDirectory)) { $OutputDirectory = Join-Path $repo $OutputDirectory }
 $Executable = [IO.Path]::GetFullPath($Executable)
 $OutputDirectory = [IO.Path]::GetFullPath($OutputDirectory)
+# QA57: source pin + exported package preflight. This validates local package
+# provenance; the running PCK boot line is checked separately after exit.
 if (-not (Test-Path -LiteralPath $Executable -PathType Leaf)) {
-    throw "QA56_EXPORTED_EXE_NOT_FOUND: $Executable"
+    throw "QA57_EXPORTED_EXE_NOT_FOUND: $Executable"
+}
+$packPath = [IO.Path]::ChangeExtension($Executable, ".pck")
+$manifestPath = Join-Path (Split-Path -Parent $Executable) "build_manifest.json"
+if (-not (Test-Path -LiteralPath $packPath -PathType Leaf)) {
+    throw "QA57_EXPORTED_PCK_NOT_FOUND: $packPath"
+}
+if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {
+    throw "QA57_EXPORTED_MANIFEST_NOT_FOUND: $manifestPath"
+}
+$manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+if ([string]$manifest.engine_version -notmatch '^4[.]7[.]2[.]') {
+    throw "QA57_WRONG_GODOT_VERSION"
+}
+if ([string]$manifest.git_commit -notmatch '^[0-9a-f]{40}$') {
+    throw "QA57_UNPINNED_BUILD_COMMIT"
+}
+if ($manifest.git_dirty -ne $false) {
+    throw "QA57_DIRTY_BUILD_REJECTED"
+}
+$gitExe = Get-Command git -ErrorAction SilentlyContinue
+if ($null -eq $gitExe) { throw "QA57_GIT_REQUIRED_FOR_SOURCE_PIN" }
+$checkoutCommit = (& $gitExe.Source -C $repo rev-parse HEAD).Trim()
+if ($LASTEXITCODE -ne 0 -or $checkoutCommit -ne [string]$manifest.git_commit) {
+    throw "QA57_SOURCE_BUILD_COMMIT_MISMATCH"
+}
+$hash = (Get-FileHash -LiteralPath $Executable -Algorithm SHA256).Hash.ToLowerInvariant()
+$packHash = (Get-FileHash -LiteralPath $packPath -Algorithm SHA256).Hash.ToLowerInvariant()
+$manifestHash = (Get-FileHash -LiteralPath $manifestPath -Algorithm SHA256).Hash.ToLowerInvariant()
+if ([string]::IsNullOrWhiteSpace([string]$manifest.build_id)) {
+    throw "QA57_MISSING_BUILD_ID"
+}
+if ($PreflightOnly) {
+    Write-Output "QA57_EXPORT_PREFLIGHT=PASS build=$($manifest.build_id) commit=$checkoutCommit"
+    exit 0
 }
 $session = [Guid]::NewGuid().ToString("N")
 $out = Join-Path $OutputDirectory $session
 New-Item -ItemType Directory -Path $out -Force | Out-Null
-$hash = (Get-FileHash -LiteralPath $Executable -Algorithm SHA256).Hash.ToLowerInvariant()
 $startUtc = [DateTime]::UtcNow
-$videoControllers = @(Get-CimInstance Win32_VideoController -ErrorAction SilentlyContinue |
-    Select-Object -ExpandProperty Name)
+$controllers = @(Get-CimInstance Win32_VideoController -ErrorAction SilentlyContinue)
+$videoControllers = @($controllers | Select-Object -ExpandProperty Name)
 $rows = New-Object "System.Collections.Generic.List[object]"
 $counterAvailable = $false
 $timedOut = $false
+$engineLog = Join-Path $out "godot.log"
+# The quoted log path is a single Godot argument even under a directory with spaces.
+$quotedEngineLog = '"' + $engineLog + '"'
 $game = Start-Process -FilePath $Executable -WorkingDirectory (Split-Path $Executable) `
-    -ArgumentList @("--", "--qa56-capture", "--qa56-id=$session") -PassThru
+    -ArgumentList @("--log-file", $quotedEngineLog, "--", "--qa56-capture", "--qa56-id=$session") -PassThru
 Write-Output "QA56_SESSION=$session PID=$($game.Id)"
 Write-Output "QA56_ACTION=Use F9 to mark successive scenarios; navigate menu, mission, tablet, settings, pause, return, then QUIT."
 try {
@@ -73,15 +112,37 @@ try {
     }
 }
 $videoControllers = @($videoControllers | Where-Object { $_ })
+# Check the actual exported build's boot line, not just its adjacent manifest.
+$runtimeBootVerified = $false
+$engineLogHash = ""
+if (Test-Path -LiteralPath $engineLog -PathType Leaf) {
+    $logText = Get-Content -LiteralPath $engineLog -Raw
+    $expectedBoot = 'Lights Back On boot \| engine 4[.]7[.]2[^\r\n]* \| build ' +
+        [regex]::Escape([string]$manifest.build_id)
+    $runtimeBootVerified = [regex]::IsMatch($logText, $expectedBoot)
+    $engineLogHash = (Get-FileHash -LiteralPath $engineLog -Algorithm SHA256).Hash.ToLowerInvariant()
+}
 $metadata = [ordered]@{
     schema_version = 1
     session_id = $session
     capture_started_utc = $startUtc.ToString("o")
     executable_sha256 = $hash
+    pack_sha256 = $packHash
+    build_manifest_sha256 = $manifestHash
     executable_file_name = [IO.Path]::GetFileName($Executable)
+    build_id = [string]$manifest.build_id
+    git_commit = $checkoutCommit
+    git_dirty = [bool]$manifest.git_dirty
+    engine_version = [string]$manifest.engine_version
+    sample_seconds = $SampleSeconds
+    runtime_boot_manifest_verified = $runtimeBootVerified
+    runtime_log_sha256 = $engineLogHash
+    frame_csv_sha256 = ""
+    resource_csv_sha256 = ""
     godot_expected_version = "4.7.2"
     windows_version = [Environment]::OSVersion.Version.ToString()
     video_controller_names = $videoControllers
+    video_controller_driver_versions = @($controllers | ForEach-Object { [string]$_.DriverVersion })
     process_id = $game.Id
     exited_naturally = (-not $timedOut -and $game.HasExited -and $game.ExitCode -eq 0)
     process_exit_code = $(if ($game.HasExited) { $game.ExitCode } else { $null })
@@ -104,6 +165,14 @@ if ($matches.Count -ne 1) {
     exit 2
 }
 Copy-Item -LiteralPath $matches[0].FullName -Destination (Join-Path $out "frames.csv")
+# Bind both samples to this local receipt; modification invalidates review.
+$metadata["frame_csv_sha256"] = (
+    Get-FileHash -LiteralPath (Join-Path $out "frames.csv") -Algorithm SHA256
+).Hash.ToLowerInvariant()
+$metadata["resource_csv_sha256"] = (
+    Get-FileHash -LiteralPath (Join-Path $out "resources.csv") -Algorithm SHA256
+).Hash.ToLowerInvariant()
+$metadata | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $out "metadata.json") -Encoding UTF8
 $py = Get-Command python -ErrorAction SilentlyContinue
 if ($null -ne $py) {
     & python (Join-Path $repo "tools\qa56_analyze.py") `
@@ -117,10 +186,25 @@ if ($null -ne $py) {
         --output (Join-Path $out "report.json")
 }
 $result = $LASTEXITCODE
+$qa57Args = @(
+    (Join-Path $repo "tools\qa57_integrity.py"),
+    "--metadata", (Join-Path $out "metadata.json"),
+    "--frames", (Join-Path $out "frames.csv"),
+    "--resources", (Join-Path $out "resources.csv"),
+    "--report", (Join-Path $out "report.json"),
+    "--boot-log", $engineLog,
+    "--output", (Join-Path $out "integrity.json")
+)
+if ($null -ne $py) {
+    & python @qa57Args
+} else {
+    & py -3 @qa57Args
+}
+$integrityResult = $LASTEXITCODE
 Write-Output "QA56_OUTPUT=$out"
 if ($timedOut -or -not $game.HasExited -or $game.ExitCode -ne 0) {
     Write-Warning "QA56_NOT_COMPLETE: process did not exit normally; capture cannot qualify"
     exit 2
 }
-if ($result -ne 0) { exit $result }
-Write-Output "QA56_CAPTURE_COMPLETE_FOR_REVIEW; release acceptance still requires physical UX review."
+if ($result -ne 0 -or $integrityResult -ne 0) { exit 2 }
+Write-Output "QA57_CAPTURE_COMPLETE_FOR_PHYSICAL_REVIEW; physical UX and GPU acceptance remain pending."

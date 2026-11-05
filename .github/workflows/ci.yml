@@ -72,6 +72,17 @@ jobs:
           Write-Output "QA56_POWERSHELL_PARSE=PASS"
       - name: Install Windows export templates (SHA512-verified)
         run: GODOT_TEMPLATES_DIR="$APPDATA/Godot/export_templates/${GODOT_VERSION%-stable}.stable" bash tools/setup_export_templates.sh
+      - name: QA57 diagnose worktree cleanliness before manifest
+        run: |
+          git status --short --untracked-files=all
+      - name: QA57 require committed Godot script UID sidecars
+        run: |
+          missing="$(git ls-files --others --exclude-standard '*.gd.uid')"
+          if [ -n "$missing" ]; then
+            printf 'QA57_MISSING_TRACKED_UIDS:\n%s\n' "$missing"
+            exit 1
+          fi
+          echo "QA57_TRACKED_GODOT_UIDS=PASS"
       - name: Write build manifest
         run: python tools/build_manifest.py --godot "$GODOT_BIN"
       - name: Export Windows release build
@@ -89,6 +100,11 @@ jobs:
         run: |
           cp build_manifest.json build/windows/
           sha256sum build/windows/* | tee build/SHA256SUMS.txt
+      - name: QA57 verify exported EXE/PCK + manifest source pin (no GPU launch)
+        shell: pwsh
+        run: |
+          & ./tools/Start-QA56-WindowsCapture.ps1 `
+            -Executable build/windows/LightsBackOn.exe -PreflightOnly
       - uses: actions/upload-artifact@v4
         with:
           name: windows-build-${{ github.sha }}
