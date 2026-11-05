@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Isolate Godot headless lifetime warnings without suppressing engine diagnostics.
 
-QA #51: A passing test suite does not imply its exit-time RID/ObjectDB warnings
+QA #51 / QA52: A passing test suite does not imply its exit-time RID/ObjectDB warnings
 are harmless. Run a no-fixture baseline and small, reproducible fixture groups
 as separate Godot processes so teardown costs can be compared on both CI OSes.
 This is diagnostic evidence, not a physical GPU memory benchmark.
@@ -9,6 +9,7 @@ This is diagnostic evidence, not a physical GPU memory benchmark.
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 from datetime import datetime, timezone
 import json
 import os
@@ -27,6 +28,20 @@ CASES = {
     "tablet_objectives_only": ["--filter=DS05_tablet"],
     "tablet_footer_only": ["--filter=DS05_network"],
     "tablet_scene": ["--filter=DS05"],
+    # QA52: isolate residual teardown warnings by independently running the
+    # individual legacy UI/world fixture families after the orphaned map fix.
+    # Filter by exact file token or test-method token, not an ad-hoc scene guess.
+    "menu_reflow": ["--filter=DS01"],
+    "menu_geometry_only": ["--filter=DS01_menu_reflows"],
+    "menu_focus_only": ["--filter=DS01_primary"],
+    "offline_ownership": ["--filter=QA52_lifetime"],
+    "v07_unit": ["--filter=V07_ui"],
+    "v07_hud_layout": ["--filter=V07_hud_fits"],
+    "v07_tablet_layout": ["--filter=V07_tablet_fits"],
+    "v07_focus": ["--filter=V07_directional_focus"],
+    "v07_live": ["--filter=V07_live"],
+    "a04_live": ["--filter=A04_live"],
+    "v01_offline": ["--filter=V01_offline"],
 }
 # Measured on both hosted OSes after eliminating unparented Objectives maps.
 # These cases must never recreate detached UI trees with leaked canvas/texture RIDs.
@@ -34,6 +49,13 @@ RID_LIMITS = {
     "tablet_objectives_only": {"CanvasItem": 0, "DummyTexture": 0},
     "tablet_footer_only": {"CanvasItem": 0, "DummyTexture": 0},
     "tablet_scene": {"CanvasItem": 0, "DummyTexture": 0},
+    # QA52 recovered a real RefCounted cycle in the production offline host
+    # adapter. Both hosted OSes now release these headless fixture graphs
+    # completely. Keep a strict zero ceiling to catch accidental regressions.
+    "offline_ownership": {"ObjectDB": 0, "CanvasItem": 0, "DummyTexture": 0},
+    "power_scene": {"ObjectDB": 0, "CanvasItem": 0, "DummyTexture": 0},
+    "v07_live": {"ObjectDB": 0, "CanvasItem": 0, "DummyTexture": 0},
+    "a04_live": {"ObjectDB": 0, "CanvasItem": 0, "DummyTexture": 0},
 }
 
 LEAK_PATTERNS = (
@@ -45,6 +67,7 @@ LEAK_PATTERNS = (
 )
 TEST_SUMMARY = re.compile(r"tests: (\d+) passed, (\d+) failed, (\d+) assertions")
 LEAK_DETAIL = re.compile(r"(?im)^.*(?:leaked instance|orphaned|RID allocations|ObjectDB instances|RIDs of type).*?$")
+LEAKED_CLASS = re.compile(r"(?m)^Leaked instance: ([A-Za-z0-9_]+):\d+ - Reference count:")
 
 
 def parse_log(log: str) -> dict[str, object]:
@@ -54,7 +77,9 @@ def parse_log(log: str) -> dict[str, object]:
         matches = pattern.findall(log)
         counts[label] = sum(int(value) for value in matches)
     summary = TEST_SUMMARY.search(log)
+    owners: Counter[str] = Counter(LEAKED_CLASS.findall(log))
     return {
+        "leaked_object_classes": dict(sorted(owners.items(), key=lambda kv: (-kv[1], kv[0]))),
         "counts": counts,
         "passed": int(summary.group(1)) if summary else None,
         "failed": int(summary.group(2)) if summary else None,
@@ -136,7 +161,9 @@ def main() -> int:
               f"leaks={case['counts']} delta={case['delta_from_empty']} "
               f"probe={'PASS' if case['probe_passed'] else 'FAIL'}")
         if case["counts"]["CanvasItem"] or case["counts"]["ObjectDB"]:
-            for line in case["warning_excerpt"][:8]:
+            print("  QA52_OBJECT_CLASSES " + json.dumps(
+                dict(list(case["leaked_object_classes"].items())[:12]), sort_keys=True))
+            for line in case["warning_excerpt"][:5]:
                 print("  QA51_OWNER " + line[:260])
     (args.out_dir / "summary.json").write_text(
         json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8"

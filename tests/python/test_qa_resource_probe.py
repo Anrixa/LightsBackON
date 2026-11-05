@@ -1,7 +1,7 @@
 """QA51 parser tests: prove that diagnostic warnings remain visible as counts."""
 import unittest
 
-from tools.qa_resource_probe import parse_log, regression_violations
+from tools.qa_resource_probe import CASES, parse_log, regression_violations
 
 
 class ResourceProbeTests(unittest.TestCase):
@@ -36,7 +36,40 @@ ERROR: 1 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were le
         leaked = {"CanvasItem": 340, "ObjectDB": 814, "DummyTexture": 4}
         self.assertEqual(len(regression_violations("tablet_objectives_only", leaked)), 2)
         # Residual ObjectDB warnings stay visible but are not silently declared a fix.
-        self.assertEqual(regression_violations("power_scene", leaked), [])
+        self.assertEqual(regression_violations("menu_reflow", leaked), [],
+                         "unqualified renderer/font warnings remain visible, not falsely gated")
+
+    def test_qa52_isolates_existing_test_families(self):
+        self.assertEqual(CASES["v07_unit"], ["--filter=V07_ui"])
+        self.assertEqual(CASES["v07_tablet_layout"], ["--filter=V07_tablet_fits"])
+        self.assertEqual(CASES["v07_live"], ["--filter=V07_live"])
+        self.assertEqual(CASES["a04_live"], ["--filter=A04_live"])
+
+    def test_qa52_aggregates_verbose_leaked_object_owners(self):
+        log = """Leaked instance: GDScript:9223372077187204606 - Reference count: 8
+Leaked instance: StyleBoxFlat:9223372061567616381 - Reference count: 2
+Leaked instance: GDScript:9223372066231682559 - Reference count: 7
+tests: 2 passed, 0 failed, 10 assertions
+"""
+        parsed = parse_log(log)
+        self.assertEqual(parsed["leaked_object_classes"], {
+            "GDScript": 2, "StyleBoxFlat": 1
+        })
+        self.assertEqual(parsed["passed"], 2)
+
+    def test_qa52_live_host_lifetime_rejects_refcount_regressions(self):
+        clean = {"CanvasItem": 0, "ObjectDB": 0, "DummyTexture": 0}
+        for case in ("offline_ownership", "power_scene", "v07_live", "a04_live"):
+            self.assertEqual(regression_violations(case, clean), [])
+            escaped = {**clean, "ObjectDB": 1}
+            self.assertEqual(
+                regression_violations(case, escaped),
+                ["ObjectDB=1 exceeds 0"],
+                f"{case} must catch a leaked host or outbox graph",
+            )
+        # The separate text-renderer and menu lifecycle investigation remains
+        # visible without asserting that remaining RID warnings are resolved.
+        self.assertEqual(regression_violations("menu_reflow", escaped), [])
 
     def test_script_error_cannot_be_hidden_by_passing_summary(self):
         parsed = parse_log("SCRIPT ERROR: Invalid set index\ntests: 5 passed, 0 failed, 7 assertions")
