@@ -357,6 +357,26 @@ func test_QA62_completion_replaces_paused_modal_without_hidden_focus() -> void:
 	assert_false(bool((_scene.get("player") as Node).get("enabled")))
 
 
+## QA64: the tablet is a read-only modal, not a pause of authoritative time.
+## Its host tick must retain the normal lock-liveness schedule while open.
+func test_QA64_tablet_keeps_repair_heartbeat_clock_advancing() -> void:
+	var session: RefCounted = _scene.get("session")
+	var player: Node = _scene.get("player")
+	_scene.set("_heartbeat_accumulator", 0.0)
+	_scene.call("_open_tablet")
+	var before_tick: int = int(session.get("_tick"))
+	for _i: int in 6:
+		_scene.call("_physics_process", 0.25)
+	assert_true((_scene.get("tablet") as PanelContainer).visible)
+	assert_false(bool(player.get("enabled")), "tablet still blocks world controls")
+	assert_true(int(session.get("_tick")) >= before_tick + 14,
+		"authoritative host time continues underneath the tablet")
+	var remaining: float = float(_scene.get("_heartbeat_accumulator"))
+	assert_true(remaining > 0.2 and remaining < 0.9,
+		"heartbeat period must elapse and restart while tablet is visible, got %s" % str(remaining))
+	(_scene.get("tablet") as PanelContainer).call("close")
+
+
 ## QA63: recover_self acknowledges before the physical player is teleported.
 ## A pre-teleport checkpoint write on a fallen/out-of-bounds transform fails
 ## BAD_VIEW and permanently disables otherwise healthy persistence.
