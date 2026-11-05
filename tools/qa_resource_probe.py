@@ -49,6 +49,13 @@ RID_LIMITS = {
     "tablet_objectives_only": {"CanvasItem": 0, "DummyTexture": 0},
     "tablet_footer_only": {"CanvasItem": 0, "DummyTexture": 0},
     "tablet_scene": {"CanvasItem": 0, "DummyTexture": 0},
+    # QA52 recovered a real RefCounted cycle in the production offline host
+    # adapter. Both hosted OSes now release these headless fixture graphs
+    # completely. Keep a strict zero ceiling to catch accidental regressions.
+    "offline_ownership": {"ObjectDB": 0, "CanvasItem": 0, "DummyTexture": 0},
+    "power_scene": {"ObjectDB": 0, "CanvasItem": 0, "DummyTexture": 0},
+    "v07_live": {"ObjectDB": 0, "CanvasItem": 0, "DummyTexture": 0},
+    "a04_live": {"ObjectDB": 0, "CanvasItem": 0, "DummyTexture": 0},
 }
 
 LEAK_PATTERNS = (
