@@ -40,7 +40,7 @@ $timedOut = $false
 $engineLog = Join-Path $out "godot.log"
 # Read the boot identity from the *running exported PCK*, not only the
 # adjacent human-readable manifest. This detects a stale/copied PCK sidecar.
-$quotedEngineLog = '\"' + $engineLog + '\"'
+$quotedEngineLog = '"' + $engineLog + '"'
 $game = Start-Process -FilePath $Executable -WorkingDirectory (Split-Path $Executable) `
     -ArgumentList @("--log-file", $quotedEngineLog, "--", "--qa56-capture", "--qa56-id=$session") -PassThru
 Write-Output "QA56_SESSION=$session PID=$($game.Id)"
