@@ -98,6 +98,7 @@ func open() -> void:
 
 func close() -> void:
 	visible = false
+	_status_text = ""
 	if _previous_focus != null and is_instance_valid(_previous_focus) and _previous_focus.is_visible_in_tree():
 		_previous_focus.grab_focus()
 	elif is_inside_tree() and get_viewport().gui_get_focus_owner() != null:
