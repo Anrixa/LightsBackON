@@ -86,12 +86,13 @@ func test_DS05_tablet_objectives_scroll_with_35_percent_longer_text() -> void:
 	var overlay: Control = _scene.get("_overlay")
 	# Exercise actual tablet tree reflow in a bounded 720p overlay; no
 	# exported Windows render is claimed by this headless layout probe.
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
 	overlay.size = Vector2(1280, 720)
 	tablet.call("_show_tab", "objectives")
 	tablet.call("set_ui_scale", 150)
 	var scroll: ScrollContainer = tablet.get("_objective_scroll")
 	assert_true(scroll != null and scroll.is_inside_tree())
-	assert_eq(scroll.name, "ObjectivesScroll")
+	assert_eq(str(scroll.name), "ObjectivesScroll")
 	assert_eq(scroll.focus_mode, Control.FOCUS_ALL)
 	assert_true((tablet.call("focusables") as Array).has(scroll),
 		"the controller can focus the objective list and scroll it")
@@ -121,7 +122,9 @@ func test_DS05_tablet_objectives_scroll_with_35_percent_longer_text() -> void:
 func test_DS05_network_footer_keeps_close_in_focus_graph_after_reflow() -> void:
 	_scene.call("_open_tablet")
 	var tablet: PanelContainer = _scene.get("tablet")
-	(_scene.get("_overlay") as Control).size = Vector2(1280, 720)
+	var overlay: Control = _scene.get("_overlay")
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+	overlay.size = Vector2(1280, 720)
 	tablet.call("set_ui_scale", 150)
 	assert_eq(tablet.get("tab"), "network")
 	var close: Button = tablet.get("close_button")
