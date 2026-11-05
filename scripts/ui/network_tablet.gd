@@ -201,14 +201,17 @@ func _rebuild() -> void:
 	_body_left = PanelContainer.new()
 	_body_left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	body.add_child(_body_left)
-	map = TabletMap.new()
-	map.name = "Map"
-	map.setup(tokens, s, _view)
-	map.node_activated.connect(func(nid: String) -> void:
-		select(nid)
-		inspect_selected())
-	map.node_focused.connect(select)
+	# A map built for the Objectives tab would never be parented. Those
+	# detached CanvasItems survive teardown across repeated scale/device reflow.
+	map = null
 	if tab == TAB_NETWORK:
+		map = TabletMap.new()
+		map.name = "Map"
+		map.setup(tokens, s, _view)
+		map.node_activated.connect(func(nid: String) -> void:
+			select(nid)
+			inspect_selected())
+		map.node_focused.connect(select)
 		_body_left.add_child(map)
 	else:
 		_objective_scroll = _objective_list()
@@ -390,7 +393,9 @@ func _footer() -> Control:
 		zoom_buttons.append(b)
 	var center: Button = _button(actions, UiText.t("tablet.center"))
 	center.name = "Center"
-	center.pressed.connect(func() -> void: map.center_view())
+	center.pressed.connect(func() -> void:
+		if map != null:
+			map.center_view())
 	zoom_buttons.append(center)
 	for b: Button in zoom_buttons:
 		b.visible = tab == TAB_NETWORK
@@ -470,6 +475,9 @@ func _show_tab(t: String) -> void:
 
 
 func _zoom(step: int) -> void:
+	# Controller tool actions may still arrive while the Objectives tab is open.
+	if tab != TAB_NETWORK or map == null:
+		return
 	map.set_zoom_index(map.zoom_index + step)
 	map.ensure_visible(selected)
 
