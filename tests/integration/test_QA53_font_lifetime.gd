@@ -110,3 +110,34 @@ func test_QA53_unused_confirmation_dialogs_are_released() -> void:
 		dialog = null
 	for ref: WeakRef in refs:
 		assert_true(ref.get_ref() == null, "unused ConfirmationDialogs must free")
+
+
+func test_QA53_explicitly_shaped_plain_labels_are_released() -> void:
+	_assert_shaped_labels_released(3, false)
+
+
+func test_QA53_explicitly_shaped_project_labels_are_released() -> void:
+	_assert_shaped_labels_released(3, true)
+
+
+func _assert_shaped_labels_released(count: int, use_project_theme: bool) -> void:
+	var tree: SceneTree = Engine.get_main_loop() as SceneTree
+	var tokens: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://content/ui/tokens.json"))
+	for i: int in count:
+		var parent: Control = Control.new()
+		parent.size = Vector2(240, 180)
+		tree.root.add_child(parent)
+		if use_project_theme:
+			parent.theme = ThemeTokens.build(tokens)
+		var text: Label = Label.new()
+		text.text = "Lengthy translated briefing for step %d, repeated for wrapping in the compact viewport." % i
+		text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		parent.add_child(text)
+		text.size = Vector2(120, 96)
+		assert_true(text.get_line_count() > 0, "force TextParagraph shaping before teardown")
+		var ref: WeakRef = weakref(text)
+		tree.root.remove_child(parent)
+		parent.free()
+		parent = null
+		text = null
+		assert_true(ref.get_ref() == null, "shaped label node is freed")
