@@ -421,8 +421,9 @@ func _fill_detail() -> void:
 	if _detail == null:
 		return
 	for c: Node in _detail.get_children():
-		_detail.remove_child(c)
+		# Queue while attached so the SceneTree owns the deferred deletion.
 		c.queue_free()
+		_detail.remove_child(c)
 	var v: Dictionary = _view["nodes"].get(selected, {})
 	if v.is_empty():
 		return
