@@ -35,6 +35,8 @@ var _world_fx: RestorationPresentation
 var _store: OfflinePersistence
 var _save_enabled: bool = false
 var _save_issue: String = ""
+var _feedback_remaining_s: float = 0.0
+var _feedback_persistent: bool = false
 var _restored_view: Dictionary = {}
 var _overlay: Control
 var _pause_panel: PanelContainer
@@ -100,7 +102,7 @@ func _ready() -> void:
 		else:
 			_settings_changed(settings.snapshot(), false)
 	if _save_issue != "":
-		_status.text = UiText.tf("offline.status.save_unavailable", [_save_issue])
+		_show_feedback(UiText.tf("offline.status.save_unavailable", [_save_issue]), true, not _save_enabled)
 	if _save_enabled and not resume:
 		_save_checkpoint()
 	session.changed.connect(_refresh_hud)
@@ -134,7 +136,7 @@ func _save_checkpoint() -> void:
 		_save_enabled = false
 		_save_issue = str(result.get("code", "SAVE_ERROR"))
 		if _status != null:
-			_status.text = UiText.tf("offline.status.save_unavailable", [_save_issue])
+			_show_feedback(UiText.tf("offline.status.save_unavailable", [_save_issue]), true, true)
 
 
 static func _json(path: String) -> Dictionary:
@@ -350,6 +352,10 @@ func _layout_onboarding(screen_size: Vector2) -> void:
 	onboarding.offset_top = safe
 	onboarding.offset_bottom = safe + height
 	if _status != null:
+		# The feedback banner is anchored to the viewport safe area, not a fixed 720px width.
+		var banner_width: float = minf(screen_size.x - safe * 2.0, 720.0 * effective / 100.0)
+		_status.offset_left = -banner_width * 0.5
+		_status.offset_right = banner_width * 0.5
 		_status.offset_top = safe + height + 8.0
 		_status.offset_bottom = _status.offset_top + float(ThemeTokens.px(50.0, effective))
 
@@ -388,6 +394,13 @@ func _input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
 	if _world_fx != null:
 		_world_fx.advance(delta)
+	# Time only transient presentation while playing. A save failure cannot be hidden
+	# by a later accepted action or silently disappear after a timeout.
+	if _status != null and not _feedback_persistent and _feedback_remaining_s > 0.0:
+		if not _paused and not _finished and (tablet == null or not tablet.visible):
+			_feedback_remaining_s = maxf(0.0, _feedback_remaining_s - maxf(0.0, delta))
+			if _feedback_remaining_s <= 0.0:
+				_status.text = ""
 	if onboarding != null and not _paused and not _finished and tablet != null and not tablet.visible:
 		onboarding.advance_idle(delta)
 
@@ -491,7 +504,7 @@ func _interact() -> void:
 		return
 	var reply: Dictionary = session.interact(_target, TOOL_LIST[_slot - 1])
 	if not reply.get("ok", false):
-		_status.text = str(reply.get("message", UiText.t("offline.status.refused")))
+		_show_feedback(str(reply.get("message", UiText.t("offline.status.refused"))), true)
 
 
 func _select_slot(number: int) -> void:
@@ -514,11 +527,18 @@ func _on_player_moved() -> void:
 
 
 func _on_action_replied(envelope: Dictionary, reply: Dictionary) -> void:
-	if not reply.get("ok", false):
-		_status.text = str(reply.get("message", UiText.t("offline.status.refused")))
-		return
 	var kind: String = str(envelope["type"])
-	_status.text = UiText.tf("offline.status.accepted", [UiText.t("offline.verb." + _action_verb(kind))])
+	# Heartbeats are a recurring internal lock-liveness command, not a player
+	# action. Showing their generic acknowledgement repeatedly masks real repair
+	# feedback; neither accepted nor rejected heartbeats touch the status banner.
+	if kind == "heartbeat":
+		return
+	if not reply.get("ok", false):
+		_show_feedback(str(reply.get("message", UiText.t("offline.status.refused"))), true)
+		return
+	# Tool selection is already conveyed by the live loadout, not another toast.
+	if kind != "equip":
+		_show_feedback(UiText.tf("offline.status.accepted", [UiText.t("offline.verb." + _action_verb(kind))]))
 	if kind == "inspect":
 		onboarding.observe("meter_measured")
 		_refresh_tablet()
@@ -545,16 +565,28 @@ static func _action_verb(kind: String) -> String:
 	return "interact"
 
 
+
+## Single status channel: transients expire, but persistent save faults survive
+## ordinary host acknowledgements. Durations are authored in offline_solo.json.
+func _show_feedback(message: String, important: bool = false, persistent: bool = false) -> void:
+	if _status == null or (_feedback_persistent and not persistent):
+		return
+	_status.text = message
+	_feedback_persistent = persistent
+	var timing: Dictionary = _solo_tuning["feedback"]
+	_feedback_remaining_s = float(timing["important_seconds"] if important else timing["normal_seconds"])
+
+
 func _on_mission_event(event: Dictionary) -> void:
 	var kind: String = str(event.get("type", ""))
 	match kind:
 		"latch":
-			_status.text = UiText.t("offline.status.drain")
+			_show_feedback(UiText.t("offline.status.drain"), true)
 		"verified":
-			_status.text = UiText.t("offline.status.verified")
+			_show_feedback(UiText.t("offline.status.verified"), true)
 			_save_checkpoint()
 		"trip":
-			_status.text = UiText.t("offline.status.trip")
+			_show_feedback(UiText.t("offline.status.trip"), true)
 		"mission_complete":
 			_save_checkpoint()
 			_finish()
@@ -652,13 +684,13 @@ func _settings_changed(_values: Dictionary, persist: bool = true) -> void:
 		var result: Dictionary = _store.write_preferences(settings)
 		if not result.get("ok", false):
 			_save_issue = str(result.get("code", "PROFILE_WRITE_ERROR"))
-			_status.text = UiText.tf("offline.status.save_unavailable", [_save_issue])
+			_show_feedback(UiText.tf("offline.status.save_unavailable", [_save_issue]), true, true)
 
 
 func _recover_player() -> void:
 	var result: Dictionary = session.command("recover_self", "", {})
 	if not result.get("ok", false):
-		_status.text = str(result.get("message", ""))
+		_show_feedback(str(result.get("message", UiText.t("offline.status.refused"))), true)
 		return
 	var spawn: Marker3D = _world.get_node("Markers/SPAWN_1") as Marker3D
 	var dimensions: Dictionary = _json("res://content/world/kit_dimensions.json")
@@ -666,7 +698,7 @@ func _recover_player() -> void:
 	player.velocity = Vector3.ZERO
 	_last_position_zone = session.inside_van(player.global_position)
 	session.set_in_van_zone(_last_position_zone)
-	_status.text = UiText.t("offline.status.recovered")
+	_show_feedback(UiText.t("offline.status.recovered"), true)
 	if _paused:
 		_toggle_pause()
 
