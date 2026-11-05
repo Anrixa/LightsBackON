@@ -42,6 +42,7 @@ var equipment: Equipment
 var mission: MissionDirector
 var host: SessionHost
 var outbox: IntentOutbox
+var _outbox_bridge: RefCounted  # keep the weak-reference relay alive while this session exists
 var _content: Dictionary = {}
 var _markers: Dictionary = {}
 var _repairs_by_panel: Dictionary = {}
@@ -120,9 +121,9 @@ func setup(range_check: Callable, position_of: Callable) -> Array[Dictionary]:
 	# A closure bound to this RefCounted session forms a cycle through outbox.
 	# The bridge keeps only weak references, so exiting a scene releases the
 	# authoritative host and its complete offline state without manual disposal.
-	var bridge: RefCounted = OfflineOutboxBridge.new(host, self, PEER_ID)
-	outbox = IntentOutbox.new(SESSION_ID, Callable(bridge, "send"))
-	outbox.replied.connect(Callable(bridge, "on_reply"))
+	_outbox_bridge = OfflineOutboxBridge.new(host, self, PEER_ID)
+	outbox = IntentOutbox.new(SESSION_ID, Callable(_outbox_bridge, "send"))
+	outbox.replied.connect(Callable(_outbox_bridge, "on_reply"))
 	return errors
 
 
