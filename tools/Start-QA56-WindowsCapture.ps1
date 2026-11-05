@@ -83,7 +83,8 @@ $metadata = [ordered]@{
     windows_version = [Environment]::OSVersion.Version.ToString()
     video_controller_names = $videoControllers
     process_id = $game.Id
-    exited_naturally = (-not $timedOut -and $game.HasExited)
+    exited_naturally = (-not $timedOut -and $game.HasExited -and $game.ExitCode -eq 0)
+    process_exit_code = $(if ($game.HasExited) { $game.ExitCode } else { $null })
     process_samples = $rows.Count
     gpu_counter_seen = $counterAvailable
     capture_timed_out = $timedOut
@@ -117,5 +118,9 @@ if ($null -ne $py) {
 }
 $result = $LASTEXITCODE
 Write-Output "QA56_OUTPUT=$out"
+if ($timedOut -or -not $game.HasExited -or $game.ExitCode -ne 0) {
+    Write-Warning "QA56_NOT_COMPLETE: process did not exit normally; capture cannot qualify"
+    exit 2
+}
 if ($result -ne 0) { exit $result }
 Write-Output "QA56_CAPTURE_COMPLETE_FOR_REVIEW; release acceptance still requires physical UX review."
