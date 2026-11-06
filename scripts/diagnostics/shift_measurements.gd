@@ -21,6 +21,7 @@ var _max_objectives: int = 0
 var _last_tick: int = 0
 var _dropped: int = 0
 var _events: Array[Dictionary] = []
+var _first_repair_observed: bool = false
 var _objective_states: Dictionary = {}
 var _last_activity_tick: int = 0
 var _idle_since_tick: int = -1
@@ -34,6 +35,7 @@ func begin(opted_in: bool, policy: Dictionary) -> bool:
 	_events.clear()
 	_last_tick = 0
 	_dropped = 0
+	_first_repair_observed = false
 	_objective_states.clear()
 	_last_activity_tick = 0
 	_idle_since_tick = -1
@@ -127,3 +129,16 @@ func mark_activity(tick: int) -> void:
 		_idle_since_tick = -1
 	_last_activity_tick = tick
 	_last_tick = tick
+
+
+## Accepted host repair command only. A refusal or recurring heartbeat never
+## counts as a repair, and the event cannot leak the panel or participant ID.
+func note_first_repair(tick: int) -> void:
+	if not _first_repair_observed and note("first_repair", tick):
+		_first_repair_observed = true
+
+
+## No Steam disconnect is inferred from a solo pause or ordinary scene exit.
+## Connected-play adapters may call this only on a confirmed peer loss.
+func note_disconnect(tick: int) -> void:
+	note("connection_lost", tick)

@@ -110,3 +110,56 @@ func test_MEASURE10_activity_closes_idle_with_bounded_duration() -> void:
 	assert_eq(events[2]["value_ticks"], 12)
 	meter.observe_tick(65, rows)
 	assert_eq((meter.snapshot()["events"] as Array).size(), 3)
+
+
+func test_MEASURE11_only_first_accepted_repair_is_recorded_once() -> void:
+	assert_true(meter.begin(true, POLICY))
+	meter.note_first_repair(4)
+	meter.note_first_repair(8)
+	var events: Array = meter.snapshot()["events"]
+	assert_eq(events.size(), 2)
+	assert_eq(events[1]["kind"], "first_repair")
+	assert_eq(events[1]["tick"], 4)
+
+
+func test_MEASURE12_host_event_flags_never_expose_grid_entity_ids() -> void:
+	assert_true(meter.begin(true, POLICY))
+	assert_true(meter.note("protection_trip", 3))
+	assert_true(meter.note("supply_verified", 7))
+	var report: Dictionary = meter.snapshot()
+	var serialized: String = JSON.stringify(report)
+	assert_false(serialized.contains("GRID"))
+	assert_false(serialized.contains("player_id"))
+	assert_eq((report["events"] as Array)[2]["kind"], "supply_verified")
+
+
+func test_MEASURE13_hint_event_is_integer_clocked_and_user_requested() -> void:
+	assert_true(meter.begin(true, POLICY))
+	meter.mark_activity(3)
+	assert_true(meter.note("hint_requested", 3))
+	assert_eq((meter.snapshot()["events"] as Array)[1]["kind"], "hint_requested")
+
+
+func test_MEASURE14_solo_exit_does_not_masquerade_as_disconnect() -> void:
+	assert_true(meter.begin(true, POLICY))
+	assert_true(meter.note("session_left", 3))
+	var events: Array = meter.snapshot()["events"]
+	assert_eq(events[1]["kind"], "session_left")
+	meter.note_disconnect(4)
+	assert_eq((meter.snapshot()["events"] as Array)[2]["kind"], "connection_lost")
+
+
+func test_MEASURE15_real_C01_scene_wires_host_events_without_identity_fields() -> void:
+	var packed: PackedScene = load("res://scenes/mission/mission_root.tscn") as PackedScene
+	var root: Node = packed.instantiate()
+	var tree: SceneTree = Engine.get_main_loop() as SceneTree
+	tree.root.add_child(root)
+	var recorder: RefCounted = root.get("_measurements")
+	assert_true(recorder != null)
+	assert_true(recorder.call("begin", true, POLICY))
+	root.call("_on_mission_event", {"type": "trip", "tick": 1, "peer_id": "SENSITIVE"})
+	var report: Dictionary = recorder.call("snapshot")
+	assert_eq((report["events"] as Array)[1]["kind"], "protection_trip")
+	assert_false(JSON.stringify(report).contains("SENSITIVE"))
+	tree.root.remove_child(root)
+	root.free()
