@@ -261,8 +261,10 @@ func on_reply(envelope: Dictionary, reply: Dictionary) -> void:
 	var kind: String = str(envelope.get("type", ""))
 	if kind != "inspect" and kind != "ping":
 		return
-	# All production envelopes carry a monotonic outbox sequence. Older
-	# test fixtures without a sequence still exercise the presentation path.
+	# Never render an unsolicited or sequence-less acknowledgment. Outbox
+	# replies carry integer sequences, and must match an outstanding dispatch.
+	if not envelope.has("seq") or typeof(envelope["seq"]) != TYPE_INT:
+		return
 	if envelope.has("seq"):
 		var request_seq: int = int(envelope["seq"])
 		if not _pending_tablet_requests.has(request_seq):
