@@ -464,6 +464,34 @@ func test_QA86_new_dispatch_clears_previous_action_result_until_new_reply() -> v
 	tablet.close()
 
 
+## QA95: synchronous outbox callbacks must not trigger nested sends from
+## the same tablet, which would overwrite the expected sequence for the first.
+func test_QA95_reentrant_tablet_action_cannot_corrupt_original_dispatch() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1280, 720), 150)
+	tablet.open()
+	tablet.select("TEMP")
+	var outbox: RefCounted = tablet.get("_bound_outbox")
+	var attempted: Array[bool] = [false]
+	var nested: Callable = func(_envelope: Dictionary) -> void:
+		if attempted[0]:
+			return
+		attempted[0] = true
+		tablet.ping_selected()
+	outbox.sent.connect(nested)
+	var start_count: int = _sent.size()
+	tablet.ping_selected()
+	outbox.sent.disconnect(nested)
+	assert_true(attempted[0], "fixture attempted to reenter the same tablet while sending")
+	assert_eq(_sent.size(), start_count + 1, "one user action emits one request, not two")
+	var original: Dictionary = _sent[-1].duplicate(true)
+	assert_true((tablet.get("_pending_tablet_requests") as Dictionary).has(int(original["seq"])),
+		"the first request remains properly correlated")
+	tablet.on_reply(original, {"ok": true})
+	assert_true(str(tablet.get("_status_text")) != "",
+		"the original acknowledgment remains visible after the nested attempt")
+	tablet.close()
+
+
 ## QA94: never turn malformed host reply values into success via Variant coercion.
 func test_QA94_malformed_result_flag_cannot_consume_correlated_reply() -> void:
 	var tablet: PanelContainer = _tablet(Vector2(1280, 720), 150)
