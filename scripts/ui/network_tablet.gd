@@ -146,6 +146,7 @@ func show_data(view: Dictionary, objectives: Array, context: Array[String] = [])
 ## Validate everything the map, node and evidence widgets dereference before
 ## swapping a live snapshot. A malformed record must not enter UI rendering.
 func _valid_snapshot_records(nodes: Dictionary, order: Array, edges: Array) -> bool:
+	var occupied_cells: Dictionary = {}
 	for nid: Variant in order:
 		var node: Dictionary = nodes[nid] as Dictionary
 		for key: String in ["kind", "name_key", "panel", "status_group", "status_state"]:
@@ -165,6 +166,12 @@ func _valid_snapshot_records(nodes: Dictionary, order: Array, edges: Array) -> b
 		for coordinate: String in ["col", "row"]:
 			if typeof(node.get(coordinate, null)) != TYPE_INT or int(node[coordinate]) < 0:
 				return false
+		# Overlapping authored cells make one node inaccessible to pointer
+		# navigation and create zero-length directional focus candidates.
+		var cell: String = "%d:%d" % [int(node["col"]), int(node["row"])]
+		if occupied_cells.has(cell):
+			return false
+		occupied_cells[cell] = true
 		if typeof(node.get("lines", null)) != TYPE_ARRAY or typeof(node.get("findings", null)) != TYPE_ARRAY:
 			return false
 		if StatusChip.entry(str(node["status_group"]), str(node["status_state"])).is_empty():
