@@ -52,6 +52,7 @@ var _right_trigger_held: bool = false
 var _left_trigger_held: bool = false
 var _pending_evidence_scroll_y: int = 0
 var _saved_objective_scroll_y: int = 0
+var _pending_tablet_requests: Dictionary = {}  # local outbox sequence -> still relevant to this tablet visit
 
 
 func _init() -> void:
@@ -65,6 +66,9 @@ func _init() -> void:
 ## outbox: intent_outbox.gd; the tablet keeps only a gate for inspect and ping.
 func setup(outbox: RefCounted) -> void:
 	gate = outbox.call("gate", MAP_INTENTS)
+	# Register the send before an in-process host has a chance to reply.
+	if outbox.has_signal("sent"):
+		outbox.connect("sent", _on_outbox_sent)
 	if outbox.has_signal("replied"):
 		outbox.connect("replied", on_reply)
 
@@ -82,6 +86,7 @@ func show_data(view: Dictionary, objectives: Array, context: Array[String] = [])
 		selected = str(view["order"][0])
 		if selected != previous:
 			_status_text = ""
+			_pending_tablet_requests.clear()
 			if detail_scroll != null and is_instance_valid(detail_scroll):
 				detail_scroll.scroll_vertical = 0
 	_rebuild()
@@ -102,6 +107,9 @@ func open() -> void:
 	# visit cannot keep zooming repeatedly when it emits motion samples.
 	_right_trigger_held = false
 	_left_trigger_held = false
+	# A request made on an earlier visit cannot paint the current visit,
+	# even when the same node and intent appear again.
+	_pending_tablet_requests.clear()
 	# The evidence pane belongs to this opening, not to a prior tablet visit.
 	_status_text = ""
 	if _detail != null:
@@ -114,6 +122,7 @@ func open() -> void:
 func close() -> void:
 	visible = false
 	_status_text = ""
+	_pending_tablet_requests.clear()
 	if _previous_focus != null and is_instance_valid(_previous_focus) and _previous_focus.is_visible_in_tree():
 		_previous_focus.grab_focus()
 	elif is_inside_tree() and get_viewport().gui_get_focus_owner() != null:
@@ -133,6 +142,7 @@ func select(nid: String) -> void:
 		return
 	selected = nid
 	_status_text = ""
+	_pending_tablet_requests.clear()
 	_pending_evidence_scroll_y = 0
 	# A new branch must start at its heading, not halfway down the previous
 	# branch's long meter evidence. Live refresh of the same node is unaffected.
@@ -161,6 +171,15 @@ func ping_selected() -> void:
 	gate.call("send", "ping", selected, {"ping": "PING_FAULT" if TabletPresenter.shows_fault(v) else "PING_LOOK"})
 
 
+## The shared outbox may deliver replies after the tablet closes, changes
+## selection, or returns to the same node. Keep only requests from this visit.
+func _on_outbox_sent(envelope: Dictionary) -> void:
+	if not is_visible_in_tree() or tab != TAB_NETWORK:
+		return
+	if MAP_INTENTS.has(str(envelope.get("type", ""))) and int(envelope.get("seq", -1)) > 0:
+		_pending_tablet_requests[int(envelope["seq"])] = true
+
+
 func on_reply(envelope: Dictionary, reply: Dictionary) -> void:
 	# Delayed replies must not mutate a closed read-only view. In particular,
 	# closing and reopening the same selected node must start without a stale
@@ -172,6 +191,13 @@ func on_reply(envelope: Dictionary, reply: Dictionary) -> void:
 	var kind: String = str(envelope.get("type", ""))
 	if kind != "inspect" and kind != "ping":
 		return
+	# All production envelopes carry a monotonic outbox sequence. Older
+	# test fixtures without a sequence still exercise the presentation path.
+	if envelope.has("seq"):
+		var request_seq: int = int(envelope["seq"])
+		if not _pending_tablet_requests.has(request_seq):
+			return
+		_pending_tablet_requests.erase(request_seq)
 	# An asynchronous reply is about the original target, not whichever node
 	# the player happens to be reading when it arrives. Drop stale replies rather
 	# than falsely labeling a different branch as inspected or pinged.
@@ -578,8 +604,10 @@ func _show_tab(t: String) -> void:
 	if t == tab:
 		return
 	if t != TAB_NETWORK:
-		# Inspection/ping results are scoped to the visible Network panel.
+		# Inspection/ping results and outstanding requests are scoped to the
+		# Network tab, not to an eventual return from Objectives.
 		_status_text = ""
+		_pending_tablet_requests.clear()
 	tab = t
 	_rebuild()
 	(tab_buttons[t] as Button).grab_focus()
