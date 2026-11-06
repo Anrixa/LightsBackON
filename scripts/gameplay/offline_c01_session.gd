@@ -21,6 +21,7 @@ const OfflineOutboxBridge := preload("res://scripts/gameplay/offline_outbox_brid
 const HudPresenter := preload("res://scripts/ui/hud_presenter.gd")
 const TabletPresenter := preload("res://scripts/ui/tablet_presenter.gd")
 const UiText := preload("res://scripts/ui/ui_text.gd")
+const ShiftOperations := preload("res://scripts/gameplay/shift_operations.gd")
 
 const CONTRACT: String = "res://content/contracts/c01_alder_street"
 const SESSION_ID: String = "S_C01_LOCAL"
@@ -199,6 +200,13 @@ func hud_view(selected_slot: int, target: String, tool: String) -> Dictionary:
 		"prompt": prompt_for(target, tool)
 	}
 	return HudPresenter.build(host_state(), mission.objectives(), context)
+
+
+## The pause dashboard observes only real host/mission/zone state; it cannot
+## modify simulation, reveal unmeasured causes or enter the save schema.
+func shift_operations_view() -> Dictionary:
+	return ShiftOperations.build(mission.objectives(), mission.canonical_state(),
+		_content["mission"], equipment.all_stowed(), _last_zone_state, mission.results())
 
 
 func tablet_view() -> Dictionary:
