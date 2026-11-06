@@ -464,6 +464,41 @@ func test_QA86_new_dispatch_clears_previous_action_result_until_new_reply() -> v
 	tablet.close()
 
 
+## QA92: invalid or premature tab callbacks cannot break modal focus
+## or discard a pending correlated action result.
+func test_QA92_tablet_ignores_invalid_and_preinit_tab_transitions() -> void:
+	var uninitialized: PanelContainer = NetworkTablet.new()
+	_root().add_child(uninitialized)
+	_owned.append(uninitialized)
+	uninitialized.visible = false
+	uninitialized.call("_show_tab", NetworkTablet.TAB_OBJECTIVES)
+	assert_eq(str(uninitialized.get("tab")), NetworkTablet.TAB_NETWORK,
+		"tab navigation before the first snapshot does not initialize broken views")
+	var tablet: PanelContainer = _tablet(Vector2(1280, 720), 150)
+	tablet.open()
+	tablet.select("TEMP")
+	tablet.ping_selected()
+	var pending: Dictionary = _sent[-1].duplicate(true)
+	var focused: Control = _root().gui_get_focus_owner()
+	tablet.call("_show_tab", "invalid_or_stale")
+	assert_eq(str(tablet.get("tab")), NetworkTablet.TAB_NETWORK)
+	assert_eq(_root().gui_get_focus_owner(), focused,
+		"rejected tab callbacks preserve controller focus")
+	assert_true((tablet.get("_pending_tablet_requests") as Dictionary).has(int(pending["seq"])),
+		"unsupported tab callback does not discard the pending action")
+	tablet.on_reply(pending, {"ok": true})
+	assert_true(str(tablet.get("_status_text")) != "", "the genuine reply remains visible")
+	tablet.call("_show_tab", NetworkTablet.TAB_OBJECTIVES)
+	assert_eq(str(tablet.get("tab")), NetworkTablet.TAB_OBJECTIVES)
+	tablet.call("_show_tab", "")
+	assert_eq(str(tablet.get("tab")), NetworkTablet.TAB_OBJECTIVES,
+		"empty callbacks do not silently return to another tab")
+	tablet.call("_show_tab", NetworkTablet.TAB_NETWORK)
+	assert_eq(str(tablet.get("tab")), NetworkTablet.TAB_NETWORK,
+		"valid tab navigation continues to work after rejected input")
+	tablet.close()
+
+
 ## QA91: even while a tablet gate call is executing, nested shared-outbox
 ## sends must not borrow the tablet's origin or overwrite its latest sequence.
 func test_QA91_reentrant_shared_outbox_send_cannot_hijack_tablet_request() -> void:

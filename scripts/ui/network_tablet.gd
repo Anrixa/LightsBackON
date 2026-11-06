@@ -716,7 +716,12 @@ func _section(title: String, lines: Array) -> void:
 
 
 func _show_tab(t: String) -> void:
-	if t == tab:
+	# Tab callbacks may outlive a rebuilt control tree. An unsupported name or
+	# a navigation call before the first snapshot must never corrupt the active
+	# tab, leave a null focus target, or invalidate live request feedback.
+	if t != TAB_NETWORK and t != TAB_OBJECTIVES:
+		return
+	if _view.is_empty() or t == tab:
 		return
 	if t != TAB_NETWORK:
 		# Inspection/ping results and outstanding requests are scoped to the
