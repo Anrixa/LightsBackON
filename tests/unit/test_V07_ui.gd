@@ -464,6 +464,43 @@ func test_QA86_new_dispatch_clears_previous_action_result_until_new_reply() -> v
 	tablet.close()
 
 
+## QA99: the Objectives tab must not consume missing, ill-typed or
+## undeclared objective rows from a delayed presentation refresh.
+func test_QA99_bad_objective_rows_do_not_replace_active_tablet() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1280, 720), 150)
+	tablet.open()
+	tablet.select("TEMP")
+	(tablet.map.nodes["TEMP"] as Control).grab_focus()
+	tablet.ping_selected()
+	var pending: Dictionary = _sent[-1].duplicate(true)
+	var previous_view: Dictionary = tablet.get("_view")
+	var previous_objectives: Array = tablet.get("_objectives")
+	var focus_before: Control = _root().gui_get_focus_owner()
+	var bad_rows: Array = [
+		[null],
+		[{"status": "active"}],
+		[{"text_key": "objective.c01.extract"}],
+		[{"status": "invalid_status", "text_key": "objective.c01.extract"}],
+		[{"status": "active", "text_key": 25}],
+		[{"status": "active", "text_key": ""}]
+	]
+	for bad: Array in bad_rows:
+		tablet.show_data(previous_view.duplicate(true), bad)
+		assert_eq(tablet.get("_objectives"), previous_objectives,
+			"malformed objectives cannot replace the last valid tasks")
+		assert_eq(tablet.get("_view"), previous_view)
+		assert_eq(str(tablet.get("selected")), "TEMP")
+		assert_eq(_root().gui_get_focus_owner(), focus_before)
+		assert_true((tablet.get("_pending_tablet_requests") as Dictionary).has(int(pending["seq"])))
+	tablet.on_reply(pending, {"ok": true})
+	assert_true(str(tablet.get("_status_text")) != "")
+	tablet.show_data(previous_view.duplicate(true), previous_objectives.duplicate(true))
+	tablet.call("_show_tab", NetworkTablet.TAB_OBJECTIVES)
+	assert_true(tablet.get("_objective_scroll") != null, "valid task list still renders")
+	tablet.call("_show_tab", NetworkTablet.TAB_NETWORK)
+	tablet.close()
+
+
 ## QA98: corrupted node/edge presentation records cannot be passed to
 ## TabletNode, StatusChip or TabletMap during an authoritative refresh.
 func test_QA98_invalid_tablet_records_cannot_destroy_open_evidence_or_focus() -> void:
