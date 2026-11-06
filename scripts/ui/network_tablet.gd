@@ -60,6 +60,7 @@ var _pending_tablet_requests: Dictionary = {}  # sequence -> original action/tar
 var _latest_request_seq_by_action: Dictionary = {}  # action+target -> newest sequence
 var _latest_dispatch_seq: int = -1  # only the most recent tablet action can paint the shared result
 var _tablet_dispatch_active: bool = false  # attribute outbox sends to this view, not unrelated callers
+var _expected_tablet_sequence: int = -1  # nested synchronous sends must not masquerade as ours
 
 
 func _init() -> void:
@@ -215,9 +216,15 @@ func ping_selected() -> void:
 ## may become pending tablet feedback; "sent" is emitted synchronously before
 ## a host-local reply can be delivered.
 func _send_tablet_intent(kind: String, entity: String, payload: Dictionary) -> void:
+	# IntentOutbox allocates the next sequence before emitting "sent".
+	# A callback on that signal may synchronously send another intent before
+	# our gate returns; tracking the expected ID prevents such nested origins
+	# from overwriting this tablet's request.
+	_expected_tablet_sequence = int(_bound_outbox.get("_seq")) + 1
 	_tablet_dispatch_active = true
 	gate.call("send", kind, entity, payload)
 	_tablet_dispatch_active = false
+	_expected_tablet_sequence = -1
 
 
 ## Discard both sequence maps whenever navigation changes the request context.
@@ -237,6 +244,10 @@ func _request_key(envelope: Dictionary) -> String:
 ## selection, or returns to the same node. Keep only requests from this visit.
 func _on_outbox_sent(envelope: Dictionary) -> void:
 	if not _can_send_tablet_intent() or not _tablet_dispatch_active:
+		return
+	# A reentrant caller can emit "sent" while our dispatch scope is active.
+	# The outbox sequence is unique even for the same kind and entity.
+	if typeof(envelope.get("seq", null)) != TYPE_INT or int(envelope["seq"]) != _expected_tablet_sequence:
 		return
 	if MAP_INTENTS.has(str(envelope.get("type", ""))) and int(envelope.get("seq", -1)) > 0:
 		# Once the player initiates a newer action, the prior result no longer
