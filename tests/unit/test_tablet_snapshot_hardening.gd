@@ -87,3 +87,18 @@ func test_QA102_invalid_node_kind_does_not_replace_active_tablet() -> void:
 	assert_eq((case["tablet"] as PanelContainer).get("_view"), valid,
 		"known source, junction and consumer kinds still render")
 	_finish(case)
+
+
+func test_QA103_duplicate_tablet_cells_do_not_obscure_navigation() -> void:
+	var case: Dictionary = _opened()
+	var original: Dictionary = case["snapshot"]
+	for other: String in ["GRID", "JW", "JE"]:
+		var invalid: Dictionary = original.duplicate(true)
+		invalid["nodes"]["TEMP"]["col"] = int(original["nodes"][other]["col"])
+		invalid["nodes"]["TEMP"]["row"] = int(original["nodes"][other]["row"])
+		_rejects(case, invalid)
+	var valid: Dictionary = original.duplicate(true)
+	(case["tablet"] as PanelContainer).show_data(valid, case["objectives"])
+	assert_eq((case["tablet"] as PanelContainer).get("_view"), valid,
+		"non-overlapping grid coordinates remain usable")
+	_finish(case)
