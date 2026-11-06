@@ -337,6 +337,39 @@ func test_QA82_open_is_idempotent_during_an_active_tablet_visit() -> void:
 		"closing restores the control focused before the first open")
 
 
+## QA83: replacing the solo session detaches old signal listeners.
+func test_QA83_rebinding_tablet_outbox_detaches_stale_session_and_avoids_duplicates() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
+	var first: RefCounted = IntentOutbox.new(Runner.SESSION,
+		func(_bytes: PackedByteArray) -> Dictionary: return {})
+	var next: RefCounted = IntentOutbox.new(Runner.SESSION,
+		func(_bytes: PackedByteArray) -> Dictionary: return {})
+	tablet.setup(first)
+	tablet.open()
+	tablet.ping_selected()
+	var old_reply: Dictionary = {"type": "ping", "entity": str(tablet.selected),
+		"seq": int(first.get("_seq")), "session": Runner.SESSION}
+	tablet.setup(next)
+	tablet.setup(next)
+	assert_eq(first.get_signal_connection_list("sent").size(), 0,
+		"old session no longer holds a tablet sent callback")
+	assert_eq(first.get_signal_connection_list("replied").size(), 0,
+		"old session reply cannot mutate a new tablet session")
+	assert_eq(next.get_signal_connection_list("sent").size(), 1,
+		"repeating setup for the same session must not duplicate listeners")
+	assert_eq(next.get_signal_connection_list("replied").size(), 1)
+	first.emit_signal("replied", old_reply, {"ok": true})
+	assert_eq(str(tablet.get("_status_text")), "",
+		"old outbox responses cannot paint feedback into the replacement session")
+	tablet.ping_selected()
+	var fresh: Dictionary = {"type": "ping", "entity": str(tablet.selected),
+		"seq": int(next.get("_seq")), "session": Runner.SESSION}
+	next.emit_signal("replied", fresh, {"ok": true})
+	assert_true(str(tablet.get("_status_text")) != "",
+		"the replacement outbox dispatches and receives feedback normally")
+	tablet.close()
+
+
 ## QA79: slow replies cannot replace the outcome of a newer same-target action.
 func test_QA79_newest_same_target_reply_wins_and_pending_requests_are_bounded() -> void:
 	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
