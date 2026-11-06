@@ -234,6 +234,41 @@ func test_QA77_objective_scroll_survives_refresh_scale_and_tab_roundtrip() -> vo
 	tablet.close()
 
 
+## QA78: pending replies belong to the exact visible visit, not just to a node ID.
+func test_QA78_delayed_same_target_reply_is_ignored_after_visit_selection_or_tab_change() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
+	tablet.open()
+	var initial: String = str(tablet.selected)
+	tablet.ping_selected()
+	var old_visit: Dictionary = _sent[-1].duplicate(true)
+	tablet.close()
+	tablet.open()
+	tablet.on_reply(old_visit, {"ok": false, "key": "network.refused.rate_limited"})
+	assert_eq(str(tablet.get("_status_text")), "",
+		"a reply from the previous tablet opening must not describe this visit")
+	tablet.ping_selected()
+	var old_selection: Dictionary = _sent[-1].duplicate(true)
+	var next: String = str((tablet.get("_view") as Dictionary)["order"][1])
+	tablet.select(next)
+	tablet.select(initial)
+	tablet.on_reply(old_selection, {"ok": false, "key": "network.refused.rate_limited"})
+	assert_eq(str(tablet.get("_status_text")), "",
+		"selecting away and back cannot revive an earlier request for that node")
+	tablet.ping_selected()
+	var old_tab: Dictionary = _sent[-1].duplicate(true)
+	tablet._show_tab(NetworkTablet.TAB_OBJECTIVES)
+	tablet._show_tab(NetworkTablet.TAB_NETWORK)
+	tablet.on_reply(old_tab, {"ok": false, "key": "network.refused.rate_limited"})
+	assert_eq(str(tablet.get("_status_text")), "",
+		"a request issued before switching tabs is invalid on return")
+	tablet.ping_selected()
+	var fresh: Dictionary = _sent[-1].duplicate(true)
+	tablet.on_reply(fresh, {"ok": true})
+	assert_true(str(tablet.get("_status_text")) != "",
+		"a fresh reply with the newly emitted sequence is still displayed")
+	tablet.close()
+
+
 ## QA74: delayed network replies must not populate a different tab.
 func test_QA74_objectives_tab_clears_and_ignores_network_action_feedback() -> void:
 	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
