@@ -9,6 +9,7 @@ const Persistence := preload("res://scripts/persistence/offline_persistence.gd")
 var _scene: Node3D
 var _tree: SceneTree
 var _qa63_root: String = ""
+var _qa89_seq: int = 100000
 
 
 func before_each() -> void:
@@ -465,13 +466,14 @@ func test_QA67_tablet_ping_outcomes_are_visible_without_content_revision_changes
 	var selected: String = str(panel.get("selected"))
 	var node: Dictionary = view["nodes"][selected]
 	var name_text: String = UiText.t(str(node["name_key"]))
-	panel.call("on_reply", {"type": "ping", "entity": selected},
-		{"ok": false, "key": "network.refused.rate_limited"})
+	var rejected: Dictionary = _qa89_stage_tablet_request(panel, "ping", selected)
+	panel.call("on_reply", rejected, {"ok": false, "key": "network.refused.rate_limited"})
 	var denied: String = str(panel.get("_status_text"))
 	assert_true(denied.contains(UiText.t("network.refused.rate_limited")),
 		"tablet must show host rejection rather than hiding it behind the modal")
 	assert_true(denied.contains(name_text), "rejection identifies the affected node")
-	panel.call("on_reply", {"type": "ping", "entity": selected}, {"ok": true})
+	var accepted: Dictionary = _qa89_stage_tablet_request(panel, "ping", selected)
+	panel.call("on_reply", accepted, {"ok": true})
 	assert_eq(str(panel.get("_status_text")),
 		UiText.tf("offline.status.accepted", [UiText.tf("tablet.ping_branch", [name_text])]),
 		"accepted pings are acknowledged in the same evidence pane")
@@ -487,17 +489,21 @@ func test_QA67_late_inspection_and_ping_replies_do_not_cross_node_selection() ->
 	var first: String = str(order[0])
 	var second: String = str(order[1])
 	panel.call("select", first)
+	var old_ping: Dictionary = _qa89_stage_tablet_request(panel, "ping", first)
+	var first_panel: String = str((view["nodes"][first] as Dictionary).get("panel", ""))
+	var old_inspect: Dictionary = {}
+	if first_panel != "":
+		old_inspect = _qa89_stage_tablet_request(panel, "inspect", first_panel)
 	panel.call("select", second)
 	assert_eq(str(panel.get("_status_text")), "")
-	panel.call("on_reply", {"type": "ping", "entity": first}, {"ok": true})
+	panel.call("on_reply", old_ping, {"ok": true})
 	assert_eq(str(panel.get("_status_text")), "", "a stale ping cannot claim another node was pinged")
-	var first_panel: String = str((view["nodes"][first] as Dictionary).get("panel", ""))
-	if first_panel != "":
-		panel.call("on_reply", {"type": "inspect", "entity": first_panel}, {"ok": true})
-		if first_panel != str((view["nodes"][second] as Dictionary).get("panel", "")):
-			assert_eq(str(panel.get("_status_text")), "",
-				"a delayed meter reply must not mark a different panel as inspected")
-	panel.call("on_reply", {"type": "ping", "entity": second}, {"ok": true})
+	if not old_inspect.is_empty():
+		panel.call("on_reply", old_inspect, {"ok": true})
+		assert_eq(str(panel.get("_status_text")), "",
+			"a delayed meter reply must not mark a different panel as inspected")
+	var fresh_ping: Dictionary = _qa89_stage_tablet_request(panel, "ping", second)
+	panel.call("on_reply", fresh_ping, {"ok": true})
 	assert_true(str(panel.get("_status_text")).contains(
 		UiText.t(str((view["nodes"][second] as Dictionary)["name_key"]))),
 		"the newly selected node still receives its actual reply")
@@ -545,6 +551,17 @@ func test_QA63_pause_recover_replaces_old_position_before_resume() -> void:
 	assert_eq((after.get("view", {}) as Dictionary).get("position_cm", []),
 		[position.x, position.y, position.z], "save the new location before dismissing the pause menu")
 	assert_false(bool(_scene.get("_paused")), "successful pause-menu recovery resumes play")
+
+
+func _qa89_stage_tablet_request(panel: PanelContainer, kind: String, entity: String) -> Dictionary:
+	# Emit the same correlated envelope signal as the real outbox without
+	# exercising a remote host or changing the mission during presentation tests.
+	_qa89_seq += 1
+	var outbox: RefCounted = panel.get("_bound_outbox")
+	var envelope: Dictionary = {"type": kind, "entity": entity,
+		"session": str(outbox.get("session_id")), "seq": _qa89_seq}
+	outbox.emit_signal("sent", envelope)
+	return envelope
 
 
 func _qa63_isolated_store() -> Persistence:
