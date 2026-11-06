@@ -20,6 +20,7 @@ const RestorationPresentation := preload("res://scripts/world/restoration_presen
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ShiftOperations := preload("res://scripts/gameplay/shift_operations.gd")
 const ShiftDebrief := preload("res://scripts/gameplay/shift_debrief.gd")
+const ShiftMeasurements := preload("res://scripts/diagnostics/shift_measurements.gd")
 
 const MENU_PATH: String = "res://scenes/menu/main_menu.tscn"
 const HOST_TICK_SECONDS: float = 0.1
@@ -66,12 +67,18 @@ var _last_position_zone: bool = false
 var _ui_tokens: Dictionary = {}
 var _interaction: Dictionary = {}
 var _solo_tuning: Dictionary = {}
+var _measurements: ShiftMeasurements
+var _measurement_tick: int = 0
 
 
 func _ready() -> void:
 	_ui_tokens = _json("res://content/ui/tokens.json")
 	_interaction = _json("res://content/interaction.json")
 	_solo_tuning = _json("res://content/offline_solo.json")
+	_measurements = ShiftMeasurements.new()
+	# Playtest capture is strictly opt-in. An ordinary release creates no file.
+	_measurements.begin(OS.get_cmdline_user_args().has("--lbo-local-measure"),
+		_json("res://content/diagnostics/shift_measurements.json"))
 	_make_lighting()
 	_world = WorldScene.instantiate()
 	_world.name = "District"
@@ -124,6 +131,8 @@ func _ready() -> void:
 	player.moved.connect(_on_player_moved)
 	_last_position_zone = session.inside_van(player.global_position)
 	session.set_in_van_zone(_last_position_zone)
+	if _measurements.enabled():
+		_measurements.observe_tick(0, session.mission.objectives())
 	_refresh_hud()
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	if session.completed():
@@ -481,6 +490,9 @@ func _physics_process(delta: float) -> void:
 	while _time_accumulator >= HOST_TICK_SECONDS:
 		_time_accumulator -= HOST_TICK_SECONDS
 		session.tick_once()
+		_measurement_tick += 1
+		if _measurements.enabled():
+			_measurements.observe_tick(_measurement_tick, session.mission.objectives())
 		# Continuous drain, verification and departure ticks do not emit
 		# mission events. Refresh the status bar independently of event-driven
 		# full HUD rebuilding, without mutating the session or rebuilding controls.
@@ -558,6 +570,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if _paused or tablet.visible:
 		return
 	if event.is_action_pressed("onboarding_hint"):
+		if bool(settings.value("hints_enabled")):
+			_measurements.mark_activity(_measurement_tick)
+			_measurements.note("hint_requested", _measurement_tick)
 		onboarding.show_hint()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("map_meter"):
@@ -601,6 +616,8 @@ func _send_heartbeats() -> void:
 
 
 func _on_player_moved() -> void:
+	if _measurements != null:
+		_measurements.mark_activity(_measurement_tick)
 	if onboarding != null:
 		onboarding.observe("player_moved")
 
@@ -630,6 +647,18 @@ func _sync_onboarding_progress(resumed: bool = false) -> void:
 
 func _on_action_replied(envelope: Dictionary, reply: Dictionary) -> void:
 	var kind: String = str(envelope["type"])
+	if _measurements != null and kind != "heartbeat":
+		_measurements.mark_activity(_measurement_tick)
+		if bool(reply.get("ok", false)):
+			if kind == "repair_step":
+				_measurements.note_first_repair(_measurement_tick)
+			elif kind == "request_extract":
+				var payload: Dictionary = envelope.get("payload", {})
+				var request: String = str(payload.get("action", ""))
+				if request == "start":
+					_measurements.note("extraction_requested", _measurement_tick)
+				elif request == "cancel":
+					_measurements.note("extraction_cancelled", _measurement_tick)
 	# Heartbeats are a recurring internal lock-liveness command, not a player
 	# action. Showing their generic acknowledgement repeatedly masks real repair
 	# feedback; neither accepted nor rejected heartbeats touch the status banner.
@@ -687,6 +716,21 @@ func _show_feedback(message: String, important: bool = false, persistent: bool =
 
 func _on_mission_event(event: Dictionary) -> void:
 	var kind: String = str(event.get("type", ""))
+	if _measurements != null:
+		var event_tick: int = maxi(_measurement_tick, int(event.get("tick", _measurement_tick)))
+		match kind:
+			"latch":
+				_measurements.note("drain_latched", event_tick)
+			"verified":
+				_measurements.note("supply_verified", event_tick)
+			"verification_lost":
+				_measurements.note("verification_lost", event_tick)
+			"trip":
+				_measurements.note("protection_trip", event_tick)
+			"player_recovered":
+				_measurements.note("player_recovered", event_tick)
+			"mission_complete":
+				_measurements.note("session_completed", event_tick)
 	match kind:
 		"latch":
 			_show_feedback(UiText.t("offline.status.drain"), true)
@@ -862,6 +906,13 @@ func _finish() -> void:
 	player.set_controls_active(false)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_complete_panel.visible = true
+	var final_tick: int = _measurement_tick
+	if _measurement_tick > 0:
+		final_tick = maxi(final_tick,
+			int(session.mission.canonical_state().get("completed_tick", final_tick)))
+	_measurements.observe_tick(final_tick, session.mission.objectives())
+	_measurements.note("results_opened", final_tick)
+	_export_local_measurements(true)
 	_render_debrief(session.mission.results())
 	# Keyboard/controller users must be able to exit without a mouse, including
 	# when a finished checkpoint opens straight into this screen.
@@ -921,7 +972,17 @@ func _render_debrief(results: Dictionary) -> void:
 				else "offline.briefing.no")])
 
 
+## Export only a consented local playtest. Failure does not block gameplay or saves.
+func _export_local_measurements(completed: bool) -> void:
+	if _measurements == null or not _measurements.enabled():
+		return
+	var result: Dictionary = _measurements.finish_and_export(_measurement_tick, completed)
+	if not bool(result.get("ok", false)) and str(result.get("code", "")) != "ALREADY_CLOSED":
+		push_warning("LOCAL_MEASUREMENT_EXPORT_FAILED")
+
+
 func _exit_to_menu() -> void:
+	_export_local_measurements(_finished)
 	_save_checkpoint()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	get_tree().change_scene_to_file(MENU_PATH)

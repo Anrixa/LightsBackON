@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "max_events": 2048,
+  "idle_threshold_ticks": 300,
+  "max_objectives": 16
+}
