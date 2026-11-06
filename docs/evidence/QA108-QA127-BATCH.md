@@ -1,47 +1,44 @@
-# QA108–QA127 — Read-only network tablet boundary hardening
+# QA108–QA127 — Read-only tablet boundary hardening
 
-**Source:** Main `d78d78a23136a87447a94e4be57e252f6b122046` after QA107 passed Linux/Windows CI.
+**Source:** baseline main `d78d78a23136a87447a94e4be57e252f6b122046` (QA107 complete).
 
-**Status:** 20 targeted regression implementations, **NOT** 20 release-level acceptance completions. Do not promote until exact-head/merged-main CI gates have actually passed.
+**Status:** 20 targeted regression phases **CLOUD_VERIFIED** at tested code commit `b1d8bb8d87a37f700c4e5ca885998cbdd9541f14`. These are newly scoped supplemental validations, **not** 20 pre-existing blueprint tasks or full release-level completions.
 
-## Scope
-One production validator (`scripts/ui/network_tablet.gd`) and 20 new integration-style Godot tests added to the existing live-tablet suite (`tests/unit/test_tablet_snapshot_hardening.gd`). The same C01-authoritative fixture drives every test; the focus/selection/pending Ping state must survive all rejected snapshots. Each regression is independently numbered and documented; the changes are bundled as a single reviewable hardening patch.
+## Production findings and fixes
+- **Scope:** `scripts/ui/network_tablet.gd` schema/size checks; 20 new Godot regression tests in `tests/unit/test_tablet_snapshot_hardening.gd`. An existing QA77 stress fixture was corrected to use unique objective IDs while retaining 300 rows.
+- **Validation:** Atomic rejection of malformed node, edge, objective IDs, inappropriate localization namespaces and status groups, unexpected types and excessive resource allocation. Authentic C01 data stays usable with controller focus, selection and pending Ping preserved.
+- **Presentation-only ceilings:** 128 nodes, 512 edges, 384 objectives, 32 evidence rows/node, 16 findings/node, 2048 text characters/field, 128 ASCII identifier characters. No canonical simulation, authored contract, save, network or Steam changes.
+- **Inventory:**
+  - QA108: Empty node ID
+  - QA109: Unsafe node path separator
+  - QA110: Wrong-category node localization
+  - QA111: Wrong-category access localization
+  - QA112: Network status group confusion
+  - QA113: Nonboolean measured flag
+  - QA114: Nonboolean reinspection flag
+  - QA115: Nontext source detail
+  - QA116: Nontext worker detail
+  - QA117: Excessive source caption
+  - QA118: Excessive worker caption
+  - QA119: Excessive evidence rows
+  - QA120: Excessive evidence line length
+  - QA121: Excessive finding badges
+  - QA122: Unsafe edge identifier
+  - QA123: Unbounded edge fanout
+  - QA124: Unbounded node allocation
+  - QA125: Absent or invalid objective ID
+  - QA126: Duplicate objective identity
+  - QA127: Wrong-category objectives and unbounded list
 
-## Inventory
-- **QA108** — Empty node ID
-- **QA109** — Unsafe node path separator
-- **QA110** — Wrong-category node localization
-- **QA111** — Wrong-category access localization
-- **QA112** — Network status group confusion
-- **QA113** — Nonboolean measured flag
-- **QA114** — Nonboolean reinspection flag
-- **QA115** — Nontext source detail
-- **QA116** — Nontext worker detail
-- **QA117** — Excessive source caption
-- **QA118** — Excessive worker caption
-- **QA119** — Excessive evidence rows
-- **QA120** — Excessive evidence line length
-- **QA121** — Excessive finding badges
-- **QA122** — Unsafe edge identifier
-- **QA123** — Unbounded edge fanout
-- **QA124** — Unbounded node allocation
-- **QA125** — Absent or invalid objective ID
-- **QA126** — Duplicate objective identity
-- **QA127** — Wrong-category objectives and unbounded list
+## Measured CI
+- [Hosted Linux/Windows CI #42253302597](https://github.com/Anrixa/LightsBackON/actions/runs/42253302597): **PASS**, code SHA `b1d8bb8d87a37f700c4e5ca885998cbdd9541f14`; 348 Godot tests, 0 failed, 9,053 assertions, plus C01 solution, reference parity and Windows release export/headless smoke.
+- [QA51 resource probes #42253303005](https://github.com/Anrixa/LightsBackON/actions/runs/42253303005): **PASS**, Linux and Windows, zero unexpected resource deltas.
+- Subsequent evidence-only PR commit and exact merged main still require CI verification. No physical gamepad, GPU/VRAM/P95/memory or separate-network Steam test was executed.
 
-## Resource ceilings
-- Maximum **128 nodes**, **512 edges**, **384 objectives**, **32 evidence lines per node**, **16 findings per node**, and **2048 characters per text field**; stable IDs at most **128 ASCII alphanumeric/underscore characters**. These are presentation safety limits only and do not change the Godot canonical grid or authored contract schema.
-- Reject unexpected field types, known-but-wrong localization namespaces, unsupported network-node status groups, malformed/missing/duplicate objective IDs and pathological record sizes **atomically**, before rebuilding the real tablet.
-
-## CI gate (do not infer pass from code review)
-- `bash tools/run_tests.sh` — PR exact head on Linux and Windows.
-- Windows export + manifest SHA smoke and QA51 resource probes.
-- Merge only if required CI jobs succeed, then confirm exact merged-main CI.
-- No release claim until physical GPU and gamepad UX, Steam co-op network tests and human review.
-
-## Risk and compatibility
-- No modification to `content/`, C01 content revision, network authority, save schemas, Steam transport or backlog status. The host-built C01 fixture must still render.
-- The node/key namespace and ID whitelist are intentional contracts for *internal* presentation records. A future contract using differently named keys must extend the validator with explicit tests instead of silently bypassing it.
+## Product gate boundaries
+- Original `docs/backlog.json` 66 milestone tasks remain unchanged.
+- Steam F02/F06, human UX and Windows GPU acceptance remain blocked/pending. QA issue #51 and design UX issue #48 stay open.
+- No implication that 20 passing defensive tests qualify a game build for release.
 
 ## Resume notes
-Use actual CI run links and commit SHAs to update this file after verification. Pending physical QA remains in issue #51 and design UX issue #48.
+Review PR #114 and its exact-head CI. Merge through a merge commit only with green checks and verify postmerge main CI. Follow original backlog for the next substantive product phase.
