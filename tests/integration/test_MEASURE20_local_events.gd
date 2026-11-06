@@ -56,3 +56,57 @@ func test_MEASURE05_host_ticks_are_monotonic_and_report_is_immutable() -> void:
 	var report: Dictionary = meter.snapshot()
 	(report["events"] as Array).clear()
 	assert_eq((meter.snapshot()["events"] as Array).size(), 3)
+
+
+func test_MEASURE06_first_visible_objective_records_only_ordinal() -> void:
+	assert_true(meter.begin(true, POLICY))
+	var rows: Array[Dictionary] = [{"status": "active", "visible": true, "text_key": "a.private.string"}]
+	meter.observe_tick(1, rows)
+	var event: Dictionary = (meter.snapshot()["events"] as Array)[1]
+	assert_eq(event["kind"], "objective_visible")
+	assert_eq(event["objective_index"], 0)
+	assert_false(event.has("text_key"))
+
+
+func test_MEASURE07_objective_completion_is_transition_only() -> void:
+	assert_true(meter.begin(true, POLICY))
+	var rows: Array[Dictionary] = [{"status": "active", "visible": true}]
+	meter.observe_tick(1, rows)
+	rows[0]["status"] = "done"
+	meter.observe_tick(2, rows)
+	meter.observe_tick(3, rows)
+	var events: Array = meter.snapshot()["events"]
+	assert_eq(events.size(), 3)
+	assert_eq(events[2]["kind"], "objective_completed")
+
+
+func test_MEASURE08_resumed_completed_rows_are_not_retroactive_events() -> void:
+	assert_true(meter.begin(true, POLICY))
+	var rows: Array[Dictionary] = [{"status": "done", "visible": false}]
+	meter.observe_tick(99, rows)
+	assert_eq((meter.snapshot()["events"] as Array).size(), 1)
+
+
+func test_MEASURE09_idle_threshold_uses_host_ticks_only() -> void:
+	assert_true(meter.begin(true, POLICY))
+	var rows: Array[Dictionary] = []
+	meter.observe_tick(29, rows)
+	assert_eq((meter.snapshot()["events"] as Array).size(), 1)
+	meter.observe_tick(30, rows)
+	meter.observe_tick(60, rows)
+	var events: Array = meter.snapshot()["events"]
+	assert_eq(events.size(), 2)
+	assert_eq(events[1]["kind"], "idle_started")
+	assert_eq(events[1]["tick"], 30)
+
+
+func test_MEASURE10_activity_closes_idle_with_bounded_duration() -> void:
+	assert_true(meter.begin(true, POLICY))
+	var rows: Array[Dictionary] = []
+	meter.observe_tick(30, rows)
+	meter.mark_activity(42)
+	var events: Array = meter.snapshot()["events"]
+	assert_eq(events[2]["kind"], "idle_ended")
+	assert_eq(events[2]["value_ticks"], 12)
+	meter.observe_tick(65, rows)
+	assert_eq((meter.snapshot()["events"] as Array).size(), 3)
