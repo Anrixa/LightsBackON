@@ -219,6 +219,8 @@ func test_QA77_objective_scroll_survives_refresh_scale_and_tab_roundtrip() -> vo
 		objectives.append(objective)
 	var view: Dictionary = (tablet.get("_view") as Dictionary).duplicate(true)
 	tablet.show_data(view, objectives)
+	assert_eq((tablet.get("_objectives") as Array).size(), objectives.size(),
+		"stress fixture must pass the tablet's objective snapshot validator")
 	tablet._show_tab(NetworkTablet.TAB_OBJECTIVES)
 	Fixture.settle(tablet)
 	var scroller: ScrollContainer = tablet.get("_objective_scroll") as ScrollContainer
