@@ -30,6 +30,7 @@ var ui_scale_percent: int = 100
 var scale_percent: float = 100.0
 var device: String = UiText.DEVICE_KBM
 var gate: RefCounted = null  # intent_outbox.gd Gate limited to MAP_INTENTS
+var _bound_outbox: RefCounted = null  # disconnect listeners if a solo session is replaced
 var map: Container
 var selected: String = ""
 var tab: String = TAB_NETWORK
@@ -69,7 +70,21 @@ func _init() -> void:
 
 ## outbox: intent_outbox.gd; the tablet keeps only a gate for inspect and ping.
 func setup(outbox: RefCounted) -> void:
+	if _bound_outbox == outbox:
+		return  # reconnecting the same session must not register duplicate listeners
+	if _bound_outbox != null:
+		# An old session may still complete asynchronous calls. It must no
+		# longer send tablet feedback or retain this view via signal references.
+		if _bound_outbox.has_signal("sent") and _bound_outbox.is_connected("sent", _on_outbox_sent):
+			_bound_outbox.disconnect("sent", _on_outbox_sent)
+		if _bound_outbox.has_signal("replied") and _bound_outbox.is_connected("replied", on_reply):
+			_bound_outbox.disconnect("replied", on_reply)
+	_bound_outbox = outbox
 	gate = outbox.call("gate", MAP_INTENTS)
+	_clear_tablet_requests()
+	_status_text = ""
+	if _detail != null:
+		_fill_detail()
 	# Register the send before an in-process host has a chance to reply.
 	if outbox.has_signal("sent"):
 		outbox.connect("sent", _on_outbox_sent)
