@@ -464,6 +464,33 @@ func test_QA86_new_dispatch_clears_previous_action_result_until_new_reply() -> v
 	tablet.close()
 
 
+## QA93: incomplete or mismatched snapshots may arrive during modal refresh.
+## Reject them without losing the last known map, selection, focus or reply.
+func test_QA93_tablet_rejects_malformed_refresh_without_losing_focus_or_reply() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1280, 720), 150)
+	tablet.open()
+	tablet.select("TEMP")
+	var focus_before: Control = _root().gui_get_focus_owner()
+	tablet.ping_selected()
+	var pending: Dictionary = _sent[-1].duplicate(true)
+	var view: Dictionary = tablet.get("_view")
+	var originals: Array = [view.duplicate(true), view.duplicate(true), view.duplicate(true)]
+	originals[0]["order"] = []
+	(originals[1]["nodes"] as Dictionary).erase(str((originals[1]["order"] as Array)[0]))
+	originals[2].erase("edges")
+	for broken: Dictionary in originals:
+		tablet.show_data(broken, [])
+		assert_eq(tablet.get("_view"), view, "malformed refresh retains the previous valid view")
+		assert_eq(str(tablet.get("selected")), "TEMP")
+		assert_eq(_root().gui_get_focus_owner(), focus_before)
+		assert_true((tablet.get("_pending_tablet_requests") as Dictionary).has(int(pending["seq"])))
+	tablet.on_reply(pending, {"ok": true})
+	assert_true(str(tablet.get("_status_text")) != "", "valid delayed feedback still displays")
+	tablet.show_data(view.duplicate(true), [])
+	assert_eq(str(tablet.get("selected")), "TEMP", "valid refresh remains usable")
+	tablet.close()
+
+
 ## QA92: invalid or premature tab callbacks cannot break modal focus
 ## or discard a pending correlated action result.
 func test_QA92_tablet_ignores_invalid_and_preinit_tab_transitions() -> void:
