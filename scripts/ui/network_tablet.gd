@@ -48,6 +48,8 @@ var _body_left: PanelContainer
 var _map_wanted_zoom: int = 2
 var _map_offset: Vector2 = Vector2.ZERO
 var _map_view_saved: bool = false
+var _right_trigger_held: bool = false
+var _left_trigger_held: bool = false
 
 
 func _init() -> void:
@@ -94,6 +96,10 @@ func set_device(input_device: String) -> void:
 
 
 func open() -> void:
+	# Each visit starts with an armed trigger, so a held axis from a previous
+	# visit cannot keep zooming repeatedly when it emits motion samples.
+	_right_trigger_held = false
+	_left_trigger_held = false
 	# The evidence pane belongs to this opening, not to a prior tablet visit.
 	_status_text = ""
 	if _detail != null:
@@ -187,10 +193,23 @@ func _input(event: InputEvent) -> void:
 	elif event.is_action_pressed("ping") and tab == TAB_NETWORK:
 		ping_selected()
 		get_viewport().set_input_as_handled()
-	elif event is InputEventJoypadMotion and event.is_action_pressed("tool_primary"):
-		_zoom(1)
-	elif event is InputEventJoypadMotion and event.is_action_pressed("tool_secondary"):
-		_zoom(-1)
+	elif event is InputEventJoypadMotion:
+		# A held analog trigger sends repeated motion events. Zoom exactly once
+		# on the press edge and rearm only when that same trigger is released.
+		# Unrelated stick movement must never release the other trigger's latch.
+		var motion: InputEventJoypadMotion = event as InputEventJoypadMotion
+		if motion.axis == JOY_AXIS_TRIGGER_RIGHT:
+			var right_pressed: bool = motion.is_action_pressed("tool_primary")
+			if right_pressed and not _right_trigger_held:
+				_zoom(1)
+			_right_trigger_held = right_pressed
+			get_viewport().set_input_as_handled()
+		elif motion.axis == JOY_AXIS_TRIGGER_LEFT:
+			var left_pressed: bool = motion.is_action_pressed("tool_secondary")
+			if left_pressed and not _left_trigger_held:
+				_zoom(-1)
+			_left_trigger_held = left_pressed
+			get_viewport().set_input_as_handled()
 
 
 ## The screen the tablet covers: its parent's rect, else the viewport. Never its own size, which grows with its content and

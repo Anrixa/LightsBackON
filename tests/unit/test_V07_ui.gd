@@ -142,6 +142,43 @@ func test_QA71_evidence_and_ping_left_focus_follow_current_selection() -> void:
 	tablet.close()
 
 
+## QA73: analog trigger samples must step tablet zoom only on press edges.
+func test_QA73_held_joypad_triggers_do_not_repeat_zoom_or_rearm_on_stick_motion() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
+	tablet.open()
+	var network_map: Container = tablet.map
+	var initial: int = int(network_map.get("_wanted_zoom_index"))
+	var trigger: InputEventJoypadMotion = InputEventJoypadMotion.new()
+	trigger.axis = JOY_AXIS_TRIGGER_RIGHT
+	trigger.axis_value = 1.0
+	tablet._input(trigger)
+	assert_eq(int(network_map.get("_wanted_zoom_index")), initial + 1)
+	tablet._input(trigger)
+	assert_eq(int(network_map.get("_wanted_zoom_index")), initial + 1,
+		"held trigger samples cannot race the zoom to maximum")
+	var stick: InputEventJoypadMotion = InputEventJoypadMotion.new()
+	stick.axis = JOY_AXIS_RIGHT_X
+	stick.axis_value = 0.4
+	tablet._input(stick)
+	tablet._input(trigger)
+	assert_eq(int(network_map.get("_wanted_zoom_index")), initial + 1,
+		"unrelated stick motion does not rearm a held trigger")
+	trigger.axis_value = 0.0
+	tablet._input(trigger)
+	trigger.axis_value = 1.0
+	tablet._input(trigger)
+	assert_eq(int(network_map.get("_wanted_zoom_index")), initial + 2,
+		"a real release and re-press requests exactly one more zoom step")
+	var left: InputEventJoypadMotion = InputEventJoypadMotion.new()
+	left.axis = JOY_AXIS_TRIGGER_LEFT
+	left.axis_value = 1.0
+	tablet._input(left)
+	tablet._input(left)
+	assert_eq(int(network_map.get("_wanted_zoom_index")), initial + 1,
+		"left trigger also steps exactly once when held")
+	tablet.close()
+
+
 ## QA72: a refreshed node catalog cannot carry old-node feedback to a new selection.
 func test_QA72_refresh_rehomes_removed_selection_without_stale_feedback() -> void:
 	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
