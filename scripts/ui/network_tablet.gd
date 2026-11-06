@@ -127,10 +127,15 @@ func show_data(view: Dictionary, objectives: Array, context: Array[String] = [])
 	if not context.is_empty() and (context.size() != 2 or \
 			not UiText.has(context[0]) or not UiText.has(context[1])):
 		return
-	_view = view
-	_objectives = objectives
+	# Presentation data must be owned by the tablet after validation.
+	# Retaining caller-owned dictionaries lets a later mutation bypass every
+	# snapshot gate and silently change what a player sees.
+	_view = view.duplicate(true)
+	_objectives = objectives.duplicate(true)
 	if not context.is_empty():
-		_context = context
+		var copied_context: Array[String] = []
+		copied_context.assign(context)
+		_context = copied_context
 	if selected == "" or not (view["nodes"] as Dictionary).has(selected):
 		# A refreshed map may no longer contain the previously selected node.
 		# Its pending inspection/ping banner must not be attributed to another node.

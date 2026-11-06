@@ -135,3 +135,31 @@ func test_QA105_sparse_coordinate_overflow_is_rejected_before_layout() -> void:
 	assert_eq((case["tablet"] as PanelContainer).get("_view"), valid,
 		"bounded authored coordinates still produce an accessible map")
 	_finish(case)
+
+
+func test_QA106_caller_mutation_cannot_bypass_validated_snapshot() -> void:
+	var case: Dictionary = _opened()
+	var tablet: PanelContainer = case["tablet"]
+	var incoming: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+	var incoming_objectives: Array = (case["objectives"] as Array).duplicate(true)
+	var context: Array[String] = ["district.alder_street", "contract.c01"]
+	tablet.show_data(incoming, incoming_objectives, context)
+	Fixture.settle(tablet)
+	assert_eq(str(tablet.selected), "TEMP", "valid live refresh retains selected node")
+	assert_true((tablet.get("_pending_tablet_requests") as Dictionary).has(int(case["pending"]["seq"])))
+
+	# Mutate every caller-owned input *after* the tablet accepted it. None of
+	# these unsafe changes passed validation and none may enter the live view.
+	(incoming["order"] as Array).clear()
+	incoming["nodes"]["TEMP"]["name_key"] = "node.c01.unlocalized"
+	incoming["edges"][0]["to"] = "GHOST"
+	(incoming_objectives[0] as Dictionary)["text_key"] = "objective.unknown"
+	context[0] = "tablet.title"
+	assert_eq(tablet.get("_view"), case["snapshot"], "caller cannot rewrite validated map records")
+	assert_eq(tablet.get("_objectives"), case["objectives"], "objective list owns its copy")
+	var accepted_context: Array[String] = ["district.alder_street", "contract.c01"]
+	assert_eq(tablet.get("_context"), accepted_context, "header context owns its copy")
+	assert_true((tablet.map.nodes as Dictionary).has("TEMP"), "live controls retain their validated IDs")
+	assert_true((tablet.get("_pending_tablet_requests") as Dictionary).has(int(case["pending"]["seq"])),
+		"in-flight Ping is not invalidated by a caller-side mutation")
+	_finish(case)
