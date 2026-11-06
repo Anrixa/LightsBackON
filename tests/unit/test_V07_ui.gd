@@ -105,17 +105,20 @@ func test_V07_inspect_goes_through_the_host_and_its_answer_is_shown() -> void:
 func test_QA70_tablet_feedback_is_cleared_and_hidden_replies_are_ignored() -> void:
 	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
 	tablet.open()
-	var target: String = str(tablet.selected)
-	tablet.on_reply({"type": "ping", "entity": target}, {"ok": true})
+	tablet.ping_selected()
+	var old_visit: Dictionary = _sent[-1].duplicate(true)
+	tablet.on_reply(old_visit, {"ok": true})
 	assert_true(str(tablet.get("_status_text")) != "", "the current open tablet shows outcomes")
 	tablet.close()
 	assert_eq(str(tablet.get("_status_text")), "", "closing clears transient feedback")
-	tablet.on_reply({"type": "ping", "entity": target},
+	tablet.on_reply(old_visit,
 		{"ok": false, "key": "network.refused.rate_limited"})
 	assert_eq(str(tablet.get("_status_text")), "", "a hidden tablet ignores delayed replies")
 	tablet.open()
 	assert_eq(str(tablet.get("_status_text")), "", "a new visit starts without a stale refusal")
-	tablet.on_reply({"type": "ping", "entity": target}, {"ok": true})
+	tablet.ping_selected()
+	var new_visit: Dictionary = _sent[-1].duplicate(true)
+	tablet.on_reply(new_visit, {"ok": true})
 	assert_true(str(tablet.get("_status_text")) != "", "fresh outcomes still render")
 	tablet.close()
 
@@ -301,7 +304,9 @@ func test_QA81_action_outcome_is_outside_long_evidence_scroll() -> void:
 	var evidence: ScrollContainer = tablet.detail_scroll
 	assert_true(evidence.get_v_scroll_bar().max_value > evidence.get_v_scroll_bar().page + 125.0)
 	evidence.scroll_vertical = 120
-	tablet.on_reply({"type": "ping", "entity": str(tablet.selected)}, {"ok": true})
+	tablet.ping_selected()
+	var ping: Dictionary = _sent[-1].duplicate(true)
+	tablet.on_reply(ping, {"ok": true})
 	Fixture.settle(tablet)
 	var feedback: Label = tablet.get("_feedback_label") as Label
 	assert_true(feedback != null and feedback.visible, "the Ping outcome is immediately shown")
@@ -459,6 +464,33 @@ func test_QA86_new_dispatch_clears_previous_action_result_until_new_reply() -> v
 	tablet.close()
 
 
+## QA89: no unsent or malformed acknowledgment can manufacture a result.
+func test_QA89_tablet_requires_integer_sequence_and_pending_request() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1280, 720), 150)
+	tablet.open()
+	tablet.select("TEMP")
+	tablet.on_reply({"type": "ping", "entity": "TEMP"}, {"ok": true})
+	assert_eq(str(tablet.get("_status_text")), "",
+		"unsolicited sequence-less replies must never display")
+	tablet.ping_selected()
+	var valid: Dictionary = _sent[-1].duplicate(true)
+	var malformed: Dictionary = valid.duplicate(true)
+	malformed["seq"] = str(valid["seq"])
+	tablet.on_reply(malformed, {"ok": true})
+	assert_eq(str(tablet.get("_status_text")), "",
+		"numeric-string sequence is not a genuine outbox acknowledgment")
+	assert_true((tablet.get("_pending_tablet_requests") as Dictionary).has(int(valid["seq"])),
+		"invalid replies cannot consume pending valid requests")
+	var unknown: Dictionary = valid.duplicate(true)
+	unknown["seq"] = int(valid["seq"]) + 1000
+	tablet.on_reply(unknown, {"ok": true})
+	assert_eq(str(tablet.get("_status_text")), "", "unknown sequence does not render")
+	tablet.on_reply(valid, {"ok": false, "key": "network.refused.rate_limited"})
+	assert_true(str(tablet.get("_status_text")).contains(UiText.t("network.refused.rate_limited")),
+		"a correlated host refusal still displays correctly")
+	tablet.close()
+
+
 ## QA88: the shared feedback area belongs to the newest dispatch even across
 ## distinct Ping/Inspect action kinds. Separate action/target sequence tracking
 ## alone cannot guarantee latest-action-wins presentation.
@@ -555,20 +587,23 @@ func test_QA79_newest_same_target_reply_wins_and_pending_requests_are_bounded() 
 func test_QA74_objectives_tab_clears_and_ignores_network_action_feedback() -> void:
 	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
 	tablet.open()
-	var selected_id: String = str(tablet.selected)
-	tablet.on_reply({"type": "ping", "entity": selected_id}, {"ok": true})
+	tablet.ping_selected()
+	var before_tab: Dictionary = _sent[-1].duplicate(true)
+	tablet.on_reply(before_tab, {"ok": true})
 	assert_true(str(tablet.get("_status_text")) != "")
 	tablet._show_tab(NetworkTablet.TAB_OBJECTIVES)
 	assert_eq(str(tablet.get("_status_text")), "",
 		"network-only feedback must not survive into Objectives")
-	tablet.on_reply({"type": "ping", "entity": selected_id},
+	tablet.on_reply(before_tab,
 		{"ok": false, "key": "network.refused.rate_limited"})
 	assert_eq(str(tablet.get("_status_text")), "",
 		"a late reply in Objectives must not resurrect a previous network action")
 	tablet._show_tab(NetworkTablet.TAB_NETWORK)
 	assert_eq(str(tablet.get("_status_text")), "",
 		"returning to Network does not present old asynchronous feedback")
-	tablet.on_reply({"type": "ping", "entity": selected_id}, {"ok": true})
+	tablet.ping_selected()
+	var after_tab: Dictionary = _sent[-1].duplicate(true)
+	tablet.on_reply(after_tab, {"ok": true})
 	assert_true(str(tablet.get("_status_text")) != "",
 		"fresh responses on the active Network tab remain readable")
 	tablet.close()
@@ -619,7 +654,9 @@ func test_QA72_refresh_rehomes_removed_selection_without_stale_feedback() -> voi
 	var first: String = str(view["order"][0])
 	var second: String = str(view["order"][1])
 	tablet.call("select", first)
-	tablet.call("on_reply", {"type": "ping", "entity": first}, {"ok": true})
+	tablet.ping_selected()
+	var first_ping: Dictionary = _sent[-1].duplicate(true)
+	tablet.call("on_reply", first_ping, {"ok": true})
 	assert_true(str(tablet.get("_status_text")) != "")
 	var updated: Dictionary = view.duplicate(true)
 	updated["order"] = [second]
