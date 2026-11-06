@@ -37,7 +37,9 @@
 
 ## Verification
 
-CI and exact source SHA: **pending**. Do not claim completion before Linux/Windows, QA51 and Windows export/headless smoke are green.
+Initial source head `be8f9b7633d77eee7f2e7200f754c026e2b55d81` passed the complete GitHub-hosted Linux/Windows pipeline ([run #42294843054](https://github.com/Anrixa/LightsBackON/actions/runs/42294843054)): **418 Godot tests, zero failures, 9,340 assertions on each runner**, C01 solved in 316 ticks (56 steps), Python reference cross-check MATCH (32 cases / 246 command hashes / 10 invalid-definition rejections), QA57 tracked-UID gate PASS, signed-source pin/export-preflight PASS, Windows release export, headless exported-EXE smoke and artifact upload PASS.
+
+A targeted QA55 real-results ownership test has subsequently been added to exercise panel/label teardown through the dedicated QA51 resource probe. **Final source-head Linux/Windows CI, QA51 resource probe and post-merge main CI are pending at this documentation checkpoint**. A headless export is not a real graphics launch.
 
 ## Resume
 

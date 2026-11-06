@@ -24,3 +24,25 @@ func test_QA55_start_button_owned_by_menu() -> void:
 	start = null
 	assert_true(start_weak.get_ref() == null,
 		"visible start button must be freed when the menu is destroyed")
+
+
+## The real C01 Results panel must share the MissionRoot lifetime. A detached
+## results tree would survive a returned-to-menu transition and leak CanvasItems.
+func test_QA55_results_panel_disposes_with_mission() -> void:
+	var mission_scene: PackedScene = load("res://scenes/mission/mission_root.tscn") as PackedScene
+	var tree: SceneTree = Engine.get_main_loop() as SceneTree
+	var mission: Node = mission_scene.instantiate()
+	tree.root.add_child(mission)
+	mission.call("_finish")
+	var results_panel: PanelContainer = mission.find_child("Results", true, false) as PanelContainer
+	var score: Label = mission.find_child("Score", true, false) as Label
+	assert_true(results_panel != null and score != null)
+	var panel_weak: WeakRef = weakref(results_panel)
+	var score_weak: WeakRef = weakref(score)
+	tree.root.remove_child(mission)
+	mission.free()
+	mission = null
+	results_panel = null
+	score = null
+	assert_true(panel_weak.get_ref() == null, "results panel must not outlive MissionRoot")
+	assert_true(score_weak.get_ref() == null, "results score label must not outlive MissionRoot")
