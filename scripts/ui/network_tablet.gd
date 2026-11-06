@@ -125,6 +125,8 @@ func show_data(view: Dictionary, objectives: Array, context: Array[String] = [])
 	# or unlocalized context atomically instead of showing an invalid label
 	# or indexing a missing contract key during the next rebuild.
 	if not context.is_empty() and (context.size() != 2 or \
+			not context[0].begins_with("district.") or \
+			not context[1].begins_with("contract.") or \
 			not UiText.has(context[0]) or not UiText.has(context[1])):
 		return
 	# Presentation data must be owned by the tablet after validation.
