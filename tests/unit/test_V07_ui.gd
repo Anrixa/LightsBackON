@@ -470,6 +470,10 @@ func test_QA93_tablet_rejects_malformed_refresh_without_losing_focus_or_reply() 
 	var tablet: PanelContainer = _tablet(Vector2(1280, 720), 150)
 	tablet.open()
 	tablet.select("TEMP")
+	# Selection and controller focus are distinct. Model a real navigation
+	# to TEMP so a valid rebuild correctly restores that node's focus.
+	var target: Control = (tablet.map.nodes["TEMP"] as Control)
+	target.grab_focus()
 	var focus_before: Control = _root().gui_get_focus_owner()
 	tablet.ping_selected()
 	var pending: Dictionary = _sent[-1].duplicate(true)
