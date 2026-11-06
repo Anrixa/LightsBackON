@@ -142,6 +142,29 @@ func test_QA71_evidence_and_ping_left_focus_follow_current_selection() -> void:
 	tablet.close()
 
 
+## QA72: a refreshed node catalog cannot carry old-node feedback to a new selection.
+func test_QA72_refresh_rehomes_removed_selection_without_stale_feedback() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
+	tablet.open()
+	var view: Dictionary = tablet.get("_view")
+	var first: String = str(view["order"][0])
+	var second: String = str(view["order"][1])
+	tablet.call("select", first)
+	tablet.call("on_reply", {"type": "ping", "entity": first}, {"ok": true})
+	assert_true(str(tablet.get("_status_text")) != "")
+	var updated: Dictionary = view.duplicate(true)
+	updated["order"] = [second]
+	updated["nodes"] = {second: (view["nodes"] as Dictionary)[second]}
+	updated["edges"] = []
+	tablet.call("show_data", updated, [])
+	assert_eq(tablet.selected, second, "selection must be valid in refreshed authoritative view")
+	assert_eq(str(tablet.get("_status_text")), "", "old node feedback cannot describe the replacement")
+	assert_true(tablet.map.nodes.has(second), "replacement selection is focusable")
+	assert_eq(_root().gui_get_focus_owner(), tablet.map.nodes[second],
+		"controller focus recovers when its previous node has disappeared")
+	tablet.close()
+
+
 # ---------- acceptance: controller focus complete ----------
 
 func test_V07_directional_focus_reaches_every_control_from_every_control() -> void:
