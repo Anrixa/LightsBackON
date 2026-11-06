@@ -215,7 +215,6 @@ func test_QA77_objective_scroll_survives_refresh_scale_and_tab_roundtrip() -> vo
 	tablet._show_tab(NetworkTablet.TAB_OBJECTIVES)
 	Fixture.settle(tablet)
 	var scroller: ScrollContainer = tablet.get("_objective_scroll") as ScrollContainer
-	print("QA77_DIAGNOSTIC: scroller=", scroller.size, " bar=", scroller.get_v_scroll_bar().max_value, " page=", scroller.get_v_scroll_bar().page, " content=", scroller.get_child(0).get_combined_minimum_size(), " tablet=", tablet.size)
 	assert_true(scroller.get_v_scroll_bar().max_value > scroller.get_v_scroll_bar().page + 150.0,
 		"the fixture creates a truly scrollable objectives list")
 	scroller.scroll_vertical = 120
