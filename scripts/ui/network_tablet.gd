@@ -118,6 +118,8 @@ func show_data(view: Dictionary, objectives: Array, context: Array[String] = [])
 		seen[nid] = true
 	if not _valid_snapshot_records(nodes, order, view["edges"] as Array):
 		return
+	if not _valid_snapshot_objectives(objectives):
+		return
 	_view = view
 	_objectives = objectives
 	if not context.is_empty():
@@ -173,6 +175,22 @@ func _valid_snapshot_records(nodes: Dictionary, order: Array, edges: Array) -> b
 				TabletPresenter.EDGE_FAULT, TabletPresenter.EDGE_UNKNOWN].has(edge["style"]):
 			return false
 		edge_ids[edge["id"]] = true
+	return true
+
+
+## Objectives are rendered with indexed status/text fields and a declared
+## icon state. Reject a bad refresh while keeping the last usable list.
+func _valid_snapshot_objectives(objectives: Array) -> bool:
+	for item: Variant in objectives:
+		if typeof(item) != TYPE_DICTIONARY:
+			return false
+		var objective: Dictionary = item as Dictionary
+		if typeof(objective.get("status", null)) != TYPE_STRING or \
+				typeof(objective.get("text_key", null)) != TYPE_STRING:
+			return false
+		if str(objective["text_key"]).is_empty() or \
+				StatusChip.entry("objectives", str(objective["status"])).is_empty():
+			return false
 	return true
 
 
