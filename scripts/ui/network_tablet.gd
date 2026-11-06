@@ -120,6 +120,12 @@ func show_data(view: Dictionary, objectives: Array, context: Array[String] = [])
 		return
 	if not _valid_snapshot_objectives(objectives):
 		return
+	# The header indexes exactly two localization keys. Reject truncated
+	# or unlocalized context atomically instead of showing an invalid label
+	# or indexing a missing contract key during the next rebuild.
+	if not context.is_empty() and (context.size() != 2 or \
+			not UiText.has(context[0]) or not UiText.has(context[1])):
+		return
 	_view = view
 	_objectives = objectives
 	if not context.is_empty():
