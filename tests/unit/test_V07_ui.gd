@@ -464,6 +464,36 @@ func test_QA86_new_dispatch_clears_previous_action_result_until_new_reply() -> v
 	tablet.close()
 
 
+## QA91: even while a tablet gate call is executing, nested shared-outbox
+## sends must not borrow the tablet's origin or overwrite its latest sequence.
+func test_QA91_reentrant_shared_outbox_send_cannot_hijack_tablet_request() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1280, 720), 150)
+	tablet.open()
+	tablet.select("TEMP")
+	var outbox: RefCounted = tablet.get("_bound_outbox")
+	var did_inject: Array[bool] = [false]
+	var nested_send: Callable = func(_envelope: Dictionary) -> void:
+		if did_inject[0]:
+			return
+		did_inject[0] = true
+		outbox.call("send", "ping", "TEMP", {"ping": "PING_LOOK"})
+	outbox.sent.connect(nested_send)
+	tablet.ping_selected()
+	outbox.sent.disconnect(nested_send)
+	assert_true(did_inject[0], "fixture nested an external Ping inside the tablet's send")
+	assert_true(_sent.size() >= 2)
+	var tablet_ping: Dictionary = _sent[-2].duplicate(true)
+	var nested_ping: Dictionary = _sent[-1].duplicate(true)
+	var pending: Dictionary = tablet.get("_pending_tablet_requests") as Dictionary
+	assert_true(pending.has(int(tablet_ping["seq"])), "own tablet send is registered")
+	assert_false(pending.has(int(nested_ping["seq"])), "nested external send cannot be registered")
+	tablet.on_reply(nested_ping, {"ok": false, "key": "network.refused.rate_limited"})
+	assert_eq(str(tablet.get("_status_text")), "", "nested refusal is not painted in the tablet")
+	tablet.on_reply(tablet_ping, {"ok": true})
+	assert_true(str(tablet.get("_status_text")) != "", "legitimate tablet reply still displays")
+	tablet.close()
+
+
 ## QA90: a Ping from another UI sharing this outbox is not a tablet action.
 func test_QA90_shared_outbox_activity_does_not_replace_tablet_feedback() -> void:
 	var tablet: PanelContainer = _tablet(Vector2(1280, 720), 150)
