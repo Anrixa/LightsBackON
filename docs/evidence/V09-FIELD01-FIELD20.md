@@ -43,7 +43,11 @@
 - Production implementation head: `7dbd8d014f9e2d994d3dd9052664519c371c9ee4` (PR #118).
 - [Linux + Windows full CI #42288524045](https://github.com/Anrixa/LightsBackON/actions/runs/42288524045): **PASS** on both runners, 398 Godot tests, 0 failures, 9,279 assertions each; the existing C01 replay/reference checks passed. On Windows the QA57 tracked UID check, pinned Godot 4.7.2 Windows release export, exported EXE headless smoke, build-manifest verification and artifact upload passed. No actual GPU or controller was exercised.
 - [QA51 isolated resource probes #42288524241](https://github.com/Anrixa/LightsBackON/actions/runs/42288524241): **PASS** on Linux/Windows; zero observed CanvasItem/ObjectDB/DummyTexture/ShapedText/FontRID deltas in the isolated diagnostics.
-- Subsequent code review identified two live-game defects that headless static projections did not expose: progress ticks did not always generate events, and the first active objective could mask a second visible active pump objective. These have been corrected in the same PR; the final amended source commit needs exact-head CI and post-merge main CI before claiming integration.
+- Subsequent code review identified two live-game defects that headless static projections did not expose: progress ticks did not always generate events, and the first active objective could mask a second visible active pump objective. These have been corrected in the same PR. The subsequent test also uncovered an invalid first-scene assumption that no pump progress was visible at launch; C01 may expose several active objectives, so the test now deliberately enters a no-meter stage before asserting transition behavior.
+- Amended source head: `15c4f2fd2e19652613ab8503b7618b417a219f04`.
+- [Final amended Linux + Windows CI #42290264133](https://github.com/Anrixa/LightsBackON/actions/runs/42290264133): **PASS** both runners, 398 Godot tests, 0 failures, **9,283 assertions** each. C01 crosschecks and Windows source/UID manifest, Windows export, headless EXE smoke and artifacts passed.
+- [QA51 lifetime probes #42290264266](https://github.com/Anrixa/LightsBackON/actions/runs/42290264266): **PASS** on Linux and Windows.
+- Evidence-only final update must still pass PR-head CI; confirm post-merge main CI separately.
 - Runtime physical GPU, actual controller interaction, readable UX at 720p/150% with a person, solo C01 run counts, two-network Steam join and V09 gate: **NOT RUN**.
 - Original 66-task `docs/backlog.json` is unchanged. F02 remains BLOCKED; V09 remains NOT_STARTED.
 
