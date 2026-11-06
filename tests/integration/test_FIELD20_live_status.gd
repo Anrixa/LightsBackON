@@ -204,9 +204,9 @@ func test_FIELD20_production_session_and_hud_render_on_real_scene() -> void:
 	var root: Node = scene.instantiate()
 	tree.root.add_child(root)
 	var hud: Container = root.get("hud") as Container
-	assert_true(hud != null)
-	assert_true(hud.find_child("FieldShiftStatus", true, false) is Label)
-	assert_true(hud.find_child("FieldShiftProgress", true, false) == null)
+	assert_true(hud != null, "production scene constructs a field HUD")
+	assert_true(hud.find_child("FieldShiftStatus", true, false) is Label, "initial scene shift status exists")
+	assert_true(hud.find_child("FieldShiftProgress", true, false) == null, "future meter is initially hidden")
 	# A non-event mission tick must update the real production HUD in place.
 	# Transition into progress mode creates the bar once; subsequent ticks
 	# update only text/value, without discarding the focused scene/UI controls.
@@ -215,7 +215,7 @@ func test_FIELD20_production_session_and_hud_render_on_real_scene() -> void:
 	live["progress_percent"] = 25
 	hud.call("set_field_shift", live)
 	var bar: ProgressBar = hud.find_child("FieldShiftProgress", true, false) as ProgressBar
-	assert_true(bar != null)
+	assert_true(bar != null, "entering active pump stage creates meter")
 	if bar != null:
 		assert_eq(bar.value, 25.0)
 		live = live.duplicate(true)
@@ -227,10 +227,9 @@ func test_FIELD20_production_session_and_hud_render_on_real_scene() -> void:
 	# UI-only model changes never take world input focus and obey the existing
 	# viewport and accessibility-scale reflow path.
 	UiText.set_locale(UiText.LOCALE_PSEUDO)
-	hud.size = Vector2(1280, 720)
 	hud.call("set_ui_scale", 150)
 	var status: Label = hud.find_child("FieldShiftStatus", true, false) as Label
-	assert_true(status != null and status.text != "")
+	assert_true(status != null and status.text != "", "status remains visible with pseudo locale at 150 percent")
 	assert_eq(status.focus_mode, Control.FOCUS_NONE)
 	assert_eq(status.mouse_filter, Control.MOUSE_FILTER_IGNORE)
 	tree.root.remove_child(root)
