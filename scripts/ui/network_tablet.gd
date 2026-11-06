@@ -229,6 +229,12 @@ func ping_selected() -> void:
 ## may become pending tablet feedback; "sent" is emitted synchronously before
 ## a host-local reply can be delivered.
 func _send_tablet_intent(kind: String, entity: String, payload: Dictionary) -> void:
+	# Outbox sent/replied callbacks are synchronous for the host-local path.
+	# A callback must not initiate a second tablet send while the first
+	# dispatch scope is active: it could reset the expected sequence and
+	# accidentally lose the genuine original acknowledgment.
+	if _tablet_dispatch_active:
+		return
 	# IntentOutbox allocates the next sequence before emitting "sent".
 	# A callback on that signal may synchronously send another intent before
 	# our gate returns; tracking the expected ID prevents such nested origins
