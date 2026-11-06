@@ -50,6 +50,7 @@ var _map_offset: Vector2 = Vector2.ZERO
 var _map_view_saved: bool = false
 var _right_trigger_held: bool = false
 var _left_trigger_held: bool = false
+var _pending_evidence_scroll_y: int = 0
 
 
 func _init() -> void:
@@ -131,6 +132,7 @@ func select(nid: String) -> void:
 		return
 	selected = nid
 	_status_text = ""
+	_pending_evidence_scroll_y = 0
 	# A new branch must start at its heading, not halfway down the previous
 	# branch's long meter evidence. Live refresh of the same node is unaffected.
 	if detail_scroll != null and is_instance_valid(detail_scroll):
@@ -303,6 +305,8 @@ func _rebuild() -> void:
 	detail_scroll = FocusScroll.new()
 	detail_scroll.name = "Evidence"
 	detail_scroll.setup(tokens, s)
+	# The scrollbar range becomes valid only when its evidence is laid out.
+	detail_scroll.get_v_scroll_bar().changed.connect(_restore_evidence_scroll)
 	detail_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	detail_box.add_child(detail_scroll)
 	detail_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -316,16 +320,26 @@ func _rebuild() -> void:
 	page.add_child(_footer())
 	_link_focus()
 	_fill_detail()
-	# Let the newly constructed ScrollContainer lay out its children first;
-	# writing the offset before layout would clamp it to zero.
-	if evidence_scroll_y > 0:
-		detail_scroll.set_deferred("scroll_vertical", evidence_scroll_y)
+	# Cache the requested position until Godot has measured the new contents.
+	# A deferred setter alone can run too early on headless/fast layouts.
+	_pending_evidence_scroll_y = evidence_scroll_y
 	if focus_token != "":
 		_restore_focus(focus_token)
 
 
 ## Explicit focus exits between the regions (blueprint p.22: every control reachable by controller). Inside the map the
 ## stick follows the graph (tablet_map.gd); at its edges it leaves to the tabs (up), the evidence panel (right) and the footer.
+func _restore_evidence_scroll() -> void:
+	if _pending_evidence_scroll_y <= 0 or detail_scroll == null:
+		return
+	var bar: VScrollBar = detail_scroll.get_v_scroll_bar()
+	if bar.max_value <= bar.page + 0.5:
+		return
+	var wanted: int = _pending_evidence_scroll_y
+	_pending_evidence_scroll_y = 0
+	detail_scroll.scroll_vertical = mini(wanted, roundi(bar.max_value - bar.page))
+
+
 func _link_focus() -> void:
 	var footer: Array[Button] = []
 	for b: Button in zoom_buttons:
