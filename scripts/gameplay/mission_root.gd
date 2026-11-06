@@ -18,6 +18,7 @@ const UiText := preload("res://scripts/ui/ui_text.gd")
 const InputDeviceTracker := preload("res://scripts/ui/input_device_tracker.gd")
 const RestorationPresentation := preload("res://scripts/world/restoration_presentation.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
+const ShiftOperations := preload("res://scripts/gameplay/shift_operations.gd")
 
 const MENU_PATH: String = "res://scenes/menu/main_menu.tscn"
 const HOST_TICK_SECONDS: float = 0.1
@@ -41,6 +42,15 @@ var _restored_view: Dictionary = {}
 var _overlay: Control
 var _pause_panel: PanelContainer
 var _complete_panel: PanelContainer
+var _briefing_status: Label
+var _briefing_next: Label
+var _briefing_readiness: Label
+var _briefing_pump: ProgressBar
+var _briefing_verify: ProgressBar
+var _briefing_depart: ProgressBar
+var _briefing_pump_label: Label
+var _briefing_verify_label: Label
+var _briefing_depart_label: Label
 var _status: Label
 var _resume_button: Button
 var _accessibility_button: Button
@@ -271,6 +281,19 @@ func _make_pause_panel() -> PanelContainer:
 	column.add_theme_constant_override("separation", 14)
 	scroll.add_child(column)
 	_pause_label(column, "offline.pause.title", 34)
+	var overview: VBoxContainer = VBoxContainer.new()
+	overview.name = "ShiftOverview"
+	overview.add_theme_constant_override("separation", 7)
+	column.add_child(overview)
+	_briefing_status = _briefing_text(overview, "BriefingStatus")
+	_briefing_next = _briefing_text(overview, "BriefingNext")
+	_briefing_pump_label = _briefing_text(overview, "PumpLabel")
+	_briefing_pump = _briefing_bar(overview, "PumpProgress")
+	_briefing_verify_label = _briefing_text(overview, "VerificationLabel")
+	_briefing_verify = _briefing_bar(overview, "VerificationProgress")
+	_briefing_depart_label = _briefing_text(overview, "DepartureLabel")
+	_briefing_depart = _briefing_bar(overview, "DepartureProgress")
+	_briefing_readiness = _briefing_text(overview, "BriefingReadiness")
 	_resume_button = _button(column, "offline.pause.resume", _resume_play)
 	_accessibility_button = _button(column, "offline.pause.accessibility", _toggle_accessibility)
 	_button(column, "offline.pause.recover", _recover_player)
@@ -288,17 +311,52 @@ func _make_completion_panel() -> PanelContainer:
 	margin.add_theme_constant_override("margin_top", 32)
 	margin.add_theme_constant_override("margin_bottom", 32)
 	panel.add_child(margin)
+	var scroll: ScrollContainer = ScrollContainer.new()
+	scroll.name = "ResultScroll"
+	scroll.follow_focus = true
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	margin.add_child(scroll)
 	var column: VBoxContainer = VBoxContainer.new()
 	column.add_theme_constant_override("separation", 18)
-	margin.add_child(column)
+	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(column)
 	_pause_label(column, "offline.complete.title", 32)
 	var result: Label = Label.new()
 	result.name = "Score"
 	result.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	column.add_child(result)
+	var metrics: Label = Label.new()
+	metrics.name = "CompletionMetrics"
+	metrics.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	column.add_child(metrics)
 	var menu_button: Button = _button(column, "offline.complete.menu", _exit_to_menu)
 	menu_button.name = "ReturnToMenu"
 	return panel
+
+
+## These controls are intentionally noninteractive. The existing pause action
+## buttons retain keyboard/controller focus and remain reachable via scrolling.
+func _briefing_text(parent: VBoxContainer, control_name: String) -> Label:
+	var label: Label = Label.new()
+	label.name = control_name
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(label)
+	return label
+
+
+func _briefing_bar(parent: VBoxContainer, control_name: String) -> ProgressBar:
+	var bar: ProgressBar = ProgressBar.new()
+	bar.name = control_name
+	bar.min_value = 0.0
+	bar.max_value = 100.0
+	bar.show_percentage = false
+	bar.custom_minimum_size.y = 12.0
+	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	bar.focus_mode = Control.FOCUS_NONE
+	parent.add_child(bar)
+	return bar
 
 
 func _pause_label(parent: Control, key: String, font_size: int) -> void:
@@ -372,9 +430,9 @@ func _layout_modal_panels(screen_size: Vector2) -> void:
 	var available: Vector2 = Vector2(maxf(1.0, screen_size.x - margin * 2.0),
 		maxf(1.0, screen_size.y - margin * 2.0))
 	_center(_pause_panel, Vector2(minf(660.0 * effective / 100.0, available.x),
-		minf(510.0 * effective / 100.0, available.y)))
+		minf(620.0 * effective / 100.0, available.y)))
 	_center(_complete_panel, Vector2(minf(660.0 * effective / 100.0, available.x),
-		minf(370.0 * effective / 100.0, available.y)))
+		minf(460.0 * effective / 100.0, available.y)))
 
 
 ## Input labels follow the last *intentional* gamepad or keyboard/mouse input.
@@ -637,6 +695,37 @@ func _refresh_hud() -> void:
 	hud.apply(session.hud_view(_slot, _target, TOOL_LIST[_slot - 1]))
 	if _world_fx != null:
 		_world_fx.apply(session.host_state(), session.mission.is_latched(OfflineSession.PUMP_LATCH))
+	if _paused:
+		_refresh_shift_briefing()
+
+
+## Update an ephemeral briefing from the same authoritative mission used by
+## the HUD. Pausing freezes host ticks, so no timer is extrapolated locally.
+func _refresh_shift_briefing() -> void:
+	if session == null or _briefing_status == null:
+		return
+	var state: Dictionary = session.shift_operations_view()
+	_briefing_status.text = UiText.tf("offline.briefing.status", [
+		int(state["objectives_done"]), int(state["objectives_total"]),
+		UiText.t(str(state["phase_key"]))])
+	var active_key: String = str(state["active_key"])
+	_briefing_next.text = UiText.tf("offline.briefing.next", [
+		UiText.t(active_key) if active_key != "" else UiText.t(str(state["phase_key"]))])
+	_briefing_pump_label.text = UiText.tf("offline.briefing.pump", [int(state["pump_percent"])])
+	_briefing_pump.value = float(state["pump_percent"])
+	_briefing_verify_label.text = UiText.tf("offline.briefing.verify", [int(state["verify_percent"])])
+	_briefing_verify.value = float(state["verify_percent"])
+	var departure: bool = bool(state["departing"])
+	_briefing_depart.visible = departure
+	_briefing_depart_label.visible = departure
+	if departure:
+		var remaining: int = int(state["departure_left"])
+		_briefing_depart_label.text = UiText.tf("offline.briefing.depart", [ceili(float(remaining) / 10.0)])
+		_briefing_depart.value = float(state["departure_percent"])
+	_briefing_readiness.text = UiText.tf("offline.briefing.readiness", [
+		UiText.t("offline.briefing.yes" if bool(state["equipment_stowed"]) else "offline.briefing.no"),
+		UiText.t("offline.briefing.yes" if bool(state["at_van"]) else "offline.briefing.no"),
+		int(state["trips"]), int(state["recoveries"])])
 
 
 func _refresh_tablet() -> void:
@@ -669,6 +758,8 @@ func _toggle_pause() -> void:
 		_toggle_accessibility()
 		return
 	_paused = not _paused
+	if _paused:
+		_refresh_shift_briefing()
 	player.set_controls_active(not _paused)
 	_pause_panel.visible = _paused
 	if _paused:
@@ -763,6 +854,13 @@ func _finish() -> void:
 	if score != null:
 		score.text = UiText.tf("offline.complete.score", [int(results.get("stars", 0)),
 			int(results.get("required_restored", 0)), int(results.get("required_total", 0))])
+	var metrics: Label = _complete_panel.find_child("CompletionMetrics", true, false) as Label
+	if metrics != null:
+		metrics.text = UiText.tf("offline.complete.metrics", [
+			int(results.get("trips", 0)), int(results.get("preventable_trips", 0)),
+			int(results.get("crew_recoveries", 0)), int(results.get("ticks", 0)),
+			UiText.t("offline.briefing.yes" if bool(results.get("equipment_collected", false))
+				else "offline.briefing.no")])
 	# Keyboard/controller users must be able to exit without a mouse, including
 	# when a finished checkpoint opens straight into this screen.
 	var menu_button: Button = _complete_panel.find_child("ReturnToMenu", true, false) as Button

@@ -221,6 +221,21 @@
     "input.pad.dpad_right": "D-pad right",
     "input.pad.dpad_up": "D-pad up",
     "input.pad.dpad_down": "D-pad down",
-    "offline.hud.fifth_tool": "Equipped: %s (slot 5)"
+    "offline.hud.fifth_tool": "Equipped: %s (slot 5)",
+    "offline.briefing.status": "Shift progress: %d / %d objectives • %s",
+    "offline.briefing.next": "Current task: %s",
+    "offline.briefing.pump": "Basement pump drainage: %d%%",
+    "offline.briefing.verify": "Grid supply verification: %d%%",
+    "offline.briefing.depart": "Departure countdown: %d s",
+    "offline.briefing.readiness": "Generator stowed: %s   At van: %s\nProtection trips: %d   Recoveries: %d",
+    "offline.briefing.yes": "Yes",
+    "offline.briefing.no": "No",
+    "offline.briefing.phase_restoring": "Restore services",
+    "offline.briefing.phase_stow": "Stow equipment",
+    "offline.briefing.phase_return": "Return to the van",
+    "offline.briefing.phase_ready": "Ready to depart",
+    "offline.briefing.phase_departing": "Crew departing",
+    "offline.briefing.phase_complete": "Shift complete",
+    "offline.complete.metrics": "Protection trips: %d (preventable: %d)\nCrew recoveries: %d   Completion tick: %d\nEquipment returned: %s"
   }
 }
