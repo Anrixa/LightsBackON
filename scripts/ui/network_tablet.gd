@@ -42,6 +42,7 @@ var _objectives: Array = []
 var _context: Array[String] = ["district.alder_street", "contract.c01"]
 var _status_text: String = ""
 var _previous_focus: Control = null
+var _visit_open: bool = false  # opening a visible modal twice must not restart its visit
 var _detail: VBoxContainer
 var _feedback_label: Label  # persistent action feedback outside the scrolling evidence
 var detail_scroll: ScrollContainer
@@ -106,6 +107,11 @@ func set_device(input_device: String) -> void:
 
 
 func open() -> void:
+	if _visit_open:
+		# Duplicate open notifications must not replace the outside focus target
+		# or invalidate outstanding replies from the current tablet visit.
+		return
+	_visit_open = true
 	# Each visit starts with an armed trigger, so a held axis from a previous
 	# visit cannot keep zooming repeatedly when it emits motion samples.
 	_right_trigger_held = false
@@ -123,6 +129,7 @@ func open() -> void:
 
 
 func close() -> void:
+	_visit_open = false
 	visible = false
 	_status_text = ""
 	_clear_tablet_requests()
