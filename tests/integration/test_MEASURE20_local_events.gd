@@ -163,3 +163,63 @@ func test_MEASURE15_real_C01_scene_wires_host_events_without_identity_fields() -
 	assert_false(JSON.stringify(report).contains("SENSITIVE"))
 	tree.root.remove_child(root)
 	root.free()
+
+
+func test_MEASURE16_no_opt_in_cannot_create_local_file() -> void:
+	assert_true(meter.begin(false, POLICY))
+	var result: Dictionary = meter.finish_and_export(2, false, Measurements.TEST_REPORT_DIR)
+	assert_eq(result["code"], "OPT_IN_REQUIRED")
+
+
+func test_MEASURE17_export_cannot_escape_app_private_directory() -> void:
+	assert_true(meter.begin(true, POLICY))
+	assert_eq(meter.finish_and_export(2, false, "user://../private")["code"], "BAD_DIRECTORY")
+	assert_eq(meter.finish_and_export(2, false, "res://")["code"], "BAD_DIRECTORY")
+
+
+func test_MEASURE18_atomic_local_report_contains_only_allowlisted_data() -> void:
+	assert_true(meter.begin(true, POLICY))
+	assert_true(meter.note("hint_requested", 3))
+	var result: Dictionary = meter.finish_and_export(4, false, Measurements.TEST_REPORT_DIR)
+	assert_true(result.get("ok", false))
+	if not bool(result.get("ok", false)):
+		return
+	var text_data: String = FileAccess.get_file_as_string(str(result["path"]))
+	var report: Variant = JSON.parse_string(text_data)
+	assert_true(report is Dictionary)
+	if report is Dictionary:
+		assert_eq(report["outcome"], "left")
+		assert_eq(report["schema_version"], 1)
+		assert_eq((report["events"] as Array)[2]["kind"], "session_left")
+	assert_false(text_data.contains("account_key"))
+	assert_false(text_data.contains("peer_id"))
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(str(result["path"])))
+
+
+func test_MEASURE19_closed_report_cannot_be_written_twice() -> void:
+	assert_true(meter.begin(true, POLICY))
+	var result: Dictionary = meter.finish_and_export(3, true, Measurements.TEST_REPORT_DIR)
+	assert_true(result.get("ok", false))
+	assert_eq(meter.finish_and_export(4, true, Measurements.TEST_REPORT_DIR)["code"], "ALREADY_CLOSED")
+	if bool(result.get("ok", false)):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(str(result["path"])))
+
+
+func test_MEASURE20_complete_report_keeps_host_events_and_cleans_staging() -> void:
+	assert_true(meter.begin(true, POLICY))
+	var rows: Array[Dictionary] = [{"status": "active", "visible": true}]
+	meter.observe_tick(1, rows)
+	meter.note_first_repair(2)
+	rows[0]["status"] = "done"
+	meter.observe_tick(3, rows)
+	assert_true(meter.note("session_completed", 4))
+	assert_true(meter.note("results_opened", 4))
+	var result: Dictionary = meter.finish_and_export(4, true, Measurements.TEST_REPORT_DIR)
+	assert_true(result.get("ok", false))
+	if not bool(result.get("ok", false)):
+		return
+	var payload: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(str(result["path"])))
+	assert_eq(payload["outcome"], "completed")
+	assert_eq((payload["events"] as Array).size(), 6)
+	assert_false(FileAccess.file_exists(str(result["path"]) + ".tmp"))
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(str(result["path"])))

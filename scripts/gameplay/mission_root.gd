@@ -904,8 +904,13 @@ func _finish() -> void:
 	player.set_controls_active(false)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_complete_panel.visible = true
-	_measurements.note("results_opened", maxi(_measurement_tick,
-		int(session.mission.canonical_state().get("completed_tick", 0))))
+	var final_tick: int = _measurement_tick
+	if _measurement_tick > 0:
+		final_tick = maxi(final_tick,
+			int(session.mission.canonical_state().get("completed_tick", final_tick)))
+	_measurements.observe_tick(final_tick, session.mission.objectives())
+	_measurements.note("results_opened", final_tick)
+	_export_local_measurements(true)
 	_render_debrief(session.mission.results())
 	# Keyboard/controller users must be able to exit without a mouse, including
 	# when a finished checkpoint opens straight into this screen.
@@ -965,7 +970,17 @@ func _render_debrief(results: Dictionary) -> void:
 				else "offline.briefing.no")])
 
 
+## Export only a consented local playtest. Failure does not block gameplay or saves.
+func _export_local_measurements(completed: bool) -> void:
+	if _measurements == null or not _measurements.enabled():
+		return
+	var result: Dictionary = _measurements.finish_and_export(_measurement_tick, completed)
+	if not bool(result.get("ok", false)) and str(result.get("code", "")) != "ALREADY_CLOSED":
+		push_warning("LOCAL_MEASUREMENT_EXPORT_FAILED")
+
+
 func _exit_to_menu() -> void:
+	_export_local_measurements(_finished)
 	_save_checkpoint()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	get_tree().change_scene_to_file(MENU_PATH)

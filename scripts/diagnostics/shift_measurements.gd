@@ -5,6 +5,8 @@ extends RefCounted
 
 const SCHEMA_VERSION: int = 1
 const TICKS_PER_SECOND: int = 10
+const LOCAL_REPORT_DIR: String = "user://local_measurements"
+const TEST_REPORT_DIR: String = "user://test_local_measurements"
 const KINDS: Array[String] = [
 	"session_started", "session_left", "session_completed", "results_opened",
 	"objective_visible", "objective_completed", "idle_started", "idle_ended",
@@ -142,3 +144,42 @@ func note_first_repair(tick: int) -> void:
 ## Connected-play adapters may call this only on a confirmed peer loss.
 func note_disconnect(tick: int) -> void:
 	note("connection_lost", tick)
+
+
+## Close a playtest report and atomically put it in an app-private local
+## directory. This never runs for normal players unless they explicitly start
+## Godot with --lbo-local-measure. No network calls or identities are involved.
+func finish_and_export(tick: int, completed: bool,
+		directory: String = LOCAL_REPORT_DIR) -> Dictionary:
+	if not _enabled:
+		return {"ok": false, "code": "OPT_IN_REQUIRED"}
+	if _closed:
+		return {"ok": false, "code": "ALREADY_CLOSED"}
+	# Fixed local namespaces keep an arbitrary caller from redirecting a report.
+	if directory != LOCAL_REPORT_DIR and directory != TEST_REPORT_DIR:
+		return {"ok": false, "code": "BAD_DIRECTORY"}
+	if not completed:
+		note("session_left", maxi(tick, _last_tick))
+	var report: Dictionary = snapshot()
+	report["outcome"] = "completed" if completed else "left"
+	report["last_tick"] = maxi(tick, _last_tick)
+	var absolute_dir: String = ProjectSettings.globalize_path(directory)
+	if DirAccess.make_dir_recursive_absolute(absolute_dir) != OK:
+		return {"ok": false, "code": "DIRECTORY_FAILURE"}
+	# Random file names prevent cross-session overwrite without embedding IDs.
+	var filename: String = "c01-" + Crypto.new().generate_random_bytes(12).hex_encode() + ".json"
+	var path: String = directory.path_join(filename)
+	var staging: String = path + ".tmp"
+	var output: FileAccess = FileAccess.open(staging, FileAccess.WRITE)
+	if output == null:
+		return {"ok": false, "code": "WRITE_FAILURE"}
+	output.store_string(JSON.stringify(report, "\t") + "\n")
+	output.flush()
+	output.close()
+	var moved: Error = DirAccess.rename_absolute(ProjectSettings.globalize_path(staging),
+		ProjectSettings.globalize_path(path))
+	if moved != OK:
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(staging))
+		return {"ok": false, "code": "RENAME_FAILURE"}
+	_closed = true
+	return {"ok": true, "path": path}
