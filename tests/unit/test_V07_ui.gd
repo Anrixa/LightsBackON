@@ -459,6 +459,40 @@ func test_QA86_new_dispatch_clears_previous_action_result_until_new_reply() -> v
 	tablet.close()
 
 
+## QA88: the shared feedback area belongs to the newest dispatch even across
+## distinct Ping/Inspect action kinds. Separate action/target sequence tracking
+## alone cannot guarantee latest-action-wins presentation.
+func test_QA88_older_cross_action_reply_cannot_preempt_latest_pending_action() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1280, 720), 150)
+	tablet.open()
+	tablet.select("TEMP")
+	tablet.ping_selected()
+	var older_ping: Dictionary = _sent[-1].duplicate(true)
+	tablet.inspect_selected()
+	var newer_inspect: Dictionary = _sent[-1].duplicate(true)
+	assert_eq(str(newer_inspect["type"]), "inspect")
+	tablet.on_reply(older_ping, {"ok": true})
+	assert_eq(str(tablet.get("_status_text")), "",
+		"late Ping success must not appear while newer Inspect is unanswered")
+	assert_true((tablet.get("_pending_tablet_requests") as Dictionary).has(int(newer_inspect["seq"])),
+		"the newer Inspect stays pending despite the old Ping reply")
+	tablet.on_reply(newer_inspect, {"ok": true})
+	assert_eq(str(tablet.get("_status_text")), UiText.t("tablet.inspected"),
+		"the latest Inspect receives the persistent feedback area")
+	# Reverse the kinds: an older Inspect may not preempt the next Ping.
+	tablet.inspect_selected()
+	var older_inspect: Dictionary = _sent[-1].duplicate(true)
+	tablet.ping_selected()
+	var newer_ping: Dictionary = _sent[-1].duplicate(true)
+	tablet.on_reply(older_inspect, {"ok": false, "key": "network.refused.rate_limited"})
+	assert_eq(str(tablet.get("_status_text")), "",
+		"late Inspect refusal must not appear while newer Ping is pending")
+	tablet.on_reply(newer_ping, {"ok": true})
+	assert_true(str(tablet.get("_status_text")) != "",
+		"latest Ping confirmation displays normally")
+	tablet.close()
+
+
 ## QA87: only an active visible Network visit may send or display actions.
 func test_QA87_tablet_intents_require_active_network_visit() -> void:
 	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
