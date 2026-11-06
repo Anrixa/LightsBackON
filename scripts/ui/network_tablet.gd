@@ -43,6 +43,7 @@ var _context: Array[String] = ["district.alder_street", "contract.c01"]
 var _status_text: String = ""
 var _previous_focus: Control = null
 var _detail: VBoxContainer
+var _feedback_label: Label  # persistent action feedback outside the scrolling evidence
 var detail_scroll: ScrollContainer
 var _objective_scroll: ScrollContainer
 var _body_left: PanelContainer
@@ -375,6 +376,9 @@ func _rebuild() -> void:
 	_detail.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_detail.add_theme_constant_override("separation", ThemeTokens.px(8, s))
 	detail_scroll.add_child(_detail)
+	_feedback_label = _label(detail_box, "", "StrongLabel", "action")
+	_feedback_label.name = "ActionFeedback"
+	_feedback_label.visible = false
 	ping_button = _button(detail_box, "", "PrimaryButton")
 	ping_button.name = "Ping"
 	ping_button.pressed.connect(ping_selected)
@@ -592,6 +596,11 @@ func _fill_detail() -> void:
 	for c: Node in _detail.get_children():
 		_detail.remove_child(c)
 		c.queue_free()
+	# A reply must stay legible even while the player reads far down a long
+	# evidence record. Keep the outcome visible outside the scroll panel.
+	if _feedback_label != null and is_instance_valid(_feedback_label):
+		_feedback_label.text = _status_text
+		_feedback_label.visible = _status_text != ""
 	var v: Dictionary = _view["nodes"].get(selected, {})
 	if v.is_empty():
 		return
@@ -615,8 +624,6 @@ func _fill_detail() -> void:
 	if str(v["panel"]) != "":
 		_section(UiText.t("tablet.section.worker"), [v.get("worker_text", UiText.t("tablet.no_worker"))])
 		_label(_detail, UiText.tf("tablet.inspect_hint", ["[%s]" % UiText.binding("ui_accept", device)]), "MutedLabel")
-	if _status_text != "":
-		_label(_detail, _status_text, "StrongLabel", "action")
 	_label(_detail, UiText.t("tablet.footnote"), "MutedLabel")
 	ping_button.text = UiText.tf("prompt.binding", [UiText.binding("ping", device), UiText.tf("tablet.ping_branch", [name_text])])
 	ping_button.visible = tab == TAB_NETWORK

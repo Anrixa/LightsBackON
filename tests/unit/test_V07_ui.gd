@@ -285,6 +285,33 @@ func test_QA80_objectives_consume_ping_without_dispatch_and_network_still_pings(
 	tablet.close()
 
 
+## QA81: actionable feedback remains visible while long evidence is scrolled.
+func test_QA81_action_outcome_is_outside_long_evidence_scroll() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1280, 720), 150)
+	tablet.open()
+	var view: Dictionary = (tablet.get("_view") as Dictionary).duplicate(true)
+	var node: Dictionary = (view["nodes"] as Dictionary)[str(tablet.selected)]
+	var lines: Array[String] = []
+	for i: int in 75:
+		lines.append("Measured branch evidence row %d" % i)
+	node["lines"] = lines
+	(view["nodes"] as Dictionary)[str(tablet.selected)] = node
+	tablet.show_data(view, [])
+	Fixture.settle(tablet)
+	var evidence: ScrollContainer = tablet.detail_scroll
+	assert_true(evidence.get_v_scroll_bar().max_value > evidence.get_v_scroll_bar().page + 125.0)
+	evidence.scroll_vertical = 120
+	tablet.on_reply({"type": "ping", "entity": str(tablet.selected)}, {"ok": true})
+	Fixture.settle(tablet)
+	var feedback: Label = tablet.get("_feedback_label") as Label
+	assert_true(feedback != null and feedback.visible, "the Ping outcome is immediately shown")
+	assert_false(evidence.is_ancestor_of(feedback), "the outcome is not buried inside the evidence scroller")
+	assert_true(Fixture.rect_inside(feedback.get_global_rect(), tablet.get_global_rect()),
+		"the outcome remains on-screen at accessible scale and 720p")
+	assert_true(evidence.scroll_vertical > 0, "showing feedback does not force the reader back to the top")
+	tablet.close()
+
+
 ## QA79: slow replies cannot replace the outcome of a newer same-target action.
 func test_QA79_newest_same_target_reply_wins_and_pending_requests_are_bounded() -> void:
 	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
