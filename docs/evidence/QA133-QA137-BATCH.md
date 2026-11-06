@@ -1,7 +1,7 @@
 # QA133–QA137 — Tablet semantic topology and inspection evidence
 
 **Baseline:** `main` dbedb8d2d6b8cf8fa99a7ce5254c60aba0f83f6c, with successful post-merge CI run #42262089764.
-**Status:** IMPLEMENTED / CI PENDING. Five additive regression phases; not part of the original 66-task backlog.
+**Status:** CLOUD_VERIFIED for the hosted scope. Initial source-tree Linux/Windows and QA51 gates PASS; final evidence-head recheck and merged-main push confirmation remain required. Five additive regression phases; not part of the original 66-task backlog.
 
 | Phase | Integrity invariant | Regression |
 | --- | --- | --- |
@@ -23,6 +23,13 @@ The implementation neither changes authoritative grid logic nor introduces new p
 2. Windows release export and exported headless smoke.
 3. QA51 isolated lifetime probes on both hosted operating systems.
 4. Merge commit only after all required checks succeed; exact merged-main push CI must then pass.
+
+## Observed first CI cycle (source commit `de00338237c3dd02c082e4f8f4817738dc91d46d`)
+
+- [PR #116 Linux/Windows full CI](https://github.com/Anrixa/LightsBackON/actions/runs/42263183591) **PASS** on both operating systems: **358 Godot tests passed, 0 failed, 9,185 assertions**; Python reference cross-check MATCH (32 runs, 246 command hashes, 10 definition rejections).
+- Windows release export, exported headless smoke and QA57 source-pin steps **PASS** (same run; synthetic PR merge build SHA `866b6c741760acad4757cc848b848d1e253793c7`).
+- [QA51 Linux/Windows resource probes](https://github.com/Anrixa/LightsBackON/actions/runs/42263183552) **PASS** on both hosts; every measured CanvasItem/ObjectDB/DummyTexture/ShapedText/FontRID delta **0**.
+- This evidence-only update changes no production or test source. CI must rerun on the final PR head before merge. Post-merge `main` CI is a separate gate.
 
 ## Scope limit and resume
 
