@@ -51,6 +51,7 @@ var _map_view_saved: bool = false
 var _right_trigger_held: bool = false
 var _left_trigger_held: bool = false
 var _pending_evidence_scroll_y: int = 0
+var _saved_objective_scroll_y: int = 0
 
 
 func _init() -> void:
@@ -243,6 +244,10 @@ func _rebuild() -> void:
 	# Preserve the reading position when the same evidence is reflowed by
 	# a live refresh, scale change or device hint. Node changes reset it in select().
 	var evidence_scroll_y: int = detail_scroll.scroll_vertical if detail_scroll != null and is_instance_valid(detail_scroll) else 0
+	# Objectives is a separate reading surface and can be revisited without
+	# discarding the player's progress through longer task lists.
+	if _objective_scroll != null and is_instance_valid(_objective_scroll):
+		_saved_objective_scroll_y = _objective_scroll.scroll_vertical
 	# Recreating the map for a live state refresh, a locale/device reflow or
 	# tab navigation must not reset the player\'s zoom and pan to defaults.
 	if map != null:
@@ -291,6 +296,7 @@ func _rebuild() -> void:
 		_body_left.add_child(map)
 	else:
 		_objective_scroll = _objective_list()
+		_objective_scroll.get_v_scroll_bar().changed.connect(_restore_objective_scroll)
 		_body_left.add_child(_objective_scroll)
 	var detail_panel: PanelContainer = PanelContainer.new()
 	detail_panel.name = "Detail"
@@ -338,6 +344,17 @@ func _restore_evidence_scroll() -> void:
 	var wanted: int = _pending_evidence_scroll_y
 	_pending_evidence_scroll_y = 0
 	detail_scroll.scroll_vertical = mini(wanted, roundi(bar.max_value - bar.page))
+
+
+func _restore_objective_scroll() -> void:
+	if _saved_objective_scroll_y <= 0 or _objective_scroll == null:
+		return
+	var bar: VScrollBar = _objective_scroll.get_v_scroll_bar()
+	if bar.max_value <= bar.page + 0.5:
+		return
+	var wanted: int = _saved_objective_scroll_y
+	_saved_objective_scroll_y = 0
+	_objective_scroll.scroll_vertical = mini(wanted, roundi(bar.max_value - bar.page))
 
 
 func _link_focus() -> void:
