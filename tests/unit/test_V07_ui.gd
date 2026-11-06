@@ -464,6 +464,55 @@ func test_QA86_new_dispatch_clears_previous_action_result_until_new_reply() -> v
 	tablet.close()
 
 
+## QA98: corrupted node/edge presentation records cannot be passed to
+## TabletNode, StatusChip or TabletMap during an authoritative refresh.
+func test_QA98_invalid_tablet_records_cannot_destroy_open_evidence_or_focus() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1280, 720), 150)
+	tablet.open()
+	tablet.select("TEMP")
+	(tablet.map.nodes["TEMP"] as Control).grab_focus()
+	tablet.ping_selected()
+	var pending: Dictionary = _sent[-1].duplicate(true)
+	var original: Dictionary = tablet.get("_view")
+	var focus_before: Control = _root().gui_get_focus_owner()
+	var malformed: Array[Dictionary] = []
+	var missing_status: Dictionary = original.duplicate(true)
+	(missing_status["nodes"]["TEMP"] as Dictionary).erase("status_state")
+	malformed.append(missing_status)
+	var bad_status: Dictionary = original.duplicate(true)
+	bad_status["nodes"]["TEMP"]["status_state"] = "NOT_A_REAL_STATE"
+	malformed.append(bad_status)
+	var bad_lines: Dictionary = original.duplicate(true)
+	bad_lines["nodes"]["TEMP"]["lines"] = [false]
+	malformed.append(bad_lines)
+	var bad_findings: Dictionary = original.duplicate(true)
+	bad_findings["nodes"]["TEMP"]["findings"] = [{"code": "NOT_A_FINDING"}]
+	malformed.append(bad_findings)
+	var missing_coordinate: Dictionary = original.duplicate(true)
+	(missing_coordinate["nodes"]["TEMP"] as Dictionary).erase("row")
+	malformed.append(missing_coordinate)
+	var dangling_edge: Dictionary = original.duplicate(true)
+	dangling_edge["edges"][0]["to"] = "MISSING_NODE"
+	malformed.append(dangling_edge)
+	var invalid_style: Dictionary = original.duplicate(true)
+	invalid_style["edges"][0]["style"] = "fake_power"
+	malformed.append(invalid_style)
+	var duplicate_edge: Dictionary = original.duplicate(true)
+	(duplicate_edge["edges"] as Array).append((duplicate_edge["edges"] as Array)[0].duplicate(true))
+	malformed.append(duplicate_edge)
+	for invalid: Dictionary in malformed:
+		tablet.show_data(invalid, [])
+		assert_eq(tablet.get("_view"), original, "malformed record cannot replace valid map")
+		assert_eq(str(tablet.get("selected")), "TEMP")
+		assert_eq(_root().gui_get_focus_owner(), focus_before)
+		assert_true((tablet.get("_pending_tablet_requests") as Dictionary).has(int(pending["seq"])))
+	tablet.on_reply(pending, {"ok": true})
+	assert_true(str(tablet.get("_status_text")) != "")
+	tablet.show_data(original.duplicate(true), [])
+	assert_eq(str(tablet.get("selected")), "TEMP", "valid live records still refresh")
+	tablet.close()
+
+
 ## QA97: incomplete, duplicate or inconsistent ordered node IDs must be
 ## rejected before rebuilding the tablet or invalidating a correlated reply.
 func test_QA97_incomplete_or_duplicate_node_order_preserves_open_tablet() -> void:
