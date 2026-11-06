@@ -23,6 +23,7 @@ const SECTION_GAP_PX: int = 16
 const TAB_NETWORK: String = "network"
 const TAB_OBJECTIVES: String = "objectives"
 const MAX_PENDING_TABLET_REPLIES: int = 64  # bound delayed request bookkeeping
+const MAX_TABLET_COORDINATE: int = 63  # cap sparse grid allocation to 64 rows/columns
 const LEGEND: Array[Array] = [["supply", "restored"], ["supply", "temporary"], ["supply", "dark"], ["other", "unknown"]]
 
 var tokens: Dictionary = {}
@@ -164,7 +165,10 @@ func _valid_snapshot_records(nodes: Dictionary, order: Array, edges: Array) -> b
 				not UiText.has(str(node["access_key"]))):
 			return false
 		for coordinate: String in ["col", "row"]:
-			if typeof(node.get(coordinate, null)) != TYPE_INT or int(node[coordinate]) < 0:
+			# The layout enumerates all rows up to the highest coordinate.
+			# Refuse unbounded sparse indices before they can stall rendering.
+			if typeof(node.get(coordinate, null)) != TYPE_INT or \
+					int(node[coordinate]) < 0 or int(node[coordinate]) > MAX_TABLET_COORDINATE:
 				return false
 		# Overlapping authored cells make one node inaccessible to pointer
 		# navigation and create zero-length directional focus candidates.
