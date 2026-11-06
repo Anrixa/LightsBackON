@@ -19,6 +19,7 @@ const InputDeviceTracker := preload("res://scripts/ui/input_device_tracker.gd")
 const RestorationPresentation := preload("res://scripts/world/restoration_presentation.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ShiftOperations := preload("res://scripts/gameplay/shift_operations.gd")
+const ShiftDebrief := preload("res://scripts/gameplay/shift_debrief.gd")
 
 const MENU_PATH: String = "res://scenes/menu/main_menu.tscn"
 const HOST_TICK_SECONDS: float = 0.1
@@ -326,6 +327,13 @@ func _make_completion_panel() -> PanelContainer:
 	result.name = "Score"
 	result.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	column.add_child(result)
+	_briefing_text(column, "ResultsTiming")
+	_briefing_text(column, "ResultsRestoration")
+	_briefing_text(column, "ResultsOptional")
+	_briefing_text(column, "ResultsOptionalNames")
+	_briefing_text(column, "ResultsAwardRequired")
+	_briefing_text(column, "ResultsAwardOptional")
+	_briefing_text(column, "ResultsAwardSafety")
 	var metrics: Label = Label.new()
 	metrics.name = "CompletionMetrics"
 	metrics.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -432,7 +440,7 @@ func _layout_modal_panels(screen_size: Vector2) -> void:
 	_center(_pause_panel, Vector2(minf(660.0 * effective / 100.0, available.x),
 		minf(620.0 * effective / 100.0, available.y)))
 	_center(_complete_panel, Vector2(minf(660.0 * effective / 100.0, available.x),
-		minf(460.0 * effective / 100.0, available.y)))
+		minf(600.0 * effective / 100.0, available.y)))
 
 
 ## Input labels follow the last *intentional* gamepad or keyboard/mouse input.
@@ -854,22 +862,63 @@ func _finish() -> void:
 	player.set_controls_active(false)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_complete_panel.visible = true
-	var results: Dictionary = session.mission.results()
-	var score: Label = _complete_panel.find_child("Score", true, false) as Label
-	if score != null:
-		score.text = UiText.tf("offline.complete.score", [int(results.get("stars", 0)),
-			int(results.get("required_restored", 0)), int(results.get("required_total", 0))])
-	var metrics: Label = _complete_panel.find_child("CompletionMetrics", true, false) as Label
-	if metrics != null:
-		metrics.text = UiText.tf("offline.complete.metrics", [
-			int(results.get("trips", 0)), int(results.get("preventable_trips", 0)),
-			int(results.get("crew_recoveries", 0)), int(results.get("ticks", 0)),
-			UiText.t("offline.briefing.yes" if bool(results.get("equipment_collected", false))
-				else "offline.briefing.no")])
+	_render_debrief(session.mission.results())
 	# Keyboard/controller users must be able to exit without a mouse, including
 	# when a finished checkpoint opens straight into this screen.
 	var menu_button: Button = _complete_panel.find_child("ReturnToMenu", true, false) as Button
 	menu_button.grab_focus()
+
+
+
+## Render a post-completion report; never derive rewards from display flags.
+## The real host results are frozen before this method is called.
+func _render_debrief(results: Dictionary) -> void:
+	var report: Dictionary = ShiftDebrief.build(results)
+	var score: Label = _complete_panel.find_child("Score", true, false) as Label
+	if not bool(report.get("available", false)):
+		if score != null:
+			score.text = UiText.t("offline.debrief.unavailable")
+		return
+	if score != null:
+		score.text = UiText.tf("offline.debrief.score", [int(report["stars"])])
+	var timing: Label = _complete_panel.find_child("ResultsTiming", true, false) as Label
+	if timing != null:
+		timing.text = UiText.tf("offline.debrief.duration", [str(report["elapsed_clock"])])
+	var required: Label = _complete_panel.find_child("ResultsRestoration", true, false) as Label
+	if required != null:
+		required.text = UiText.tf("offline.debrief.required", [
+			int(report["required_restored"]), int(report["required_total"])])
+	var optional: Label = _complete_panel.find_child("ResultsOptional", true, false) as Label
+	if optional != null:
+		optional.text = UiText.t("offline.debrief.optional_none") if int(report["optional_total"]) == 0 else (
+			UiText.tf("offline.debrief.optional", [
+				int(report["optional_restored"]), int(report["optional_total"])]))
+	var optional_names: Label = _complete_panel.find_child("ResultsOptionalNames", true, false) as Label
+	if optional_names != null:
+		var names: Array[String] = []
+		for service: Variant in report["optional_services"]:
+			var service_key: String = "node.c01." + str(service).to_lower()
+			names.append(UiText.t(service_key) if UiText.has(service_key)
+				else UiText.t("offline.debrief.unknown_service"))
+		optional_names.visible = not names.is_empty()
+		optional_names.text = ", ".join(names)
+	var award_names: Array[String] = ["ResultsAwardRequired",
+		"ResultsAwardOptional", "ResultsAwardSafety"]
+	var awards: Array = report["awards"]
+	for i: int in award_names.size():
+		var label: Label = _complete_panel.find_child(award_names[i], true, false) as Label
+		if label != null:
+			var award: Dictionary = awards[i]
+			var outcome: String = "offline.debrief.earned" if bool(award["earned"]) else "offline.debrief.missed"
+			label.text = UiText.tf("offline.debrief.award_row", [
+				UiText.t(str(award["key"])), UiText.t(outcome)])
+	var metrics: Label = _complete_panel.find_child("CompletionMetrics", true, false) as Label
+	if metrics != null:
+		metrics.text = UiText.tf("offline.complete.metrics", [
+			int(report["trips"]), int(report["preventable_trips"]),
+			int(report["recoveries"]), int(report["elapsed_ticks"]),
+			UiText.t("offline.briefing.yes" if bool(report["equipment_stowed"])
+				else "offline.briefing.no")])
 
 
 func _exit_to_menu() -> void:
