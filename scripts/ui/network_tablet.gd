@@ -195,6 +195,10 @@ func _valid_snapshot_records(nodes: Dictionary, order: Array, edges: Array) -> b
 				return false
 		if edge_ids.has(edge["id"]) or not nodes.has(edge["from"]) or not nodes.has(edge["to"]):
 			return false
+		# A directed supply path cannot feed itself. Drawing a self-edge
+		# would produce a zero-length arrow and misleading network topology.
+		if edge["from"] == edge["to"]:
+			return false
 		if not [TabletPresenter.EDGE_GRID, TabletPresenter.EDGE_TEMP,
 				TabletPresenter.EDGE_FAULT, TabletPresenter.EDGE_UNKNOWN].has(edge["style"]):
 			return false
