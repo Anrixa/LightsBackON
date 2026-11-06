@@ -189,7 +189,7 @@ func test_MEASURE18_atomic_local_report_contains_only_allowlisted_data() -> void
 	assert_true(report is Dictionary)
 	if report is Dictionary:
 		assert_eq(report["outcome"], "left")
-		assert_eq(report["schema_version"], 1)
+		assert_eq(int(report["schema_version"]), 1)
 		assert_eq((report["events"] as Array)[2]["kind"], "session_left")
 	assert_false(text_data.contains("account_key"))
 	assert_false(text_data.contains("peer_id"))
