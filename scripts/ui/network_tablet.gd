@@ -184,7 +184,16 @@ func select(nid: String) -> void:
 		_neighbor(ping_button, SIDE_LEFT, current_node)
 
 
+## Only an opened Network modal may ask the host to inspect or ping. 
+## The view can exist in the scene tree before its first visit, and queued UI
+## callbacks may arrive after close; neither is authority to dispatch.
+func _can_send_tablet_intent() -> bool:
+	return _visit_open and is_visible_in_tree() and tab == TAB_NETWORK and gate != null
+
+
 func inspect_selected() -> void:
+	if not _can_send_tablet_intent():
+		return
 	var v: Dictionary = _view["nodes"].get(selected, {})
 	if v.is_empty() or str(v["panel"]) == "":
 		return  # consumers and sources without a meter panel only show what is visible
@@ -192,6 +201,8 @@ func inspect_selected() -> void:
 
 
 func ping_selected() -> void:
+	if not _can_send_tablet_intent():
+		return
 	var v: Dictionary = _view["nodes"].get(selected, {})
 	if v.is_empty():
 		return
@@ -213,7 +224,7 @@ func _request_key(envelope: Dictionary) -> String:
 ## The shared outbox may deliver replies after the tablet closes, changes
 ## selection, or returns to the same node. Keep only requests from this visit.
 func _on_outbox_sent(envelope: Dictionary) -> void:
-	if not is_visible_in_tree() or tab != TAB_NETWORK:
+	if not _can_send_tablet_intent():
 		return
 	if MAP_INTENTS.has(str(envelope.get("type", ""))) and int(envelope.get("seq", -1)) > 0:
 		# Once the player initiates a newer action, the prior result no longer
@@ -240,8 +251,8 @@ func on_reply(envelope: Dictionary, reply: Dictionary) -> void:
 	# Delayed replies must not mutate a closed read-only view. In particular,
 	# closing and reopening the same selected node must start without a stale
 	# success or refusal from the previous tablet visit.
-	if not is_visible_in_tree() or tab != TAB_NETWORK:
-		# No network actions are available on Objectives. Their delayed replies
+	if not _can_send_tablet_intent():
+		# No network actions are available on Objectives or outside a visit. Their delayed replies
 		# must not reappear as if they belonged to the next Network visit.
 		return
 	var kind: String = str(envelope.get("type", ""))
