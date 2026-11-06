@@ -459,6 +459,37 @@ func test_QA86_new_dispatch_clears_previous_action_result_until_new_reply() -> v
 	tablet.close()
 
 
+## QA87: only an active visible Network visit may send or display actions.
+func test_QA87_tablet_intents_require_active_network_visit() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
+	tablet.select("TEMP")
+	var count: int = _sent.size()
+	tablet.inspect_selected()
+	tablet.ping_selected()
+	assert_eq(_sent.size(), count, "an instantiated but unopened tablet cannot send")
+	tablet.on_reply({"type": "ping", "entity": "TEMP"}, {"ok": true})
+	assert_eq(str(tablet.get("_status_text")), "",
+		"an unopened tablet cannot display unexpected replies")
+	tablet.open()
+	tablet._show_tab(NetworkTablet.TAB_OBJECTIVES)
+	tablet.inspect_selected()
+	tablet.ping_selected()
+	assert_eq(_sent.size(), count,
+		"the Objectives tab cannot invoke hidden inspect or ping actions")
+	tablet._show_tab(NetworkTablet.TAB_NETWORK)
+	tablet.inspect_selected()
+	tablet.ping_selected()
+	assert_eq(_sent.size(), count + 2, "both read-only actions work during active Network visit")
+	assert_eq(str(_sent[-2]["type"]), "inspect")
+	assert_eq(str(_sent[-1]["type"]), "ping")
+	tablet.close()
+	tablet.inspect_selected()
+	tablet.ping_selected()
+	assert_eq(_sent.size(), count + 2, "queued actions cannot dispatch after closing")
+	tablet.on_reply({"type": "ping", "entity": "TEMP"}, {"ok": true})
+	assert_eq(str(tablet.get("_status_text")), "", "closed tablet ignores replies")
+
+
 ## QA79: slow replies cannot replace the outcome of a newer same-target action.
 func test_QA79_newest_same_target_reply_wins_and_pending_requests_are_bounded() -> void:
 	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
