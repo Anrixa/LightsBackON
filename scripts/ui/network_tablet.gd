@@ -151,6 +151,13 @@ func _valid_snapshot_records(nodes: Dictionary, order: Array, edges: Array) -> b
 		for key: String in ["kind", "name_key", "panel", "status_group", "status_state"]:
 			if typeof(node.get(key, null)) != TYPE_STRING:
 				return false
+		# These keys are translated by TabletNode and the evidence pane. A
+		# missing key would otherwise become player-visible internal content.
+		if not UiText.has(str(node["name_key"])):
+			return false
+		if node.has("access_key") and (typeof(node["access_key"]) != TYPE_STRING or \
+				not UiText.has(str(node["access_key"]))):
+			return false
 		for coordinate: String in ["col", "row"]:
 			if typeof(node.get(coordinate, null)) != TYPE_INT or int(node[coordinate]) < 0:
 				return false
@@ -194,7 +201,7 @@ func _valid_snapshot_objectives(objectives: Array) -> bool:
 		if typeof(objective.get("status", null)) != TYPE_STRING or \
 				typeof(objective.get("text_key", null)) != TYPE_STRING:
 			return false
-		if str(objective["text_key"]).is_empty() or \
+		if not UiText.has(str(objective["text_key"])) or \
 				StatusChip.entry("objectives", str(objective["status"])).is_empty():
 			return false
 	return true
