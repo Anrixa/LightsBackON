@@ -158,7 +158,9 @@ func on_reply(envelope: Dictionary, reply: Dictionary) -> void:
 	# Delayed replies must not mutate a closed read-only view. In particular,
 	# closing and reopening the same selected node must start without a stale
 	# success or refusal from the previous tablet visit.
-	if not is_visible_in_tree():
+	if not is_visible_in_tree() or tab != TAB_NETWORK:
+		# No network actions are available on Objectives. Their delayed replies
+		# must not reappear as if they belonged to the next Network visit.
 		return
 	var kind: String = str(envelope.get("type", ""))
 	if kind != "inspect" and kind != "ping":
@@ -533,6 +535,9 @@ func _section(title: String, lines: Array) -> void:
 func _show_tab(t: String) -> void:
 	if t == tab:
 		return
+	if t != TAB_NETWORK:
+		# Inspection/ping results are scoped to the visible Network panel.
+		_status_text = ""
 	tab = t
 	_rebuild()
 	(tab_buttons[t] as Button).grab_focus()

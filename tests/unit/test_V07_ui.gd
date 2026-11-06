@@ -142,6 +142,29 @@ func test_QA71_evidence_and_ping_left_focus_follow_current_selection() -> void:
 	tablet.close()
 
 
+## QA74: delayed network replies must not populate a different tab.
+func test_QA74_objectives_tab_clears_and_ignores_network_action_feedback() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
+	tablet.open()
+	var selected_id: String = str(tablet.selected)
+	tablet.on_reply({"type": "ping", "entity": selected_id}, {"ok": true})
+	assert_true(str(tablet.get("_status_text")) != "")
+	tablet._show_tab(NetworkTablet.TAB_OBJECTIVES)
+	assert_eq(str(tablet.get("_status_text")), "",
+		"network-only feedback must not survive into Objectives")
+	tablet.on_reply({"type": "ping", "entity": selected_id},
+		{"ok": false, "key": "network.refused.rate_limited"})
+	assert_eq(str(tablet.get("_status_text")), "",
+		"a late reply in Objectives must not resurrect a previous network action")
+	tablet._show_tab(NetworkTablet.TAB_NETWORK)
+	assert_eq(str(tablet.get("_status_text")), "",
+		"returning to Network does not present old asynchronous feedback")
+	tablet.on_reply({"type": "ping", "entity": selected_id}, {"ok": true})
+	assert_true(str(tablet.get("_status_text")) != "",
+		"fresh responses on the active Network tab remain readable")
+	tablet.close()
+
+
 ## QA73: analog trigger samples must step tablet zoom only on press edges.
 func test_QA73_held_joypad_triggers_do_not_repeat_zoom_or_rearm_on_stick_motion() -> void:
 	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
