@@ -464,6 +464,42 @@ func test_QA86_new_dispatch_clears_previous_action_result_until_new_reply() -> v
 	tablet.close()
 
 
+## QA100: the tablet header needs a complete district/contract context.
+## A truncated or unknown localization key must not break a live refresh.
+func test_QA100_invalid_header_context_preserves_tablet_visit() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1280, 720), 150)
+	tablet.open()
+	tablet.select("TEMP")
+	(tablet.map.nodes["TEMP"] as Control).grab_focus()
+	tablet.ping_selected()
+	var pending: Dictionary = _sent[-1].duplicate(true)
+	var original_view: Dictionary = tablet.get("_view")
+	var objectives: Array = tablet.get("_objectives")
+	var original_context: Array[String] = tablet.get("_context")
+	var focus_before: Control = _root().gui_get_focus_owner()
+	var short_context: Array[String] = ["district.alder_street"]
+	var long_context: Array[String] = ["district.alder_street", "contract.c01", "extra"]
+	var unknown_district: Array[String] = ["district.missing", "contract.c01"]
+	var unknown_contract: Array[String] = ["district.alder_street", "contract.missing"]
+	var empty_contract: Array[String] = ["district.alder_street", ""]
+	for invalid: Array[String] in [short_context, long_context, unknown_district,
+			unknown_contract, empty_contract]:
+		tablet.show_data(original_view.duplicate(true), objectives.duplicate(true), invalid)
+		assert_eq(tablet.get("_context"), original_context, "invalid header context cannot replace prior labels")
+		assert_eq(tablet.get("_view"), original_view)
+		assert_eq(str(tablet.get("selected")), "TEMP")
+		assert_eq(_root().gui_get_focus_owner(), focus_before)
+		assert_true((tablet.get("_pending_tablet_requests") as Dictionary).has(int(pending["seq"])))
+	tablet.on_reply(pending, {"ok": true})
+	assert_true(str(tablet.get("_status_text")) != "", "genuine reply remains visible")
+	var valid: Array[String] = ["district.alder_street", "contract.c01"]
+	tablet.show_data(original_view.duplicate(true), objectives.duplicate(true), valid)
+	assert_eq(tablet.get("_context"), valid, "a complete localized context remains accepted")
+	tablet.show_data(original_view.duplicate(true), objectives.duplicate(true))
+	assert_eq(tablet.get("_context"), valid, "omitted context keeps the current header")
+	tablet.close()
+
+
 ## QA99: the Objectives tab must not consume missing, ill-typed or
 ## undeclared objective rows from a delayed presentation refresh.
 func test_QA99_bad_objective_rows_do_not_replace_active_tablet() -> void:
