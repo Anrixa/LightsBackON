@@ -24,6 +24,16 @@ const TAB_NETWORK: String = "network"
 const TAB_OBJECTIVES: String = "objectives"
 const MAX_PENDING_TABLET_REPLIES: int = 64  # bound delayed request bookkeeping
 const MAX_TABLET_COORDINATE: int = 63  # cap sparse grid allocation to 64 rows/columns
+# Defensive ceilings for the *presentation* boundary. They do not change the
+# authoritative grid or contract schema; reject an unreasonable refresh before
+# building large Control trees or allowing untrusted text into labels.
+const MAX_TABLET_NODES: int = 128
+const MAX_TABLET_EDGES: int = 512
+const MAX_TABLET_OBJECTIVES: int = 384
+const MAX_TABLET_LINES: int = 32
+const MAX_TABLET_FINDINGS: int = 16
+const MAX_TABLET_TEXT_LENGTH: int = 2048
+const MAX_TABLET_ID_LENGTH: int = 128
 const LEGEND: Array[Array] = [["supply", "restored"], ["supply", "temporary"], ["supply", "dark"], ["other", "unknown"]]
 
 var tokens: Dictionary = {}
@@ -108,13 +118,16 @@ func show_data(view: Dictionary, objectives: Array, context: Array[String] = [])
 	var order: Array = view["order"]
 	if order.is_empty() or order.size() != nodes.size():
 		return  # the map must have exactly one ordered entry per node
+	if nodes.size() > MAX_TABLET_NODES or (view["edges"] as Array).size() > MAX_TABLET_EDGES or \
+			objectives.size() > MAX_TABLET_OBJECTIVES:
+		return  # refuse resource exhaustion before validating or rebuilding anything
 	var seen: Dictionary = {}
 	for nid: Variant in order:
 		if typeof(nid) != TYPE_STRING or not nodes.has(nid) or typeof(nodes[nid]) != TYPE_DICTIONARY:
 			return
 		# Duplicated IDs build the same UI node more than once and silently
 		# omit another node; mismatched record IDs mislabel map interactions.
-		if seen.has(nid) or (nodes[nid] as Dictionary).get("id", null) != nid:
+		if seen.has(nid) or not _valid_tablet_id(nid) or (nodes[nid] as Dictionary).get("id", null) != nid:
 			return
 		seen[nid] = true
 	if not _valid_snapshot_records(nodes, order, view["edges"] as Array):
@@ -151,6 +164,22 @@ func show_data(view: Dictionary, objectives: Array, context: Array[String] = [])
 	_rebuild()
 
 
+## Stable IDs are passed to Node.name, action targets and controller focus
+## tokens. Keep them ASCII identifier-like so a malicious separator or control
+## character cannot change the meaning of a target or Godot node path.
+func _valid_tablet_id(value: Variant) -> bool:
+	if typeof(value) != TYPE_STRING:
+		return false
+	var candidate: String = value as String
+	if candidate.is_empty() or candidate.length() > MAX_TABLET_ID_LENGTH:
+		return false
+	const VALID: String = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_"
+	for i: int in candidate.length():
+		if not VALID.contains(candidate[i]):
+			return false
+	return true
+
+
 ## Validate everything the map, node and evidence widgets dereference before
 ## swapping a live snapshot. A malformed record must not enter UI rendering.
 func _valid_snapshot_records(nodes: Dictionary, order: Array, edges: Array) -> bool:
@@ -162,15 +191,27 @@ func _valid_snapshot_records(nodes: Dictionary, order: Array, edges: Array) -> b
 				return false
 		# These keys are translated by TabletNode and the evidence pane. A
 		# missing key would otherwise become player-visible internal content.
-		if not UiText.has(str(node["name_key"])):
+		if not str(node["name_key"]).begins_with("node.") or not UiText.has(str(node["name_key"])):
 			return false
 		# A malformed kind otherwise falls through to the junction renderer,
 		# presenting an invented state for a node that cannot exist in the grid.
 		if not ["source", "junction", "consumer"].has(str(node["kind"])):
 			return false
+		# Only the three categories emitted by TabletPresenter can describe
+		# a network node; other known chip groups would invent a power state.
+		if not ["supply", "findings", "other"].has(str(node["status_group"])):
+			return false
 		if node.has("access_key") and (typeof(node["access_key"]) != TYPE_STRING or \
+				not str(node["access_key"]).begins_with("access.") or \
 				not UiText.has(str(node["access_key"]))):
 			return false
+		for flag: String in ["measured", "needs_reinspect"]:
+			if node.has(flag) and typeof(node[flag]) != TYPE_BOOL:
+				return false
+		for optional_text: String in ["source_text", "worker_text"]:
+			if node.has(optional_text) and (typeof(node[optional_text]) != TYPE_STRING or \
+					str(node[optional_text]).length() > MAX_TABLET_TEXT_LENGTH):
+				return false
 		for coordinate: String in ["col", "row"]:
 			# The layout enumerates all rows up to the highest coordinate.
 			# Refuse unbounded sparse indices before they can stall rendering.
@@ -185,10 +226,13 @@ func _valid_snapshot_records(nodes: Dictionary, order: Array, edges: Array) -> b
 		occupied_cells[cell] = true
 		if typeof(node.get("lines", null)) != TYPE_ARRAY or typeof(node.get("findings", null)) != TYPE_ARRAY:
 			return false
+		if (node["lines"] as Array).size() > MAX_TABLET_LINES or \
+				(node["findings"] as Array).size() > MAX_TABLET_FINDINGS:
+			return false
 		if StatusChip.entry(str(node["status_group"]), str(node["status_state"])).is_empty():
 			return false
 		for line: Variant in node["lines"]:
-			if typeof(line) != TYPE_STRING:
+			if typeof(line) != TYPE_STRING or (line as String).length() > MAX_TABLET_TEXT_LENGTH:
 				return false
 		for finding: Variant in node["findings"]:
 			if typeof(finding) != TYPE_DICTIONARY:
@@ -204,7 +248,8 @@ func _valid_snapshot_records(nodes: Dictionary, order: Array, edges: Array) -> b
 		for key: String in ["id", "from", "to", "style"]:
 			if typeof(edge.get(key, null)) != TYPE_STRING or str(edge[key]).is_empty():
 				return false
-		if edge_ids.has(edge["id"]) or not nodes.has(edge["from"]) or not nodes.has(edge["to"]):
+		if not _valid_tablet_id(edge["id"]) or edge_ids.has(edge["id"]) or \
+				not nodes.has(edge["from"]) or not nodes.has(edge["to"]):
 			return false
 		# A directed supply path cannot feed itself. Drawing a self-edge
 		# would produce a zero-length arrow and misleading network topology.
@@ -220,14 +265,21 @@ func _valid_snapshot_records(nodes: Dictionary, order: Array, edges: Array) -> b
 ## Objectives are rendered with indexed status/text fields and a declared
 ## icon state. Reject a bad refresh while keeping the last usable list.
 func _valid_snapshot_objectives(objectives: Array) -> bool:
+	var seen: Dictionary = {}
 	for item: Variant in objectives:
 		if typeof(item) != TYPE_DICTIONARY:
 			return false
 		var objective: Dictionary = item as Dictionary
 		if typeof(objective.get("status", null)) != TYPE_STRING or \
-				typeof(objective.get("text_key", null)) != TYPE_STRING:
+				typeof(objective.get("text_key", null)) != TYPE_STRING or \
+				not _valid_tablet_id(objective.get("id", null)):
 			return false
-		if not UiText.has(str(objective["text_key"])) or \
+		var objective_id: String = str(objective["id"])
+		if seen.has(objective_id):
+			return false
+		seen[objective_id] = true
+		if not str(objective["text_key"]).begins_with("objective.") or \
+				not UiText.has(str(objective["text_key"])) or \
 				StatusChip.entry("objectives", str(objective["status"])).is_empty():
 			return false
 	return true

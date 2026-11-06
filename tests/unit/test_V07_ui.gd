@@ -211,10 +211,16 @@ func test_QA77_objective_scroll_survives_refresh_scale_and_tab_roundtrip() -> vo
 	tablet.open()
 	var objectives: Array = []
 	var sample: Dictionary = _ctx["mission"].objectives()[0]
+	# Keep the scroll stress case within the tablet's bounded, uniquely
+	# identifiable objective schema while still overflowing the 720p panel.
 	for i: int in 300:
-		objectives.append(sample.duplicate(true))
+		var objective: Dictionary = sample.duplicate(true)
+		objective["id"] = "SCROLL_%d" % i
+		objectives.append(objective)
 	var view: Dictionary = (tablet.get("_view") as Dictionary).duplicate(true)
 	tablet.show_data(view, objectives)
+	assert_eq((tablet.get("_objectives") as Array).size(), objectives.size(),
+		"stress fixture must pass the tablet's objective snapshot validator")
 	tablet._show_tab(NetworkTablet.TAB_OBJECTIVES)
 	Fixture.settle(tablet)
 	var scroller: ScrollContainer = tablet.get("_objective_scroll") as ScrollContainer

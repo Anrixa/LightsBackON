@@ -191,3 +191,217 @@ func test_QA107_header_context_must_use_district_and_contract_keys() -> void:
 	assert_eq(tablet.get("_view"), valid, "a correctly typed localized header remains accepted")
 	assert_eq(tablet.get("_context"), expected)
 	_finish(case)
+
+
+## QA108-QA127: deliberately corrupted but previously well-typed read-only
+## snapshots. Each test preserves focus, selection and a pending authenticated
+## host Ping when the replacement is rejected. No authority is moved into UI.
+
+func _rejects_objectives(case: Dictionary, invalid: Array) -> void:
+	var tablet: PanelContainer = case["tablet"]
+	tablet.show_data((case["snapshot"] as Dictionary).duplicate(true), invalid)
+	assert_eq(tablet.get("_view"), case["snapshot"], "malformed objectives cannot replace the current map")
+	assert_eq(tablet.get("_objectives"), case["objectives"], "last valid objective list is retained")
+	assert_eq(str(tablet.selected), "TEMP")
+	assert_eq((Engine.get_main_loop() as SceneTree).root.gui_get_focus_owner(), case["focus"])
+	assert_true((tablet.get("_pending_tablet_requests") as Dictionary).has(int(case["pending"]["seq"])))
+
+
+func _replace_node_id(view: Dictionary, old_id: String, new_id: String) -> void:
+	var node: Dictionary = view["nodes"][old_id]
+	(view["nodes"] as Dictionary).erase(old_id)
+	node["id"] = new_id
+	view["nodes"][new_id] = node
+	var index: int = (view["order"] as Array).find(old_id)
+	(view["order"] as Array)[index] = new_id
+
+
+func test_QA108_empty_node_id_refused() -> void:
+	var case: Dictionary = _opened()
+	var invalid: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+	_replace_node_id(invalid, "TEMP", "")
+	_rejects(case, invalid)
+	_finish(case)
+
+
+func test_QA109_node_path_separator_refused() -> void:
+	var case: Dictionary = _opened()
+	var invalid: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+	_replace_node_id(invalid, "TEMP", "INJECTED/Node")
+	_rejects(case, invalid)
+	_finish(case)
+
+
+func test_QA110_node_name_must_be_localized_node_key() -> void:
+	var case: Dictionary = _opened()
+	var invalid: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+	invalid["nodes"]["TEMP"]["name_key"] = "tablet.title"
+	_rejects(case, invalid)
+	_finish(case)
+
+
+func test_QA111_access_key_must_describe_access() -> void:
+	var case: Dictionary = _opened()
+	var invalid: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+	invalid["nodes"]["TEMP"]["access_key"] = "tablet.title"
+	_rejects(case, invalid)
+	_finish(case)
+
+
+func test_QA112_objective_chip_cannot_masquerade_as_power_status() -> void:
+	var case: Dictionary = _opened()
+	var invalid: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+	invalid["nodes"]["TEMP"]["status_group"] = "objectives"
+	invalid["nodes"]["TEMP"]["status_state"] = "done"
+	_rejects(case, invalid)
+	_finish(case)
+
+
+func test_QA113_measured_flag_must_be_boolean() -> void:
+	var case: Dictionary = _opened()
+	var invalid: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+	invalid["nodes"]["TEMP"]["measured"] = "false"
+	_rejects(case, invalid)
+	_finish(case)
+
+
+func test_QA114_reinspect_flag_must_be_boolean() -> void:
+	var case: Dictionary = _opened()
+	var invalid: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+	invalid["nodes"]["TEMP"]["needs_reinspect"] = 1
+	_rejects(case, invalid)
+	_finish(case)
+
+
+func test_QA115_source_detail_must_be_text() -> void:
+	var case: Dictionary = _opened()
+	var invalid: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+	invalid["nodes"]["TEMP"]["source_text"] = {"forged": "line"}
+	_rejects(case, invalid)
+	_finish(case)
+
+
+func test_QA116_worker_detail_must_be_text() -> void:
+	var case: Dictionary = _opened()
+	var invalid: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+	invalid["nodes"]["TEMP"]["worker_text"] = 9000
+	_rejects(case, invalid)
+	_finish(case)
+
+
+func test_QA117_source_detail_length_is_bounded() -> void:
+	var case: Dictionary = _opened()
+	var invalid: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+	invalid["nodes"]["TEMP"]["source_text"] = "x".repeat(2049)
+	_rejects(case, invalid)
+	_finish(case)
+
+
+func test_QA118_worker_detail_length_is_bounded() -> void:
+	var case: Dictionary = _opened()
+	var invalid: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+	invalid["nodes"]["TEMP"]["worker_text"] = "x".repeat(2049)
+	_rejects(case, invalid)
+	_finish(case)
+
+
+func test_QA119_node_evidence_row_count_is_bounded() -> void:
+	var case: Dictionary = _opened()
+	var invalid: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+	var oversized: Array[String] = []
+	for i: int in 33:
+		oversized.append("reading_%d" % i)
+	invalid["nodes"]["TEMP"]["lines"] = oversized
+	_rejects(case, invalid)
+	_finish(case)
+
+
+func test_QA120_node_evidence_line_length_is_bounded() -> void:
+	var case: Dictionary = _opened()
+	var invalid: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+	invalid["nodes"]["TEMP"]["lines"] = ["x".repeat(2049)]
+	_rejects(case, invalid)
+	_finish(case)
+
+
+func test_QA121_node_findings_count_is_bounded() -> void:
+	var case: Dictionary = _opened()
+	var invalid: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+	var findings: Array[Dictionary] = []
+	for i: int in 17:
+		findings.append({"code": "FEED_OPEN"})
+	invalid["nodes"]["TEMP"]["findings"] = findings
+	_rejects(case, invalid)
+	_finish(case)
+
+
+func test_QA122_edge_identifier_cannot_contain_path_syntax() -> void:
+	var case: Dictionary = _opened()
+	var invalid: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+	invalid["edges"][0]["id"] = "EDGE/FOREIGN"
+	_rejects(case, invalid)
+	_finish(case)
+
+
+func test_QA123_edge_fanout_limit_prevents_unbounded_map_build() -> void:
+	var case: Dictionary = _opened()
+	var invalid: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+	for i: int in 513:
+		(invalid["edges"] as Array).append({"id": "QA_EDGE_%d" % i, "from": "GRID", "to": "TEMP", "style": "unknown"})
+	_rejects(case, invalid)
+	_finish(case)
+
+
+func test_QA124_node_limit_prevents_unbounded_control_trees() -> void:
+	var case: Dictionary = _opened()
+	var invalid: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+	for i: int in 129:
+		var nid: String = "QA_NODE_%d" % i
+		var node: Dictionary = (invalid["nodes"]["TEMP"] as Dictionary).duplicate(true)
+		node["id"] = nid
+		node["col"] = i % 64
+		node["row"] = 10 + i / 64
+		invalid["nodes"][nid] = node
+		(invalid["order"] as Array).append(nid)
+	_rejects(case, invalid)
+	_finish(case)
+
+
+func test_QA125_missing_or_malformed_objective_id_refused() -> void:
+	var case: Dictionary = _opened()
+	for malformed: Variant in [null, 123, "BAD/ID", ""]:
+		var invalid: Array = (case["objectives"] as Array).duplicate(true)
+		if malformed == null:
+			(invalid[0] as Dictionary).erase("id")
+		else:
+			invalid[0]["id"] = malformed
+		_rejects_objectives(case, invalid)
+	_finish(case)
+
+
+func test_QA126_duplicate_objective_id_refused() -> void:
+	var case: Dictionary = _opened()
+	var invalid: Array = (case["objectives"] as Array).duplicate(true)
+	invalid.append((invalid[0] as Dictionary).duplicate(true))
+	_rejects_objectives(case, invalid)
+	_finish(case)
+
+
+func test_QA127_objective_namespace_and_count_boundaries() -> void:
+	var case: Dictionary = _opened()
+	var wrong_label: Array = (case["objectives"] as Array).duplicate(true)
+	wrong_label[0]["text_key"] = "tablet.title"
+	_rejects_objectives(case, wrong_label)
+	var too_many: Array = (case["objectives"] as Array).duplicate(true)
+	for i: int in 385:
+		var objective: Dictionary = (too_many[0] as Dictionary).duplicate(true)
+		objective["id"] = "QA_OBJECTIVE_%d" % i
+		too_many.append(objective)
+	_rejects_objectives(case, too_many)
+	# Legitimate host-built C01 snapshots still rebuild with all controls.
+	var valid: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+	var tablet: PanelContainer = case["tablet"]
+	tablet.show_data(valid, (case["objectives"] as Array).duplicate(true))
+	assert_eq(tablet.get("_view"), valid, "the production snapshot remains accepted")
+	assert_true((tablet.map.nodes as Dictionary).has("TEMP"), "active tablet nodes remain navigable")
+	_finish(case)
