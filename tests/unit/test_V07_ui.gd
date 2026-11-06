@@ -142,6 +142,35 @@ func test_QA71_evidence_and_ping_left_focus_follow_current_selection() -> void:
 	tablet.close()
 
 
+## QA75: switching selected network nodes starts the new evidence at its title.
+func test_QA75_new_selected_node_resets_long_evidence_scroll() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1280, 720), 150)
+	tablet.open()
+	var updated: Dictionary = (tablet.get("_view") as Dictionary).duplicate(true)
+	var first: String = str(updated["order"][0])
+	var second: String = str(updated["order"][1])
+	var long_lines: Array[String] = []
+	for i: int in 70:
+		long_lines.append("Measured evidence line %d" % i)
+	for nid: String in [first, second]:
+		var node_view: Dictionary = (updated["nodes"] as Dictionary)[nid]
+		node_view["lines"] = long_lines.duplicate()
+		(updated["nodes"] as Dictionary)[nid] = node_view
+	tablet.show_data(updated, [])
+	Fixture.settle(tablet)
+	var evidence: ScrollContainer = tablet.detail_scroll
+	var bar: VScrollBar = evidence.get_v_scroll_bar()
+	assert_true(bar.max_value > bar.page + 120.0,
+		"fixture has enough long evidence to expose scroll regression")
+	evidence.scroll_vertical = 120
+	assert_true(evidence.scroll_vertical > 0, "first node evidence can actually scroll")
+	tablet.select(second)
+	Fixture.settle(tablet)
+	assert_eq(evidence.scroll_vertical, 0,
+		"selecting a new node shows its title and first evidence instead of prior scroll position")
+	tablet.close()
+
+
 ## QA74: delayed network replies must not populate a different tab.
 func test_QA74_objectives_tab_clears_and_ignores_network_action_feedback() -> void:
 	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
