@@ -97,6 +97,19 @@ func setup(outbox: RefCounted) -> void:
 
 ## view: tablet_presenter.gd build(); objectives: mission_director objectives(); context: [district key, contract key].
 func show_data(view: Dictionary, objectives: Array, context: Array[String] = []) -> void:
+	# A delayed or malformed state refresh must never tear down the last
+	# navigable map or discard the user's current focus and pending reply.
+	if typeof(view.get("nodes", null)) != TYPE_DICTIONARY or \
+			typeof(view.get("order", null)) != TYPE_ARRAY or \
+			typeof(view.get("edges", null)) != TYPE_ARRAY:
+		return
+	var nodes: Dictionary = view["nodes"]
+	var order: Array = view["order"]
+	if order.is_empty():
+		return
+	for nid: Variant in order:
+		if typeof(nid) != TYPE_STRING or not nodes.has(nid) or typeof(nodes[nid]) != TYPE_DICTIONARY:
+			return
 	_view = view
 	_objectives = objectives
 	if not context.is_empty():
