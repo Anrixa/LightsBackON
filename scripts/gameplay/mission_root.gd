@@ -473,6 +473,11 @@ func _physics_process(delta: float) -> void:
 	while _time_accumulator >= HOST_TICK_SECONDS:
 		_time_accumulator -= HOST_TICK_SECONDS
 		session.tick_once()
+		# Continuous drain, verification and departure ticks do not emit
+		# mission events. Refresh the status bar independently of event-driven
+		# full HUD rebuilding, without mutating the session or rebuilding controls.
+		if hud != null:
+			hud.set_field_shift(ShiftOperations.field_view(session.shift_operations_view()))
 	# The tablet stops world interaction, not host time. Keep an in-range
 	# repair lock alive while reading the map; missing heartbeats here used to
 	# release a valid lock after two seconds of tablet use.

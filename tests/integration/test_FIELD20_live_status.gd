@@ -80,6 +80,10 @@ func test_FIELD05_active_drain_exposes_a_zero_based_meter() -> void:
 
 func test_FIELD06_drain_meter_reads_actual_host_ticks() -> void:
 	_active("objective.c01.drain_basement")
+	# Multiple actual objectives can be visible together; the drain cannot
+	# disappear merely because a different active objective is listed first.
+	_objectives[0]["status"] = "active"
+	_objectives[0]["visible"] = true
 	_mission["latch_ticks"]["LATCH_PUMP_DRAIN"] = 60
 	assert_eq(_view()["progress_percent"], 50)
 
@@ -203,6 +207,23 @@ func test_FIELD20_production_session_and_hud_render_on_real_scene() -> void:
 	assert_true(hud != null)
 	assert_true(hud.find_child("FieldShiftStatus", true, false) is Label)
 	assert_true(hud.find_child("FieldShiftProgress", true, false) == null)
+	# A non-event mission tick must update the real production HUD in place.
+	# Transition into progress mode creates the bar once; subsequent ticks
+	# update only text/value, without discarding the focused scene/UI controls.
+	var live: Dictionary = field.duplicate(true)
+	live["progress_key"] = "offline.field.pump"
+	live["progress_percent"] = 25
+	hud.call("set_field_shift", live)
+	var bar: ProgressBar = hud.find_child("FieldShiftProgress", true, false) as ProgressBar
+	assert_true(bar != null)
+	if bar != null:
+		assert_eq(bar.value, 25.0)
+		live = live.duplicate(true)
+		live["progress_percent"] = 65
+		hud.call("set_field_shift", live)
+		assert_true(hud.find_child("FieldShiftProgress", true, false) == bar,
+			"timer ticks must not rebuild the whole HUD")
+		assert_eq(bar.value, 65.0)
 	# UI-only model changes never take world input focus and obey the existing
 	# viewport and accessibility-scale reflow path.
 	UiText.set_locale(UiText.LOCALE_PSEUDO)

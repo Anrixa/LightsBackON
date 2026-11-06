@@ -73,6 +73,26 @@ func apply(view: Dictionary) -> void:
 	_rebuild()
 
 
+## The host's ten-Hz progress counters are presentation-only. Repaint the
+## existing label/meter in place; rebuild only if the meter appears/disappears.
+## This avoids creating a full HUD control tree every mission tick.
+func set_field_shift(field: Dictionary) -> void:
+	var previous: Dictionary = _view.get("field_shift", {})
+	if previous == field:
+		return
+	_view["field_shift"] = field
+	if objective_card == null or bool(previous.get("visible", false)) != bool(field.get("visible", false)) or (
+			str(previous.get("progress_key", "")) == "") != (str(field.get("progress_key", "")) == ""):
+		_rebuild()
+		return
+	var label: Label = objective_card.find_child("FieldShiftStatus", true, false) as Label
+	if label != null:
+		label.text = _field_summary(field)
+	var meter: ProgressBar = objective_card.find_child("FieldShiftProgress", true, false) as ProgressBar
+	if meter != null:
+		meter.value = float(field.get("progress_percent", 0))
+
+
 func _on_resized() -> void:
 	var s: float = ThemeTokens.effective_percent(ui_scale_percent, size)
 	if not is_equal_approx(s, scale_percent) or objective_card == null:
@@ -245,18 +265,8 @@ func _add_field_shift(parent: VBoxContainer) -> void:
 	var field: Dictionary = _view.get("field_shift", {})
 	if not bool(field.get("visible", false)):
 		return
-	var done: int = int(field.get("objectives_done", 0))
-	var total: int = int(field.get("objectives_total", 0))
 	var key: String = str(field.get("progress_key", ""))
-	var summary: String = UiText.tf("offline.field.status", [
-		done, total, UiText.t(str(field.get("phase_key", "offline.briefing.phase_restoring")))])
-	if bool(field.get("countdown", false)):
-		summary = UiText.tf("offline.field.countdown", [
-			done, total, int(field.get("remaining_seconds", 0))])
-	elif key != "":
-		summary = UiText.tf("offline.field.progress", [
-			done, total, UiText.t(key), int(field.get("progress_percent", 0))])
-	var label: Label = _label(parent, summary, "MutedLabel", "text_muted")
+	var label: Label = _label(parent, _field_summary(field), "MutedLabel", "text_muted")
 	label.name = "FieldShiftStatus"
 	if key == "":
 		return
@@ -270,6 +280,21 @@ func _add_field_shift(parent: VBoxContainer) -> void:
 	meter.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	meter.focus_mode = Control.FOCUS_NONE
 	parent.add_child(meter)
+
+
+## One formatter is used for initial creation and lightweight in-place updates.
+func _field_summary(field: Dictionary) -> String:
+	var done: int = int(field.get("objectives_done", 0))
+	var total: int = int(field.get("objectives_total", 0))
+	var key: String = str(field.get("progress_key", ""))
+	if bool(field.get("countdown", false)):
+		return UiText.tf("offline.field.countdown", [
+			done, total, int(field.get("remaining_seconds", 0))])
+	if key != "":
+		return UiText.tf("offline.field.progress", [
+			done, total, UiText.t(key), int(field.get("progress_percent", 0))])
+	return UiText.tf("offline.field.status", [
+		done, total, UiText.t(str(field.get("phase_key", "offline.briefing.phase_restoring")))])
 
 
 func _crew() -> PanelContainer:

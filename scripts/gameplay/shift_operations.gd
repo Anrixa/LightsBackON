@@ -76,7 +76,15 @@ static func build(objectives: Array[Dictionary], mission_state: Dictionary, cont
 static func field_view(shift: Dictionary) -> Dictionary:
 	var total: int = maxi(0, int(shift.get("objectives_total", 0)))
 	var done: int = clampi(int(shift.get("objectives_done", 0)), 0, total)
-	var active: String = str(shift.get("active_key", ""))
+	var active_drain: bool = false
+	var active_verify: bool = false
+	for item: Variant in shift.get("objectives", []):
+		if item is Dictionary:
+			var row: Dictionary = item
+			if str(row.get("status", "")) != STATUS_ACTIVE or not bool(row.get("visible", false)):
+				continue
+			active_drain = active_drain or str(row.get("text_key", "")) == "objective.c01.drain_basement"
+			active_verify = active_verify or str(row.get("text_key", "")) == "objective.c01.verify_supply"
 	var finished: bool = bool(shift.get("finished", false))
 	var progress_key: String = ""
 	var progress_percent: int = 0
@@ -93,10 +101,10 @@ static func field_view(shift: Dictionary) -> Dictionary:
 		elif not bool(shift.get("verified", false)):
 			# Show a timer only when its objective is actually visible and active.
 			# Earlier objectives cannot spoil a later repair or access route.
-			if active == "objective.c01.drain_basement" and not bool(shift.get("pump_latched", false)):
+			if active_drain and not bool(shift.get("pump_latched", false)):
 				progress_key = "offline.field.pump"
 				progress_percent = clampi(int(shift.get("pump_percent", 0)), 0, 100)
-			elif active == "objective.c01.verify_supply":
+			elif active_verify:
 				progress_key = "offline.field.verification"
 				progress_percent = clampi(int(shift.get("verify_percent", 0)), 0, 100)
 
