@@ -155,6 +155,10 @@ func _valid_snapshot_records(nodes: Dictionary, order: Array, edges: Array) -> b
 		# missing key would otherwise become player-visible internal content.
 		if not UiText.has(str(node["name_key"])):
 			return false
+		# A malformed kind otherwise falls through to the junction renderer,
+		# presenting an invented state for a node that cannot exist in the grid.
+		if not ["source", "junction", "consumer"].has(str(node["kind"])):
+			return false
 		if node.has("access_key") and (typeof(node["access_key"]) != TYPE_STRING or \
 				not UiText.has(str(node["access_key"]))):
 			return false
