@@ -131,6 +131,10 @@ func select(nid: String) -> void:
 		return
 	selected = nid
 	_status_text = ""
+	# A new branch must start at its heading, not halfway down the previous
+	# branch's long meter evidence. Live refresh of the same node is unaffected.
+	if detail_scroll != null and is_instance_valid(detail_scroll):
+		detail_scroll.scroll_vertical = 0
 	_fill_detail()
 	# The evidence and Ping controls navigate back to the current node, not
 	# whichever node was selected when _link_focus() last rebuilt the tablet.
