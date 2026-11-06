@@ -216,6 +216,12 @@ func _on_outbox_sent(envelope: Dictionary) -> void:
 	if not is_visible_in_tree() or tab != TAB_NETWORK:
 		return
 	if MAP_INTENTS.has(str(envelope.get("type", ""))) and int(envelope.get("seq", -1)) > 0:
+		# Once the player initiates a newer action, the prior result no longer
+		# describes the most recent request. Clear it until the host responds.
+		if _status_text != "":
+			_status_text = ""
+			if _detail != null:
+				_fill_detail()
 		var request_seq: int = int(envelope["seq"])
 		_pending_tablet_requests[request_seq] = {
 			"request_key": _request_key(envelope),

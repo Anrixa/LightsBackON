@@ -430,6 +430,35 @@ func test_QA85_reply_must_match_original_action_target_and_session() -> void:
 	tablet.close()
 
 
+## QA86: a new action invalidates an old visible result until acknowledged.
+func test_QA86_new_dispatch_clears_previous_action_result_until_new_reply() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1280, 720), 150)
+	tablet.open()
+	tablet.select("TEMP")
+	tablet.ping_selected()
+	var ping: Dictionary = _sent[-1].duplicate(true)
+	tablet.on_reply(ping, {"ok": true})
+	var old_message: String = str(tablet.get("_status_text"))
+	assert_true(old_message != "")
+	var feedback: Label = tablet.get("_feedback_label") as Label
+	assert_true(feedback.visible)
+	tablet.inspect_selected()
+	var inspect: Dictionary = _sent[-1].duplicate(true)
+	assert_eq(str(inspect["type"]), "inspect")
+	assert_eq(str(tablet.get("_status_text")), "",
+		"old Ping success must not remain visible while a newer Inspect is pending")
+	assert_false(feedback.visible, "old action banner disappears immediately")
+	tablet.on_reply(ping, {"ok": false, "key": "network.refused.rate_limited"})
+	assert_eq(str(tablet.get("_status_text")), "",
+		"late duplicate Ping feedback cannot reappear as the new action result")
+	tablet.on_reply(inspect, {"ok": false, "key": "network.refused.rate_limited"})
+	assert_true(str(tablet.get("_status_text")) != "")
+	assert_true(str(tablet.get("_status_text")) != old_message,
+		"current Inspect refusal replaces obsolete Ping success")
+	assert_true(feedback.visible, "the newest result is shown in the persistent feedback area")
+	tablet.close()
+
+
 ## QA79: slow replies cannot replace the outcome of a newer same-target action.
 func test_QA79_newest_same_target_reply_wins_and_pending_requests_are_bounded() -> void:
 	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
