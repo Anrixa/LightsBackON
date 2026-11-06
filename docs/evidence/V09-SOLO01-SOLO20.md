@@ -35,14 +35,16 @@
 - English string keys drive all new labels; no third-party assets, unqualified Steam transport, user identifiers or telemetry upload are introduced.
 - Twenty Godot tests check the new presentation contract, including real offline session and scene construction.
 
-## Verification
+## Observed CI and acceptance boundaries
 
-- Linux full suite: PENDING exact PR-head CI.
-- Windows full suite: PENDING exact PR-head CI.
-- Windows release export and headless smoke: PENDING exact PR-head CI.
-- QA51 resource probes: PENDING.
-- Post-merge main CI: PENDING.
-- Physical GPU, controller-only playthrough, real two-network Steam, UX01 and V09 acceptance: NOT RUN.
+- Verified implementation head: `20cc5810540033b63752b8542ca5aeb9f89f5a5d`.
+- [Linux + Windows full CI, run #42271966192](https://github.com/Anrixa/LightsBackON/actions/runs/42271966192): **PASS on both hosted operating systems**, 378 Godot tests, 0 failures, 9,228 assertions on each.
+- C01 reference solution: **SOLVED**, 316 ticks / 56 steps on both runners; re-derived Python reference cross-check **MATCH**, 32 case runs, 246 command hashes, 10 invalid-definition rejections.
+- Windows runner: **PASS** source-preserving UID check, Godot 4.7.2 export, exported EXE headless smoke, manifest pin validation, hash generation and artifact upload. This is not a physical GPU launch.
+- [QA51 isolated lifetime probes, run #42271966122](https://github.com/Anrixa/LightsBackON/actions/runs/42271966122): **PASS** on Linux/Windows; all observed CanvasItem, ObjectDB, DummyTexture, ShapedText and FontRID deltas were zero.
+- Initial [run #42271611748](https://github.com/Anrixa/LightsBackON/actions/runs/42271611748) had 378 Linux/Windows tests passing but failed the Windows QA57 UID sidecar gate. Both missing tracked UID files were added; the subsequent exact-source-head run above passed. English multiline text was also corrected before the passing run.
+- This documentation update changes **no** GDScript or content. Final documentation-commit exact-head CI and subsequent post-merge main CI must still be recorded before claiming integration.
+- Physical GPU, real controller-only playthrough, real two-network Steam, UX01 and V09 acceptance: **NOT RUN**. V09 remains NOT_STARTED; F02 remains BLOCKED.
 
 ## Resume notes
 
