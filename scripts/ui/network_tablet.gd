@@ -105,11 +105,17 @@ func show_data(view: Dictionary, objectives: Array, context: Array[String] = [])
 		return
 	var nodes: Dictionary = view["nodes"]
 	var order: Array = view["order"]
-	if order.is_empty():
-		return
+	if order.is_empty() or order.size() != nodes.size():
+		return  # the map must have exactly one ordered entry per node
+	var seen: Dictionary = {}
 	for nid: Variant in order:
 		if typeof(nid) != TYPE_STRING or not nodes.has(nid) or typeof(nodes[nid]) != TYPE_DICTIONARY:
 			return
+		# Duplicated IDs build the same UI node more than once and silently
+		# omit another node; mismatched record IDs mislabel map interactions.
+		if seen.has(nid) or (nodes[nid] as Dictionary).get("id", null) != nid:
+			return
+		seen[nid] = true
 	_view = view
 	_objectives = objectives
 	if not context.is_empty():

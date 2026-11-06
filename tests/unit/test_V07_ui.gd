@@ -464,6 +464,38 @@ func test_QA86_new_dispatch_clears_previous_action_result_until_new_reply() -> v
 	tablet.close()
 
 
+## QA97: incomplete, duplicate or inconsistent ordered node IDs must be
+## rejected before rebuilding the tablet or invalidating a correlated reply.
+func test_QA97_incomplete_or_duplicate_node_order_preserves_open_tablet() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1280, 720), 150)
+	tablet.open()
+	tablet.select("TEMP")
+	(tablet.map.nodes["TEMP"] as Control).grab_focus()
+	tablet.ping_selected()
+	var pending: Dictionary = _sent[-1].duplicate(true)
+	var original: Dictionary = tablet.get("_view")
+	var focus_before: Control = _root().gui_get_focus_owner()
+	var duplicated: Dictionary = original.duplicate(true)
+	(duplicated["order"] as Array)[1] = (duplicated["order"] as Array)[0]
+	var shortened: Dictionary = original.duplicate(true)
+	(shortened["order"] as Array).pop_back()
+	var mismatched: Dictionary = original.duplicate(true)
+	(mismatched["nodes"] as Dictionary)["TEMP"]["id"] = "GRID"
+	var extra: Dictionary = original.duplicate(true)
+	(extra["nodes"] as Dictionary)["EXTRA"] = (extra["nodes"] as Dictionary)["TEMP"].duplicate(true)
+	for invalid: Dictionary in [duplicated, shortened, mismatched, extra]:
+		tablet.show_data(invalid, [])
+		assert_eq(tablet.get("_view"), original, "bad node catalog cannot replace the active view")
+		assert_eq(str(tablet.get("selected")), "TEMP")
+		assert_eq(_root().gui_get_focus_owner(), focus_before)
+		assert_true((tablet.get("_pending_tablet_requests") as Dictionary).has(int(pending["seq"])))
+	tablet.on_reply(pending, {"ok": true})
+	assert_true(str(tablet.get("_status_text")) != "", "a genuine delayed reply remains visible")
+	tablet.show_data(original.duplicate(true), [])
+	assert_eq(str(tablet.get("selected")), "TEMP", "valid refresh remains usable")
+	tablet.close()
+
+
 ## QA96: a preconstructed visible tablet is not yet a modal input owner.
 func test_QA96_inactive_prebuilt_tablet_does_not_consume_controller_zoom() -> void:
 	var tablet: PanelContainer = _tablet(Vector2(1280, 720), 150)
