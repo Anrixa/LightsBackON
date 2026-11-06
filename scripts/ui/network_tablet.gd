@@ -184,6 +184,8 @@ func _valid_tablet_id(value: Variant) -> bool:
 ## swapping a live snapshot. A malformed record must not enter UI rendering.
 func _valid_snapshot_records(nodes: Dictionary, order: Array, edges: Array) -> bool:
 	var occupied_cells: Dictionary = {}
+	var previous_row: int = -1
+	var previous_col: int = -1
 	for nid: Variant in order:
 		var node: Dictionary = nodes[nid] as Dictionary
 		for key: String in ["kind", "name_key", "panel", "status_group", "status_state"]:
@@ -222,6 +224,14 @@ func _valid_snapshot_records(nodes: Dictionary, order: Array, edges: Array) -> b
 			if typeof(node.get(coordinate, null)) != TYPE_INT or \
 					int(node[coordinate]) < 0 or int(node[coordinate]) > MAX_TABLET_COORDINATE:
 				return false
+		# Focus order is authored row-major by TabletPresenter. An inconsistent
+		# order changes keyboard/controller traversal without moving the cells.
+		var row: int = int(node["row"])
+		var col: int = int(node["col"])
+		if row < previous_row or (row == previous_row and col <= previous_col):
+			return false
+		previous_row = row
+		previous_col = col
 		# Overlapping authored cells make one node inaccessible to pointer
 		# navigation and create zero-length directional focus candidates.
 		var cell: String = "%d:%d" % [int(node["col"]), int(node["row"])]
@@ -256,6 +266,10 @@ func _valid_snapshot_records(nodes: Dictionary, order: Array, edges: Array) -> b
 			if typeof(finding.get("code", null)) != TYPE_STRING or \
 					StatusChip.entry("findings", str(finding["code"])).is_empty():
 				return false
+		# Only meter-measured junctions receive findings from TabletPresenter.
+		# A source uses SOURCE_OFFLINE as a status chip, not a fabricated meter list.
+		if kind != "junction" and not (node["findings"] as Array).is_empty():
+			return false
 		if kind == "junction":
 			var measured: bool = bool(node.get("measured", false))
 			var findings: Array = node["findings"] as Array
@@ -264,6 +278,16 @@ func _valid_snapshot_records(nodes: Dictionary, order: Array, edges: Array) -> b
 			if not measured:
 				if group != "other" or state != "unknown" or not findings.is_empty():
 					return false
+				# An unmeasured panel has no load/capacity evidence. Its one
+				# authorized line is the localized unknown/reinspect placeholder;
+				# printed upstream capacity is a separate public source_text.
+				var unknown_lines: Array = node["lines"] as Array
+				if unknown_lines.size() != 1 or not [UiText.t("tablet.unknown_measure"),
+						UiText.t("tablet.reinspect")].has(unknown_lines[0]):
+					return false
+			# A current meter snapshot must identify its inspectable panel.
+			elif str(node["panel"]).is_empty():
+				return false
 			# A measured junction's leading finding must match its primary
 			# status chip, otherwise the player sees contradictory evidence.
 			elif findings.is_empty():
@@ -285,6 +309,11 @@ func _valid_snapshot_records(nodes: Dictionary, order: Array, edges: Array) -> b
 		# A directed supply path cannot feed itself. Drawing a self-edge
 		# would produce a zero-length arrow and misleading network topology.
 		if edge["from"] == edge["to"]:
+			return false
+		# A consumer cannot feed a supply path, and an authored source is
+		# never downstream of another node in the directional grid view.
+		if str((nodes[edge["from"]] as Dictionary)["kind"]) == "consumer" or \
+				str((nodes[edge["to"]] as Dictionary)["kind"]) == "source":
 			return false
 		if not [TabletPresenter.EDGE_GRID, TabletPresenter.EDGE_TEMP,
 				TabletPresenter.EDGE_FAULT, TabletPresenter.EDGE_UNKNOWN].has(edge["style"]):
