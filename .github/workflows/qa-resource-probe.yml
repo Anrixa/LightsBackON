@@ -10,6 +10,9 @@ on:
       - scripts/ui/network_tablet.gd
       - scripts/ui/field_hud.gd
       - scripts/gameplay/offline_c01_session.gd
+      - scripts/gameplay/mission_root.gd
+      - scripts/diagnostics/shift_measurements.gd
+      - tests/integration/test_MEASURE20_local_events.gd
       - scripts/gameplay/offline_outbox_bridge.gd
       - tests/integration/test_QA52_session_lifetime.gd
       - tests/integration/test_QA55_menu_node_lifetime.gd
