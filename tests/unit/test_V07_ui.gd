@@ -269,6 +269,22 @@ func test_QA78_delayed_same_target_reply_is_ignored_after_visit_selection_or_tab
 	tablet.close()
 
 
+## QA80: Ping is consumed by the modal even on its read-only Objectives tab.
+func test_QA80_objectives_consume_ping_without_dispatch_and_network_still_pings() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1280, 720), 150)
+	tablet.open()
+	tablet._show_tab(NetworkTablet.TAB_OBJECTIVES)
+	var count: int = _sent.size()
+	tablet._input(_action("ping"))
+	assert_eq(_sent.size(), count,
+		"the Objectives tab cannot dispatch a network or world Ping through the modal")
+	tablet._show_tab(NetworkTablet.TAB_NETWORK)
+	tablet._input(_action("ping"))
+	assert_eq(_sent.size(), count + 1, "Network retains the intended Ping shortcut")
+	assert_eq(str(_sent[-1]["type"]), "ping")
+	tablet.close()
+
+
 ## QA79: slow replies cannot replace the outcome of a newer same-target action.
 func test_QA79_newest_same_target_reply_wins_and_pending_requests_are_bounded() -> void:
 	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
