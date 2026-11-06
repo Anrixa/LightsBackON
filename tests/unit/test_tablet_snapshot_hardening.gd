@@ -120,3 +120,18 @@ func test_QA104_self_loop_edge_cannot_replace_directed_tablet_map() -> void:
 	assert_eq((case["tablet"] as PanelContainer).get("_view"), valid,
 		"valid directed edges remain accepted")
 	_finish(case)
+
+
+func test_QA105_sparse_coordinate_overflow_is_rejected_before_layout() -> void:
+	var case: Dictionary = _opened()
+	var original: Dictionary = case["snapshot"]
+	for axis: String in ["row", "col"]:
+		for value: int in [64, 1000000000]:
+			var invalid: Dictionary = original.duplicate(true)
+			invalid["nodes"]["TEMP"][axis] = value
+			_rejects(case, invalid)
+	var valid: Dictionary = original.duplicate(true)
+	(case["tablet"] as PanelContainer).show_data(valid, case["objectives"])
+	assert_eq((case["tablet"] as PanelContainer).get("_view"), valid,
+		"bounded authored coordinates still produce an accessible map")
+	_finish(case)
