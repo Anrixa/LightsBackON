@@ -163,6 +163,11 @@ func _valid_snapshot_records(nodes: Dictionary, order: Array, edges: Array) -> b
 		if node.has("access_key") and (typeof(node["access_key"]) != TYPE_STRING or \
 				not UiText.has(str(node["access_key"]))):
 			return false
+		# Optional text enters the evidence panel directly. Never stringify a
+		# wrong-type presentation payload into a player-visible label.
+		for optional_text: String in ["source_text", "worker_text"]:
+			if node.has(optional_text) and typeof(node[optional_text]) != TYPE_STRING:
+				return false
 		for coordinate: String in ["col", "row"]:
 			if typeof(node.get(coordinate, null)) != TYPE_INT or int(node[coordinate]) < 0:
 				return false
