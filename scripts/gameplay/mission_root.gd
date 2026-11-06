@@ -901,7 +901,7 @@ func _render_debrief(results: Dictionary) -> void:
 			names.append(UiText.t(service_key) if UiText.has(service_key)
 				else UiText.t("offline.debrief.unknown_service"))
 		optional_names.visible = not names.is_empty()
-		optional_names.text = ", ".join(names)
+		optional_names.text = ", ".join(PackedStringArray(names))
 	var award_names: Array[String] = ["ResultsAwardRequired",
 		"ResultsAwardOptional", "ResultsAwardSafety"]
 	var awards: Array = report["awards"]

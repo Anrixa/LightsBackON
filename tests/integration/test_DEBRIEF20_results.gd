@@ -169,6 +169,5 @@ func test_DEBRIEF20_real_results_screen_preserves_controller_exit() -> void:
 	var clock: Label = root.find_child("ResultsTiming", true, false) as Label
 	assert_true(score.text.contains("3"))
 	assert_true(clock.text.contains("00:31.6"))
-	root.get_viewport().set_size_override_stretch(false)
 	tree.root.remove_child(root)
 	root.free()
