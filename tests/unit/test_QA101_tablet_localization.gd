@@ -94,3 +94,25 @@ func test_QA101_unknown_tablet_localization_does_not_break_visit() -> void:
 	assert_eq(tablet.get("_view"), valid, "registered localization keys remain valid")
 	assert_eq(str(tablet.selected), "TEMP")
 	tablet.close()
+
+
+## QA104: optional evidence and worker labels cannot accept arbitrary values.
+func test_QA104_optional_evidence_text_rejects_non_strings() -> void:
+	var ctx: Dictionary = Fixture.mid_shift()
+	var view: Dictionary = Fixture.tablet_view(ctx)
+	var tablet: PanelContainer = NetworkTablet.new()
+	var nodes: Dictionary = view["nodes"]
+	var order: Array = view["order"]
+	var edges: Array = view["edges"]
+	assert_true(tablet._valid_snapshot_records(nodes, order, edges),
+		"authoritative fixture is valid")
+	for field: String in ["source_text", "worker_text"]:
+		for malformed: Variant in [null, 7, false, [], {}]:
+			var invalid: Dictionary = view.duplicate(true)
+			(invalid["nodes"]["TEMP"] as Dictionary)[field] = malformed
+			assert_false(tablet._valid_snapshot_records(invalid["nodes"], invalid["order"], invalid["edges"]),
+				"%s must be a string" % field)
+		var valid: Dictionary = view.duplicate(true)
+		(valid["nodes"]["TEMP"] as Dictionary)[field] = "Valid display text"
+		assert_true(tablet._valid_snapshot_records(valid["nodes"], valid["order"], valid["edges"]))
+	tablet.free()
