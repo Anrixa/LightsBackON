@@ -59,6 +59,7 @@ var _saved_objective_scroll_y: int = 0
 var _pending_tablet_requests: Dictionary = {}  # sequence -> original action/target/session for this visit
 var _latest_request_seq_by_action: Dictionary = {}  # action+target -> newest sequence
 var _latest_dispatch_seq: int = -1  # only the most recent tablet action can paint the shared result
+var _tablet_dispatch_active: bool = false  # attribute outbox sends to this view, not unrelated callers
 
 
 func _init() -> void:
@@ -198,7 +199,7 @@ func inspect_selected() -> void:
 	var v: Dictionary = _view["nodes"].get(selected, {})
 	if v.is_empty() or str(v["panel"]) == "":
 		return  # consumers and sources without a meter panel only show what is visible
-	gate.call("send", "inspect", str(v["panel"]), {})
+	_send_tablet_intent("inspect", str(v["panel"]), {})
 
 
 func ping_selected() -> void:
@@ -207,7 +208,16 @@ func ping_selected() -> void:
 	var v: Dictionary = _view["nodes"].get(selected, {})
 	if v.is_empty():
 		return
-	gate.call("send", "ping", selected, {"ping": "PING_FAULT" if TabletPresenter.shows_fault(v) else "PING_LOOK"})
+	_send_tablet_intent("ping", selected, {"ping": "PING_FAULT" if TabletPresenter.shows_fault(v) else "PING_LOOK"})
+
+
+## The outbox is shared with world UI. Only requests initiated by this tablet
+## may become pending tablet feedback; "sent" is emitted synchronously before
+## a host-local reply can be delivered.
+func _send_tablet_intent(kind: String, entity: String, payload: Dictionary) -> void:
+	_tablet_dispatch_active = true
+	gate.call("send", kind, entity, payload)
+	_tablet_dispatch_active = false
 
 
 ## Discard both sequence maps whenever navigation changes the request context.
@@ -226,7 +236,7 @@ func _request_key(envelope: Dictionary) -> String:
 ## The shared outbox may deliver replies after the tablet closes, changes
 ## selection, or returns to the same node. Keep only requests from this visit.
 func _on_outbox_sent(envelope: Dictionary) -> void:
-	if not _can_send_tablet_intent():
+	if not _can_send_tablet_intent() or not _tablet_dispatch_active:
 		return
 	if MAP_INTENTS.has(str(envelope.get("type", ""))) and int(envelope.get("seq", -1)) > 0:
 		# Once the player initiates a newer action, the prior result no longer
