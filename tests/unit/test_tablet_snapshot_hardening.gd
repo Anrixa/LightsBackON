@@ -102,3 +102,21 @@ func test_QA103_duplicate_tablet_cells_do_not_obscure_navigation() -> void:
 	assert_eq((case["tablet"] as PanelContainer).get("_view"), valid,
 		"non-overlapping grid coordinates remain usable")
 	_finish(case)
+
+
+func test_QA104_self_loop_edge_cannot_replace_directed_tablet_map() -> void:
+	var case: Dictionary = _opened()
+	var original: Dictionary = case["snapshot"]
+	var existing_loop: Dictionary = original.duplicate(true)
+	var first: Dictionary = existing_loop["edges"][0]
+	first["to"] = first["from"]
+	_rejects(case, existing_loop)
+	var new_loop: Dictionary = original.duplicate(true)
+	(new_loop["edges"] as Array).append({"id": "SELF_LOOP", "from": "TEMP",
+		"to": "TEMP", "style": "unknown"})
+	_rejects(case, new_loop)
+	var valid: Dictionary = original.duplicate(true)
+	(case["tablet"] as PanelContainer).show_data(valid, case["objectives"])
+	assert_eq((case["tablet"] as PanelContainer).get("_view"), valid,
+		"valid directed edges remain accepted")
+	_finish(case)
