@@ -58,6 +58,7 @@ var _pending_evidence_scroll_y: int = 0
 var _saved_objective_scroll_y: int = 0
 var _pending_tablet_requests: Dictionary = {}  # sequence -> original action/target/session for this visit
 var _latest_request_seq_by_action: Dictionary = {}  # action+target -> newest sequence
+var _latest_dispatch_seq: int = -1  # only the most recent tablet action can paint the shared result
 
 
 func _init() -> void:
@@ -213,6 +214,7 @@ func ping_selected() -> void:
 func _clear_tablet_requests() -> void:
 	_pending_tablet_requests.clear()
 	_latest_request_seq_by_action.clear()
+	_latest_dispatch_seq = -1
 
 
 ## Include the action kind so independent Ping and Inspect replies never
@@ -239,6 +241,7 @@ func _on_outbox_sent(envelope: Dictionary) -> void:
 			"session": str(envelope.get("session", "")),
 		}
 		_latest_request_seq_by_action[_request_key(envelope)] = request_seq
+		_latest_dispatch_seq = request_seq
 		if _pending_tablet_requests.size() > MAX_PENDING_TABLET_REPLIES:
 			# No indefinite growth when a transport drops acknowledgments.
 			var oldest: int = request_seq
@@ -271,6 +274,10 @@ func on_reply(envelope: Dictionary, reply: Dictionary) -> void:
 			str(pending.get("session", "")) != str(envelope.get("session", "")):
 			return
 		_pending_tablet_requests.erase(request_seq)
+		# The feedback area describes one most-recent action, not a separate
+		# status for each intent kind. An old Ping cannot preempt a newer Inspect.
+		if request_seq != _latest_dispatch_seq:
+			return
 		# A slower, older acknowledgment must not overwrite feedback for
 		# a newer dispatch to the same action and target.
 		if request_seq != int(_latest_request_seq_by_action.get(_request_key(envelope), -1)):
