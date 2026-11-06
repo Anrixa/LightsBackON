@@ -308,6 +308,10 @@ func on_reply(envelope: Dictionary, reply: Dictionary) -> void:
 	if str(pending.get("request_key", "")) != _request_key(envelope) or \
 		str(pending.get("session", "")) != str(envelope.get("session", "")):
 		return
+	# Host acknowledgments use real JSON booleans. Coercing a string such
+	# as "false" would falsely report a refused action as accepted.
+	if typeof(reply.get("ok", null)) != TYPE_BOOL:
+		return
 	_pending_tablet_requests.erase(request_seq)
 	# The feedback area describes one most-recent action, not a separate
 	# status for each intent kind. An old Ping cannot preempt a newer Inspect.
