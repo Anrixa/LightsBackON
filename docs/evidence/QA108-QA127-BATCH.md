@@ -30,7 +30,7 @@ One production validator (`scripts/ui/network_tablet.gd`) and 20 new integration
 - **QA127** — Wrong-category objectives and unbounded list
 
 ## Resource ceilings
-- Maximum **128 nodes**, **512 edges**, **64 objectives**, **32 evidence lines per node**, **16 findings per node**, and **2048 characters per text field**; stable IDs at most **128 ASCII alphanumeric/underscore characters**. These are presentation safety limits only and do not change the Godot canonical grid or authored contract schema.
+- Maximum **128 nodes**, **512 edges**, **384 objectives**, **32 evidence lines per node**, **16 findings per node**, and **2048 characters per text field**; stable IDs at most **128 ASCII alphanumeric/underscore characters**. These are presentation safety limits only and do not change the Godot canonical grid or authored contract schema.
 - Reject unexpected field types, known-but-wrong localization namespaces, unsupported network-node status groups, malformed/missing/duplicate objective IDs and pathological record sizes **atomically**, before rebuilding the real tablet.
 
 ## CI gate (do not infer pass from code review)

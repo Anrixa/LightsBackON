@@ -393,7 +393,7 @@ func test_QA127_objective_namespace_and_count_boundaries() -> void:
 	wrong_label[0]["text_key"] = "tablet.title"
 	_rejects_objectives(case, wrong_label)
 	var too_many: Array = (case["objectives"] as Array).duplicate(true)
-	for i: int in 65:
+	for i: int in 385:
 		var objective: Dictionary = (too_many[0] as Dictionary).duplicate(true)
 		objective["id"] = "QA_OBJECTIVE_%d" % i
 		too_many.append(objective)

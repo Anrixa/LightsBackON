@@ -29,7 +29,7 @@ const MAX_TABLET_COORDINATE: int = 63  # cap sparse grid allocation to 64 rows/c
 # building large Control trees or allowing untrusted text into labels.
 const MAX_TABLET_NODES: int = 128
 const MAX_TABLET_EDGES: int = 512
-const MAX_TABLET_OBJECTIVES: int = 64
+const MAX_TABLET_OBJECTIVES: int = 384
 const MAX_TABLET_LINES: int = 32
 const MAX_TABLET_FINDINGS: int = 16
 const MAX_TABLET_TEXT_LENGTH: int = 2048

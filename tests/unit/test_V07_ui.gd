@@ -213,7 +213,7 @@ func test_QA77_objective_scroll_survives_refresh_scale_and_tab_roundtrip() -> vo
 	var sample: Dictionary = _ctx["mission"].objectives()[0]
 	# Keep the scroll stress case within the tablet's bounded, uniquely
 	# identifiable objective schema while still overflowing the 720p panel.
-	for i: int in 60:
+	for i: int in 300:
 		var objective: Dictionary = sample.duplicate(true)
 		objective["id"] = "SCROLL_%d" % i
 		objectives.append(objective)
