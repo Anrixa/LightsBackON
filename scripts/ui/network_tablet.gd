@@ -251,8 +251,11 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("map_meter") or event.is_action_pressed("ui_cancel"):
 		close()
 		get_viewport().set_input_as_handled()  # Tab must not also move focus (ui_focus_next)
-	elif event.is_action_pressed("ping") and tab == TAB_NETWORK:
-		ping_selected()
+	elif event.is_action_pressed("ping"):
+		# The tablet is modal on both tabs. Do not leak a world Ping when
+		# Objectives is active; only Network is permitted to send the intent.
+		if tab == TAB_NETWORK:
+			ping_selected()
 		get_viewport().set_input_as_handled()
 	elif event is InputEventJoypadMotion:
 		# A held analog trigger sends repeated motion events. Zoom exactly once
