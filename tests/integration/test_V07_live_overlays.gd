@@ -560,7 +560,10 @@ func _qa89_stage_tablet_request(panel: PanelContainer, kind: String, entity: Str
 	var outbox: RefCounted = panel.get("_bound_outbox")
 	var envelope: Dictionary = {"type": kind, "entity": entity,
 		"session": str(outbox.get("session_id")), "seq": _qa89_seq}
+	# Mirror the scoped synchronous send section used by the tablet gate.
+	panel.set("_tablet_dispatch_active", true)
 	outbox.emit_signal("sent", envelope)
+	panel.set("_tablet_dispatch_active", false)
 	return envelope
 
 
