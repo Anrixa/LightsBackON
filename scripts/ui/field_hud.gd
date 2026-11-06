@@ -233,7 +233,43 @@ func _objectives() -> PanelContainer:
 			"StrongLabel" if o["status"] == "active" else "")
 		chip.name = "Objective_%s" % o.get("id", str(i))
 		box.add_child(chip)
+
+	_add_field_shift(box)
 	return card
+
+
+## Keep one compact line and at most one read-only meter inside the existing
+## objective card. A separate screen overlay would compete with onboarding,
+## controller focus, the reticle, and the safe areas at 720p/150% UI scale.
+func _add_field_shift(parent: VBoxContainer) -> void:
+	var field: Dictionary = _view.get("field_shift", {})
+	if not bool(field.get("visible", false)):
+		return
+	var done: int = int(field.get("objectives_done", 0))
+	var total: int = int(field.get("objectives_total", 0))
+	var key: String = str(field.get("progress_key", ""))
+	var summary: String = UiText.tf("offline.field.status", [
+		done, total, UiText.t(str(field.get("phase_key", "offline.briefing.phase_restoring")))])
+	if bool(field.get("countdown", false)):
+		summary = UiText.tf("offline.field.countdown", [
+			done, total, int(field.get("remaining_seconds", 0))])
+	elif key != "":
+		summary = UiText.tf("offline.field.progress", [
+			done, total, UiText.t(key), int(field.get("progress_percent", 0))])
+	var label: Label = _label(parent, summary, "MutedLabel", "text_muted")
+	label.name = "FieldShiftStatus"
+	if key == "":
+		return
+	var meter: ProgressBar = ProgressBar.new()
+	meter.name = "FieldShiftProgress"
+	meter.min_value = 0.0
+	meter.max_value = 100.0
+	meter.value = float(field.get("progress_percent", 0))
+	meter.show_percentage = false
+	meter.custom_minimum_size.y = ThemeTokens.px(10.0, scale_percent)
+	meter.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	meter.focus_mode = Control.FOCUS_NONE
+	parent.add_child(meter)
 
 
 func _crew() -> PanelContainer:

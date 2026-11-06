@@ -199,7 +199,9 @@ func hud_view(selected_slot: int, target: String, tool: String) -> Dictionary:
 		"repairs": _content["repairs"], "equipment": _content["equipment"],
 		"prompt": prompt_for(target, tool)
 	}
-	return HudPresenter.build(host_state(), mission.objectives(), context)
+	var view: Dictionary = HudPresenter.build(host_state(), mission.objectives(), context)
+	view["field_shift"] = ShiftOperations.field_view(shift_operations_view())
+	return view
 
 
 ## The pause dashboard observes only real host/mission/zone state; it cannot

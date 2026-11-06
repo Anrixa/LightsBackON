@@ -69,6 +69,45 @@ static func build(objectives: Array[Dictionary], mission_state: Dictionary, cont
 	}
 
 
+
+## Compact real-time HUD projection. The objective names and host timers are
+## already approved for the solo player's view; do not derive grid diagnosis,
+## fault causes, or mission authority from the presentation layer.
+static func field_view(shift: Dictionary) -> Dictionary:
+	var total: int = maxi(0, int(shift.get("objectives_total", 0)))
+	var done: int = clampi(int(shift.get("objectives_done", 0)), 0, total)
+	var active: String = str(shift.get("active_key", ""))
+	var finished: bool = bool(shift.get("finished", false))
+	var progress_key: String = ""
+	var progress_percent: int = 0
+	var remaining_seconds: int = 0
+	var countdown: bool = false
+
+	if not finished:
+		if bool(shift.get("departing", false)):
+			# The mission runs at 10 Hz; ceil prevents an early zero-second cue.
+			countdown = true
+			progress_key = "offline.field.departure"
+			progress_percent = clampi(int(shift.get("departure_percent", 0)), 0, 100)
+			remaining_seconds = maxi(0, ceili(float(shift.get("departure_left", 0)) / 10.0))
+		elif not bool(shift.get("verified", false)):
+			# Show a timer only when its objective is actually visible and active.
+			# Earlier objectives cannot spoil a later repair or access route.
+			if active == "objective.c01.drain_basement" and not bool(shift.get("pump_latched", false)):
+				progress_key = "offline.field.pump"
+				progress_percent = clampi(int(shift.get("pump_percent", 0)), 0, 100)
+			elif active == "objective.c01.verify_supply":
+				progress_key = "offline.field.verification"
+				progress_percent = clampi(int(shift.get("verify_percent", 0)), 0, 100)
+
+	return {
+		"visible": not finished,
+		"objectives_done": done, "objectives_total": total,
+		"phase_key": str(shift.get("phase_key", "offline.briefing.phase_restoring")),
+		"progress_key": progress_key, "progress_percent": progress_percent,
+		"countdown": countdown, "remaining_seconds": remaining_seconds
+	}
+
 static func percent(value: int, maximum: int) -> int:
 	if maximum <= 0:
 		return 0
