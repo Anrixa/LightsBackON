@@ -202,6 +202,38 @@ func test_QA76_same_node_refresh_and_reflow_keep_evidence_reading_position() -> 
 	tablet.close()
 
 
+## QA77: Objective reading survives live mission refreshes and returning from the Network tab.
+func test_QA77_objective_scroll_survives_refresh_scale_and_tab_roundtrip() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1280, 720), 150)
+	tablet.open()
+	var objectives: Array = []
+	var sample: Dictionary = _ctx["mission"].objectives()[0]
+	for i: int in 300:
+		objectives.append(sample.duplicate(true))
+	var view: Dictionary = (tablet.get("_view") as Dictionary).duplicate(true)
+	tablet.show_data(view, objectives)
+	tablet._show_tab(NetworkTablet.TAB_OBJECTIVES)
+	Fixture.settle(tablet)
+	var scroller: ScrollContainer = tablet.get("_objective_scroll") as ScrollContainer
+	assert_true(scroller.get_v_scroll_bar().max_value > scroller.get_v_scroll_bar().page + 150.0,
+		"the fixture creates a truly scrollable objectives list")
+	scroller.scroll_vertical = 120
+	tablet.show_data(view.duplicate(true), objectives.duplicate(true))
+	Fixture.settle(tablet)
+	assert_eq((tablet.get("_objective_scroll") as ScrollContainer).scroll_vertical, 120,
+		"live objective progress does not rewind the reading list")
+	tablet.set_ui_scale(130)
+	Fixture.settle(tablet)
+	assert_true((tablet.get("_objective_scroll") as ScrollContainer).scroll_vertical > 0,
+		"changing accessible UI scale preserves reading position")
+	tablet._show_tab(NetworkTablet.TAB_NETWORK)
+	tablet._show_tab(NetworkTablet.TAB_OBJECTIVES)
+	Fixture.settle(tablet)
+	assert_true((tablet.get("_objective_scroll") as ScrollContainer).scroll_vertical > 0,
+		"returning to Objectives preserves its previous scroll position")
+	tablet.close()
+
+
 ## QA74: delayed network replies must not populate a different tab.
 func test_QA74_objectives_tab_clears_and_ignores_network_action_feedback() -> void:
 	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
