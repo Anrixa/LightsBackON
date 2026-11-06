@@ -370,6 +370,38 @@ func test_QA83_rebinding_tablet_outbox_detaches_stale_session_and_avoids_duplica
 	tablet.close()
 
 
+## QA84: duplicate close events cannot steal focus after the modal has exited.
+func test_QA84_repeated_tablet_close_emits_once_and_preserves_outside_focus() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
+	var anchor: Button = Button.new()
+	anchor.name = "QA84ExternalFocus"
+	anchor.focus_mode = Control.FOCUS_ALL
+	anchor.custom_minimum_size = Vector2(100, 40)
+	_root().add_child(anchor)
+	_owned.append(anchor)
+	var closes: Array[int] = [0]
+	tablet.closed.connect(func() -> void: closes[0] += 1)
+	anchor.grab_focus()
+	tablet.open()
+	tablet.close()
+	assert_eq(closes[0], 1)
+	assert_eq(_root().gui_get_focus_owner(), anchor)
+	var next: Button = Button.new()
+	next.name = "QA84NextFocus"
+	next.focus_mode = Control.FOCUS_ALL
+	next.custom_minimum_size = Vector2(100, 40)
+	_root().add_child(next)
+	_owned.append(next)
+	next.grab_focus()
+	tablet.close()
+	assert_eq(closes[0], 1, "a duplicate close must not emit a second lifecycle signal")
+	assert_eq(_root().gui_get_focus_owner(), next, "a stale close cannot steal focus")
+	tablet.open()
+	tablet.close()
+	assert_eq(closes[0], 2, "a later legitimate visit still closes exactly once")
+	assert_eq(_root().gui_get_focus_owner(), next)
+
+
 ## QA79: slow replies cannot replace the outcome of a newer same-target action.
 func test_QA79_newest_same_target_reply_wins_and_pending_requests_are_bounded() -> void:
 	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)

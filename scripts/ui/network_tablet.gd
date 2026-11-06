@@ -144,6 +144,8 @@ func open() -> void:
 
 
 func close() -> void:
+	if not _visit_open:
+		return  # stale/double close must not emit twice or steal outside focus
 	_visit_open = false
 	visible = false
 	_status_text = ""
