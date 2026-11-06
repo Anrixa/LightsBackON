@@ -116,6 +116,8 @@ func show_data(view: Dictionary, objectives: Array, context: Array[String] = [])
 		if seen.has(nid) or (nodes[nid] as Dictionary).get("id", null) != nid:
 			return
 		seen[nid] = true
+	if not _valid_snapshot_records(nodes, order, view["edges"] as Array):
+		return
 	_view = view
 	_objectives = objectives
 	if not context.is_empty():
@@ -131,6 +133,47 @@ func show_data(view: Dictionary, objectives: Array, context: Array[String] = [])
 			if detail_scroll != null and is_instance_valid(detail_scroll):
 				detail_scroll.scroll_vertical = 0
 	_rebuild()
+
+
+## Validate everything the map, node and evidence widgets dereference before
+## swapping a live snapshot. A malformed record must not enter UI rendering.
+func _valid_snapshot_records(nodes: Dictionary, order: Array, edges: Array) -> bool:
+	for nid: Variant in order:
+		var node: Dictionary = nodes[nid] as Dictionary
+		for key: String in ["kind", "name_key", "panel", "status_group", "status_state"]:
+			if typeof(node.get(key, null)) != TYPE_STRING:
+				return false
+		for coordinate: String in ["col", "row"]:
+			if typeof(node.get(coordinate, null)) != TYPE_INT or int(node[coordinate]) < 0:
+				return false
+		if typeof(node.get("lines", null)) != TYPE_ARRAY or typeof(node.get("findings", null)) != TYPE_ARRAY:
+			return false
+		if StatusChip.entry(str(node["status_group"]), str(node["status_state"])).is_empty():
+			return false
+		for line: Variant in node["lines"]:
+			if typeof(line) != TYPE_STRING:
+				return false
+		for finding: Variant in node["findings"]:
+			if typeof(finding) != TYPE_DICTIONARY:
+				return false
+			if typeof(finding.get("code", null)) != TYPE_STRING or \
+					StatusChip.entry("findings", str(finding["code"])).is_empty():
+				return false
+	var edge_ids: Dictionary = {}
+	for entry: Variant in edges:
+		if typeof(entry) != TYPE_DICTIONARY:
+			return false
+		var edge: Dictionary = entry as Dictionary
+		for key: String in ["id", "from", "to", "style"]:
+			if typeof(edge.get(key, null)) != TYPE_STRING or str(edge[key]).is_empty():
+				return false
+		if edge_ids.has(edge["id"]) or not nodes.has(edge["from"]) or not nodes.has(edge["to"]):
+			return false
+		if not [TabletPresenter.EDGE_GRID, TabletPresenter.EDGE_TEMP,
+				TabletPresenter.EDGE_FAULT, TabletPresenter.EDGE_UNKNOWN].has(edge["style"]):
+			return false
+		edge_ids[edge["id"]] = true
+	return true
 
 
 func set_ui_scale(percent: int) -> void:
