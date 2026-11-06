@@ -152,10 +152,11 @@ func test_QA75_new_selected_node_resets_long_evidence_scroll() -> void:
 	var long_lines: Array[String] = []
 	for i: int in 70:
 		long_lines.append("Measured evidence line %d" % i)
+	var node_views: Dictionary = updated["nodes"]
 	for nid: String in [first, second]:
-		var node_view: Dictionary = (updated["nodes"] as Dictionary)[nid]
+		var node_view: Dictionary = node_views[nid]
 		node_view["lines"] = long_lines.duplicate()
-		(updated["nodes"] as Dictionary)[nid] = node_view
+		node_views[nid] = node_view
 	tablet.show_data(updated, [])
 	Fixture.settle(tablet)
 	var evidence: ScrollContainer = tablet.detail_scroll
