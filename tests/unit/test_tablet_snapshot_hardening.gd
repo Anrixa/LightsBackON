@@ -163,3 +163,31 @@ func test_QA106_caller_mutation_cannot_bypass_validated_snapshot() -> void:
 	assert_true((tablet.get("_pending_tablet_requests") as Dictionary).has(int(case["pending"]["seq"])),
 		"in-flight Ping is not invalidated by a caller-side mutation")
 	_finish(case)
+
+
+func test_QA107_header_context_must_use_district_and_contract_keys() -> void:
+	var case: Dictionary = _opened()
+	var tablet: PanelContainer = case["tablet"]
+	var original: Dictionary = case["snapshot"]
+	var expected: Array[String] = ["district.alder_street", "contract.c01"]
+	var wrong_contexts: Array = [
+		["contract.c01", "district.alder_street"],
+		["tablet.title", "contract.c01"],
+		["district.alder_street", "tablet.title"],
+		["district.alder_street", "objective.c01.extract"]
+	]
+	for wrong: Array in wrong_contexts:
+		var typed: Array[String] = []
+		typed.assign(wrong)
+		tablet.show_data(original.duplicate(true), (case["objectives"] as Array).duplicate(true), typed)
+		assert_eq(tablet.get("_view"), original, "a wrong-category header must not replace the map")
+		assert_eq(tablet.get("_context"), expected, "header must retain the prior district and contract")
+		assert_eq(str(tablet.selected), "TEMP")
+		assert_eq((Engine.get_main_loop() as SceneTree).root.gui_get_focus_owner(), case["focus"])
+		assert_true((tablet.get("_pending_tablet_requests") as Dictionary).has(int(case["pending"]["seq"])))
+
+	var valid: Dictionary = original.duplicate(true)
+	tablet.show_data(valid, (case["objectives"] as Array).duplicate(true), expected)
+	assert_eq(tablet.get("_view"), valid, "a correctly typed localized header remains accepted")
+	assert_eq(tablet.get("_context"), expected)
+	_finish(case)
