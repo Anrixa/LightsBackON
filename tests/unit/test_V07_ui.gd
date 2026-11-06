@@ -464,6 +464,29 @@ func test_QA86_new_dispatch_clears_previous_action_result_until_new_reply() -> v
 	tablet.close()
 
 
+## QA94: never turn malformed host reply values into success via Variant coercion.
+func test_QA94_malformed_result_flag_cannot_consume_correlated_reply() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1280, 720), 150)
+	tablet.open()
+	tablet.select("TEMP")
+	tablet.ping_selected()
+	var sent: Dictionary = _sent[-1].duplicate(true)
+	for malformed: Dictionary in [{"ok": "false"}, {"ok": 1}, {"ok": null}, {}]:
+		tablet.on_reply(sent, malformed)
+		assert_eq(str(tablet.get("_status_text")), "", "invalid result cannot paint a successful Ping")
+		assert_true((tablet.get("_pending_tablet_requests") as Dictionary).has(int(sent["seq"])),
+			"bad response cannot consume the outstanding authentic request")
+	tablet.on_reply(sent, {"ok": false, "key": "network.refused.rate_limited"})
+	assert_true(str(tablet.get("_status_text")).contains(UiText.t("network.refused.rate_limited")),
+		"genuine boolean refusal is still visible")
+	tablet.inspect_selected()
+	var inspected: Dictionary = _sent[-1].duplicate(true)
+	tablet.on_reply(inspected, {"ok": true})
+	assert_eq(str(tablet.get("_status_text")), UiText.t("tablet.inspected"),
+		"genuine boolean success remains usable")
+	tablet.close()
+
+
 ## QA93: incomplete or mismatched snapshots may arrive during modal refresh.
 ## Reject them without losing the last known map, selection, focus or reply.
 func test_QA93_tablet_rejects_malformed_refresh_without_losing_focus_or_reply() -> void:
