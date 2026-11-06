@@ -242,6 +242,19 @@
     "offline.briefing.phase_ready": "Ready to depart",
     "offline.briefing.phase_departing": "Crew departing",
     "offline.briefing.phase_complete": "Shift complete",
-    "offline.complete.metrics": "Protection trips: %d (preventable: %d)\nCrew recoveries: %d   Completion tick: %d\nEquipment returned: %s"
+    "offline.complete.metrics": "Protection trips: %d (preventable: %d)\nCrew recoveries: %d   Completion tick: %d\nEquipment returned: %s",
+    "offline.debrief.score": "Shift award: %d / 3 stars",
+    "offline.debrief.duration": "Host simulation time: %s",
+    "offline.debrief.required": "Required services restored: %d / %d",
+    "offline.debrief.optional": "Optional services restored: %d / %d",
+    "offline.debrief.optional_none": "No optional services in this contract — optional award earned automatically.",
+    "offline.debrief.unknown_service": "Optional service",
+    "offline.debrief.award_required": "Core restoration",
+    "offline.debrief.award_optional": "Optional service objective",
+    "offline.debrief.award_protection": "No preventable protection trips",
+    "offline.debrief.award_row": "%s — %s",
+    "offline.debrief.earned": "Earned",
+    "offline.debrief.missed": "Not earned",
+    "offline.debrief.unavailable": "Completion results unavailable; no score was issued."
   }
 }
