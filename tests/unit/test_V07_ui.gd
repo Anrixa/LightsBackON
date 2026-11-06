@@ -464,6 +464,35 @@ func test_QA86_new_dispatch_clears_previous_action_result_until_new_reply() -> v
 	tablet.close()
 
 
+## QA90: a Ping from another UI sharing this outbox is not a tablet action.
+func test_QA90_shared_outbox_activity_does_not_replace_tablet_feedback() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1280, 720), 150)
+	tablet.open()
+	tablet.select("TEMP")
+	tablet.ping_selected()
+	var first: Dictionary = _sent[-1].duplicate(true)
+	tablet.on_reply(first, {"ok": true})
+	var tablet_feedback: String = str(tablet.get("_status_text"))
+	assert_true(tablet_feedback != "")
+	var outbox: RefCounted = tablet.get("_bound_outbox")
+	outbox.call("send", "ping", "TEMP", {"ping": "PING_LOOK"})
+	var external: Dictionary = _sent[-1].duplicate(true)
+	assert_ne(int(external["seq"]), int(first["seq"]))
+	assert_eq(str(tablet.get("_status_text")), tablet_feedback,
+		"another caller's Ping must not clear the current tablet result")
+	assert_false((tablet.get("_pending_tablet_requests") as Dictionary).has(int(external["seq"])),
+		"another view's shared-outbox action must not become a tablet request")
+	tablet.on_reply(external, {"ok": false, "key": "network.refused.rate_limited"})
+	assert_eq(str(tablet.get("_status_text")), tablet_feedback,
+		"other view's refusal cannot paint or replace the tablet result")
+	tablet.inspect_selected()
+	var own_inspect: Dictionary = _sent[-1].duplicate(true)
+	tablet.on_reply(own_inspect, {"ok": true})
+	assert_eq(str(tablet.get("_status_text")), UiText.t("tablet.inspected"),
+		"real tablet Inspect continues working after unrelated sends")
+	tablet.close()
+
+
 ## QA89: no unsent or malformed acknowledgment can manufacture a result.
 func test_QA89_tablet_requires_integer_sequence_and_pending_request() -> void:
 	var tablet: PanelContainer = _tablet(Vector2(1280, 720), 150)
