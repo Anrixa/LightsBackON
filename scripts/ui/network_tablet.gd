@@ -56,7 +56,7 @@ var _right_trigger_held: bool = false
 var _left_trigger_held: bool = false
 var _pending_evidence_scroll_y: int = 0
 var _saved_objective_scroll_y: int = 0
-var _pending_tablet_requests: Dictionary = {}  # local outbox sequence -> still relevant to this tablet visit
+var _pending_tablet_requests: Dictionary = {}  # sequence -> original action/target/session for this visit
 var _latest_request_seq_by_action: Dictionary = {}  # action+target -> newest sequence
 
 
@@ -217,7 +217,10 @@ func _on_outbox_sent(envelope: Dictionary) -> void:
 		return
 	if MAP_INTENTS.has(str(envelope.get("type", ""))) and int(envelope.get("seq", -1)) > 0:
 		var request_seq: int = int(envelope["seq"])
-		_pending_tablet_requests[request_seq] = true
+		_pending_tablet_requests[request_seq] = {
+			"request_key": _request_key(envelope),
+			"session": str(envelope.get("session", "")),
+		}
 		_latest_request_seq_by_action[_request_key(envelope)] = request_seq
 		if _pending_tablet_requests.size() > MAX_PENDING_TABLET_REPLIES:
 			# No indefinite growth when a transport drops acknowledgments.
@@ -243,6 +246,12 @@ func on_reply(envelope: Dictionary, reply: Dictionary) -> void:
 	if envelope.has("seq"):
 		var request_seq: int = int(envelope["seq"])
 		if not _pending_tablet_requests.has(request_seq):
+			return
+		var pending: Dictionary = _pending_tablet_requests[request_seq] as Dictionary
+		# A sequence alone does not identify a request. A delayed/malformed
+		# envelope must not consume another action's still-valid acknowledgment.
+		if str(pending.get("request_key", "")) != _request_key(envelope) or \
+			str(pending.get("session", "")) != str(envelope.get("session", "")):
 			return
 		_pending_tablet_requests.erase(request_seq)
 		# A slower, older acknowledgment must not overwrite feedback for

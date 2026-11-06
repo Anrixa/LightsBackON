@@ -402,6 +402,34 @@ func test_QA84_repeated_tablet_close_emits_once_and_preserves_outside_focus() ->
 	assert_eq(_root().gui_get_focus_owner(), next)
 
 
+## QA85: a mismatched reply envelope cannot consume another pending action.
+func test_QA85_reply_must_match_original_action_target_and_session() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
+	tablet.open()
+	tablet.select("TEMP")
+	tablet.ping_selected()
+	var ping: Dictionary = _sent[-1].duplicate(true)
+	tablet.inspect_selected()
+	var inspect: Dictionary = _sent[-1].duplicate(true)
+	assert_eq(str(inspect["entity"]), "PANEL_TEMP")
+	var pending_seq: int = int(inspect["seq"])
+	var wrong_kind: Dictionary = ping.duplicate(true)
+	wrong_kind["seq"] = pending_seq
+	tablet.on_reply(wrong_kind, {"ok": false, "key": "network.refused.rate_limited"})
+	assert_true((tablet.get("_pending_tablet_requests") as Dictionary).has(pending_seq),
+		"reply with another action/target must not consume the valid inspect request")
+	var wrong_session: Dictionary = inspect.duplicate(true)
+	wrong_session["session"] = "prior-session"
+	tablet.on_reply(wrong_session, {"ok": false, "key": "network.refused.rate_limited"})
+	assert_true((tablet.get("_pending_tablet_requests") as Dictionary).has(pending_seq),
+		"reply from a different session must not consume this request")
+	tablet.on_reply(inspect, {"ok": true})
+	assert_eq(str(tablet.get("_status_text")), UiText.t("tablet.inspected"),
+		"the genuine inspect response is still accepted after mismatched envelopes")
+	assert_false((tablet.get("_pending_tablet_requests") as Dictionary).has(pending_seq))
+	tablet.close()
+
+
 ## QA79: slow replies cannot replace the outcome of a newer same-target action.
 func test_QA79_newest_same_target_reply_wins_and_pending_requests_are_bounded() -> void:
 	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
