@@ -349,7 +349,10 @@ func on_reply(envelope: Dictionary, reply: Dictionary) -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if not is_visible_in_tree():
+	# Instantiated tablet scenes can exist in the tree before their first
+	# open(). Only an active modal visit may consume global input or zoom;
+	# otherwise gameplay input (including Escape and Ping) belongs to the world.
+	if not _visit_open or not is_visible_in_tree():
 		return
 	if event.is_action_pressed("map_meter") or event.is_action_pressed("ui_cancel"):
 		close()
