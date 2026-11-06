@@ -72,7 +72,14 @@ func show_data(view: Dictionary, objectives: Array, context: Array[String] = [])
 	if not context.is_empty():
 		_context = context
 	if selected == "" or not (view["nodes"] as Dictionary).has(selected):
+		# A refreshed map may no longer contain the previously selected node.
+		# Its pending inspection/ping banner must not be attributed to another node.
+		var previous: String = selected
 		selected = str(view["order"][0])
+		if selected != previous:
+			_status_text = ""
+			if detail_scroll != null and is_instance_valid(detail_scroll):
+				detail_scroll.scroll_vertical = 0
 	_rebuild()
 
 
