@@ -227,7 +227,7 @@
     "offline.briefing.pump": "Basement pump drainage: %d%%",
     "offline.briefing.verify": "Grid supply verification: %d%%",
     "offline.briefing.depart": "Departure countdown: %d s",
-    "offline.briefing.readiness": "Generator stowed: %s   At van: %s\\nProtection trips: %d   Recoveries: %d",
+    "offline.briefing.readiness": "Generator stowed: %s   At van: %s\nProtection trips: %d   Recoveries: %d",
     "offline.briefing.yes": "Yes",
     "offline.briefing.no": "No",
     "offline.briefing.phase_restoring": "Restore services",
@@ -236,6 +236,6 @@
     "offline.briefing.phase_ready": "Ready to depart",
     "offline.briefing.phase_departing": "Crew departing",
     "offline.briefing.phase_complete": "Shift complete",
-    "offline.complete.metrics": "Protection trips: %d (preventable: %d)\\nCrew recoveries: %d   Completion tick: %d\\nEquipment returned: %s"
+    "offline.complete.metrics": "Protection trips: %d (preventable: %d)\nCrew recoveries: %d   Completion tick: %d\nEquipment returned: %s"
   }
 }
