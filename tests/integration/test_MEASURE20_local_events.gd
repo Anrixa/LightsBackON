@@ -83,7 +83,7 @@ func test_MEASURE07_objective_completion_is_transition_only() -> void:
 func test_MEASURE08_resumed_completed_rows_are_not_retroactive_events() -> void:
 	assert_true(meter.begin(true, POLICY))
 	var rows: Array[Dictionary] = [{"status": "done", "visible": false}]
-	meter.observe_tick(99, rows)
+	meter.observe_tick(1, rows)
 	assert_eq((meter.snapshot()["events"] as Array).size(), 1)
 
 
