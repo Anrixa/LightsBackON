@@ -238,6 +238,9 @@ func _rebuild() -> void:
 	if _view.is_empty():
 		return
 	var focus_token: String = _focus_token()
+	# Preserve the reading position when the same evidence is reflowed by
+	# a live refresh, scale change or device hint. Node changes reset it in select().
+	var evidence_scroll_y: int = detail_scroll.scroll_vertical if detail_scroll != null and is_instance_valid(detail_scroll) else 0
 	# Recreating the map for a live state refresh, a locale/device reflow or
 	# tab navigation must not reset the player\'s zoom and pan to defaults.
 	if map != null:
@@ -313,6 +316,10 @@ func _rebuild() -> void:
 	page.add_child(_footer())
 	_link_focus()
 	_fill_detail()
+	# Let the newly constructed ScrollContainer lay out its children first;
+	# writing the offset before layout would clamp it to zero.
+	if evidence_scroll_y > 0:
+		detail_scroll.set_deferred("scroll_vertical", evidence_scroll_y)
 	if focus_token != "":
 		_restore_focus(focus_token)
 

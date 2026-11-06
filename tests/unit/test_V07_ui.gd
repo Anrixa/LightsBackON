@@ -172,6 +172,36 @@ func test_QA75_new_selected_node_resets_long_evidence_scroll() -> void:
 	tablet.close()
 
 
+## QA76: rebuilding the same meter evidence must not throw a reader back to the heading.
+func test_QA76_same_node_refresh_and_reflow_keep_evidence_reading_position() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1280, 720), 150)
+	tablet.open()
+	var view: Dictionary = (tablet.get("_view") as Dictionary).duplicate(true)
+	var current: String = str(tablet.selected)
+	var long_lines: Array[String] = []
+	for i: int in 70:
+		long_lines.append("Measurement %d: branch load remains under inspection" % i)
+	var nodes: Dictionary = view["nodes"]
+	var node: Dictionary = nodes[current]
+	node["lines"] = long_lines
+	nodes[current] = node
+	tablet.show_data(view, [])
+	Fixture.settle(tablet)
+	var scroller: ScrollContainer = tablet.detail_scroll
+	assert_true(scroller.get_v_scroll_bar().max_value > scroller.get_v_scroll_bar().page + 160.0)
+	scroller.scroll_vertical = 150
+	assert_true(scroller.scroll_vertical > 0)
+	tablet.show_data(view.duplicate(true), [])
+	Fixture.settle(tablet)
+	assert_eq(tablet.detail_scroll.scroll_vertical, 150,
+		"a same-node authoritative update preserves the reader's position")
+	tablet.set_ui_scale(130)
+	Fixture.settle(tablet)
+	assert_true(tablet.detail_scroll.scroll_vertical > 0,
+		"accessibility reflow does not silently rewind long evidence")
+	tablet.close()
+
+
 ## QA74: delayed network replies must not populate a different tab.
 func test_QA74_objectives_tab_clears_and_ignores_network_action_feedback() -> void:
 	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
