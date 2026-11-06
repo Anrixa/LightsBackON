@@ -405,3 +405,83 @@ func test_QA127_objective_namespace_and_count_boundaries() -> void:
 	assert_eq(tablet.get("_view"), valid, "the production snapshot remains accepted")
 	assert_true((tablet.map.nodes as Dictionary).has("TEMP"), "active tablet nodes remain navigable")
 	_finish(case)
+
+
+## QA128-QA132: the snapshot is well-typed but semantically misleading,
+## or a real refusal arrives with a foreign (otherwise localized) key.
+
+func test_QA128_panel_target_identifiers_cannot_escape_inspect_namespace() -> void:
+	var case: Dictionary = _opened()
+	for malformed: String in ["PANEL/FOREIGN", "PANEL WITH SPACE", "P".repeat(129)]:
+		var invalid: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+		invalid["nodes"]["TEMP"]["panel"] = malformed
+		_rejects(case, invalid)
+	var valid: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+	(case["tablet"] as PanelContainer).show_data(valid, case["objectives"])
+	assert_eq((case["tablet"] as PanelContainer).get("_view"), valid)
+	_finish(case)
+
+
+func test_QA129_status_chip_must_match_power_node_kind() -> void:
+	var case: Dictionary = _opened()
+	var consumer: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+	consumer["nodes"]["PUMP"]["status_group"] = "findings"
+	consumer["nodes"]["PUMP"]["status_state"] = "NO_SOURCE"
+	_rejects(case, consumer)
+	var source: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+	source["nodes"]["GEN"]["status_group"] = "other"
+	source["nodes"]["GEN"]["status_state"] = "unknown"
+	_rejects(case, source)
+	var dark_source: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+	dark_source["nodes"]["GRID"]["status_group"] = "supply"
+	dark_source["nodes"]["GRID"]["status_state"] = "dark"
+	_rejects(case, dark_source)
+	_finish(case)
+
+
+func test_QA130_uninspected_junction_must_not_claim_supply_or_fault() -> void:
+	var case: Dictionary = _opened()
+	assert_false(bool(case["snapshot"]["nodes"]["TEMP"]["measured"]))
+	var invented_supply: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+	invented_supply["nodes"]["TEMP"]["status_group"] = "supply"
+	invented_supply["nodes"]["TEMP"]["status_state"] = "restored"
+	_rejects(case, invented_supply)
+	var invented_fault: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+	invented_fault["nodes"]["TEMP"]["status_group"] = "findings"
+	invented_fault["nodes"]["TEMP"]["status_state"] = "FEED_OPEN"
+	invented_fault["nodes"]["TEMP"]["findings"] = [{"code": "FEED_OPEN"}]
+	_rejects(case, invented_fault)
+	_finish(case)
+
+
+func test_QA131_measured_junction_primary_finding_must_match_evidence() -> void:
+	var case: Dictionary = _opened()
+	assert_true(bool(case["snapshot"]["nodes"]["JE"]["measured"]))
+	var hidden_findings: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+	hidden_findings["nodes"]["JE"]["status_group"] = "supply"
+	hidden_findings["nodes"]["JE"]["status_state"] = "dark"
+	hidden_findings["nodes"]["JE"]["findings"] = [{"code": "FEED_OPEN"}]
+	_rejects(case, hidden_findings)
+	var invented_banner: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+	invented_banner["nodes"]["JE"]["status_group"] = "findings"
+	invented_banner["nodes"]["JE"]["status_state"] = "FEED_OPEN"
+	invented_banner["nodes"]["JE"]["findings"] = []
+	_rejects(case, invented_banner)
+	_finish(case)
+
+
+func test_QA132_refusal_uses_only_known_host_reason_namespace() -> void:
+	var case: Dictionary = _opened()
+	var tablet: PanelContainer = case["tablet"]
+	tablet.on_reply(case["pending"], {"ok": false, "key": "tablet.title"})
+	var outcome: String = str(tablet.get("_status_text"))
+	assert_true(outcome.contains(UiText.t("network.refused.generic")),
+		"a known but unrelated UI translation cannot become a host refusal")
+	assert_false(outcome.contains(UiText.t("tablet.title")))
+	tablet.close()
+	var known: Dictionary = _opened()
+	var known_tablet: PanelContainer = known["tablet"]
+	known_tablet.on_reply(known["pending"], {"ok": false, "key": "network.refused.not_in_range"})
+	assert_true(str(known_tablet.get("_status_text")).contains(UiText.t("network.refused.not_in_range")),
+		"valid host-command refusal remains specific")
+	known_tablet.close()
