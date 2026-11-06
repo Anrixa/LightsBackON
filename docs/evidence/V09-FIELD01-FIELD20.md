@@ -38,7 +38,10 @@
 ## Verification and gates
 
 - Source baseline: `main` `c905828cabc42ea71db7f9110f5c071d75cdb836` (PR #117 merged with successful main CI).
-- Change verification: **PENDING** exact PR-head Linux + Windows test suite, Windows release export/headless smoke, QA51 resource-lifetime probes, and post-merge main CI.
+- Production implementation head: `7dbd8d014f9e2d994d3dd9052664519c371c9ee4` (PR #118).
+- [Linux + Windows full CI #42288524045](https://github.com/Anrixa/LightsBackON/actions/runs/42288524045): **PASS** on both runners, 398 Godot tests, 0 failures, 9,279 assertions each; the existing C01 replay/reference checks passed. On Windows the QA57 tracked UID check, pinned Godot 4.7.2 Windows release export, exported EXE headless smoke, build-manifest verification and artifact upload passed. No actual GPU or controller was exercised.
+- [QA51 isolated resource probes #42288524241](https://github.com/Anrixa/LightsBackON/actions/runs/42288524241): **PASS** on Linux/Windows; zero observed CanvasItem/ObjectDB/DummyTexture/ShapedText/FontRID deltas in the isolated diagnostics.
+- The evidence-only documentation update requires its own exact PR-head CI and post-merge main CI before claiming integration.
 - Runtime physical GPU, actual controller interaction, readable UX at 720p/150% with a person, solo C01 run counts, two-network Steam join and V09 gate: **NOT RUN**.
 - Original 66-task `docs/backlog.json` is unchanged. F02 remains BLOCKED; V09 remains NOT_STARTED.
 
