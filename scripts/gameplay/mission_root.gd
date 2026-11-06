@@ -131,7 +131,8 @@ func _ready() -> void:
 	player.moved.connect(_on_player_moved)
 	_last_position_zone = session.inside_van(player.global_position)
 	session.set_in_van_zone(_last_position_zone)
-	_measurements.observe_tick(0, session.mission.objectives())
+	if _measurements.enabled():
+		_measurements.observe_tick(0, session.mission.objectives())
 	_refresh_hud()
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	if session.completed():
@@ -490,7 +491,8 @@ func _physics_process(delta: float) -> void:
 		_time_accumulator -= HOST_TICK_SECONDS
 		session.tick_once()
 		_measurement_tick += 1
-		_measurements.observe_tick(_measurement_tick, session.mission.objectives())
+		if _measurements.enabled():
+			_measurements.observe_tick(_measurement_tick, session.mission.objectives())
 		# Continuous drain, verification and departure ticks do not emit
 		# mission events. Refresh the status bar independently of event-driven
 		# full HUD rebuilding, without mutating the session or rebuilding controls.
