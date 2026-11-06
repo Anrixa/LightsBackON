@@ -265,25 +265,24 @@ func on_reply(envelope: Dictionary, reply: Dictionary) -> void:
 	# replies carry integer sequences, and must match an outstanding dispatch.
 	if not envelope.has("seq") or typeof(envelope["seq"]) != TYPE_INT:
 		return
-	if envelope.has("seq"):
-		var request_seq: int = int(envelope["seq"])
-		if not _pending_tablet_requests.has(request_seq):
-			return
-		var pending: Dictionary = _pending_tablet_requests[request_seq] as Dictionary
-		# A sequence alone does not identify a request. A delayed/malformed
-		# envelope must not consume another action's still-valid acknowledgment.
-		if str(pending.get("request_key", "")) != _request_key(envelope) or \
-			str(pending.get("session", "")) != str(envelope.get("session", "")):
-			return
-		_pending_tablet_requests.erase(request_seq)
-		# The feedback area describes one most-recent action, not a separate
-		# status for each intent kind. An old Ping cannot preempt a newer Inspect.
-		if request_seq != _latest_dispatch_seq:
-			return
-		# A slower, older acknowledgment must not overwrite feedback for
-		# a newer dispatch to the same action and target.
-		if request_seq != int(_latest_request_seq_by_action.get(_request_key(envelope), -1)):
-			return
+	var request_seq: int = int(envelope["seq"])
+	if not _pending_tablet_requests.has(request_seq):
+		return
+	var pending: Dictionary = _pending_tablet_requests[request_seq] as Dictionary
+	# A sequence alone does not identify a request. A delayed/malformed
+	# envelope must not consume another action's still-valid acknowledgment.
+	if str(pending.get("request_key", "")) != _request_key(envelope) or \
+		str(pending.get("session", "")) != str(envelope.get("session", "")):
+		return
+	_pending_tablet_requests.erase(request_seq)
+	# The feedback area describes one most-recent action, not a separate
+	# status for each intent kind. An old Ping cannot preempt a newer Inspect.
+	if request_seq != _latest_dispatch_seq:
+		return
+	# A slower, older acknowledgment must not overwrite feedback for
+	# a newer dispatch to the same action and target.
+	if request_seq != int(_latest_request_seq_by_action.get(_request_key(envelope), -1)):
+		return
 	# An asynchronous reply is about the original target, not whichever node
 	# the player happens to be reading when it arrives. Drop stale replies rather
 	# than falsely labeling a different branch as inspected or pinged.
