@@ -312,6 +312,31 @@ func test_QA81_action_outcome_is_outside_long_evidence_scroll() -> void:
 	tablet.close()
 
 
+## QA82: duplicate open requests keep the original focus target and in-flight result.
+func test_QA82_open_is_idempotent_during_an_active_tablet_visit() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
+	var anchor: Button = Button.new()
+	anchor.name = "OutsideFocus"
+	anchor.focus_mode = Control.FOCUS_ALL
+	anchor.custom_minimum_size = Vector2(100, 40)
+	_root().add_child(anchor)
+	_owned.append(anchor)
+	anchor.grab_focus()
+	assert_eq(_root().gui_get_focus_owner(), anchor)
+	tablet.open()
+	assert_true(_root().gui_get_focus_owner() != anchor,
+		"opening the tablet transfers focus inside")
+	tablet.ping_selected()
+	var pending: Dictionary = _sent[-1].duplicate(true)
+	tablet.open()
+	tablet.on_reply(pending, {"ok": true})
+	assert_true(str(tablet.get("_status_text")) != "",
+		"duplicate open cannot discard a reply from the active visit")
+	tablet.close()
+	assert_eq(_root().gui_get_focus_owner(), anchor,
+		"closing restores the control focused before the first open")
+
+
 ## QA79: slow replies cannot replace the outcome of a newer same-target action.
 func test_QA79_newest_same_target_reply_wins_and_pending_requests_are_bounded() -> void:
 	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
