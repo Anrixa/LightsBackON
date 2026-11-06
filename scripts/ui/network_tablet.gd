@@ -22,6 +22,7 @@ const DETAIL_MAX_CONTENT_FRACTION: float = 0.44
 const SECTION_GAP_PX: int = 16
 const TAB_NETWORK: String = "network"
 const TAB_OBJECTIVES: String = "objectives"
+const MAX_PENDING_TABLET_REPLIES: int = 64  # bound delayed request bookkeeping
 const LEGEND: Array[Array] = [["supply", "restored"], ["supply", "temporary"], ["supply", "dark"], ["other", "unknown"]]
 
 var tokens: Dictionary = {}
@@ -53,6 +54,7 @@ var _left_trigger_held: bool = false
 var _pending_evidence_scroll_y: int = 0
 var _saved_objective_scroll_y: int = 0
 var _pending_tablet_requests: Dictionary = {}  # local outbox sequence -> still relevant to this tablet visit
+var _latest_request_seq_by_action: Dictionary = {}  # action+target -> newest sequence
 
 
 func _init() -> void:
@@ -86,7 +88,7 @@ func show_data(view: Dictionary, objectives: Array, context: Array[String] = [])
 		selected = str(view["order"][0])
 		if selected != previous:
 			_status_text = ""
-			_pending_tablet_requests.clear()
+			_clear_tablet_requests()
 			if detail_scroll != null and is_instance_valid(detail_scroll):
 				detail_scroll.scroll_vertical = 0
 	_rebuild()
@@ -109,7 +111,7 @@ func open() -> void:
 	_left_trigger_held = false
 	# A request made on an earlier visit cannot paint the current visit,
 	# even when the same node and intent appear again.
-	_pending_tablet_requests.clear()
+	_clear_tablet_requests()
 	# The evidence pane belongs to this opening, not to a prior tablet visit.
 	_status_text = ""
 	if _detail != null:
@@ -122,7 +124,7 @@ func open() -> void:
 func close() -> void:
 	visible = false
 	_status_text = ""
-	_pending_tablet_requests.clear()
+	_clear_tablet_requests()
 	if _previous_focus != null and is_instance_valid(_previous_focus) and _previous_focus.is_visible_in_tree():
 		_previous_focus.grab_focus()
 	elif is_inside_tree() and get_viewport().gui_get_focus_owner() != null:
@@ -142,7 +144,7 @@ func select(nid: String) -> void:
 		return
 	selected = nid
 	_status_text = ""
-	_pending_tablet_requests.clear()
+	_clear_tablet_requests()
 	_pending_evidence_scroll_y = 0
 	# A new branch must start at its heading, not halfway down the previous
 	# branch's long meter evidence. Live refresh of the same node is unaffected.
@@ -171,13 +173,33 @@ func ping_selected() -> void:
 	gate.call("send", "ping", selected, {"ping": "PING_FAULT" if TabletPresenter.shows_fault(v) else "PING_LOOK"})
 
 
+## Discard both sequence maps whenever navigation changes the request context.
+func _clear_tablet_requests() -> void:
+	_pending_tablet_requests.clear()
+	_latest_request_seq_by_action.clear()
+
+
+## Include the action kind so independent Ping and Inspect replies never
+## suppress one another, even when their entity IDs coincide.
+func _request_key(envelope: Dictionary) -> String:
+	return "%s:%s" % [str(envelope.get("type", "")), str(envelope.get("entity", ""))]
+
+
 ## The shared outbox may deliver replies after the tablet closes, changes
 ## selection, or returns to the same node. Keep only requests from this visit.
 func _on_outbox_sent(envelope: Dictionary) -> void:
 	if not is_visible_in_tree() or tab != TAB_NETWORK:
 		return
 	if MAP_INTENTS.has(str(envelope.get("type", ""))) and int(envelope.get("seq", -1)) > 0:
-		_pending_tablet_requests[int(envelope["seq"])] = true
+		var request_seq: int = int(envelope["seq"])
+		_pending_tablet_requests[request_seq] = true
+		_latest_request_seq_by_action[_request_key(envelope)] = request_seq
+		if _pending_tablet_requests.size() > MAX_PENDING_TABLET_REPLIES:
+			# No indefinite growth when a transport drops acknowledgments.
+			var oldest: int = request_seq
+			for pending: Variant in _pending_tablet_requests:
+				oldest = mini(oldest, int(pending))
+			_pending_tablet_requests.erase(oldest)
 
 
 func on_reply(envelope: Dictionary, reply: Dictionary) -> void:
@@ -198,6 +220,10 @@ func on_reply(envelope: Dictionary, reply: Dictionary) -> void:
 		if not _pending_tablet_requests.has(request_seq):
 			return
 		_pending_tablet_requests.erase(request_seq)
+		# A slower, older acknowledgment must not overwrite feedback for
+		# a newer dispatch to the same action and target.
+		if request_seq != int(_latest_request_seq_by_action.get(_request_key(envelope), -1)):
+			return
 	# An asynchronous reply is about the original target, not whichever node
 	# the player happens to be reading when it arrives. Drop stale replies rather
 	# than falsely labeling a different branch as inspected or pinged.
@@ -607,7 +633,7 @@ func _show_tab(t: String) -> void:
 		# Inspection/ping results and outstanding requests are scoped to the
 		# Network tab, not to an eventual return from Objectives.
 		_status_text = ""
-		_pending_tablet_requests.clear()
+		_clear_tablet_requests()
 	tab = t
 	_rebuild()
 	(tab_buttons[t] as Button).grab_focus()
