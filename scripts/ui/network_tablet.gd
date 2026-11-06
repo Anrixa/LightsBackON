@@ -205,6 +205,10 @@ func _valid_snapshot_records(nodes: Dictionary, order: Array, edges: Array) -> b
 				not str(node["access_key"]).begins_with("access.") or \
 				not UiText.has(str(node["access_key"]))):
 			return false
+		# Panel IDs are RPC inspection targets. A path separator, whitespace,
+		# or an oversized identifier must never be dispatched from S07.
+		if node["panel"] != "" and not _valid_tablet_id(node["panel"]):
+			return false
 		for flag: String in ["measured", "needs_reinspect"]:
 			if node.has(flag) and typeof(node[flag]) != TYPE_BOOL:
 				return false
@@ -231,6 +235,18 @@ func _valid_snapshot_records(nodes: Dictionary, order: Array, edges: Array) -> b
 			return false
 		if StatusChip.entry(str(node["status_group"]), str(node["status_state"])).is_empty():
 			return false
+		var kind: String = str(node["kind"])
+		var group: String = str(node["status_group"])
+		var state: String = str(node["status_state"])
+		# A known chip is not necessarily a truthful chip for this kind of
+		# node. Enforce the presentation contract emitted by TabletPresenter.
+		if kind == "consumer" and group != "supply":
+			return false
+		if kind == "source" and not ((group == "supply" and ["restored", "temporary"].has(state))
+				or (group == "findings" and state == "SOURCE_OFFLINE")):
+			return false
+		if kind == "junction" and group == "other" and state != "unknown":
+			return false
 		for line: Variant in node["lines"]:
 			if typeof(line) != TYPE_STRING or (line as String).length() > MAX_TABLET_TEXT_LENGTH:
 				return false
@@ -239,6 +255,21 @@ func _valid_snapshot_records(nodes: Dictionary, order: Array, edges: Array) -> b
 				return false
 			if typeof(finding.get("code", null)) != TYPE_STRING or \
 					StatusChip.entry("findings", str(finding["code"])).is_empty():
+				return false
+		if kind == "junction":
+			var measured: bool = bool(node.get("measured", false))
+			var findings: Array = node["findings"] as Array
+			# An uninspected junction cannot claim a measured fault or supply
+			# state; the meter's unknown state is a core puzzle invariant.
+			if not measured:
+				if group != "other" or state != "unknown" or not findings.is_empty():
+					return false
+			# A measured junction's leading finding must match its primary
+			# status chip, otherwise the player sees contradictory evidence.
+			elif findings.is_empty():
+				if group != "supply":
+					return false
+			elif group != "findings" or state != str((findings[0] as Dictionary)["code"]):
 				return false
 	var edge_ids: Dictionary = {}
 	for entry: Variant in edges:
@@ -496,7 +527,10 @@ func on_reply(envelope: Dictionary, reply: Dictionary) -> void:
 		return
 	var accepted: bool = bool(reply.get("ok", false))
 	var key: String = str(reply.get("key", ""))
-	var refusal: String = UiText.t(key if UiText.has(key) else "network.refused.generic")
+	# Only host-command refusal keys may label a failed tablet action.
+	# A valid but unrelated localized key must not masquerade as a reason.
+	var refusal_key: String = key if key.begins_with("network.refused.") and UiText.has(key) else "network.refused.generic"
+	var refusal: String = UiText.t(refusal_key)
 	if kind == "inspect":
 		_status_text = UiText.t("tablet.inspected") if accepted else UiText.tf("tablet.inspect_refused", [refusal])
 	else:
