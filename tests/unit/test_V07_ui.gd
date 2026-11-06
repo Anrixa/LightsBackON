@@ -464,6 +464,36 @@ func test_QA86_new_dispatch_clears_previous_action_result_until_new_reply() -> v
 	tablet.close()
 
 
+## QA96: a preconstructed visible tablet is not yet a modal input owner.
+func test_QA96_inactive_prebuilt_tablet_does_not_consume_controller_zoom() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1280, 720), 150)
+	assert_false(bool(tablet.get("_visit_open")))
+	assert_true(tablet.is_visible_in_tree(), "prebuilt view is present before its first modal visit")
+	var map: Container = tablet.get("map") as Container
+	var initial: int = int(map.get("_wanted_zoom_index"))
+	var trigger: InputEventJoypadMotion = InputEventJoypadMotion.new()
+	trigger.axis = JOY_AXIS_TRIGGER_RIGHT
+	trigger.axis_value = 1.0
+	tablet._input(trigger)
+	assert_eq(int(map.get("_wanted_zoom_index")), initial,
+		"inactive UI must leave the world/controller trigger alone")
+	assert_false(bool(tablet.get("_right_trigger_held")),
+		"an inactive event cannot arm the modal's trigger latch")
+	tablet.open()
+	tablet._input(trigger)
+	assert_eq(int(map.get("_wanted_zoom_index")), initial + 1,
+		"the same controller trigger works after the modal explicitly opens")
+	tablet.close()
+	var after_close: int = int(map.get("_wanted_zoom_index"))
+	var left: InputEventJoypadMotion = InputEventJoypadMotion.new()
+	left.axis = JOY_AXIS_TRIGGER_LEFT
+	left.axis_value = 1.0
+	tablet._input(left)
+	assert_eq(int(map.get("_wanted_zoom_index")), after_close,
+		"a closed visit cannot zoom through late input")
+	assert_false(bool(tablet.get("_left_trigger_held")))
+
+
 ## QA95: synchronous outbox callbacks must not trigger nested sends from
 ## the same tablet, which would overwrite the expected sequence for the first.
 func test_QA95_reentrant_tablet_action_cannot_corrupt_original_dispatch() -> void:
