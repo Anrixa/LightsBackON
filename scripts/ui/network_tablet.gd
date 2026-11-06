@@ -158,6 +158,11 @@ func _valid_snapshot_records(nodes: Dictionary, order: Array, edges: Array) -> b
 		if node.has("access_key") and (typeof(node["access_key"]) != TYPE_STRING or \
 				not UiText.has(str(node["access_key"]))):
 			return false
+		# Optional evidence is rendered as a line or worker label. Reject
+		# wrong types rather than silently stringifying malformed UI payloads.
+		for optional_text: String in ["source_text", "worker_text"]:
+			if node.has(optional_text) and typeof(node[optional_text]) != TYPE_STRING:
+				return false
 		for coordinate: String in ["col", "row"]:
 			if typeof(node.get(coordinate, null)) != TYPE_INT or int(node[coordinate]) < 0:
 				return false
