@@ -269,6 +269,33 @@ func test_QA78_delayed_same_target_reply_is_ignored_after_visit_selection_or_tab
 	tablet.close()
 
 
+## QA79: slow replies cannot replace the outcome of a newer same-target action.
+func test_QA79_newest_same_target_reply_wins_and_pending_requests_are_bounded() -> void:
+	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
+	tablet.open()
+	tablet.ping_selected()
+	var older: Dictionary = _sent[-1].duplicate(true)
+	tablet.ping_selected()
+	var newer: Dictionary = _sent[-1].duplicate(true)
+	tablet.on_reply(older, {"ok": false, "key": "network.refused.rate_limited"})
+	assert_eq(str(tablet.get("_status_text")), "",
+		"an older reply cannot preempt the newer pending action")
+	tablet.on_reply(newer, {"ok": true})
+	var accepted: String = str(tablet.get("_status_text"))
+	assert_true(accepted != "", "the most recent reply remains legible")
+	tablet.on_reply(older, {"ok": false, "key": "network.refused.rate_limited"})
+	assert_eq(str(tablet.get("_status_text")), accepted,
+		"an older refusal cannot overwrite a newer success")
+	# Missing network replies must not cause an unbounded tablet request cache.
+	for i: int in NetworkTablet.MAX_PENDING_TABLET_REPLIES + 8:
+		tablet.ping_selected()
+	assert_true((tablet.get("_pending_tablet_requests") as Dictionary).size() <= NetworkTablet.MAX_PENDING_TABLET_REPLIES,
+		"pending UI request bookkeeping remains bounded")
+	tablet.on_reply(_sent[-1], {"ok": true})
+	assert_true(str(tablet.get("_status_text")) != "", "the last tracked response still works after eviction")
+	tablet.close()
+
+
 ## QA74: delayed network replies must not populate a different tab.
 func test_QA74_objectives_tab_clears_and_ignores_network_action_feedback() -> void:
 	var tablet: PanelContainer = _tablet(Vector2(1920, 1080), 100)
