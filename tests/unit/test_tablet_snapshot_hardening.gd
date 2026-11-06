@@ -485,3 +485,64 @@ func test_QA132_refusal_uses_only_known_host_reason_namespace() -> void:
 	assert_true(str(known_tablet.get("_status_text")).contains(UiText.t("network.refused.not_in_range")),
 		"valid host-command refusal remains specific")
 	known_tablet.close()
+
+## QA133-QA137: node/edge semantic invariants needed for truthful C01
+## controller traversal and inspection. Host-built views remain valid.
+
+func test_QA133_directed_edges_never_start_at_consumers_or_end_at_sources() -> void:
+	var case: Dictionary = _opened()
+	var original: Dictionary = case["snapshot"]
+	var wrong_feeder: Dictionary = original.duplicate(true)
+	wrong_feeder["edges"][0]["from"] = "PUMP"
+	_rejects(case, wrong_feeder)
+	var wrong_source: Dictionary = original.duplicate(true)
+	wrong_source["edges"][0]["to"] = "GEN"
+	_rejects(case, wrong_source)
+	var valid: Dictionary = original.duplicate(true)
+	(case["tablet"] as PanelContainer).show_data(valid, case["objectives"])
+	assert_eq((case["tablet"] as PanelContainer).get("_view"), valid)
+	_finish(case)
+
+
+func test_QA134_non_meter_nodes_cannot_invent_diagnostic_findings() -> void:
+	var case: Dictionary = _opened()
+	for nid: String in ["GRID", "PUMP"]:
+		var invalid: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+		invalid["nodes"][nid]["findings"] = [{"code": "FEED_OPEN"}]
+		_rejects(case, invalid)
+	_finish(case)
+
+
+func test_QA135_uninspected_junction_cannot_claim_numeric_evidence() -> void:
+	var case: Dictionary = _opened()
+	assert_false(bool(case["snapshot"]["nodes"]["TEMP"]["measured"]))
+	for lines: Array in [["Load: 999 PU"], [UiText.t("tablet.unknown_measure"), "Load: 999 PU"], []]:
+		var invalid: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+		invalid["nodes"]["TEMP"]["lines"] = lines
+		_rejects(case, invalid)
+	_finish(case)
+
+
+func test_QA136_measured_junction_requires_inspectable_panel_id() -> void:
+	var case: Dictionary = _opened()
+	assert_true(bool(case["snapshot"]["nodes"]["JE"]["measured"]))
+	var invalid: Dictionary = (case["snapshot"] as Dictionary).duplicate(true)
+	invalid["nodes"]["JE"]["panel"] = ""
+	_rejects(case, invalid)
+	_finish(case)
+
+
+func test_QA137_tablet_focus_catalog_preserves_spatial_order() -> void:
+	var case: Dictionary = _opened()
+	var original: Dictionary = case["snapshot"]
+	for swap_pair: Array in [[0, 1], [1, 2]]:
+		var invalid: Dictionary = original.duplicate(true)
+		var order: Array = invalid["order"] as Array
+		var first: Variant = order[swap_pair[0]]
+		order[swap_pair[0]] = order[swap_pair[1]]
+		order[swap_pair[1]] = first
+		_rejects(case, invalid)
+	var valid: Dictionary = original.duplicate(true)
+	(case["tablet"] as PanelContainer).show_data(valid, case["objectives"])
+	assert_eq((case["tablet"] as PanelContainer).get("_view"), valid)
+	_finish(case)
