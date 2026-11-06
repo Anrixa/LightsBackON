@@ -206,7 +206,14 @@ func test_FIELD20_production_session_and_hud_render_on_real_scene() -> void:
 	var hud: Container = root.get("hud") as Container
 	assert_true(hud != null, "production scene constructs a field HUD")
 	assert_true(hud.find_child("FieldShiftStatus", true, false) is Label, "initial scene shift status exists")
-	assert_true(hud.find_child("FieldShiftProgress", true, false) == null, "future meter is initially hidden")
+	# Real C01 exposes more than one active objective initially, including
+	# drainage. It is correct for the scene's first HUD to show its zero meter.
+	# Explicitly enter a no-timer state before testing meter creation.
+	var quiet: Dictionary = field.duplicate(true)
+	quiet["progress_key"] = ""
+	hud.call("set_field_shift", quiet)
+	assert_true(hud.find_child("FieldShiftProgress", true, false) == null,
+		"no-timer stage hides its meter")
 	# A non-event mission tick must update the real production HUD in place.
 	# Transition into progress mode creates the bar once; subsequent ticks
 	# update only text/value, without discarding the focused scene/UI controls.
