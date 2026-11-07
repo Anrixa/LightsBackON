@@ -133,7 +133,8 @@ class MeasurementReviewTests(unittest.TestCase):
         self.assertIn("EVENTS_DROPPED", result["quality"]["flags"])
         self.assertIn("TERMINAL_EVENT_NOT_OBSERVED", result["quality"]["flags"])
         self.assertEqual(result["quality"]["gate"], "REVIEW_REQUIRED")
-        self.assertEqual(result["aggregate"]["data_completeness"], "EVENTS_DROPPED")
+        self.assertIsNone(result["aggregate"])
+        self.assertEqual(result["aggregate_gate"], "HOLD_INCOMPLETE_OBSERVATIONS")
 
     def test_MEASURE24_missing_repair_or_results_are_quality_flags_not_invented(self) -> None:
         report = copy.deepcopy(self.sample)
@@ -147,7 +148,8 @@ class MeasurementReviewTests(unittest.TestCase):
         self.assertIn("RESULTS_OPEN_EVENT_NOT_OBSERVED", result["quality"]["flags"])
         self.assertEqual(result["quality"]["completions_without_observed_first_repair"], 1)
         self.assertEqual(result["quality"]["completions_without_results_opened"], 1)
-        self.assertEqual(result["aggregate"]["completed_sessions"], 1)
+        self.assertIsNone(result["aggregate"])
+        self.assertEqual(result["aggregate_gate"], "HOLD_INCOMPLETE_OBSERVATIONS")
 
     def test_MEASURE24_open_idle_span_warns_without_fabricating_duration(self) -> None:
         report = copy.deepcopy(self.sample)
@@ -155,7 +157,8 @@ class MeasurementReviewTests(unittest.TestCase):
         self.write(report)
         result = self.review()
         self.assertEqual(result["quality"]["sessions_with_open_idle_span"], 1)
-        self.assertEqual(result["aggregate"]["idle_total_ticks"], 0)
+        self.assertIsNone(result["aggregate"])
+        self.assertEqual(result["aggregate_gate"], "HOLD_INCOMPLETE_OBSERVATIONS")
         self.assertIn("IDLE_SPAN_OPEN_AT_EXIT", result["quality"]["flags"])
 
     def test_MEASURE24_nonconsent_or_identity_fields_are_rejected(self) -> None:

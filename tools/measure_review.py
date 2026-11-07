@@ -86,9 +86,35 @@ def review_input(source: Path, *, now_utc: float | None = None) -> dict[str, Any
         quality_flags.append("IDENTICAL_REPORT_PAYLOADS")
 
     retention_review = old_files > 0 or future_files > 0
-    # Never combine expired, clock-anomalous, or repeated payloads into an
-    # apparently normal cohort summary. No files are modified by this hold.
-    aggregate = None if retention_review or duplicates else measure_report.summarize(reports)
+    # A declared outcome is not equivalent to an observed terminal/debrief.
+    # Dropped events and an unfinished idle span make timing and completion
+    # denominators incomplete. Count affected *sessions*, not flags, because
+    # one truncated report can have several independent quality failures.
+    incomplete_sessions = sum(
+        (
+            r["dropped_events"] > 0
+            or r["counts"]["session_completed" if r["outcome"] == "completed"
+                           else "session_left"] == 0
+            or (r["outcome"] == "completed" and r["counts"]["results_opened"] == 0)
+            or r["counts"]["idle_started"] > r["counts"]["idle_ended"]
+        )
+        for r in reports
+    )
+    if retention_review:
+        aggregate_gate = "HOLD_RETENTION_REVIEW"
+    elif duplicates:
+        aggregate_gate = "HOLD_DUPLICATE_REVIEW"
+    elif incomplete_sessions:
+        aggregate_gate = "HOLD_INCOMPLETE_OBSERVATIONS"
+    else:
+        aggregate_gate = "STRUCTURAL_AGGREGATE_AVAILABLE"
+    # Missing first repair alone can be legitimate for a resumed shift: keep
+    # a review flag, but do not invent a fresh repair or exclude the run.
+    # No structural gate implies human consent or study/release approval.
+    aggregate = (
+        measure_report.summarize(reports)
+        if aggregate_gate == "STRUCTURAL_AGGREGATE_AVAILABLE" else None
+    )
     return {
         "schema_version": 1,
         "scope": "local_C01_read_only_review",
@@ -111,7 +137,9 @@ def review_input(source: Path, *, now_utc: float | None = None) -> dict[str, Any
             "completions_without_observed_first_repair": repair_gaps,
             "sessions_with_open_idle_span": idle_open,
             "identical_report_payloads": duplicates,
+            "sessions_incomplete_observation": incomplete_sessions,
         },
+        "aggregate_gate": aggregate_gate,
         "aggregate": aggregate,
         "study_gate": "HUMAN_PLAYTEST_REVIEW_REQUIRED",
         "release_gate": "NOT_EVALUATED",
