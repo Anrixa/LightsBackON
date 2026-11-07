@@ -159,6 +159,9 @@ func _layout_for_size(viewport_size: Vector2) -> void:
 ## A checkpoint that cannot be read must not become a deceptively playable but
 ## unsaveable new shift. Keep its files untouched and expose the actual fault.
 func _apply_save_status(status: Dictionary) -> void:
+	# Capture focus before hiding/ disabling a button: Godot may release focus
+	# as soon as its state changes, making a later query too late to recover.
+	var prior_focus: Control = get_viewport().gui_get_focus_owner() if is_inside_tree() else null
 	_save_ready = bool(status.get("ok", false))
 	_save_available = _save_ready and bool(status.get("available", false))
 	continue_button.visible = _save_available
@@ -173,10 +176,9 @@ func _apply_save_status(status: Dictionary) -> void:
 	# must land on a real enabled option rather than a dead button.
 	if not is_inside_tree():
 		return
-	var focus_owner: Control = get_viewport().gui_get_focus_owner()
-	if focus_owner == start_button and start_button.disabled:
+	if prior_focus == start_button and start_button.disabled:
 		(continue_button if _save_available else quit_button).grab_focus()
-	elif focus_owner == continue_button and not continue_button.visible:
+	elif prior_focus == continue_button and not continue_button.visible:
 		(start_button if not start_button.disabled else quit_button).grab_focus()
 
 
