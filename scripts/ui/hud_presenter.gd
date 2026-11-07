@@ -55,14 +55,21 @@ static func crew_rows(state: Dictionary, ctx: Dictionary) -> Array[Dictionary]:
 	var repair_names: Dictionary = {}
 	for r: Dictionary in (ctx.get("repairs", {}) as Dictionary).get("repairs", []):
 		repair_names[r["id"]] = r["name_key"]
+	# A player may hold more than one valid repair lock. Dictionary insertion
+	# order is not task priority, so pick the lowest stable authored repair ID.
+	# Sort once for the whole crew; the HUD never changes which locks exist.
+	var repairs: Dictionary = (state.get("repairs", {}) as Dictionary).get("repairs", {})
+	var repair_ids: Array[String] = []
+	repair_ids.assign(repairs.keys())
+	repair_ids.sort()
 	var out: Array[Dictionary] = []
 	for p: String in players:
 		var row: Dictionary = {"player": p, "name": names.get(p, p), "local": p == local}
-		var repairs: Dictionary = (state.get("repairs", {}) as Dictionary).get("repairs", {})
-		for rid: String in repairs:
+		for rid: String in repair_ids:
 			if repairs[rid].get("lock_owner", "") == p:
 				row.merge({"task_group": "other", "task_state": "lock_owner",
 					"task_text": UiText.t(str(repair_names.get(rid, rid)))})
+				break
 		var kind: String = carried_kind(state, p, ctx.get("equipment", {}))
 		if kind != "" and not row.has("task_group"):
 			row.merge({"task_group": "equipment", "task_state": kind,
@@ -76,7 +83,10 @@ static func carried_kind(state: Dictionary, player: String, equipment_def: Dicti
 	for e: Dictionary in equipment_def.get("equipment", []):
 		kinds[e["id"]] = e["kind"]
 	var items: Dictionary = (state.get("equipment", {}) as Dictionary).get("items", {})
-	for iid: String in items:
+	var item_ids: Array[String] = []
+	item_ids.assign(items.keys())
+	item_ids.sort()
+	for iid: String in item_ids:
 		if items[iid].get("carrier", "") == player and player != "":
 			return str(kinds.get(iid, ""))
 	return ""
