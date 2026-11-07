@@ -8,7 +8,6 @@ No raw event rows, paths, timestamps, identities or content hashes leave the too
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import sys
 import time
@@ -62,9 +61,10 @@ def review_input(source: Path, *, now_utc: float | None = None) -> dict[str, Any
             future_files += 1
         elif stat.st_mtime < now - REVIEW_WINDOW_DAYS * SECONDS_PER_DAY:
             old_files += 1
-        # Detect byte-identical repeated exports. This is only a review flag:
-        # same gameplay can coincidentally yield the same event timeline.
-        digest = hashlib.sha256(path.read_bytes()).digest()
+        # Detect semantically identical exports from the bounded, validated
+        # JSON that was already read once. No second path read occurs.
+        # Identical gameplay timelines can still happen legitimately.
+        digest = report["_internal_fingerprint"]
         if digest in seen_hashes:
             duplicates += 1
         seen_hashes.add(digest)
