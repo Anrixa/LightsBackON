@@ -546,3 +546,61 @@ func test_QA137_tablet_focus_catalog_preserves_spatial_order() -> void:
 	(case["tablet"] as PanelContainer).show_data(valid, case["objectives"])
 	assert_eq((case["tablet"] as PanelContainer).get("_view"), valid)
 	_finish(case)
+
+## PERF21: authoritatively identical 10 Hz snapshots should not rebuild the
+## entire network map or invalidate its focus/pending inspection response.
+func test_PERF21_unchanged_host_snapshot_keeps_widget_identity_and_focus() -> void:
+	var case: Dictionary = _opened()
+	var tablet: PanelContainer = case["tablet"]
+	var original_map: Container = tablet.map
+	var original_detail: ScrollContainer = tablet.detail_scroll
+	for _i: int in 12:
+		tablet.show_data((case["snapshot"] as Dictionary).duplicate(true),
+			(case["objectives"] as Array).duplicate(true))
+		assert_eq(tablet.map, original_map,
+			"repeated equal host state must not churn the live network map")
+		assert_eq(tablet.detail_scroll, original_detail)
+	assert_eq((Engine.get_main_loop() as SceneTree).root.gui_get_focus_owner(), case["focus"])
+	assert_true((tablet.get("_pending_tablet_requests") as Dictionary).has(int(case["pending"]["seq"])))
+	_finish(case)
+
+
+func test_PERF21_changed_objective_renders_and_retains_pending_request() -> void:
+	var case: Dictionary = _opened()
+	var tablet: PanelContainer = case["tablet"]
+	var previous_map: Container = tablet.map
+	var changed: Array = (case["objectives"] as Array).duplicate(true)
+	changed[0]["status"] = "active" if changed[0]["status"] == "done" else "done"
+	tablet.show_data((case["snapshot"] as Dictionary).duplicate(true), changed)
+	assert_true(tablet.map != previous_map,
+		"a real host objective transition still rebuilds the visible tablet")
+	assert_eq(tablet.get("_objectives"), changed)
+	assert_true((tablet.get("_pending_tablet_requests") as Dictionary).has(int(case["pending"]["seq"])),
+		"visual updates cannot drop the host acknowledgment correlation")
+	_finish(case)
+
+
+func test_PERF21_pseudolocale_change_rejects_stale_text_then_repaints() -> void:
+	var case: Dictionary = _opened()
+	var tablet: PanelContainer = case["tablet"]
+	var previous_map: Container = tablet.map
+	UiText.set_locale(UiText.LOCALE_PSEUDO)
+	# Measured/unknown lines are already localized by the actual presenter.
+	# The old English-only payload is no longer valid under the new locale;
+	# never bypass the evidence validator just to force a visual rebuild.
+	tablet.show_data((case["snapshot"] as Dictionary).duplicate(true),
+		(case["objectives"] as Array).duplicate(true))
+	assert_eq(tablet.map, previous_map,
+		"stale differently localized evidence stays rejected without losing focus")
+	var refreshed: Dictionary = Fixture.mid_shift()
+	assert_eq(refreshed["errors"], [] as Array)
+	assert_eq(refreshed["failures"], [] as Array[String])
+	tablet.show_data(Fixture.tablet_view(refreshed), refreshed["mission"].objectives())
+	assert_true(tablet.map != previous_map,
+		"freshly localized presenter data rebuilds even with unchanged gameplay")
+	assert_eq(str(tablet.get("_rendered_locale")), UiText.LOCALE_PSEUDO)
+	UiText.set_locale(UiText.LOCALE_EN)
+	tablet.show_data((case["snapshot"] as Dictionary).duplicate(true),
+		(case["objectives"] as Array).duplicate(true))
+	assert_eq(str(tablet.get("_rendered_locale")), UiText.LOCALE_EN)
+	_finish(case)

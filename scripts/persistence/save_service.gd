@@ -14,6 +14,7 @@ extends RefCounted
 
 const PowerGrid := preload("res://scripts/simulation/power_grid.gd")
 
+const MAX_RECORD_BYTES: int = 2_097_152  # Read no more than 2 MiB from any untrusted local record.
 const TMP_SUFFIX: String = ".tmp"
 const BAK_SUFFIX: String = ".bak"
 const UNREADABLE_SUFFIX: String = ".unreadable-"
@@ -65,6 +66,9 @@ func write_record(path: String, kind: String, record_id: String, payload: Dictio
 		return _fail("NOT_CANONICAL", "save payload must hold only ints, bools, ASCII strings, arrays and objects")
 	envelope["checksum"] = body.sha256_text()
 	var text: String = PowerGrid.serialize(envelope)
+	# Reject a huge record before touching the current file or its backup.
+	if text.to_utf8_buffer().size() > MAX_RECORD_BYTES:
+		return _fail("RECORD_TOO_LARGE", "save exceeds the bounded local record size")
 	var issues: Array[String] = []
 	var dir: String = path.get_base_dir()
 	if DirAccess.make_dir_recursive_absolute(dir) != OK:
@@ -152,8 +156,19 @@ func inspect_files(path: String) -> Dictionary:
 func _inspect(path: String) -> Dictionary:
 	if not FileAccess.file_exists(path):
 		return {"status": "missing"}
+	# Read through one descriptor with a strict ceiling. get_file_as_string()
+	# loads arbitrarily large (possibly damaged) records before JSON parsing;
+	# a local save can be replaced or corrupted outside the game.
+	var stream: FileAccess = FileAccess.open(path, FileAccess.READ)
+	if stream == null:
+		return {"status": "corrupt"}
+	if stream.get_length() > MAX_RECORD_BYTES:
+		return {"status": "corrupt"}
+	var bytes: PackedByteArray = stream.get_buffer(MAX_RECORD_BYTES + 1)
+	if bytes.size() > MAX_RECORD_BYTES or stream.get_length() > MAX_RECORD_BYTES:
+		return {"status": "corrupt"}
 	var json: JSON = JSON.new()  # instance parse reports errors without engine log noise for expected corruption
-	if json.parse(FileAccess.get_file_as_string(path)) != OK:
+	if json.parse(bytes.get_string_from_utf8()) != OK:
 		return {"status": "corrupt"}
 	var parsed: Variant = json.data
 	if not parsed is Dictionary:
