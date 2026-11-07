@@ -223,3 +223,83 @@ func test_MEASURE20_complete_report_keeps_host_events_and_cleans_staging() -> vo
 	assert_eq((payload["events"] as Array).size(), 6)
 	assert_false(FileAccess.file_exists(str(result["path"]) + ".tmp"))
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(str(result["path"])))
+
+## MEASURE22: A detected idle threshold and subsequent movement can share one
+## 10 Hz host tick. The real recorder must not invent a nonzero duration.
+func test_MEASURE22_idle_start_and_end_same_tick_are_valid_zero_elapsed() -> void:
+	assert_true(meter.begin(true, POLICY))
+	var no_objectives: Array[Dictionary] = []
+	meter.observe_tick(30, no_objectives)
+	meter.mark_activity(30)
+	var events: Array = meter.snapshot()["events"]
+	assert_eq(events.size(), 3)
+	assert_eq(events[1]["kind"], "idle_started")
+	assert_eq(events[2]["kind"], "idle_ended")
+	assert_eq(int(events[2]["tick"]), 30)
+	assert_false((events[2] as Dictionary).has("value_ticks"))
+	meter.observe_tick(31, no_objectives)
+	assert_eq((meter.snapshot()["events"] as Array).size(), 3)
+
+
+func test_MEASURE22_same_tick_idle_export_is_analyzable_without_fake_ticks() -> void:
+	assert_true(meter.begin(true, POLICY))
+	var no_objectives: Array[Dictionary] = []
+	meter.observe_tick(30, no_objectives)
+	meter.mark_activity(30)
+	var saved: Dictionary = meter.finish_and_export(30, false, Measurements.TEST_REPORT_DIR)
+	assert_true(saved.get("ok", false))
+	if not bool(saved.get("ok", false)):
+		return
+	var payload: Variant = JSON.parse_string(FileAccess.get_file_as_string(str(saved["path"])))
+	assert_true(payload is Dictionary)
+	if payload is Dictionary:
+		var events: Array = payload["events"]
+		assert_eq((events[2] as Dictionary)["kind"], "idle_ended")
+		assert_false((events[2] as Dictionary).has("value_ticks"))
+		assert_eq((events[3] as Dictionary)["kind"], "session_left")
+		# Godot JSON parser represents numeric scalars as floats.
+		assert_eq(int(payload["last_tick"]), 30)
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(str(saved["path"])))
+
+
+## Host mission events carry campaign ticks that can predate this observation
+## session or be much larger after loading a checkpoint. Never use them to jump
+## the local playtest clock forward and discard subsequent observations.
+func test_MEASURE22_restored_campaign_tick_does_not_poison_local_observations() -> void:
+	var packed: PackedScene = load("res://scenes/mission/mission_root.tscn") as PackedScene
+	var root: Node = packed.instantiate()
+	var tree: SceneTree = Engine.get_main_loop() as SceneTree
+	tree.root.add_child(root)
+	var recorder: RefCounted = root.get("_measurements")
+	assert_true(recorder != null)
+	assert_true(recorder.call("begin", true, POLICY))
+	root.set("_measurement_tick", 4)
+	root.call("_on_mission_event", {"type": "trip", "tick": 1000000})
+	var rows: Array = recorder.call("snapshot")["events"]
+	assert_eq(rows.size(), 2)
+	assert_eq((rows[1] as Dictionary)["kind"], "protection_trip")
+	assert_eq((rows[1] as Dictionary)["tick"], 4)
+	var empty_objectives: Array[Dictionary] = []
+	recorder.call("observe_tick", 5, empty_objectives)
+	assert_true(recorder.call("note", "hint_requested", 5))
+	assert_eq((recorder.call("snapshot")["events"] as Array).size(), 3)
+	tree.root.remove_child(root)
+	root.free()
+
+
+func test_MEASURE22_malformed_campaign_tick_never_enters_exported_events() -> void:
+	var packed: PackedScene = load("res://scenes/mission/mission_root.tscn") as PackedScene
+	var root: Node = packed.instantiate()
+	var tree: SceneTree = Engine.get_main_loop() as SceneTree
+	tree.root.add_child(root)
+	var recorder: RefCounted = root.get("_measurements")
+	assert_true(recorder.call("begin", true, POLICY))
+	root.set("_measurement_tick", 7)
+	root.call("_on_mission_event", {"type": "verification_lost", "tick": "SECRET"})
+	var report: Dictionary = recorder.call("snapshot")
+	assert_eq((report["events"] as Array)[1]["kind"], "verification_lost")
+	assert_eq((report["events"] as Array)[1]["tick"], 7)
+	assert_false(JSON.stringify(report).contains("SECRET"))
+	tree.root.remove_child(root)
+	root.free()
+

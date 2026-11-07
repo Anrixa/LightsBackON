@@ -127,6 +127,40 @@ class MeasurementReportTests(unittest.TestCase):
         with self.assertRaisesRegex(measure_report.InvalidReport, "INVALID_JSON"):
             measure_report.read_report(path)
 
+    def test_MEASURE22_zero_duration_idle_span_round_trips_truthfully(self) -> None:
+        report = copy.deepcopy(self.sample)
+        report["events"][2]["tick"] = 30
+        report["events"][3] = {"kind": "idle_ended", "tick": 30}
+        result = measure_report.validate(report)
+        self.assertEqual(result["idle_total_ticks"], 0)
+        summary = measure_report.analyze_input(self.write(report))
+        self.assertEqual(summary["idle_total_ticks"], 0)
+        self.assertEqual(summary["event_counts"]["idle_ended"], 1)
+        self.assertNotIn("events", summary)
+
+    def test_MEASURE22_zero_duration_never_accepts_fabricated_value_ticks(self) -> None:
+        for bad_value in (0, 1, -1, 360001, True):
+            report = copy.deepcopy(self.sample)
+            report["events"][2]["tick"] = 30
+            report["events"][3] = {
+                "kind": "idle_ended", "tick": 30, "value_ticks": bad_value,
+            }
+            with self.subTest(value=bad_value), self.assertRaisesRegex(
+                measure_report.InvalidReport, "INVALID_IDLE_DURATION"
+            ):
+                measure_report.validate(report)
+
+    def test_MEASURE22_positive_idle_still_requires_matching_duration(self) -> None:
+        for value in (None, 0, 9, 11, True):
+            report = copy.deepcopy(self.sample)
+            report["events"][3] = {"kind": "idle_ended", "tick": 30}
+            if value is not None:
+                report["events"][3]["value_ticks"] = value
+            with self.subTest(value=value), self.assertRaisesRegex(
+                measure_report.InvalidReport, "INVALID_IDLE_DURATION"
+            ):
+                measure_report.validate(report)
+
     def test_MEASURE21_rejects_overflow_and_bad_final_state(self) -> None:
         report = copy.deepcopy(self.sample)
         report["events"] = report["events"][:2]

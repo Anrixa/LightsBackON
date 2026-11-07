@@ -489,8 +489,9 @@ func _physics_process(delta: float) -> void:
 	_time_accumulator += delta
 	while _time_accumulator >= HOST_TICK_SECONDS:
 		_time_accumulator -= HOST_TICK_SECONDS
-		session.tick_once()
+		# Advance the observation clock before the host can synchronously emit events.
 		_measurement_tick += 1
+		session.tick_once()
 		if _measurements.enabled():
 			_measurements.observe_tick(_measurement_tick, session.mission.objectives())
 		# Continuous drain, verification and departure ticks do not emit
@@ -717,7 +718,9 @@ func _show_feedback(message: String, important: bool = false, persistent: bool =
 func _on_mission_event(event: Dictionary) -> void:
 	var kind: String = str(event.get("type", ""))
 	if _measurements != null:
-		var event_tick: int = maxi(_measurement_tick, int(event.get("tick", _measurement_tick)))
+		# Host event ticks can be absolute campaign ticks restored from a checkpoint.
+		# Local playtest observations must stay on the current session's monotonic clock.
+		var event_tick: int = _measurement_tick
 		match kind:
 			"latch":
 				_measurements.note("drain_latched", event_tick)
@@ -906,10 +909,9 @@ func _finish() -> void:
 	player.set_controls_active(false)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_complete_panel.visible = true
+	# Completion from a restored checkpoint may use an older campaign epoch.
+	# Do not turn that persisted tick into a fabricated playtest duration.
 	var final_tick: int = _measurement_tick
-	if _measurement_tick > 0:
-		final_tick = maxi(final_tick,
-			int(session.mission.canonical_state().get("completed_tick", final_tick)))
 	_measurements.observe_tick(final_tick, session.mission.objectives())
 	_measurements.note("results_opened", final_tick)
 	_export_local_measurements(true)

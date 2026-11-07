@@ -106,11 +106,20 @@ def validate(data: Any) -> dict[str, Any]:
                 raise InvalidReport("OVERLAPPING_IDLE_SPANS")
             idle_start = tick
         if kind == "idle_ended":
-            if (idle_start is None or "value_ticks" not in event
-                    or not _integer(event["value_ticks"], 1, 360_000)
-                    or event["value_ticks"] != min(tick - idle_start, 360_000)):
+            if idle_start is None:
                 raise InvalidReport("INVALID_IDLE_DURATION")
-            idle_ticks += event["value_ticks"]
+            elapsed = min(tick - idle_start, 360_000)
+            # The game can detect inactivity and movement in one host tick.
+            # For an elapsed duration of zero, GDScript correctly omits the
+            # optional value_ticks field rather than serializing a false "0".
+            if elapsed == 0:
+                if "value_ticks" in event:
+                    raise InvalidReport("INVALID_IDLE_DURATION")
+            elif ("value_ticks" not in event
+                  or not _integer(event["value_ticks"], 1, 360_000)
+                  or event["value_ticks"] != elapsed):
+                raise InvalidReport("INVALID_IDLE_DURATION")
+            idle_ticks += elapsed
             idle_start = None
         elif "value_ticks" in event:
             raise InvalidReport("UNEXPECTED_VALUE")
