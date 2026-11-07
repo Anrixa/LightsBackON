@@ -1,4 +1,4 @@
-"""MEASURE28: cohort funnel counts are not evidence of human participation."""
+"""MEASURE29: cohort funnel counts are not evidence of human participation."""
 from __future__ import annotations
 
 import copy
@@ -33,7 +33,7 @@ class StudyDenominatorTests(unittest.TestCase):
                              encoding="utf-8")
         return self.path
 
-    def test_MEASURE28_empty_template_has_locked_targets_and_no_zero_division(self) -> None:
+    def test_MEASURE29_empty_template_has_locked_targets_and_no_zero_division(self) -> None:
         out = study.analyze(self.data)
         self.assertEqual(out["planned_pair_sessions"], 6)
         self.assertEqual(out["planned_solo_sessions"], 3)
@@ -43,7 +43,7 @@ class StudyDenominatorTests(unittest.TestCase):
         self.assertIsNone(out["cohorts"]["outside_pairs"]["completion_fraction"])
         self.assertIsNone(out["cohorts"]["solo"]["inclusion_fraction"])
 
-    def test_MEASURE28_full_declared_study_still_cannot_prove_human_playtest(self) -> None:
+    def test_MEASURE29_full_declared_study_still_cannot_prove_human_playtest(self) -> None:
         for name, sessions in (("outside_pairs", 6), ("solo", 3)):
             self.data["cohorts"][name] = {
                 stage: sessions for stage in study.STAGES
@@ -57,7 +57,7 @@ class StudyDenominatorTests(unittest.TestCase):
         self.assertEqual(result["bias_gate"], "HUMAN_RECRUITMENT_BIAS_REVIEW_REQUIRED")
         self.assertEqual(result["release_gate"], "NOT_EVALUATED")
 
-    def test_MEASURE28_partial_funnel_keeps_exact_denominators_and_attrition(self) -> None:
+    def test_MEASURE29_partial_funnel_keeps_exact_denominators_and_attrition(self) -> None:
         self.data["cohorts"]["outside_pairs"] = {
             "approached": 10, "eligible": 8, "consented": 7,
             "started": 6, "completed": 5, "included": 4
@@ -71,12 +71,12 @@ class StudyDenominatorTests(unittest.TestCase):
         self.assertEqual(output["declared_missing_target_sessions"], 5)
         self.assertEqual(output["declared_total_included_participant_seats"], 8)
 
-    def test_MEASURE28_disallows_impossible_later_stage_counts(self) -> None:
+    def test_MEASURE29_disallows_impossible_later_stage_counts(self) -> None:
         self.data["cohorts"]["solo"]["started"] = 1
         with self.assertRaisesRegex(study.InvalidCohort, "INCONSISTENT_FUNNEL"):
             study.analyze(self.data)
 
-    def test_MEASURE28_rejects_unknown_identifier_fields(self) -> None:
+    def test_MEASURE29_rejects_unknown_identifier_fields(self) -> None:
         for scope in ("root", "cohort", "funnel"):
             variant = copy.deepcopy(self.data)
             if scope == "root":
@@ -88,7 +88,7 @@ class StudyDenominatorTests(unittest.TestCase):
             with self.subTest(scope=scope), self.assertRaises(study.InvalidCohort):
                 study.analyze(variant)
 
-    def test_MEASURE28_disallows_negatives_bools_floats_and_huge_counts(self) -> None:
+    def test_MEASURE29_disallows_negatives_bools_floats_and_huge_counts(self) -> None:
         for value in (True, -1, 1.5, 10001, "3"):
             variant = copy.deepcopy(self.data)
             variant["cohorts"]["solo"]["approached"] = value
@@ -97,7 +97,7 @@ class StudyDenominatorTests(unittest.TestCase):
             ):
                 study.analyze(variant)
 
-    def test_MEASURE28_rejects_schema_and_contract_changes(self) -> None:
+    def test_MEASURE29_rejects_schema_and_contract_changes(self) -> None:
         for name, value in (("schema_version", 2), ("schema_version", True),
                             ("contract", "C02"), ("contract", 1)):
             variant = copy.deepcopy(self.data)
@@ -105,7 +105,7 @@ class StudyDenominatorTests(unittest.TestCase):
             with self.subTest(name=name, value=value), self.assertRaises(study.InvalidCohort):
                 study.analyze(variant)
 
-    def test_MEASURE28_readonly_input_preserves_bytes(self) -> None:
+    def test_MEASURE29_readonly_input_preserves_bytes(self) -> None:
         path = self.write()
         before = path.read_bytes()
         result = study.read_input(path)
@@ -113,7 +113,7 @@ class StudyDenominatorTests(unittest.TestCase):
         self.assertEqual(path.read_bytes(), before)
         self.assertNotIn(str(path), json.dumps(result))
 
-    def test_MEASURE28_symlink_and_directory_not_followed(self) -> None:
+    def test_MEASURE29_symlink_and_directory_not_followed(self) -> None:
         self.write()
         with self.assertRaisesRegex(study.InvalidCohort, "UNSAFE_INPUT"):
             study.read_input(self.path.parent)
@@ -125,7 +125,7 @@ class StudyDenominatorTests(unittest.TestCase):
         with self.assertRaisesRegex(study.InvalidCohort, "UNSAFE_INPUT"):
             study.read_input(alias)
 
-    def test_MEASURE28_size_limit_and_malformed_json(self) -> None:
+    def test_MEASURE29_size_limit_and_malformed_json(self) -> None:
         self.path.write_bytes(b" " * (study.MAX_BYTES + 1))
         with self.assertRaisesRegex(study.InvalidCohort, "INPUT_TOO_LARGE"):
             study.read_input(self.path)
@@ -133,7 +133,7 @@ class StudyDenominatorTests(unittest.TestCase):
         with self.assertRaisesRegex(study.InvalidCohort, "INVALID_JSON"):
             study.read_input(self.path)
 
-    def test_MEASURE28_rejects_duplicate_keys_and_nonfinite_numbers(self) -> None:
+    def test_MEASURE29_rejects_duplicate_keys_and_nonfinite_numbers(self) -> None:
         self.path.write_text('{"schema_version":1,"schema_version":1}', encoding="utf-8")
         with self.assertRaisesRegex(study.InvalidCohort, "DUPLICATE_JSON_KEY"):
             study.read_input(self.path)
@@ -141,7 +141,7 @@ class StudyDenominatorTests(unittest.TestCase):
         with self.assertRaisesRegex(study.InvalidCohort, "INVALID_JSON"):
             study.read_input(self.path)
 
-    def test_MEASURE28_cli_errors_are_redacted(self) -> None:
+    def test_MEASURE29_cli_errors_are_redacted(self) -> None:
         self.write({"unexpected_fixture": "DO_NOT_ECHO_THIS_MARKER"})
         program = str(Path(study.__file__).resolve())
         result = subprocess.run(
@@ -149,11 +149,11 @@ class StudyDenominatorTests(unittest.TestCase):
             capture_output=True, check=False
         )
         self.assertEqual(result.returncode, 2)
-        self.assertIn("MEASURE28_ERROR: INVALID_ROOT_FIELDS", result.stderr)
+        self.assertIn("MEASURE29_ERROR: INVALID_ROOT_FIELDS", result.stderr)
         self.assertNotIn("DO_NOT_ECHO_THIS_MARKER", result.stdout + result.stderr)
         self.assertNotIn(str(self.path), result.stdout + result.stderr)
 
-    def test_MEASURE28_cli_outputs_only_unverified_aggregate_fields(self) -> None:
+    def test_MEASURE29_cli_outputs_only_unverified_aggregate_fields(self) -> None:
         self.write()
         result = subprocess.run(
             [sys.executable, str(Path(study.__file__).resolve()), str(self.path)],

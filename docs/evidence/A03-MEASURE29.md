@@ -1,6 +1,6 @@
-# MEASURE28 — C01 external-study funnel and denominator integrity
+# MEASURE29 — C01 external-study funnel and denominator integrity
 
-- Branch: `task/MEASURE28-external-study-denominators`; source-implemented, exact-head CI pending.
+- Source PR branch: `task/MEASURE28-external-study-denominators` (historical name prior to phase-number collision); source-implemented, exact-head CI pending.
 - Dependencies: MEASURE24–27 merged; original A05 remains **NOT_STARTED**.
 - Runtime: Python stdlib only, read-only local input, no network or telemetry.
 - No game, save, Steam or human-study data is modified.
@@ -31,13 +31,13 @@ established by aggregate counts alone.
 ## Usage
 
 Start with the all-zero template
-`docs/study/MEASURE28-DECLARED-COUNTS-TEMPLATE.json`. For a genuine
+`docs/study/MEASURE29-DECLARED-COUNTS-TEMPLATE.json`. For a genuine
 future human study, prepare a separate aggregate-only local JSON after
 obtaining consent and appropriate review. No raw participant logs should
 be committed.
 
 ```sh
-python tools/measure_study_denominators.py docs/study/MEASURE28-DECLARED-COUNTS-TEMPLATE.json
+python tools/measure_study_denominators.py docs/study/MEASURE29-DECLARED-COUNTS-TEMPLATE.json
 python -m unittest discover -s tests/python -p 'test_*.py' -v
 bash tools/run_tests.sh
 ```
@@ -48,7 +48,7 @@ return only stable codes rather than local paths or input strings.
 
 ## Verification and pending gates
 
-13 new MEASURE28 Python regression tests cover empty and full declarations,
+13 new MEASURE29 Python regression tests cover empty and full declarations,
 stage attrition, pair-versus-person arithmetic, invalid stage ordering,
 identifying/unknown fields, out-of-range values, schema drift, read-only
 file behavior, symlinks, oversized/malformed JSON, duplicate keys,

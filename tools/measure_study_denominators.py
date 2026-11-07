@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""MEASURE28: validate aggregate C01 study denominators without personal data.
+"""MEASURE29: validate aggregate C01 study denominators without personal data.
 
 The input is a manually prepared, identity-free set of self-reported funnel
 counts. It is NOT proof of consent, recruitment bias, usability or playtests.
@@ -169,7 +169,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         result = read_input(args.input)
     except InvalidCohort as exc:
-        print("MEASURE28_ERROR: " + str(exc), file=sys.stderr)
+        print("MEASURE29_ERROR: " + str(exc), file=sys.stderr)
         return 2
     print(json.dumps(result, indent=2, sort_keys=True))
     return 0
