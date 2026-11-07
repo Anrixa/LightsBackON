@@ -303,3 +303,117 @@ func test_MEASURE22_malformed_campaign_tick_never_enters_exported_events() -> vo
 	tree.root.remove_child(root)
 	root.free()
 
+
+## MEASURE23: Previously completed checkpoints may display their legitimate
+## results, but must never count as newly completed local playtest sessions.
+func test_MEASURE23_exclusion_clears_ephemeral_session_start_and_prior_events() -> void:
+	assert_true(meter.begin(true, POLICY))
+	assert_true(meter.note("hint_requested", 3))
+	meter.exclude_precompleted_checkpoint()
+	var report: Dictionary = meter.snapshot()
+	assert_false(meter.enabled())
+	assert_false(report["opted_in"])
+	assert_eq((report["events"] as Array).size(), 0)
+	assert_eq(report["dropped_events"], 0)
+
+
+func test_MEASURE23_excluded_recorder_cannot_rearm_or_export() -> void:
+	assert_true(meter.begin(true, POLICY))
+	meter.exclude_precompleted_checkpoint()
+	meter.exclude_precompleted_checkpoint()
+	assert_false(meter.begin(true, POLICY), "precompleted capture must remain excluded")
+	assert_false(meter.note("session_completed", 1))
+	var exported: Dictionary = meter.finish_and_export(1, true, Measurements.TEST_REPORT_DIR)
+	assert_false(exported.get("ok", false))
+	assert_eq(exported["code"], "PRECOMPLETED_CHECKPOINT")
+	assert_eq((meter.snapshot()["events"] as Array).size(), 0)
+
+
+func test_MEASURE23_new_recorder_still_records_actual_completion() -> void:
+	assert_true(meter.begin(true, POLICY))
+	assert_true(meter.note("session_completed", 3))
+	var result: Dictionary = meter.finish_and_export(3, true, Measurements.TEST_REPORT_DIR)
+	assert_true(result.get("ok", false))
+	if not bool(result.get("ok", false)):
+		return
+	var report: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(str(result["path"])))
+	assert_eq(report["outcome"], "completed")
+	assert_eq((report["events"] as Array)[1]["kind"], "session_completed")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(str(result["path"])))
+
+
+func test_MEASURE23_fresh_recorder_is_not_poisoned_by_previous_exclusion() -> void:
+	assert_true(meter.begin(true, POLICY))
+	meter.exclude_precompleted_checkpoint()
+	var subsequent: RefCounted = Measurements.new()
+	assert_true(subsequent.call("begin", true, POLICY))
+	assert_true(subsequent.call("note", "first_repair", 2))
+	assert_eq((subsequent.call("snapshot")["events"] as Array).size(), 2)
+
+
+func test_MEASURE23_unfinished_restored_session_remains_measurable() -> void:
+	var packed: PackedScene = load("res://scenes/mission/mission_root.tscn") as PackedScene
+	var root: Node = packed.instantiate()
+	var tree: SceneTree = Engine.get_main_loop() as SceneTree
+	tree.root.add_child(root)
+	var recorder: RefCounted = root.get("_measurements")
+	assert_true(recorder.call("begin", true, POLICY))
+	var live: RefCounted = root.get("session")
+	assert_false(live.call("completed"))
+	# The helper is called only after a successful checkpoint restore has
+	# populated the view. Simulate that return without altering real save files.
+	root.set("_restored_view", {"tool_slot": 1})
+	root.call("_exclude_precompleted_measurements")
+	assert_true(recorder.call("enabled"))
+	assert_true(recorder.call("note", "first_repair", 5))
+	assert_eq((recorder.call("snapshot")["events"] as Array).size(), 2)
+	tree.root.remove_child(root)
+	root.free()
+
+
+func test_MEASURE23_completed_restored_state_shows_results_without_new_report() -> void:
+	var packed: PackedScene = load("res://scenes/mission/mission_root.tscn") as PackedScene
+	var root: Node = packed.instantiate()
+	var tree: SceneTree = Engine.get_main_loop() as SceneTree
+	tree.root.add_child(root)
+	var recorder: RefCounted = root.get("_measurements")
+	assert_true(recorder.call("begin", true, POLICY))
+	var live: RefCounted = root.get("session")
+	var director: RefCounted = live.get("mission")
+	var previous: Dictionary = director.call("durable_state")
+	previous["completed_tick"] = 420
+	previous["results"] = {"stars": 2, "required_total": 5, "required_restored": 5, "ticks": 420}
+	var errors: Array = director.call("restore_state", previous)
+	assert_eq(errors.size(), 0)
+	assert_true(live.call("completed"))
+	root.set("_restored_view", {"tool_slot": 1})
+	var report_folder: DirAccess = DirAccess.open(Measurements.LOCAL_REPORT_DIR)
+	var before: PackedStringArray = report_folder.get_files() if report_folder != null else PackedStringArray()
+	root.call("_exclude_precompleted_measurements")
+	root.call("_finish")
+	assert_false(recorder.call("enabled"))
+	assert_eq((recorder.call("snapshot")["events"] as Array).size(), 0)
+	assert_true((root.find_child("Results", true, false) as Control).visible)
+	assert_eq((root.find_child("ReturnToMenu", true, false) as Button), tree.root.gui_get_focus_owner())
+	var score: Label = root.find_child("Score", true, false) as Label
+	assert_true(score.text.contains("2"))
+	var after_folder: DirAccess = DirAccess.open(Measurements.LOCAL_REPORT_DIR)
+	var after: PackedStringArray = after_folder.get_files() if after_folder != null else PackedStringArray()
+	assert_eq(after, before, "replayed results must not write another consented study report")
+	tree.root.remove_child(root)
+	root.free()
+
+
+func test_MEASURE23_eligible_finished_shift_remains_study_eligible() -> void:
+	assert_true(meter.begin(true, POLICY))
+	meter.note_first_repair(4)
+	assert_true(meter.note("session_completed", 9))
+	assert_true(meter.note("results_opened", 9))
+	var result: Dictionary = meter.finish_and_export(9, true, Measurements.TEST_REPORT_DIR)
+	assert_true(result.get("ok", false))
+	if bool(result.get("ok", false)):
+		var record: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(str(result["path"])))
+		assert_eq(record["outcome"], "completed")
+		assert_eq((record["events"] as Array).size(), 4)
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(str(result["path"])))
+

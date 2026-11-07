@@ -108,6 +108,8 @@ func _ready() -> void:
 			_save_enabled = false
 			_save_issue = str(restored.get("code", "MISSING_CHECKPOINT"))
 	if not _restored_view.is_empty():
+		# A finished checkpoint is a historical results review, not a new run.
+		_exclude_precompleted_measurements()
 		_apply_restored_view(_restored_view)
 	session.set_tool(TOOL_LIST[_slot - 1])
 	_world_fx = RestorationPresentation.new()
@@ -137,6 +139,16 @@ func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	if session.completed():
 		_finish()
+
+
+## Only a successfully restored *finished* campaign is excluded. Fresh shifts
+## and unfinished resumes remain eligible for a genuinely new completion.
+## The host mission state, not a UI label or checkpoint filename, is authoritative.
+func _exclude_precompleted_measurements() -> void:
+	if _restored_view.is_empty() or session == null or _measurements == null:
+		return
+	if session.completed():
+		_measurements.exclude_precompleted_checkpoint()
 
 
 func _apply_restored_view(view: Dictionary) -> void:
