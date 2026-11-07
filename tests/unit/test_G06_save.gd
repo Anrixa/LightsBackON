@@ -237,3 +237,42 @@ func _rm_tree(path: String) -> void:
 	for sub: String in d.get_directories():
 		_rm_tree(path.path_join(sub))
 	DirAccess.remove_absolute(path)
+
+## SAVE21: local record intake must be bounded before JSON parsing and backup
+## recovery must remain visible and non-destructive for oversized files.
+func test_SAVE21_oversized_current_uses_backup_without_loading_whole_file() -> void:
+	_ok(_svc.write_record(_path, "checkpoint", "CP", {"v": 1}, NOW))
+	_ok(_svc.write_record(_path, "checkpoint", "CP", {"v": 2}, LATER))
+	var previous: PackedByteArray = FileAccess.get_file_as_bytes(_path + SaveService.BAK_SUFFIX)
+	var oversized: String = "x".repeat(SaveService.MAX_RECORD_BYTES + 1)
+	_write_raw(_path, oversized)
+	assert_eq(_svc.inspect_files(_path)["current"], "corrupt",
+		"damaged oversized current record is rejected before JSON parsing")
+	var read: Dictionary = _svc.read_record(_path)
+	assert_true(read.get("ok", false), str(read))
+	assert_eq(read["source"], "backup")
+	assert_eq(read["payload"], {"v": 1})
+	assert_eq(read["issues"], ["CURRENT_CORRUPT"] as Array[String])
+	assert_eq(FileAccess.get_file_as_bytes(_path + SaveService.BAK_SUFFIX), previous,
+		"read-only fallback never alters the valid backup")
+	assert_eq(FileAccess.get_file_as_string(_path).length(), oversized.length(),
+		"read-only fallback cannot replace the oversized original")
+
+
+func test_SAVE21_oversized_staged_write_refuses_without_touching_current() -> void:
+	_ok(_svc.write_record(_path, "checkpoint", "CP", {"v": 1}, NOW))
+	var original: PackedByteArray = FileAccess.get_file_as_bytes(_path)
+	var huge: Dictionary = {"message": "x".repeat(SaveService.MAX_RECORD_BYTES)}
+	var result: Dictionary = _svc.write_record(_path, "checkpoint", "CP", huge, LATER)
+	assert_eq(result.get("code", ""), "RECORD_TOO_LARGE")
+	assert_eq(FileAccess.get_file_as_bytes(_path), original,
+		"oversized outgoing record cannot erase the previous valid checkpoint")
+	assert_false(FileAccess.file_exists(_path + SaveService.TMP_SUFFIX))
+
+
+func test_SAVE21_oversized_only_copy_blocks_recapture() -> void:
+	assert_eq(DirAccess.make_dir_recursive_absolute(_path.get_base_dir()), OK)
+	_write_raw(_path, "{".repeat(SaveService.MAX_RECORD_BYTES + 1))
+	assert_eq(_svc.read_record(_path)["code"], "CORRUPT")
+	assert_eq(_svc.inspect_files(_path)["current"], "corrupt")
+	assert_false(FileAccess.file_exists(_path + SaveService.BAK_SUFFIX))
