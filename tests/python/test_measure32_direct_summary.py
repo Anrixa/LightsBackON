@@ -68,7 +68,7 @@ class DirectSummaryCompletenessTests(unittest.TestCase):
         self.assertEqual(result["first_repair_median_ticks"], 3)
         self.assertEqual(result["idle_total_ticks"], 2)
         self.assertEqual(result["release_gate"], "NOT_EVALUATED")
-        self.assertEqual(result["retention_duplicate_review"], "NOT_PERFORMED_USE_MEASURE_REVIEW")
+        self.assertEqual(result["retention_duplicate_review"], "NOT_ASSERTED_BY_SUMMARY")
 
     def test_MEASURE32_dropped_events_with_terminal_hold_direct_output(self) -> None:
         report = self.complete()
