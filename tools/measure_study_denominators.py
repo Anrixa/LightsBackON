@@ -86,14 +86,14 @@ def analyze(data: Any) -> dict[str, Any]:
             "planned": targets[kind],
             "declared_funnel": funnel,
             "declared_attrition": attrition,
-            "completion_fraction": {
-                "numerator": funnel["completed"],
-                "denominator": funnel["started"]
-            },
-            "inclusion_fraction": {
-                "numerator": funnel["included"],
-                "denominator": funnel["completed"]
-            },
+            "completion_fraction": (
+                {"numerator": funnel["completed"], "denominator": funnel["started"]}
+                if funnel["started"] else None
+            ),
+            "inclusion_fraction": (
+                {"numerator": funnel["included"], "denominator": funnel["completed"]}
+                if funnel["completed"] else None
+            ),
             "declared_included_shortfall": max(0, targets[kind] - funnel["included"]),
         }
         observed[kind] = observation
