@@ -5,6 +5,7 @@ extends "res://tests/test_case.gd"
 const UiText := preload("res://scripts/ui/ui_text.gd")
 const ThemeTokens := preload("res://scripts/ui/theme_tokens.gd")
 const MenuScene := preload("res://scenes/menu/main_menu.tscn")
+const UiFixture := preload("res://tests/support/ui_fixture.gd")
 
 var _scene: Node3D
 var _tree: SceneTree
@@ -148,4 +149,36 @@ func test_DS05_network_footer_keeps_close_in_focus_graph_after_reflow() -> void:
 	assert_true((tablet.get("close_button") as Button).is_visible_in_tree())
 	for b: Button in tablet.get("zoom_buttons"):
 		assert_false(b.visible, "hidden map actions cannot trap controller focus")
+	tablet.call("close")
+
+## UX23: after an intentional focus change, read-only evidence should stay
+## at its reading position when a controller stick sends sub-deadzone noise.
+func test_UX23_evidence_scroll_ignores_analog_drift_but_accepts_input() -> void:
+	_scene.call("_open_tablet")
+	var tablet: PanelContainer = _scene.get("tablet")
+	var scroll: ScrollContainer = tablet.get("detail_scroll")
+	var content: VBoxContainer = scroll.get_child(0) as VBoxContainer
+	var long_note: Label = Label.new()
+	long_note.text = "Power branch evidence - ".repeat(250)
+	long_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	content.add_child(long_note)
+	UiFixture.settle(tablet)
+	var bar: VScrollBar = scroll.get_v_scroll_bar()
+	assert_true(bar.max_value - bar.page > 200.0,
+		"fixture has scrollable evidence rather than an inert viewport")
+	scroll.scroll_vertical = 80
+	scroll.grab_focus()
+	assert_eq(_tree.root.gui_get_focus_owner(), scroll)
+	var before: int = scroll.scroll_vertical
+	Input.action_release("look_up")
+	Input.action_press("look_down", 0.05)
+	scroll.call("_process", 0.4)
+	assert_eq(scroll.scroll_vertical, before,
+		"5% stick drift must not advance the focused evidence panel")
+	Input.action_release("look_down")
+	Input.action_press("look_down", 0.8)
+	scroll.call("_process", 0.4)
+	assert_true(scroll.scroll_vertical > before,
+		"intentional controller scrolling remains available")
+	Input.action_release("look_down")
 	tablet.call("close")
