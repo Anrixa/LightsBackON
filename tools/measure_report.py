@@ -9,6 +9,8 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
+import stat
 import statistics
 import sys
 from collections import Counter
@@ -179,26 +181,55 @@ def validate(data: Any) -> dict[str, Any]:
     }
 
 
-def read_report(path: Path) -> dict[str, Any]:
-    """Bound work before parsing; avoid following files outside a selected folder."""
-    if path.is_symlink() or not path.is_file():
-        raise InvalidReport("UNSAFE_REPORT_FILE")
-    file_stat = path.stat()
-    if file_stat.st_size > MAX_FILE_BYTES:
-        raise InvalidReport("REPORT_TOO_LARGE")
+def _read_bounded_snapshot(path: Path) -> tuple[bytes, float]:
+    """Read from one regular-file descriptor, not a mutable path twice.
+
+    Reject a path replacement between lstat and open. On platforms with
+    O_NOFOLLOW, refuse symlink traversal in the open call too. Checking the
+    opened descriptor after reading detects concurrent in-place mutation.
+    """
     try:
-        data = json.loads(path.read_text(encoding="utf-8"),
+        expected = path.lstat()
+        if not stat.S_ISREG(expected.st_mode):
+            raise InvalidReport("UNSAFE_REPORT_FILE")
+        if expected.st_size > MAX_FILE_BYTES:
+            raise InvalidReport("REPORT_TOO_LARGE")
+        flags = os.O_RDONLY | getattr(os, "O_BINARY", 0) | getattr(os, "O_NOFOLLOW", 0)
+        with os.fdopen(os.open(path, flags), "rb") as stream:
+            opened = os.fstat(stream.fileno())
+            if (not stat.S_ISREG(opened.st_mode)
+                    or (opened.st_dev, opened.st_ino) !=
+                    (expected.st_dev, expected.st_ino)):
+                raise InvalidReport("UNSAFE_REPORT_FILE")
+            if opened.st_size > MAX_FILE_BYTES:
+                raise InvalidReport("REPORT_TOO_LARGE")
+            payload = stream.read(MAX_FILE_BYTES + 1)
+            after = os.fstat(stream.fileno())
+            if (opened.st_size != after.st_size
+                    or opened.st_mtime_ns != after.st_mtime_ns):
+                raise InvalidReport("REPORT_CHANGED_DURING_READ")
+        if len(payload) > MAX_FILE_BYTES:
+            raise InvalidReport("REPORT_TOO_LARGE")
+        return payload, opened.st_mtime
+    except OSError as exc:
+        raise InvalidReport("READ_FAILURE") from exc
+
+
+def read_report(path: Path) -> dict[str, Any]:
+    """Validate one bounded file snapshot with its matching review metadata."""
+    payload, modified_at = _read_bounded_snapshot(path)
+    try:
+        data = json.loads(payload.decode("utf-8"),
                           object_pairs_hook=_object_no_duplicates,
                           parse_constant=_bad_constant)
     except (UnicodeError, json.JSONDecodeError, RecursionError) as exc:
         raise InvalidReport("INVALID_JSON") from exc
     report = validate(data)
-    # The file is strictly size-bounded, schema-validated and allowlisted.
-    # Derive a transient canonical fingerprint from the same parsed input,
-    # without another filesystem read or following a path a second time.
+    # The in-memory fingerprint intentionally normalizes JSON formatting.
+    # Never include this or the descriptor mtime in published aggregates.
     canonical = json.dumps(data, sort_keys=True, separators=(",", ":"))
     report["_internal_fingerprint"] = hashlib.sha256(canonical.encode("utf-8")).digest()
-    report["_internal_file_mtime"] = file_stat.st_mtime
+    report["_internal_file_mtime"] = modified_at
     return report
 
 
