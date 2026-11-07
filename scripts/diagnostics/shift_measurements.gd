@@ -17,6 +17,9 @@ const KINDS: Array[String] = [
 
 var _enabled: bool = false
 var _closed: bool = false
+# A completed checkpoint was viewed, not completed during this playtest.
+# This recorder instance can never become eligible again after exclusion.
+var _precompleted_excluded: bool = false
 var _limit: int = 0
 var _idle_ticks: int = 0
 var _max_objectives: int = 0
@@ -32,6 +35,8 @@ var _idle_since_tick: int = -1
 ## No recording is possible until a valid policy AND explicit consent are supplied.
 ## Passing false deliberately keeps the same production code path without data.
 func begin(opted_in: bool, policy: Dictionary) -> bool:
+	if _precompleted_excluded:
+		return false
 	_enabled = false
 	_closed = false
 	_events.clear()
@@ -58,6 +63,25 @@ func begin(opted_in: bool, policy: Dictionary) -> bool:
 
 func enabled() -> bool:
 	return _enabled
+
+
+## Loading a previously completed checkpoint is a results review, not a new
+## completion. Clear the ephemeral start event and permanently disable this
+## recorder instance, including later accidental begin()/export calls.
+## A new shift creates a separate recorder and is unaffected.
+func exclude_precompleted_checkpoint() -> void:
+	if _closed:
+		return
+	_precompleted_excluded = true
+	_enabled = false
+	_closed = true
+	_events.clear()
+	_objective_states.clear()
+	_dropped = 0
+	_first_repair_observed = false
+	_last_activity_tick = 0
+	_idle_since_tick = -1
+	_last_tick = 0
 
 
 ## No caller-supplied strings, dictionary payloads, positions or IDs reach a report.
@@ -151,6 +175,8 @@ func note_disconnect(tick: int) -> void:
 ## Godot with --lbo-local-measure. No network calls or identities are involved.
 func finish_and_export(tick: int, completed: bool,
 		directory: String = LOCAL_REPORT_DIR) -> Dictionary:
+	if _precompleted_excluded:
+		return {"ok": false, "code": "PRECOMPLETED_CHECKPOINT"}
 	if not _enabled:
 		return {"ok": false, "code": "OPT_IN_REQUIRED"}
 	if _closed:
