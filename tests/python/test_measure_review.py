@@ -91,6 +91,17 @@ class MeasurementReviewTests(unittest.TestCase):
         self.assertIsNone(result["aggregate"])
         self.assertEqual(len(list(self.folder.iterdir())), 2)
 
+    def test_MEASURE24_equivalent_json_with_different_formatting_is_reviewed(self) -> None:
+        self.write(name="c01-compact.json")
+        formatted = self.folder / "c01-pretty.json"
+        formatted.write_text(json.dumps(self.sample, sort_keys=True, indent=4), encoding="utf-8")
+        os.utime(formatted, (self.NOW, self.NOW))
+        result = self.review()
+        self.assertEqual(result["quality"]["identical_report_payloads"], 1)
+        self.assertIsNone(result["aggregate"])
+        self.assertNotIn("_internal_fingerprint", json.dumps(result))
+        self.assertNotIn("c01-pretty", json.dumps(result))
+
     def test_MEASURE24_distinct_sessions_aggregate_without_personal_data(self) -> None:
         self.write(name="c01-completed.json")
         left = copy.deepcopy(self.sample)
