@@ -36,7 +36,7 @@ The 30-day threshold is a conservative review trigger, not a claim about
 applicable law or a binding retention rule.
 
 **Quality screening:** counts missing terminal/result/first-repair observations,
-nonfinalized idle spans, dropped-event sessions, and byte-identical report
+nonfinalized idle spans, dropped-event sessions, and canonically identical report
 payloads. Missing first repair can be normal for resumed runs; the tool flags
 it for review instead of inventing an event. Identical payloads may also occur
 naturally, but their reuse is reviewed before a cohort summary is issued.
@@ -44,7 +44,7 @@ naturally, but their reuse is reviewed before a cohort summary is issued.
 **Privacy:** only bounded nonidentifying counts, known flag names and the
 MEASURE21 aggregate can appear in JSON. No participant ID, session UUID,
 event trace, file path, precise mtime or digest is written into the output.
-Duplicate report content is hashed only in memory.
+The bounded, already-parsed JSON is canonicalized and fingerprinted only in memory; no second raw file read occurs.
 
 **Failure modes:** invalid consent, unknown keys, malformed JSON, symlink
 inputs, oversized files, empty/big selections or unsafe data halt analysis.
@@ -55,13 +55,13 @@ Quality concerns leave a structurally valid aggregate available but with
 
 ## Automated verification
 
-Fourteen MEASURE24 regression cases in
+Fifteen MEASURE24 regression cases in
 `tests/python/test_measure_review.py` cover:
 
 - Valid reports retaining explicit human-consent/release holds.
 - Read-only behavior and omission of paths and identities.
 - Expired data and future clock anomalies without deletion.
-- Duplicate file payloads preventing unreviewed aggregation.
+- Duplicate payloads, including different JSON formatting, preventing unreviewed aggregation.
 - Distinct completed and abandoned sessions.
 - Dropped events and terminal gaps.
 - Missing first repair/results and incomplete idle spans.
