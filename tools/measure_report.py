@@ -34,6 +34,8 @@ MAX_FILE_BYTES = 1_000_000
 MAX_REPORTS = 100
 MAX_EVENTS = 4096
 MAX_TICK = 86_400_000  # 100 days at 10 Hz: malformed timestamps are refused.
+# This is a V09-sized descriptive reporting floor, NOT statistical confidence.
+P95_MIN_COMPLETIONS = 10
 
 
 class InvalidReport(ValueError):
@@ -76,6 +78,7 @@ def validate(data: Any) -> dict[str, Any]:
 
     counts: Counter[str] = Counter()
     first_repair: int | None = None
+    completion_tick: int | None = None
     visible: dict[int, int] = {}
     completed: dict[int, int] = {}
     idle_ticks = 0
@@ -128,6 +131,8 @@ def validate(data: Any) -> dict[str, Any]:
             raise InvalidReport("UNEXPECTED_VALUE")
         if kind == "first_repair" and first_repair is None:
             first_repair = tick
+        if kind == "session_completed" and completion_tick is None:
+            completion_tick = tick
         counts[kind] += 1
         previous_tick = tick
 
@@ -176,6 +181,7 @@ def validate(data: Any) -> dict[str, Any]:
         "dropped_events": data["dropped_events"],
         "counts": counts,
         "first_repair_tick": first_repair,
+        "completion_observed_tick": completion_tick,
         "objective_elapsed_ticks": durations,
         "idle_total_ticks": idle_ticks,
     }
@@ -246,6 +252,34 @@ def summarize(reports: list[dict[str, Any]]) -> dict[str, Any]:
         if report["first_repair_tick"] is not None:
             repairs.append(report["first_repair_tick"])
     drops = sum(report["dropped_events"] for report in reports)
+    completion_times = sorted(
+        r["completion_observed_tick"] for r in reports
+        if r["outcome"] == "completed" and r["completion_observed_tick"] is not None
+    )
+    # The local recorder's observation clock excludes paused host time.
+    # An authoritative completion event occurs before the results screen;
+    # last_tick would overstate the duration if debrief presentation is slow.
+    # No tail metric is published for fewer than the V09 ten-run structural
+    # floor, or when any input has dropped or missing terminal/results events.
+    tail_complete = all(
+        r["dropped_events"] == 0 and
+        (r["outcome"] != "completed" or (
+            r["counts"]["session_completed"] == 1
+            and r["counts"]["results_opened"] == 1
+            and r["counts"]["idle_started"] == r["counts"]["idle_ended"]
+        ))
+        for r in reports
+    )
+    if not tail_complete:
+        tail_gate = "INCOMPLETE_OBSERVATIONS"
+    elif len(completion_times) < P95_MIN_COMPLETIONS:
+        tail_gate = "BELOW_TEN_OBSERVED_COMPLETIONS"
+    else:
+        tail_gate = "STRUCTURAL_P95_ONLY_REQUIRES_HUMAN_REVIEW"
+    nearest_rank_index = (
+        (95 * len(completion_times) + 99) // 100 - 1
+        if tail_gate == "STRUCTURAL_P95_ONLY_REQUIRES_HUMAN_REVIEW" else None
+    )
     return {
         "schema_version": 1,
         "scope": "consented_local_C01_only",
@@ -253,6 +287,17 @@ def summarize(reports: list[dict[str, Any]]) -> dict[str, Any]:
         "completed_sessions": sum(r["outcome"] == "completed" for r in reports),
         "left_sessions": sum(r["outcome"] == "left" for r in reports),
         "session_duration_median_ticks": statistics.median(r["last_tick"] for r in reports),
+        "completed_elapsed_sample_count": len(completion_times),
+        "completed_elapsed_median_ticks": (
+            statistics.median(completion_times) if completion_times else None
+        ),
+        "completed_elapsed_p95_ticks": (
+            completion_times[nearest_rank_index] if nearest_rank_index is not None
+            else None
+        ),
+        "completed_elapsed_p95_gate": tail_gate,
+        "completed_elapsed_timing_basis": "local_10Hz_host_ticks_pause_excluded",
+        "completed_elapsed_human_evidence": "NOT_VERIFIED",
         "first_repair_median_ticks": statistics.median(repairs) if repairs else None,
         "visible_to_completed_median_ticks": statistics.median(durations) if durations else None,
         "objective_pairs_observed": len(durations),
