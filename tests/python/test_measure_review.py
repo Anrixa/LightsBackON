@@ -159,13 +159,18 @@ class MeasurementReviewTests(unittest.TestCase):
         self.assertIn("IDLE_SPAN_OPEN_AT_EXIT", result["quality"]["flags"])
 
     def test_MEASURE24_nonconsent_or_identity_fields_are_rejected(self) -> None:
-        for update in ({"opted_in": False}, {"peer_id": "SECRET"},
-                       {"account_key": "VERY_PRIVATE"}):
+        # Reject simulated identifying keys in memory. Do not persist an
+        # identity-like test fixture in clear text on the test filesystem.
+        for update in ({"opted_in": False}, {"peer_id": "fixture"},
+                       {"account_key": "fixture"}):
             report = copy.deepcopy(self.sample)
             report.update(update)
-            path = self.write(report)
             with self.subTest(update=update), self.assertRaises(measure_report.InvalidReport):
-                self.review(path)
+                measure_report.validate(report)
+        # The filesystem path still refuses a non-consented local report.
+        path = self.write({**self.sample, "opted_in": False})
+        with self.assertRaises(measure_report.InvalidReport):
+            self.review(path)
 
     def test_MEASURE24_symlink_input_is_rejected_without_following(self) -> None:
         original = self.write()
@@ -188,9 +193,11 @@ class MeasurementReviewTests(unittest.TestCase):
             self.review()
 
     def test_MEASURE24_cli_error_does_not_expose_file_path_or_content(self) -> None:
-        secret = "DO_NOT_REVEAL_PERSONAL_PAYLOAD"
+        # A deliberately non-sensitive unexpected key proves error redaction
+        # without storing fabricated identifiers or secret-like strings.
+        marker = "UNEXPECTED_VALIDATION_MARKER"
         report = copy.deepcopy(self.sample)
-        report["steam_id"] = secret
+        report["unexpected_fixture_field"] = marker
         path = self.write(report)
         process = subprocess.run(
             [sys.executable, str(Path(measure_review.__file__).resolve()), str(path)],
@@ -198,7 +205,7 @@ class MeasurementReviewTests(unittest.TestCase):
         )
         self.assertEqual(process.returncode, 2)
         self.assertIn("MEASURE24_ERROR: INVALID_ROOT_KEYS", process.stderr)
-        self.assertNotIn(secret, process.stdout + process.stderr)
+        self.assertNotIn(marker, process.stdout + process.stderr)
         self.assertNotIn(str(path), process.stdout + process.stderr)
 
     def test_MEASURE24_cli_valid_result_has_no_source_paths(self) -> None:
