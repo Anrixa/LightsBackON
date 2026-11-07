@@ -257,7 +257,8 @@ func test_MEASURE22_same_tick_idle_export_is_analyzable_without_fake_ticks() -> 
 		assert_eq((events[2] as Dictionary)["kind"], "idle_ended")
 		assert_false((events[2] as Dictionary).has("value_ticks"))
 		assert_eq((events[3] as Dictionary)["kind"], "session_left")
-		assert_eq(payload["last_tick"], 30)
+		# Godot JSON parser represents numeric scalars as floats.
+		assert_eq(int(payload["last_tick"]), 30)
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(str(saved["path"])))
 
 
