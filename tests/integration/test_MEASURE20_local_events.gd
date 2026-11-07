@@ -421,8 +421,8 @@ func test_MEASURE23_eligible_finished_shift_remains_study_eligible() -> void:
 
 
 
-## MEASURE29: producer terminal ordering matches the offline report validator.
-func test_MEASURE29_repeated_completion_and_first_repair_cannot_duplicate() -> void:
+## MEASURE30: producer terminal ordering matches the offline report validator.
+func test_MEASURE30_repeated_completion_and_first_repair_cannot_duplicate() -> void:
 	assert_true(meter.begin(true, POLICY))
 	assert_true(meter.note("first_repair", 2))
 	assert_false(meter.note("first_repair", 3))
@@ -432,7 +432,7 @@ func test_MEASURE29_repeated_completion_and_first_repair_cannot_duplicate() -> v
 	assert_eq((meter.snapshot()["events"] as Array).size(), 3)
 
 
-func test_MEASURE29_results_need_prior_completion_and_are_final() -> void:
+func test_MEASURE30_results_need_prior_completion_and_are_final() -> void:
 	assert_true(meter.begin(true, POLICY))
 	assert_false(meter.note("results_opened", 1))
 	assert_true(meter.note("session_completed", 2))
@@ -442,7 +442,7 @@ func test_MEASURE29_results_need_prior_completion_and_are_final() -> void:
 	assert_eq((meter.snapshot()["events"] as Array).size(), 3)
 
 
-func test_MEASURE29_completion_allows_same_tick_objective_then_results() -> void:
+func test_MEASURE30_completion_allows_same_tick_objective_then_results() -> void:
 	assert_true(meter.begin(true, POLICY))
 	assert_true(meter.note("session_completed", 4))
 	assert_true(meter.note("objective_completed", 4, 0))
@@ -451,7 +451,7 @@ func test_MEASURE29_completion_allows_same_tick_objective_then_results() -> void
 	assert_eq((meter.snapshot()["events"] as Array).size(), 4)
 
 
-func test_MEASURE29_session_left_blocks_following_events() -> void:
+func test_MEASURE30_session_left_blocks_following_events() -> void:
 	assert_true(meter.begin(true, POLICY))
 	assert_true(meter.note("session_left", 2))
 	assert_false(meter.note("connection_lost", 3))
@@ -459,7 +459,7 @@ func test_MEASURE29_session_left_blocks_following_events() -> void:
 	assert_eq((meter.snapshot()["events"] as Array).size(), 2)
 
 
-func test_MEASURE29_clean_completion_requires_observed_terminal() -> void:
+func test_MEASURE30_clean_completion_requires_observed_terminal() -> void:
 	assert_true(meter.begin(true, POLICY))
 	var blocked: Dictionary = meter.finish_and_export(2, true, Measurements.TEST_REPORT_DIR)
 	assert_false(blocked.get("ok", false))
@@ -471,7 +471,7 @@ func test_MEASURE29_clean_completion_requires_observed_terminal() -> void:
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(str(result["path"])))
 
 
-func test_MEASURE29_completed_session_cannot_export_as_left() -> void:
+func test_MEASURE30_completed_session_cannot_export_as_left() -> void:
 	assert_true(meter.begin(true, POLICY))
 	assert_true(meter.note("session_completed", 3))
 	var result: Dictionary = meter.finish_and_export(3, false, Measurements.TEST_REPORT_DIR)
