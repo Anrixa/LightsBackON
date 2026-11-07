@@ -25,21 +25,6 @@ SECONDS_PER_DAY = 86_400
 FUTURE_CLOCK_TOLERANCE_SECONDS = SECONDS_PER_DAY
 
 
-def _report_paths(source: Path) -> list[Path]:
-    """Resolve a bounded, flat selection without following symlink inputs."""
-    if source.is_symlink():
-        raise measure_report.InvalidReport("UNSAFE_INPUT")
-    if source.is_file():
-        paths = [source]
-    elif source.is_dir():
-        paths = sorted(source.glob("c01-*.json"))
-    else:
-        raise measure_report.InvalidReport("INVALID_INPUT")
-    if not 1 <= len(paths) <= measure_report.MAX_REPORTS:
-        raise measure_report.InvalidReport("INVALID_REPORT_COUNT")
-    return paths
-
-
 def review_input(source: Path, *, now_utc: float | None = None) -> dict[str, Any]:
     """Audit report eligibility without updating or deleting selected files.
 
@@ -49,26 +34,24 @@ def review_input(source: Path, *, now_utc: float | None = None) -> dict[str, Any
     now = time.time() if now_utc is None else now_utc
     if not isinstance(now, (int, float)) or not 0 < now < 10_000_000_000:
         raise measure_report.InvalidReport("INVALID_REVIEW_CLOCK")
-    paths = _report_paths(source)
-    reports: list[dict[str, Any]] = []
+    # Reuse MEASURE21's established, bounded, non-symlink file selection.
+    # Its internal review mode returns validated counts and transient metadata,
+    # never raw events or file paths.
+    reports = measure_report.analyze_input(source, return_validated=True)
     old_files = future_files = duplicates = 0
     seen_hashes: set[bytes] = set()
-    for path in paths:
-        report = measure_report.read_report(path)
-        # Measure report guarantees bounds and a regular, non-symlink file.
-        stat = path.stat()
-        if stat.st_mtime > now + FUTURE_CLOCK_TOLERANCE_SECONDS:
+    for report in reports:
+        file_mtime = report["_internal_file_mtime"]
+        if file_mtime > now + FUTURE_CLOCK_TOLERANCE_SECONDS:
             future_files += 1
-        elif stat.st_mtime < now - REVIEW_WINDOW_DAYS * SECONDS_PER_DAY:
+        elif file_mtime < now - REVIEW_WINDOW_DAYS * SECONDS_PER_DAY:
             old_files += 1
-        # Detect semantically identical exports from the bounded, validated
-        # JSON that was already read once. No second path read occurs.
+        # Canonical fingerprint came from the same already-validated JSON.
         # Identical gameplay timelines can still happen legitimately.
         digest = report["_internal_fingerprint"]
         if digest in seen_hashes:
             duplicates += 1
         seen_hashes.add(digest)
-        reports.append(report)
 
     dropped_sessions = sum(r["dropped_events"] > 0 for r in reports)
     terminal_gaps = sum(
