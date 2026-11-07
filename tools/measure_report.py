@@ -7,6 +7,7 @@ included in the output. This tool does not establish a playtest or release gate.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import statistics
 import sys
@@ -162,7 +163,13 @@ def read_report(path: Path) -> dict[str, Any]:
                           parse_constant=_bad_constant)
     except (UnicodeError, json.JSONDecodeError, RecursionError) as exc:
         raise InvalidReport("INVALID_JSON") from exc
-    return validate(data)
+    report = validate(data)
+    # The file is strictly size-bounded, schema-validated and allowlisted.
+    # Derive a transient canonical fingerprint from the same parsed input,
+    # without another filesystem read or following a path a second time.
+    canonical = json.dumps(data, sort_keys=True, separators=(",", ":"))
+    report["_internal_fingerprint"] = hashlib.sha256(canonical.encode("utf-8")).digest()
+    return report
 
 
 def summarize(reports: list[dict[str, Any]]) -> dict[str, Any]:
