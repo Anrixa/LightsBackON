@@ -228,7 +228,8 @@ func test_MEASURE20_complete_report_keeps_host_events_and_cleans_staging() -> vo
 ## 10 Hz host tick. The real recorder must not invent a nonzero duration.
 func test_MEASURE22_idle_start_and_end_same_tick_are_valid_zero_elapsed() -> void:
 	assert_true(meter.begin(true, POLICY))
-	meter.observe_tick(30, [])
+	var no_objectives: Array[Dictionary] = []
+	meter.observe_tick(30, no_objectives)
 	meter.mark_activity(30)
 	var events: Array = meter.snapshot()["events"]
 	assert_eq(events.size(), 3)
@@ -236,13 +237,14 @@ func test_MEASURE22_idle_start_and_end_same_tick_are_valid_zero_elapsed() -> voi
 	assert_eq(events[2]["kind"], "idle_ended")
 	assert_eq(int(events[2]["tick"]), 30)
 	assert_false((events[2] as Dictionary).has("value_ticks"))
-	meter.observe_tick(31, [])
+	meter.observe_tick(31, no_objectives)
 	assert_eq((meter.snapshot()["events"] as Array).size(), 3)
 
 
 func test_MEASURE22_same_tick_idle_export_is_analyzable_without_fake_ticks() -> void:
 	assert_true(meter.begin(true, POLICY))
-	meter.observe_tick(30, [])
+	var no_objectives: Array[Dictionary] = []
+	meter.observe_tick(30, no_objectives)
 	meter.mark_activity(30)
 	var saved: Dictionary = meter.finish_and_export(30, false, Measurements.TEST_REPORT_DIR)
 	assert_true(saved.get("ok", false))
