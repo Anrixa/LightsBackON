@@ -256,19 +256,25 @@ def summarize(reports: list[dict[str, Any]]) -> dict[str, Any]:
         r["completion_observed_tick"] for r in reports
         if r["outcome"] == "completed" and r["completion_observed_tick"] is not None
     )
-    # The local recorder's observation clock excludes paused host time.
-    # An authoritative completion event occurs before the results screen;
-    # last_tick would overstate the duration if debrief presentation is slow.
-    # No tail metric is published for fewer than the V09 ten-run structural
-    # floor, or when any input has dropped or missing terminal/results events.
-    tail_complete = all(
-        r["dropped_events"] == 0
-        and r["counts"]["session_completed" if r["outcome"] == "completed"
-                        else "session_left"] == 1
-        and r["counts"]["idle_started"] == r["counts"]["idle_ended"]
-        and (r["outcome"] != "completed" or r["counts"]["results_opened"] == 1)
+    # MEASURE32: this public, independently runnable CLI must hold incomplete
+    # timing aggregates itself. MEASURE27 already applies this gate in the
+    # stricter consent/retention/duplicate reviewer, but directly invoking
+    # measure_report previously bypassed it and reported partial medians.
+    # Missing first repair alone is valid for an already-progressed checkpoint.
+    incomplete_sessions = sum(
+        r["dropped_events"] != 0
+        or r["counts"]["session_completed" if r["outcome"] == "completed"
+                        else "session_left"] != 1
+        or r["counts"]["idle_started"] != r["counts"]["idle_ended"]
+        or (r["outcome"] == "completed" and r["counts"]["results_opened"] != 1)
         for r in reports
     )
+    observation_complete = incomplete_sessions == 0
+    # The local recorder's observation clock excludes paused host time.
+    # An authoritative completion event occurs before the results screen;
+    # last_tick would overstate duration when debrief presentation is slow.
+    # P95 requires both the V09 ten-observation floor and complete reports.
+    tail_complete = observation_complete
     if not tail_complete:
         tail_gate = "INCOMPLETE_OBSERVATIONS"
     elif len(completion_times) < P95_MIN_COMPLETIONS:
@@ -285,10 +291,14 @@ def summarize(reports: list[dict[str, Any]]) -> dict[str, Any]:
         "sessions": len(reports),
         "completed_sessions": sum(r["outcome"] == "completed" for r in reports),
         "left_sessions": sum(r["outcome"] == "left" for r in reports),
-        "session_duration_median_ticks": statistics.median(r["last_tick"] for r in reports),
+        "session_duration_median_ticks": (
+            statistics.median(r["last_tick"] for r in reports)
+            if observation_complete else None
+        ),
         "completed_elapsed_sample_count": len(completion_times),
         "completed_elapsed_median_ticks": (
-            statistics.median(completion_times) if completion_times else None
+            statistics.median(completion_times)
+            if completion_times and observation_complete else None
         ),
         "completed_elapsed_p95_ticks": (
             completion_times[nearest_rank_index] if nearest_rank_index is not None
@@ -297,13 +307,30 @@ def summarize(reports: list[dict[str, Any]]) -> dict[str, Any]:
         "completed_elapsed_p95_gate": tail_gate,
         "completed_elapsed_timing_basis": "local_10Hz_host_ticks_pause_excluded",
         "completed_elapsed_human_evidence": "NOT_VERIFIED",
-        "first_repair_median_ticks": statistics.median(repairs) if repairs else None,
-        "visible_to_completed_median_ticks": statistics.median(durations) if durations else None,
+        "first_repair_median_ticks": (
+            statistics.median(repairs) if repairs and observation_complete else None
+        ),
+        "visible_to_completed_median_ticks": (
+            statistics.median(durations) if durations and observation_complete else None
+        ),
         "objective_pairs_observed": len(durations),
-        "idle_total_ticks": sum(r["idle_total_ticks"] for r in reports),
+        "idle_total_ticks": (
+            sum(r["idle_total_ticks"] for r in reports) if observation_complete else None
+        ),
         "event_counts": {kind: counts[kind] for kind in sorted(counts)},
         "dropped_events": drops,
+        "observed_completed_terminals": sum(
+            r["counts"]["session_completed"] for r in reports
+        ),
+        "observed_left_terminals": sum(r["counts"]["session_left"] for r in reports),
+        "sessions_with_incomplete_observations": incomplete_sessions,
+        "observation_gate": (
+            "STRUCTURAL_OBSERVATIONS_ONLY_REQUIRES_HUMAN_REVIEW"
+            if observation_complete else "HOLD_INCOMPLETE_OBSERVATIONS"
+        ),
         "data_completeness": "EVENTS_DROPPED" if drops else "RECORDED_EVENTS_ONLY",
+        "retention_duplicate_review": "NOT_ASSERTED_BY_SUMMARY",
+        "consent_and_playtest_proof": "NOT_VERIFIED",
         "review_gate": "HUMAN_PLAYTEST_REVIEW_REQUIRED",
         "release_gate": "NOT_EVALUATED",
     }
