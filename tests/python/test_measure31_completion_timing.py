@@ -1,4 +1,4 @@
-"""MEASURE30: truthful C01 terminal timestamps and bounded tail descriptives."""
+"""MEASURE31: truthful C01 terminal timestamps and bounded tail descriptives."""
 from __future__ import annotations
 
 import copy
@@ -41,7 +41,7 @@ class CompletionTimingTests(unittest.TestCase):
             ],
         })
 
-    def test_MEASURE30_real_completion_tick_precedes_debrief(self) -> None:
+    def test_MEASURE31_real_completion_tick_precedes_debrief(self) -> None:
         item = self.completed(10, 900)
         self.assertEqual(item["completion_observed_tick"], 10)
         summary = measure_report.summarize([item])
@@ -49,14 +49,14 @@ class CompletionTimingTests(unittest.TestCase):
         self.assertEqual(summary["session_duration_median_ticks"], 900)
         self.assertEqual(summary["completed_elapsed_sample_count"], 1)
 
-    def test_MEASURE30_zero_completion_for_left_is_missing_not_fabricated(self) -> None:
+    def test_MEASURE31_zero_completion_for_left_is_missing_not_fabricated(self) -> None:
         data = self.left(400)
         self.assertIsNone(data["completion_observed_tick"])
         summary = measure_report.summarize([data])
         self.assertIsNone(summary["completed_elapsed_median_ticks"])
         self.assertEqual(summary["completed_elapsed_sample_count"], 0)
 
-    def test_MEASURE30_p95_requires_ten_observed_completions(self) -> None:
+    def test_MEASURE31_p95_requires_ten_observed_completions(self) -> None:
         summaries = [self.completed(10 + i) for i in range(9)]
         result = measure_report.summarize(summaries)
         self.assertEqual(result["completed_elapsed_p95_gate"], "BELOW_TEN_OBSERVED_COMPLETIONS")
@@ -70,19 +70,19 @@ class CompletionTimingTests(unittest.TestCase):
         )
         self.assertEqual(full["completed_elapsed_median_ticks"], 14.5)
 
-    def test_MEASURE30_p95_uses_nearest_rank_not_interpolation(self) -> None:
+    def test_MEASURE31_p95_uses_nearest_rank_not_interpolation(self) -> None:
         values = [100 + i * 10 for i in range(20)]
         report = measure_report.summarize([self.completed(n) for n in values])
         self.assertEqual(report["completed_elapsed_p95_ticks"], values[18])
 
-    def test_MEASURE30_left_sessions_do_not_shortcut_ten_completion_floor(self) -> None:
+    def test_MEASURE31_left_sessions_do_not_shortcut_ten_completion_floor(self) -> None:
         data = [self.completed(20 + i) for i in range(9)] + [self.left(30)]
         report = measure_report.summarize(data)
         self.assertEqual(report["sessions"], 10)
         self.assertEqual(report["completed_elapsed_sample_count"], 9)
         self.assertIsNone(report["completed_elapsed_p95_ticks"])
 
-    def test_MEASURE30_ten_completed_plus_left_maintains_right_sample(self) -> None:
+    def test_MEASURE31_ten_completed_plus_left_maintains_right_sample(self) -> None:
         data = [self.completed(20 + i) for i in range(10)] + [self.left(900)]
         report = measure_report.summarize(data)
         self.assertEqual(report["completed_elapsed_p95_ticks"], 29)
@@ -90,14 +90,14 @@ class CompletionTimingTests(unittest.TestCase):
         self.assertEqual(report["completed_sessions"], 10)
         self.assertEqual(report["left_sessions"], 1)
 
-    def test_MEASURE30_dropped_events_disable_tail_even_with_terminal(self) -> None:
+    def test_MEASURE31_dropped_events_disable_tail_even_with_terminal(self) -> None:
         data = [self.completed(10 + i) for i in range(9)]
         data.append(self.completed(20, dropped=1))
         report = measure_report.summarize(data)
         self.assertEqual(report["completed_elapsed_p95_gate"], "INCOMPLETE_OBSERVATIONS")
         self.assertIsNone(report["completed_elapsed_p95_ticks"])
 
-    def test_MEASURE30_no_debrief_disables_tail(self) -> None:
+    def test_MEASURE31_no_debrief_disables_tail(self) -> None:
         data = [self.completed(20 + i) for i in range(9)]
         data.append(self.completed(40, with_results=False))
         summary = measure_report.summarize(data)
@@ -105,13 +105,13 @@ class CompletionTimingTests(unittest.TestCase):
         self.assertIsNone(summary["completed_elapsed_p95_ticks"])
         self.assertEqual(summary["completed_elapsed_p95_gate"], "INCOMPLETE_OBSERVATIONS")
 
-    def test_MEASURE30_open_idle_disables_tail(self) -> None:
+    def test_MEASURE31_open_idle_disables_tail(self) -> None:
         data = [self.completed(30 + i) for i in range(9)]
         data.append(self.completed(50, open_idle=True))
         report = measure_report.summarize(data)
         self.assertEqual(report["completed_elapsed_p95_gate"], "INCOMPLETE_OBSERVATIONS")
 
-    def test_MEASURE30_missing_repair_from_resume_does_not_fake_timestamp(self) -> None:
+    def test_MEASURE31_missing_repair_from_resume_does_not_fake_timestamp(self) -> None:
         data = [self.completed(10 + i) for i in range(9)]
         data.append(self.completed(20, with_repair=False))
         result = measure_report.summarize(data)
@@ -119,7 +119,7 @@ class CompletionTimingTests(unittest.TestCase):
         self.assertEqual(result["completed_elapsed_p95_ticks"], 20)
         self.assertEqual(result["event_counts"]["first_repair"], 9)
 
-    def test_MEASURE30_no_report_schema_or_identity_changes(self) -> None:
+    def test_MEASURE31_no_report_schema_or_identity_changes(self) -> None:
         raw = {
             "schema_version": 1, "contract": "C01", "tick_rate_hz": 10,
             "opted_in": True, "outcome": "completed", "dropped_events": 0,
@@ -140,7 +140,7 @@ class CompletionTimingTests(unittest.TestCase):
                          "local_10Hz_host_ticks_pause_excluded")
         self.assertEqual(result["completed_elapsed_human_evidence"], "NOT_VERIFIED")
 
-    def test_MEASURE30_missing_terminal_when_dropped_does_not_count_as_observed(self) -> None:
+    def test_MEASURE31_missing_terminal_when_dropped_does_not_count_as_observed(self) -> None:
         raw = {
             "schema_version": 1, "contract": "C01", "tick_rate_hz": 10,
             "opted_in": True, "outcome": "completed", "dropped_events": 2,

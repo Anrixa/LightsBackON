@@ -1,6 +1,6 @@
-# MEASURE30 — observed completion-clock truth and sample-gated P95
+# MEASURE31 — observed completion-clock truth and sample-gated P95
 
-- Branch: `task/MEASURE30-observed-completion-timing`.
+- Source branch: `task/MEASURE30-observed-completion-timing` (historical name; renamed phase after parallel MEASURE30 integration).
 - Status: implementation staged; exact-head Linux/Windows CI and CodeQL pending.
 - Dependencies: MEASURE25 terminal integrity; MEASURE27 review holds; V09 A05 evidence.
 - Scope: offline C01 report validator and aggregate timing calculations only.
@@ -13,7 +13,7 @@ screen can open after the host signaled `session_completed`. Therefore that
 single metric cannot honestly represent *time to mission completion* or a
 completed-run distribution.
 
-The MEASURE30 validator now records `completion_observed_tick` from the
+The MEASURE31 validator now records `completion_observed_tick` from the
 validated, ordered, authoritative `session_completed` event. It is
 `null` for opt-in logs with missing completion terminal (only possible when
 events were dropped), and it does not invent one from a declared outcome.
