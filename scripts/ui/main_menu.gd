@@ -9,6 +9,7 @@ const OfflinePersistence := preload("res://scripts/persistence/offline_persisten
 const MISSION_PATH: String = "res://scenes/mission/mission_root.tscn"
 var start_button: Button
 var continue_button: Button
+var quit_button: Button
 var _store: OfflinePersistence
 var _save_available: bool = false
 var _save_ready: bool = false
@@ -119,7 +120,7 @@ func _ready() -> void:
 	confirmation.dialog_text = UiText.t("offline.menu.replace_warning")
 	confirmation.confirmed.connect(func() -> void: _launch(false, true))
 	add_child(confirmation)
-	var quit_button: Button = Button.new()
+	quit_button = Button.new()
 	quit_button.name = "QuitButton"
 	quit_button.text = UiText.t("offline.menu.quit")
 	quit_button.custom_minimum_size.y = 48.0
@@ -167,6 +168,16 @@ func _apply_save_status(status: Dictionary) -> void:
 		else UiText.t("offline.menu.no_progress"))
 	_save_message.add_theme_color_override("font_color", ThemeTokens.color(_tokens,
 		"fault" if not _save_ready else "text_muted"))
+	# A checkpoint may become corrupt/newer after this menu was opened. If
+	# the focused action disappears or becomes disabled, controller navigation
+	# must land on a real enabled option rather than a dead button.
+	if not is_inside_tree():
+		return
+	var focus_owner: Control = get_viewport().gui_get_focus_owner()
+	if focus_owner == start_button and start_button.disabled:
+		(continue_button if _save_available else quit_button).grab_focus()
+	elif focus_owner == continue_button and not continue_button.visible:
+		(start_button if not start_button.disabled else quit_button).grab_focus()
 
 
 func _request_new_shift() -> void:
