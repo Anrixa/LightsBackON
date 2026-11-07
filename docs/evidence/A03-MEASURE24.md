@@ -94,3 +94,16 @@ Next work should concentrate on gameplay/UX or actual V09 ten-run evidence,
 not treating aggregate quality flags as proof of playability.
 F02/F06 still require two real licensed machines and networks; V09 and A03/A05
 milestone acceptance remains pending.
+
+## Security finding resolution
+
+The first CI run at `e33fb342ad30d52d90ac1e26747f6485d5d6d662`
+passed Linux and Windows headless export checks but CodeQL reported a
+high-severity **clear-text storage of sensitive information** finding at
+`tests/python/test_measure_review.py` line 38. The generic fixture writer
+was being fed simulated `steam_id`, `peer_id`, and `account_key` test
+values in negative cases. The fixture tests now exercise identifier-key
+rejection in memory only; the CLI redaction test writes a non-sensitive,
+unknown-key marker instead. This preserves the negative assertions without
+writing fake personal data to disk. Security approval is pending new exact-head
+CodeQL and both-OS CI. No alert was dismissed.
