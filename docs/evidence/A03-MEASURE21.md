@@ -37,17 +37,18 @@ Local isolated source verification:
 
 ```text
 python -m unittest discover -s tests/python -p 'test_*.py' -v
-Ran 7 tests in 0.600s
+Ran 8 tests in 0.615s
 OK
 ```
 
-The seven MEASURE21 regressions cover summaries, identity refusal, invalid
+The eight MEASURE21 regressions cover summaries, identity refusal, invalid
 event order/payloads, duplicate keys/invalid UTF-8, multiple-session aggregation,
-CLI redaction on error, and event overflow/finalization.
+CLI redaction on error, event overflow/finalization, forged idle spans, and deep JSON refusal.
 
-**GitHub exact-head Linux/Windows CI, Windows release export/smoke, and QA51
-resource checks must be inspected before merging.** Do not mark them passed
-based on the isolated test above.
+**GitHub exact-head Linux/Windows CI and Windows release export/smoke
+must be inspected before merging.** QA51 isolates are unchanged and the
+resource-probe workflow does not trigger on this Python-only change.
+Do not mark CI passed based on the isolated test above.
 
 ## Not verified
 
