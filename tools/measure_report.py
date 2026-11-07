@@ -137,6 +137,34 @@ def validate(data: Any) -> dict[str, Any]:
     if counts["session_left"] and data["outcome"] != "left":
         raise InvalidReport("CONFLICTING_OUTCOME")
 
+    # MEASURE25: a terminal outcome is not a repeatable counter. A file with
+    # dropped events may legitimately lack its terminal, but two observed
+    # terminals, or a debrief before completion, cannot be trusted as a run.
+    # The game refreshes objectives *after* the completion event and before
+    # opening results, so do not disallow those same-tick objective updates.
+    if counts["session_completed"] + counts["session_left"] > 1:
+        raise InvalidReport("REPEATED_TERMINAL_EVENT")
+    if counts["first_repair"] > 1:
+        raise InvalidReport("REPEATED_FIRST_REPAIR")
+    if counts["results_opened"] > 1:
+        raise InvalidReport("REPEATED_RESULTS_OPEN")
+    results_position = next(
+        (index for index, event in enumerate(rows)
+         if event["kind"] == "results_opened"), None
+    )
+    if results_position is not None:
+        completion_position = next(
+            (index for index, event in enumerate(rows)
+             if event["kind"] == "session_completed"), None
+        )
+        if (data["outcome"] != "completed" or completion_position is None
+                or results_position <= completion_position):
+            raise InvalidReport("RESULTS_WITHOUT_PRIOR_COMPLETION")
+        if results_position != len(rows) - 1:
+            raise InvalidReport("EVENT_AFTER_RESULTS")
+    if counts["session_left"] and rows[-1]["kind"] != "session_left":
+        raise InvalidReport("EVENT_AFTER_SESSION_LEFT")
+
     durations = [completed[ordinal] - tick for ordinal, tick in visible.items()
                  if ordinal in completed and completed[ordinal] >= tick]
     return {
