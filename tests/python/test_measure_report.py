@@ -113,6 +113,20 @@ class MeasurementReportTests(unittest.TestCase):
         self.assertNotIn("VERY_SENSITIVE_STRING", result.stderr + result.stdout)
         self.assertNotIn(str(path), result.stderr + result.stdout)
 
+    def test_MEASURE21_refuses_forged_idle_durations_and_unbounded_nesting(self) -> None:
+        report = copy.deepcopy(self.sample)
+        report["events"][3]["value_ticks"] = 11
+        with self.assertRaisesRegex(measure_report.InvalidReport, "INVALID_IDLE_DURATION"):
+            measure_report.validate(report)
+        report["events"][3]["value_ticks"] = 10
+        report["events"].insert(3, {"kind": "idle_started", "tick": 25})
+        with self.assertRaisesRegex(measure_report.InvalidReport, "OVERLAPPING_IDLE_SPANS"):
+            measure_report.validate(report)
+        path = self.folder / "c01-nested.json"
+        path.write_text("[" * 10000 + "0" + "]" * 10000, encoding="utf-8")
+        with self.assertRaisesRegex(measure_report.InvalidReport, "INVALID_JSON"):
+            measure_report.read_report(path)
+
     def test_MEASURE21_rejects_overflow_and_bad_final_state(self) -> None:
         report = copy.deepcopy(self.sample)
         report["events"] = report["events"][:2]
