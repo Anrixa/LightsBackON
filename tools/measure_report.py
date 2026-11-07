@@ -329,7 +329,7 @@ def summarize(reports: list[dict[str, Any]]) -> dict[str, Any]:
             if observation_complete else "HOLD_INCOMPLETE_OBSERVATIONS"
         ),
         "data_completeness": "EVENTS_DROPPED" if drops else "RECORDED_EVENTS_ONLY",
-        "retention_duplicate_review": "NOT_PERFORMED_USE_MEASURE_REVIEW",
+        "retention_duplicate_review": "NOT_ASSERTED_BY_SUMMARY",
         "consent_and_playtest_proof": "NOT_VERIFIED",
         "review_gate": "HUMAN_PLAYTEST_REVIEW_REQUIRED",
         "release_gate": "NOT_EVALUATED",
