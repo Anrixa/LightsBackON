@@ -76,6 +76,7 @@ def validate(data: Any) -> dict[str, Any]:
     visible: dict[int, int] = {}
     completed: dict[int, int] = {}
     idle_ticks = 0
+    idle_start: int | None = None
     previous_tick = 0
     for index, event in enumerate(rows):
         if not isinstance(event, dict) or not {"kind", "tick"} <= event.keys() \
@@ -100,10 +101,17 @@ def validate(data: Any) -> dict[str, Any]:
                 completed.setdefault(objective, tick)
         elif "objective_index" in event:
             raise InvalidReport("UNEXPECTED_OBJECTIVE_INDEX")
+        if kind == "idle_started":
+            if idle_start is not None:
+                raise InvalidReport("OVERLAPPING_IDLE_SPANS")
+            idle_start = tick
         if kind == "idle_ended":
-            if "value_ticks" not in event or not _integer(event["value_ticks"], 1, 360_000):
+            if (idle_start is None or "value_ticks" not in event
+                    or not _integer(event["value_ticks"], 1, 360_000)
+                    or event["value_ticks"] != min(tick - idle_start, 360_000)):
                 raise InvalidReport("INVALID_IDLE_DURATION")
             idle_ticks += event["value_ticks"]
+            idle_start = None
         elif "value_ticks" in event:
             raise InvalidReport("UNEXPECTED_VALUE")
         if kind == "first_repair" and first_repair is None:
@@ -143,7 +151,7 @@ def read_report(path: Path) -> dict[str, Any]:
         data = json.loads(path.read_text(encoding="utf-8"),
                           object_pairs_hook=_object_no_duplicates,
                           parse_constant=_bad_constant)
-    except (UnicodeError, json.JSONDecodeError) as exc:
+    except (UnicodeError, json.JSONDecodeError, RecursionError) as exc:
         raise InvalidReport("INVALID_JSON") from exc
     return validate(data)
 
