@@ -12,6 +12,7 @@ var hint: Label
 var hint_button: Button
 var _tokens: Dictionary = {}
 var _idle_seconds: float = 0.0
+var _hints_enabled: bool = true
 var _device: String = UiText.DEVICE_KBM
 
 
@@ -50,10 +51,15 @@ func sync_from_world(measured: bool, isolated: bool, restored: bool, resumed: bo
 
 
 func set_hints_enabled(enabled: bool) -> void:
+	# Disabled guidance must not silently accrue idle time. Reset only when
+	# the preference changes: unrelated UI-scale/viewport refreshes must not
+	# erase a manually requested hint.
+	if _hints_enabled != enabled:
+		_idle_seconds = 0.0
+		hint.text = ""
+	_hints_enabled = enabled
 	guide.call("set_hints_enabled", enabled)
 	hint_button.disabled = not enabled
-	if not enabled:
-		hint.text = ""
 
 
 ## The visible button also advertises the remappable H / D-pad hint action.
@@ -71,6 +77,8 @@ func set_ui_scale(percent: int) -> void:
 
 
 func advance_idle(delta: float) -> void:
+	if not _hints_enabled:
+		return
 	_idle_seconds += maxf(delta, 0.0)
 	if hint.text == "":
 		var key: String = str(guide.call("idle_hint_key", _idle_seconds))
