@@ -89,6 +89,19 @@ def review_input(source: Path, *, now_utc: float | None = None) -> dict[str, Any
     # Never combine expired, clock-anomalous, or repeated payloads into an
     # apparently normal cohort summary. No files are modified by this hold.
     aggregate = None if retention_review or duplicates else measure_report.summarize(reports)
+    # MEASURE27: a diagnostic aggregate is not a research-ready cohort.
+    # Keep existing aggregate compatibility, but expose an independent
+    # fail-closed decision with bounded, non-identifying reason codes.
+    cohort_reasons: list[str] = []
+    if retention_review:
+        cohort_reasons.append("RETENTION_REVIEW_REQUIRED")
+    cohort_reasons.extend(quality_flags)
+    if retention_review or duplicates:
+        cohort_gate = "INPUT_INTEGRITY_HOLD"
+    elif quality_flags:
+        cohort_gate = "DATA_QUALITY_HOLD"
+    else:
+        cohort_gate = "STRUCTURAL_REVIEW_ONLY"
     return {
         "schema_version": 1,
         "scope": "local_C01_read_only_review",
@@ -113,6 +126,12 @@ def review_input(source: Path, *, now_utc: float | None = None) -> dict[str, Any
             "identical_report_payloads": duplicates,
         },
         "aggregate": aggregate,
+        "cohort_evidence": {
+            "gate": cohort_gate,
+            "reasons": cohort_reasons,
+            "human_study_approval": "REQUIRED",
+            "aggregate_is_diagnostic_only": True,
+        },
         "study_gate": "HUMAN_PLAYTEST_REVIEW_REQUIRED",
         "release_gate": "NOT_EVALUATED",
         "automatic_deletion": False,
