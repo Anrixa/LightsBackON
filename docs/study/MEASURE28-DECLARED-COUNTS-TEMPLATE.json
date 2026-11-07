@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "contract": "C01",
+  "cohorts": {
+    "outside_pairs": {
+      "approached": 0,
+      "eligible": 0,
+      "consented": 0,
+      "started": 0,
+      "completed": 0,
+      "included": 0
+    },
+    "solo": {
+      "approached": 0,
+      "eligible": 0,
+      "consented": 0,
+      "started": 0,
+      "completed": 0,
+      "included": 0
+    }
+  }
+}
