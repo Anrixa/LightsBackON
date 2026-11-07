@@ -546,3 +546,52 @@ func test_QA137_tablet_focus_catalog_preserves_spatial_order() -> void:
 	(case["tablet"] as PanelContainer).show_data(valid, case["objectives"])
 	assert_eq((case["tablet"] as PanelContainer).get("_view"), valid)
 	_finish(case)
+
+## PERF21: authoritatively identical 10 Hz snapshots should not rebuild the
+## entire network map or invalidate its focus/pending inspection response.
+func test_PERF21_unchanged_host_snapshot_keeps_widget_identity_and_focus() -> void:
+	var case: Dictionary = _opened()
+	var tablet: PanelContainer = case["tablet"]
+	var original_map: Container = tablet.map
+	var original_detail: ScrollContainer = tablet.detail_scroll
+	for _i: int in 12:
+		tablet.show_data((case["snapshot"] as Dictionary).duplicate(true),
+			(case["objectives"] as Array).duplicate(true))
+		assert_eq(tablet.map, original_map,
+			"repeated equal host state must not churn the live network map")
+		assert_eq(tablet.detail_scroll, original_detail)
+	assert_eq((Engine.get_main_loop() as SceneTree).root.gui_get_focus_owner(), case["focus"])
+	assert_true((tablet.get("_pending_tablet_requests") as Dictionary).has(int(case["pending"]["seq"])))
+	_finish(case)
+
+
+func test_PERF21_changed_objective_renders_and_retains_pending_request() -> void:
+	var case: Dictionary = _opened()
+	var tablet: PanelContainer = case["tablet"]
+	var previous_map: Container = tablet.map
+	var changed: Array = (case["objectives"] as Array).duplicate(true)
+	changed[0]["status"] = "active" if changed[0]["status"] == "done" else "done"
+	tablet.show_data((case["snapshot"] as Dictionary).duplicate(true), changed)
+	assert_true(tablet.map != previous_map,
+		"a real host objective transition still rebuilds the visible tablet")
+	assert_eq(tablet.get("_objectives"), changed)
+	assert_true((tablet.get("_pending_tablet_requests") as Dictionary).has(int(case["pending"]["seq"])),
+		"visual updates cannot drop the host acknowledgment correlation")
+	_finish(case)
+
+
+func test_PERF21_pseudolocale_change_forces_rerender_without_host_delta() -> void:
+	var case: Dictionary = _opened()
+	var tablet: PanelContainer = case["tablet"]
+	var previous_map: Container = tablet.map
+	UiText.set_locale(UiText.LOCALE_PSEUDO)
+	tablet.show_data((case["snapshot"] as Dictionary).duplicate(true),
+		(case["objectives"] as Array).duplicate(true))
+	assert_true(tablet.map != previous_map,
+		"a locale change must not be swallowed by the identical-state fast path")
+	assert_eq(str(tablet.get("_rendered_locale")), UiText.LOCALE_PSEUDO)
+	UiText.set_locale(UiText.LOCALE_EN)
+	tablet.show_data((case["snapshot"] as Dictionary).duplicate(true),
+		(case["objectives"] as Array).duplicate(true))
+	assert_eq(str(tablet.get("_rendered_locale")), UiText.LOCALE_EN)
+	_finish(case)
