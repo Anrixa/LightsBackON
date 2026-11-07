@@ -120,3 +120,33 @@ static func _qa65_remove_tree(path: String) -> void:
 	for directory: String in dir.get_directories():
 		_qa65_remove_tree(path.path_join(directory))
 	DirAccess.remove_absolute(path)
+
+## UX22: a controller must not remain focused on a hidden Continue button
+## or a disabled New Shift action when the local checkpoint changes.
+func test_UX22_checkpoint_state_rehomes_focus_to_enabled_menu_action() -> void:
+	var tree: SceneTree = Engine.get_main_loop() as SceneTree
+	var menu: Control = MenuScene.instantiate() as Control
+	tree.root.add_child(menu)
+	var start: Button = menu.get("start_button") as Button
+	var resume: Button = menu.get("continue_button") as Button
+	var quit: Button = menu.get("quit_button") as Button
+	start.grab_focus()
+	assert_eq(tree.root.gui_get_focus_owner(), start)
+	menu.call("_apply_save_status", {"ok": false, "code": "CORRUPT"})
+	assert_true(start.disabled)
+	assert_eq(tree.root.gui_get_focus_owner(), quit,
+		"unreadable checkpoint leaves controller focus on an enabled Quit action")
+	menu.call("_apply_save_status", {"ok": true, "available": true})
+	assert_true(resume.visible and not start.disabled)
+	resume.grab_focus()
+	menu.call("_apply_save_status", {"ok": true, "available": false})
+	assert_false(resume.visible)
+	assert_eq(tree.root.gui_get_focus_owner(), start,
+		"Continue disappearing moves focus to New Shift")
+	menu.call("_apply_save_status", {"ok": true, "available": true})
+	resume.grab_focus()
+	menu.call("_apply_save_status", {"ok": false, "code": "NEWER_SCHEMA"})
+	assert_eq(tree.root.gui_get_focus_owner(), quit,
+		"future schema disables both shift actions but never strands focus")
+	tree.root.remove_child(menu)
+	menu.free()

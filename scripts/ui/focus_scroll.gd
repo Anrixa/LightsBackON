@@ -6,6 +6,7 @@ extends ScrollContainer
 const ThemeTokens := preload("res://scripts/ui/theme_tokens.gd")
 const STEP_PX: int = 60
 const STICK_SPEED_PX: float = 900.0
+const STICK_DEADZONE: float = 0.20  # Prevent idle joystick drift from moving long evidence.
 
 var _focus_box: StyleBoxFlat
 var _scale_percent: float = 100.0
@@ -46,5 +47,7 @@ func _process(delta: float) -> void:
 	if not has_focus():
 		return
 	var stick: float = Input.get_axis("look_up", "look_down")
-	if stick != 0.0:
+	# Godot action deadzones are user-remappable and not a guarantee that tiny
+	# residual analog motion is zero. Scrolling requires intentional input.
+	if absf(stick) > STICK_DEADZONE:
 		scroll_vertical += roundi(stick * STICK_SPEED_PX * _scale_percent / 100.0 * delta)
