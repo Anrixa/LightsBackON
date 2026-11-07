@@ -146,7 +146,8 @@ func test_MEASURE14_solo_exit_does_not_masquerade_as_disconnect() -> void:
 	var events: Array = meter.snapshot()["events"]
 	assert_eq(events[1]["kind"], "session_left")
 	meter.note_disconnect(4)
-	assert_eq((meter.snapshot()["events"] as Array)[2]["kind"], "connection_lost")
+	assert_eq((meter.snapshot()["events"] as Array).size(), 2,
+		"departure must be final; no post-terminal disconnect event")
 
 
 func test_MEASURE15_real_C01_scene_wires_host_events_without_identity_fields() -> void:
@@ -198,6 +199,7 @@ func test_MEASURE18_atomic_local_report_contains_only_allowlisted_data() -> void
 
 func test_MEASURE19_closed_report_cannot_be_written_twice() -> void:
 	assert_true(meter.begin(true, POLICY))
+	assert_true(meter.note("session_completed", 3))
 	var result: Dictionary = meter.finish_and_export(3, true, Measurements.TEST_REPORT_DIR)
 	assert_true(result.get("ok", false))
 	assert_eq(meter.finish_and_export(4, true, Measurements.TEST_REPORT_DIR)["code"], "ALREADY_CLOSED")
