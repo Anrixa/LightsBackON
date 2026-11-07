@@ -262,12 +262,11 @@ def summarize(reports: list[dict[str, Any]]) -> dict[str, Any]:
     # No tail metric is published for fewer than the V09 ten-run structural
     # floor, or when any input has dropped or missing terminal/results events.
     tail_complete = all(
-        r["dropped_events"] == 0 and
-        (r["outcome"] != "completed" or (
-            r["counts"]["session_completed"] == 1
-            and r["counts"]["results_opened"] == 1
-            and r["counts"]["idle_started"] == r["counts"]["idle_ended"]
-        ))
+        r["dropped_events"] == 0
+        and r["counts"]["session_completed" if r["outcome"] == "completed"
+                        else "session_left"] == 1
+        and r["counts"]["idle_started"] == r["counts"]["idle_ended"]
+        and (r["outcome"] != "completed" or r["counts"]["results_opened"] == 1)
         for r in reports
     )
     if not tail_complete:
