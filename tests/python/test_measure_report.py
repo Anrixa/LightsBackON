@@ -82,7 +82,7 @@ class MeasurementReportTests(unittest.TestCase):
         path.write_text('{"schema_version":1,"schema_version":1}', encoding="utf-8")
         with self.assertRaisesRegex(measure_report.InvalidReport, "DUPLICATE_KEY"):
             measure_report.read_report(path)
-        path.write_bytes(b"\\xff\\xfe")
+        path.write_bytes(bytes([255, 254]))
         with self.assertRaisesRegex(measure_report.InvalidReport, "INVALID_JSON"):
             measure_report.read_report(path)
 
