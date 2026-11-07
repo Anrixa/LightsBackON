@@ -155,7 +155,8 @@ def read_report(path: Path) -> dict[str, Any]:
     """Bound work before parsing; avoid following files outside a selected folder."""
     if path.is_symlink() or not path.is_file():
         raise InvalidReport("UNSAFE_REPORT_FILE")
-    if path.stat().st_size > MAX_FILE_BYTES:
+    file_stat = path.stat()
+    if file_stat.st_size > MAX_FILE_BYTES:
         raise InvalidReport("REPORT_TOO_LARGE")
     try:
         data = json.loads(path.read_text(encoding="utf-8"),
@@ -169,6 +170,7 @@ def read_report(path: Path) -> dict[str, Any]:
     # without another filesystem read or following a path a second time.
     canonical = json.dumps(data, sort_keys=True, separators=(",", ":"))
     report["_internal_fingerprint"] = hashlib.sha256(canonical.encode("utf-8")).digest()
+    report["_internal_file_mtime"] = file_stat.st_mtime
     return report
 
 
@@ -204,7 +206,11 @@ def summarize(reports: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
-def analyze_input(source: Path) -> dict[str, Any]:
+def analyze_input(source: Path, *, return_validated: bool = False) -> dict[str, Any] | list[dict[str, Any]]:
+    """Existing safe input selection; internal reviewers can access validated stats.
+
+    No raw event rows or file paths are returned, even in review mode.
+    """
     if source.is_symlink():
         raise InvalidReport("UNSAFE_INPUT")
     if source.is_file():
@@ -215,7 +221,8 @@ def analyze_input(source: Path) -> dict[str, Any]:
         raise InvalidReport("INVALID_INPUT")
     if not paths or len(paths) > MAX_REPORTS:
         raise InvalidReport("INVALID_REPORT_COUNT")
-    return summarize([read_report(path) for path in paths])
+    reports = [read_report(path) for path in paths]
+    return reports if return_validated else summarize(reports)
 
 
 def main(argv: list[str] | None = None) -> int:
