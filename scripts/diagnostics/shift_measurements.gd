@@ -27,6 +27,8 @@ var _last_tick: int = 0
 var _dropped: int = 0
 var _events: Array[Dictionary] = []
 var _first_repair_observed: bool = false
+var _terminal_kind: String = ""
+var _results_opened: bool = false
 var _objective_states: Dictionary = {}
 var _last_activity_tick: int = 0
 var _idle_since_tick: int = -1
@@ -43,6 +45,8 @@ func begin(opted_in: bool, policy: Dictionary) -> bool:
 	_last_tick = 0
 	_dropped = 0
 	_first_repair_observed = false
+	_terminal_kind = ""
+	_results_opened = false
 	_objective_states.clear()
 	_last_activity_tick = 0
 	_idle_since_tick = -1
@@ -79,6 +83,8 @@ func exclude_precompleted_checkpoint() -> void:
 	_objective_states.clear()
 	_dropped = 0
 	_first_repair_observed = false
+	_terminal_kind = ""
+	_results_opened = false
 	_last_activity_tick = 0
 	_idle_since_tick = -1
 	_last_tick = 0
@@ -93,6 +99,20 @@ func note(kind: String, tick: int, objective: int = -1, value: int = 0) -> bool:
 		return false
 	if kind.begins_with("objective_") != (objective >= 0):
 		return false
+	# Match the offline Python validator before mutating the recorded stream.
+	# Objective updates may follow completion in the same host tick, but
+	# results_opened is terminal and a departed session cannot be extended.
+	if _results_opened or _terminal_kind == "session_left":
+		return false
+	if kind == "session_started" and not _events.is_empty():
+		return false
+	if kind == "session_completed" or kind == "session_left":
+		if not _terminal_kind.is_empty():
+			return false
+	elif kind == "results_opened" and _terminal_kind != "session_completed":
+		return false
+	if kind == "first_repair" and _first_repair_observed:
+		return false
 	_last_tick = tick
 	if _events.size() >= _limit:
 		_dropped += 1
@@ -103,6 +123,12 @@ func note(kind: String, tick: int, objective: int = -1, value: int = 0) -> bool:
 	if value > 0:
 		row["value_ticks"] = value
 	_events.append(row)
+	if kind == "session_completed" or kind == "session_left":
+		_terminal_kind = kind
+	elif kind == "results_opened":
+		_results_opened = true
+	elif kind == "first_repair":
+		_first_repair_observed = true
 	return true
 
 
@@ -160,8 +186,7 @@ func mark_activity(tick: int) -> void:
 ## Accepted host repair command only. A refusal or recurring heartbeat never
 ## counts as a repair, and the event cannot leak the panel or participant ID.
 func note_first_repair(tick: int) -> void:
-	if not _first_repair_observed and note("first_repair", tick):
-		_first_repair_observed = true
+	note("first_repair", tick)
 
 
 ## No Steam disconnect is inferred from a solo pause or ordinary scene exit.
@@ -184,6 +209,15 @@ func finish_and_export(tick: int, completed: bool,
 	# Fixed local namespaces keep an arbitrary caller from redirecting a report.
 	if directory != LOCAL_REPORT_DIR and directory != TEST_REPORT_DIR:
 		return {"ok": false, "code": "BAD_DIRECTORY"}
+	# A clean completed export needs an observed completion event; otherwise
+	# the file would be rejected by the offline validator. Dropped event
+	# streams are still permitted, but never treated as complete evidence.
+	if completed and _terminal_kind != "session_completed" and _dropped == 0:
+		return {"ok": false, "code": "MISSING_COMPLETION_EVENT"}
+	if not completed and _terminal_kind == "session_completed":
+		return {"ok": false, "code": "CONFLICTING_OUTCOME"}
+	if not completed and _terminal_kind == "session_left":
+		return {"ok": false, "code": "ALREADY_TERMINATED"}
 	if not completed:
 		note("session_left", maxi(tick, _last_tick))
 	var report: Dictionary = snapshot()
