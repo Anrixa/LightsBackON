@@ -52,6 +52,7 @@ var zoom_buttons: Array[Button] = []
 var _view: Dictionary = {}
 var _objectives: Array = []
 var _context: Array[String] = ["district.alder_street", "contract.c01"]
+var _rendered_locale: String = ""  # A locale change must repaint even if host data is unchanged.
 var _status_text: String = ""
 var _previous_focus: Control = null
 var _visit_open: bool = false  # opening a visible modal twice must not restart its visit
@@ -141,6 +142,15 @@ func show_data(view: Dictionary, objectives: Array, context: Array[String] = [])
 			not context[0].begins_with("district.") or \
 			not context[1].begins_with("contract.") or \
 			not UiText.has(context[0]) or not UiText.has(context[1])):
+		return
+	# The host can publish unchanged snapshots at 10 Hz. Rebuilding an entire
+	# network map/evidence tree for those frames needlessly churns CanvasItems,
+	# loses transient focus objects and consumes real GPU time. Validate first,
+	# then skip only if the *rendered* state, context and locale are identical.
+	# A changed locale deliberately bypasses this fast path.
+	if not _view.is_empty() and _view == view and _objectives == objectives and \
+			(context.is_empty() or _context == context) and \
+			_rendered_locale == UiText.locale():
 		return
 	# Presentation data must be owned by the tablet after validation.
 	# Retaining caller-owned dictionaries lets a later mutation bypass every
@@ -716,6 +726,7 @@ func _rebuild() -> void:
 	_pending_evidence_scroll_y = evidence_scroll_y
 	if focus_token != "":
 		_restore_focus(focus_token)
+	_rendered_locale = UiText.locale()
 
 
 ## Explicit focus exits between the regions (blueprint p.22: every control reachable by controller). Inside the map the
