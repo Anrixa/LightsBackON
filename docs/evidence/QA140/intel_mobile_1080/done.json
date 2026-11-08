@@ -1,0 +1,31 @@
+﻿{
+    "label":  "intel_mobile_1080",
+    "error":  "",
+    "session_id":  "640806cd58ba47a2b33b68f05ec7a65b",
+    "started_utc":  "2026-11-08T20:04:15.9201640Z",
+    "duration_s":  182.2,
+    "exit_code":  0,
+    "timed_out":  false,
+    "samples":  45,
+    "gpu_pref":  1,
+    "args":  [
+                 "--log-file",
+                 "\"C:\\Users\\user\\AppData\\Local\\Temp\\claude\\0c1b91f17775b629\\2b7362b8-081a-426f-b4fc-982a498feaf7\\scratchpad\\local\\runs\\intel_mobile_1080\\godot.log\"",
+                 "--fullscreen",
+                 "--disable-vsync",
+                 "--rendering-method",
+                 "mobile",
+                 "--rendering-driver",
+                 "vulkan",
+                 "--gpu-index",
+                 "1",
+                 "--",
+                 "--qa56-capture",
+                 "--qa56-id=640806cd58ba47a2b33b68f05ec7a65b",
+                 "--qa140-scenario"
+             ],
+    "exe_sha256":  "d34d36f3be1a6c49c56525ae86469b92e4f417ddf0b43cf00dd80c385c4b0562",
+    "pck_sha256":  "24b0327a943584724ddbceecbe7bc23928ca7367e249035be87dbfa0f28cf94e",
+    "power_scheme":  "Power Scheme GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (Balanced)",
+    "on_ac":  true
+}

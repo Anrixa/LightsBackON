@@ -1,0 +1,24 @@
+﻿{
+    "label":  "amd_gl_1080_vsync",
+    "error":  "",
+    "session_id":  "532a36529ac542e396ce3f65f0574548",
+    "started_utc":  "2026-11-08T19:41:02.8569763Z",
+    "duration_s":  182.4,
+    "exit_code":  0,
+    "timed_out":  false,
+    "samples":  45,
+    "gpu_pref":  1,
+    "args":  [
+                 "--log-file",
+                 "\"C:\\Users\\user\\LBO-QA140\\runs\\amd_gl_1080_vsync\\godot.log\"",
+                 "--fullscreen",
+                 "--",
+                 "--qa56-capture",
+                 "--qa56-id=532a36529ac542e396ce3f65f0574548",
+                 "--qa140-scenario"
+             ],
+    "exe_sha256":  "d34d36f3be1a6c49c56525ae86469b92e4f417ddf0b43cf00dd80c385c4b0562",
+    "pck_sha256":  "74ea445f1188d3b9f8320fc5d2c44a08b8ff927b460eba6c8db4f5c1567bcc0c",
+    "power_scheme":  "Power Scheme GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (Balanced)",
+    "on_ac":  true
+}

@@ -1,0 +1,173 @@
+{
+  "schema_version": 1,
+  "session_id": "db554781afee43d8a85a1f078a7eead7",
+  "exit_code": 0,
+  "engine": "4.7.2-stable (official)",
+  "rendering_method": "gl_compatibility",
+  "rendering_driver": "opengl3",
+  "adapter_vendor": "NVIDIA",
+  "adapter_name": "NVIDIA GeForce GTX 1650",
+  "adapter_api_version": "3.3.0 NVIDIA 621.14",
+  "window_mode": 3,
+  "vsync_mode": 0,
+  "viewport_size": [
+    1920,
+    1080
+  ],
+  "screen_refresh_hz": 120.0,
+  "segments": [
+    {
+      "segment": 0,
+      "name": "menu_idle",
+      "started_ms": 2421,
+      "frames": 7188,
+      "video_mem_peak_bytes": 28117341,
+      "texture_mem_peak_bytes": 21545521,
+      "draw_calls_peak": 515,
+      "primitives_peak": 8394,
+      "objects_peak": 766
+    },
+    {
+      "segment": 1,
+      "name": "mission_idle",
+      "started_ms": 22319,
+      "frames": 10452,
+      "video_mem_peak_bytes": 28117341,
+      "texture_mem_peak_bytes": 21545521,
+      "draw_calls_peak": 446,
+      "primitives_peak": 7638,
+      "objects_peak": 733
+    },
+    {
+      "segment": 2,
+      "name": "walk_look",
+      "started_ms": 52322,
+      "frames": 15392,
+      "video_mem_peak_bytes": 28073651,
+      "texture_mem_peak_bytes": 21501831,
+      "draw_calls_peak": 514,
+      "primitives_peak": 8384,
+      "objects_peak": 766
+    },
+    {
+      "segment": 3,
+      "name": "tablet_toggle",
+      "started_ms": 92334,
+      "frames": 17422,
+      "video_mem_peak_bytes": 29220875,
+      "texture_mem_peak_bytes": 22303583,
+      "draw_calls_peak": 179,
+      "primitives_peak": 11515,
+      "objects_peak": 1387
+    },
+    {
+      "segment": 4,
+      "name": "pause_toggle",
+      "started_ms": 140381,
+      "frames": 7444,
+      "video_mem_peak_bytes": 29926261,
+      "texture_mem_peak_bytes": 23002633,
+      "draw_calls_peak": 91,
+      "primitives_peak": 5696,
+      "objects_peak": 619
+    },
+    {
+      "segment": 5,
+      "name": "final_idle",
+      "started_ms": 160408,
+      "frames": 7779,
+      "video_mem_peak_bytes": 29895181,
+      "texture_mem_peak_bytes": 23002633,
+      "draw_calls_peak": 120,
+      "primitives_peak": 3764,
+      "objects_peak": 407
+    }
+  ],
+  "steps": [
+    {
+      "step": "shift_started_before_driver_in_MissionRoot",
+      "ok": false,
+      "at_ms": 22319
+    },
+    {
+      "step": "mission_loaded",
+      "ok": true,
+      "at_ms": 22319
+    },
+    {
+      "step": "walk_completed",
+      "ok": true,
+      "at_ms": 92333
+    },
+    {
+      "step": "map_meter_opened_20_of_20",
+      "ok": true,
+      "at_ms": 140381
+    },
+    {
+      "step": "map_meter_closed_20_of_20",
+      "ok": true,
+      "at_ms": 140381
+    },
+    {
+      "step": "pause_opened_10_of_10",
+      "ok": true,
+      "at_ms": 160407
+    },
+    {
+      "step": "pause_closed_10_of_10",
+      "ok": true,
+      "at_ms": 160407
+    }
+  ],
+  "real_input_events": [
+    {
+      "at_ms": 8661,
+      "type": "InputEventMouseButton",
+      "device": 32,
+      "pressed": true,
+      "scene": "MainMenu",
+      "text": "Left Mouse Button",
+      "position": [
+        1009,
+        841
+      ]
+    },
+    {
+      "at_ms": 8719,
+      "type": "InputEventMouseButton",
+      "device": 32,
+      "pressed": false,
+      "scene": "MainMenu",
+      "text": "Left Mouse Button",
+      "position": [
+        1009,
+        841
+      ]
+    },
+    {
+      "at_ms": 9794,
+      "type": "InputEventMouseButton",
+      "device": 32,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "Left Mouse Button",
+      "position": [
+        962,
+        540
+      ]
+    },
+    {
+      "at_ms": 10235,
+      "type": "InputEventMouseButton",
+      "device": 32,
+      "pressed": false,
+      "scene": "MissionRoot",
+      "text": "Left Mouse Button",
+      "position": [
+        960,
+        542
+      ]
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+﻿{
+    "label":  "nv_gl_1080_vsync_r2",
+    "error":  "",
+    "session_id":  "df253cf7292646e9a38c7374d8805e33",
+    "started_utc":  "2026-11-08T19:57:01.6402368Z",
+    "duration_s":  182.4,
+    "exit_code":  0,
+    "timed_out":  false,
+    "samples":  45,
+    "gpu_pref":  2,
+    "args":  [
+                 "--log-file",
+                 "\"C:\\Users\\user\\LBO-QA140\\runs\\nv_gl_1080_vsync_r2\\godot.log\"",
+                 "--fullscreen",
+                 "--",
+                 "--qa56-capture",
+                 "--qa56-id=df253cf7292646e9a38c7374d8805e33",
+                 "--qa140-scenario"
+             ],
+    "exe_sha256":  "d34d36f3be1a6c49c56525ae86469b92e4f417ddf0b43cf00dd80c385c4b0562",
+    "pck_sha256":  "24b0327a943584724ddbceecbe7bc23928ca7367e249035be87dbfa0f28cf94e",
+    "power_scheme":  "Power Scheme GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (Balanced)",
+    "on_ac":  true
+}
