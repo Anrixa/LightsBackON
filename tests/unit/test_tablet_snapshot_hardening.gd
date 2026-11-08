@@ -38,6 +38,9 @@ func _opened() -> Dictionary:
 	frame.size = Vector2(1280, 720)
 	var tablet: PanelContainer = NetworkTablet.new()
 	frame.add_child(tablet)
+	# The tablet scene is full-rect anchored; sizing it before _ready() logs an
+	# engine warning per fixture. Match the V07 helper: top-left, then size.
+	tablet.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	tablet.size = frame.size
 	tablet.ui_scale_percent = 150
 	var sent: Array[Dictionary] = []
