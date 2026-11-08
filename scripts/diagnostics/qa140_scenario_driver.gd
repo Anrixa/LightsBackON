@@ -30,6 +30,8 @@ var _segment: int = 0
 var _segments: Array[Dictionary] = []
 var _steps: Array[Dictionary] = []
 var _held_actions: Array[String] = []
+var _input_log: Array[Dictionary] = []
+const INPUT_LOG_LIMIT: int = 64
 
 
 static func requested(args: PackedStringArray) -> bool:
@@ -68,21 +70,43 @@ func _process(_delta: float) -> void:
 	_peak(current, "objects_peak", Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME))
 
 
+## Logs every real (non-driver) key, mouse button, touch and joypad button event, so an unexpected Start press can be
+## attributed. Driver input uses InputEventAction / Input.action_press and never appears here.
+func _input(event: InputEvent) -> void:
+	if _input_log.size() >= INPUT_LOG_LIMIT:
+		return
+	if not (event is InputEventKey or event is InputEventMouseButton or event is InputEventScreenTouch
+			or event is InputEventJoypadButton):
+		return
+	var scene: Node = get_tree().current_scene
+	var entry: Dictionary = {"at_ms": Time.get_ticks_msec(), "type": event.get_class(), "device": event.device,
+		"pressed": event.is_pressed(), "scene": str(scene.name) if scene != null else "", "text": event.as_text()}
+	if event is InputEventMouseButton:
+		var position: Vector2 = (event as InputEventMouseButton).position
+		entry["position"] = [roundi(position.x), roundi(position.y)]
+	_input_log.append(entry)
+
+
 func _run() -> void:
 	await _wait(MENU_IDLE_S)
 	var menu: Node = get_tree().current_scene
-	var start: Variant = menu.get("start_button") if menu != null else null
-	var started: bool = start is Button and not (start as Button).disabled
-	_step("menu_start_available", started)
-	if not started:
-		_finish(3)
-		return
-	# The menu's own Start action; a fresh profile has no checkpoint to confirm.
-	(start as Button).pressed.emit()
-	var confirm: Node = menu.get_node_or_null("ReplaceCheckpointConfirmation")
-	if confirm is ConfirmationDialog and (confirm as ConfirmationDialog).visible:
-		(confirm as ConfirmationDialog).get_ok_button().pressed.emit()
-		_step("replace_checkpoint_confirmed", true)
+	if menu != null and menu.name != "MainMenu":
+		# Something other than the driver pressed Start during menu idle (QA139/QA140: a real click or key reached the
+		# focused Start button). Keep measuring the mission, flag it, and keep the input log for diagnosis.
+		_step("shift_started_before_driver_in_" + str(menu.name), false)
+	else:
+		var start: Variant = menu.get("start_button") if menu != null else null
+		var started: bool = start is Button and not (start as Button).disabled
+		_step("menu_start_available", started)
+		if not started:
+			_finish(3)
+			return
+		# The menu's own Start action; a fresh profile has no checkpoint to confirm.
+		(start as Button).pressed.emit()
+		var confirm: Node = menu.get_node_or_null("ReplaceCheckpointConfirmation")
+		if confirm is ConfirmationDialog and (confirm as ConfirmationDialog).visible:
+			(confirm as ConfirmationDialog).get_ok_button().pressed.emit()
+			_step("replace_checkpoint_confirmed", true)
 	var loaded: bool = await _wait_for_scene("MissionRoot", MISSION_LOAD_TIMEOUT_S)
 	_step("mission_loaded", loaded)
 	if not loaded:
@@ -222,6 +246,7 @@ func _finish(exit_code: int) -> void:
 		"screen_refresh_hz": DisplayServer.screen_get_refresh_rate(),
 		"segments": _segments,
 		"steps": _steps,
+		"real_input_events": _input_log,
 	}
 	var file: FileAccess = FileAccess.open("user://qa56/%s_qa140.json" % _session_id, FileAccess.WRITE)
 	if file != null:
