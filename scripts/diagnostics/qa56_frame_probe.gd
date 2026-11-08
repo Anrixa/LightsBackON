@@ -82,6 +82,14 @@ func _input(event: InputEvent) -> void:
 			print("QA56_SEGMENT=%d" % _segment)
 
 
+## QA140: the unattended scenario driver marks segments the same way a person does with F9.
+func mark_segment(index: int) -> void:
+	if index < 0 or index == _segment:
+		return
+	_segment = index
+	print("QA56_SEGMENT=%d" % _segment)
+
+
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_EXIT_TREE or what == NOTIFICATION_PREDELETE:
 		_flush()

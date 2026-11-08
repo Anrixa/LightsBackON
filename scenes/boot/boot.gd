@@ -4,6 +4,7 @@ extends Node
 
 const SaveSoak := preload("res://scripts/persistence/save_soak.gd")
 const QA56FrameProbe := preload("res://scripts/diagnostics/qa56_frame_probe.gd")
+const QA140Scenario := preload("res://scripts/diagnostics/qa140_scenario_driver.gd")
 const MANIFEST_PATH: String = "res://build_manifest.json"
 const MENU_PATH: String = "res://scenes/menu/main_menu.tscn"
 
@@ -65,3 +66,18 @@ func _start_qa56_capture_if_requested() -> void:
 	get_tree().root.add_child(probe)
 	if not probe.configure(session_id):
 		probe.queue_free()
+		return
+	_start_qa140_scenario_if_requested(args, probe, session_id)
+
+
+## QA140 unattended scenario for remote test PCs: internal exports / editor only, and only on top of an active QA56 capture.
+func _start_qa140_scenario_if_requested(args: PackedStringArray, probe: Node, session_id: String) -> void:
+	if not QA140Scenario.requested(args):
+		return
+	if not QA140Scenario.allowed():
+		print("QA140 scenario is not available in this build")
+		return
+	var driver: QA140Scenario = QA140Scenario.new()
+	driver.name = "QA140Scenario"
+	driver.setup(probe, session_id)
+	get_tree().root.add_child.call_deferred(driver)
