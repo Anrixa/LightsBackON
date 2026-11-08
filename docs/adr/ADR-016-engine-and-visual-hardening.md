@@ -79,7 +79,9 @@ Two different jobs, kept apart:
 2. **Renderer decision by measurement.** Keep Compatibility as the locked baseline. Build the spike so it runs under Compatibility and under
    Mobile/Forward+ (a project-setting override, nothing else). Measure P95 frame time and VRAM from an exported build on a **GTX 1650-class**
    machine. The owner then keeps Compatibility or amends the locked decision in a new ADR. The RTX 5090 can show the look but cannot
-   decide this. First graybox data points on lower-tier GPUs (Intel UHD iGPU, Adreno 640) are in `docs/evidence/QA139.md`.
+   decide this. First graybox data points on lower-tier GPUs (Intel UHD iGPU, Adreno 640) are in `docs/evidence/QA139.md`; exported-build
+   P95/memory for Compatibility, Mobile and Forward+ on a real GTX 1650, Radeon RX Vega 10 and Intel UHD (graybox) are in
+   `docs/evidence/QA140.md`, with the unattended harness to repeat them on the lookdev scene.
 3. **Art production capacity.** Claude can write shaders, lighting, VFX, procedural materials, layout and capture tooling. It cannot produce
    production-quality characters, hands or hero props on its own. Decide between commissioning an artist and licensing a coherent asset kit
    (licence, source and version recorded first). Then A01/D01 can reach the ADR-004 bar.

@@ -1,0 +1,31 @@
+﻿{
+    "label":  "amd_mobile_1080_r2",
+    "error":  "",
+    "session_id":  "1ab308952dd74d47a8ee74ea2d027696",
+    "started_utc":  "2026-11-08T20:06:22.2078505Z",
+    "duration_s":  185.7,
+    "exit_code":  0,
+    "timed_out":  false,
+    "samples":  46,
+    "gpu_pref":  1,
+    "args":  [
+                 "--log-file",
+                 "\"C:\\Users\\user\\LBO-QA140\\runs\\amd_mobile_1080_r2\\godot.log\"",
+                 "--fullscreen",
+                 "--disable-vsync",
+                 "--rendering-method",
+                 "mobile",
+                 "--rendering-driver",
+                 "vulkan",
+                 "--gpu-index",
+                 "0",
+                 "--",
+                 "--qa56-capture",
+                 "--qa56-id=1ab308952dd74d47a8ee74ea2d027696",
+                 "--qa140-scenario"
+             ],
+    "exe_sha256":  "d34d36f3be1a6c49c56525ae86469b92e4f417ddf0b43cf00dd80c385c4b0562",
+    "pck_sha256":  "24b0327a943584724ddbceecbe7bc23928ca7367e249035be87dbfa0f28cf94e",
+    "power_scheme":  "Power Scheme GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (Balanced)",
+    "on_ac":  true
+}

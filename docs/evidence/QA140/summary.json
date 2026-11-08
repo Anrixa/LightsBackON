@@ -1,0 +1,2934 @@
+[
+  {
+    "label": "amd_fplus_1080_r2",
+    "exit_code": 0,
+    "timed_out": false,
+    "error": "",
+    "adapter_name": "AMD Radeon(TM) RX Vega 10 Graphics",
+    "adapter_api_version": "1.3.260",
+    "rendering_method": "forward_plus",
+    "rendering_driver": "vulkan",
+    "viewport_size": [
+      1920,
+      1080
+    ],
+    "vsync_mode": 0,
+    "screen_refresh_hz": 120.0,
+    "steps": [
+      {
+        "step": "menu_start_available",
+        "ok": true,
+        "at_ms": 26021
+      },
+      {
+        "step": "mission_loaded",
+        "ok": true,
+        "at_ms": 28434
+      },
+      {
+        "step": "walk_completed",
+        "ok": true,
+        "at_ms": 96265
+      },
+      {
+        "step": "map_meter_opened_20_of_20",
+        "ok": true,
+        "at_ms": 144410
+      },
+      {
+        "step": "map_meter_closed_20_of_20",
+        "ok": true,
+        "at_ms": 144410
+      },
+      {
+        "step": "pause_opened_10_of_10",
+        "ok": true,
+        "at_ms": 164462
+      },
+      {
+        "step": "pause_closed_10_of_10",
+        "ok": true,
+        "at_ms": 164462
+      }
+    ],
+    "engine_segments": {
+      "0": {
+        "segment": 0,
+        "name": "menu_idle",
+        "started_ms": 6122,
+        "frames": 8035,
+        "video_mem_peak_bytes": 25023984,
+        "texture_mem_peak_bytes": 11504992,
+        "draw_calls_peak": 12,
+        "primitives_peak": 1996,
+        "objects_peak": 439
+      },
+      "1": {
+        "segment": 1,
+        "name": "mission_idle",
+        "started_ms": 28434,
+        "frames": 5259,
+        "video_mem_peak_bytes": 136845104,
+        "texture_mem_peak_bytes": 44620784,
+        "draw_calls_peak": 125,
+        "primitives_peak": 7782,
+        "objects_peak": 741
+      },
+      "2": {
+        "segment": 2,
+        "name": "walk_look",
+        "started_ms": 56234,
+        "frames": 6922,
+        "video_mem_peak_bytes": 135952112,
+        "texture_mem_peak_bytes": 43703024,
+        "draw_calls_peak": 125,
+        "primitives_peak": 7782,
+        "objects_peak": 741
+      },
+      "3": {
+        "segment": 3,
+        "name": "tablet_toggle",
+        "started_ms": 96266,
+        "frames": 7739,
+        "video_mem_peak_bytes": 137078576,
+        "texture_mem_peak_bytes": 44369904,
+        "draw_calls_peak": 219,
+        "primitives_peak": 15507,
+        "objects_peak": 1722
+      },
+      "4": {
+        "segment": 4,
+        "name": "pause_toggle",
+        "started_ms": 144411,
+        "frames": 3279,
+        "video_mem_peak_bytes": 137466336,
+        "texture_mem_peak_bytes": 44894192,
+        "draw_calls_peak": 131,
+        "primitives_peak": 9688,
+        "objects_peak": 954
+      },
+      "5": {
+        "segment": 5,
+        "name": "final_idle",
+        "started_ms": 164462,
+        "frames": 3363,
+        "video_mem_peak_bytes": 137365696,
+        "texture_mem_peak_bytes": 44894192,
+        "draw_calls_peak": 113,
+        "primitives_peak": 7252,
+        "objects_peak": 695
+      }
+    },
+    "frames_overall": {
+      "count": 32670,
+      "p50_ms": 5.456,
+      "p95_ms": 7.294,
+      "p99_ms": 10.639,
+      "max_ms": 2201.786,
+      "over_16_7ms": 63,
+      "over_33_3ms": 12
+    },
+    "frames_by_segment": {
+      "0": {
+        "count": 6108,
+        "p50_ms": 2.394,
+        "p95_ms": 2.85,
+        "p99_ms": 2.996,
+        "max_ms": 211.778,
+        "over_16_7ms": 1,
+        "over_33_3ms": 1
+      },
+      "1": {
+        "count": 5259,
+        "p50_ms": 5.258,
+        "p95_ms": 9.007,
+        "p99_ms": 9.811,
+        "max_ms": 2201.786,
+        "over_16_7ms": 5,
+        "over_33_3ms": 1
+      },
+      "2": {
+        "count": 6922,
+        "p50_ms": 5.623,
+        "p95_ms": 9.592,
+        "p99_ms": 10.665,
+        "max_ms": 42.907,
+        "over_16_7ms": 3,
+        "over_33_3ms": 1
+      },
+      "3": {
+        "count": 7739,
+        "p50_ms": 6.173,
+        "p95_ms": 10.075,
+        "p99_ms": 11.692,
+        "max_ms": 42.635,
+        "over_16_7ms": 40,
+        "over_33_3ms": 1
+      },
+      "4": {
+        "count": 3279,
+        "p50_ms": 6.032,
+        "p95_ms": 7.274,
+        "p99_ms": 10.63,
+        "max_ms": 42.874,
+        "over_16_7ms": 13,
+        "over_33_3ms": 8
+      },
+      "5": {
+        "count": 3363,
+        "p50_ms": 5.9,
+        "p95_ms": 9.861,
+        "p99_ms": 10.923,
+        "max_ms": 17.654,
+        "over_16_7ms": 1,
+        "over_33_3ms": 0
+      }
+    },
+    "windows_samples": 46,
+    "working_set_peak_mib": 506.6,
+    "private_peak_mib": 611.6,
+    "gpu_dedicated_peak_mib": 189.2,
+    "gpu_shared_peak_mib": 140.4,
+    "working_set_late_minus_mid_mib": -135.3
+  },
+  {
+    "label": "amd_gl_1080_r2",
+    "exit_code": 0,
+    "timed_out": false,
+    "error": "",
+    "adapter_name": "AMD Radeon(TM) RX Vega 10 Graphics",
+    "adapter_api_version": "3.3.0 Core Profile Context 26.5.2.260413",
+    "rendering_method": "gl_compatibility",
+    "rendering_driver": "opengl3",
+    "viewport_size": [
+      1920,
+      1080
+    ],
+    "vsync_mode": 0,
+    "screen_refresh_hz": 120.0,
+    "steps": [
+      {
+        "step": "menu_start_available",
+        "ok": true,
+        "at_ms": 21355
+      },
+      {
+        "step": "mission_loaded",
+        "ok": true,
+        "at_ms": 22282
+      },
+      {
+        "step": "walk_completed",
+        "ok": true,
+        "at_ms": 91583
+      },
+      {
+        "step": "map_meter_opened_20_of_20",
+        "ok": true,
+        "at_ms": 139637
+      },
+      {
+        "step": "map_meter_closed_20_of_20",
+        "ok": true,
+        "at_ms": 139637
+      },
+      {
+        "step": "pause_opened_10_of_10",
+        "ok": true,
+        "at_ms": 159659
+      },
+      {
+        "step": "pause_closed_10_of_10",
+        "ok": true,
+        "at_ms": 159659
+      }
+    ],
+    "engine_segments": {
+      "0": {
+        "segment": 0,
+        "name": "menu_idle",
+        "started_ms": 1444,
+        "frames": 13292,
+        "video_mem_peak_bytes": 24309955,
+        "texture_mem_peak_bytes": 17849283,
+        "draw_calls_peak": 12,
+        "primitives_peak": 1996,
+        "objects_peak": 439
+      },
+      "1": {
+        "segment": 1,
+        "name": "mission_idle",
+        "started_ms": 22282,
+        "frames": 12069,
+        "video_mem_peak_bytes": 32377725,
+        "texture_mem_peak_bytes": 21545521,
+        "draw_calls_peak": 454,
+        "primitives_peak": 7782,
+        "objects_peak": 741
+      },
+      "2": {
+        "segment": 2,
+        "name": "walk_look",
+        "started_ms": 51570,
+        "frames": 19274,
+        "video_mem_peak_bytes": 32334035,
+        "texture_mem_peak_bytes": 21501831,
+        "draw_calls_peak": 454,
+        "primitives_peak": 7782,
+        "objects_peak": 741
+      },
+      "3": {
+        "segment": 3,
+        "name": "tablet_toggle",
+        "started_ms": 91583,
+        "frames": 18068,
+        "video_mem_peak_bytes": 33481259,
+        "texture_mem_peak_bytes": 22303583,
+        "draw_calls_peak": 517,
+        "primitives_peak": 15527,
+        "objects_peak": 1725
+      },
+      "4": {
+        "segment": 4,
+        "name": "pause_toggle",
+        "started_ms": 139637,
+        "frames": 8526,
+        "video_mem_peak_bytes": 34186645,
+        "texture_mem_peak_bytes": 23002633,
+        "draw_calls_peak": 429,
+        "primitives_peak": 9708,
+        "objects_peak": 957
+      },
+      "5": {
+        "segment": 5,
+        "name": "final_idle",
+        "started_ms": 159659,
+        "frames": 8673,
+        "video_mem_peak_bytes": 34155565,
+        "texture_mem_peak_bytes": 23002633,
+        "draw_calls_peak": 411,
+        "primitives_peak": 7272,
+        "objects_peak": 698
+      }
+    },
+    "frames_overall": {
+      "count": 76756,
+      "p50_ms": 2.175,
+      "p95_ms": 3.356,
+      "p99_ms": 6.506,
+      "max_ms": 708.806,
+      "over_16_7ms": 38,
+      "over_33_3ms": 9
+    },
+    "frames_by_segment": {
+      "0": {
+        "count": 10146,
+        "p50_ms": 1.239,
+        "p95_ms": 2.873,
+        "p99_ms": 3.1,
+        "max_ms": 218.796,
+        "over_16_7ms": 1,
+        "over_33_3ms": 1
+      },
+      "1": {
+        "count": 12069,
+        "p50_ms": 2.326,
+        "p95_ms": 3.312,
+        "p99_ms": 6.701,
+        "max_ms": 708.806,
+        "over_16_7ms": 3,
+        "over_33_3ms": 2
+      },
+      "2": {
+        "count": 19274,
+        "p50_ms": 1.866,
+        "p95_ms": 3.159,
+        "p99_ms": 6.338,
+        "max_ms": 37.716,
+        "over_16_7ms": 1,
+        "over_33_3ms": 1
+      },
+      "3": {
+        "count": 18068,
+        "p50_ms": 2.54,
+        "p95_ms": 3.723,
+        "p99_ms": 6.932,
+        "max_ms": 36.559,
+        "over_16_7ms": 22,
+        "over_33_3ms": 1
+      },
+      "4": {
+        "count": 8526,
+        "p50_ms": 2.283,
+        "p95_ms": 3.049,
+        "p99_ms": 6.224,
+        "max_ms": 42.43,
+        "over_16_7ms": 11,
+        "over_33_3ms": 4
+      },
+      "5": {
+        "count": 8673,
+        "p50_ms": 2.251,
+        "p95_ms": 3.186,
+        "p99_ms": 6.642,
+        "max_ms": 8.009,
+        "over_16_7ms": 0,
+        "over_33_3ms": 0
+      }
+    },
+    "windows_samples": 45,
+    "working_set_peak_mib": 377.7,
+    "private_peak_mib": 413.2,
+    "gpu_dedicated_peak_mib": 212.9,
+    "gpu_shared_peak_mib": 122.2,
+    "working_set_late_minus_mid_mib": 2.2
+  },
+  {
+    "label": "amd_gl_1080_vsync",
+    "exit_code": 0,
+    "timed_out": false,
+    "error": "",
+    "adapter_name": "AMD Radeon(TM) RX Vega 10 Graphics",
+    "adapter_api_version": "3.3.0 Core Profile Context 26.5.2.260413",
+    "rendering_method": "gl_compatibility",
+    "rendering_driver": "opengl3",
+    "viewport_size": [
+      1920,
+      1080
+    ],
+    "vsync_mode": 1,
+    "screen_refresh_hz": 120.0,
+    "steps": [
+      {
+        "step": "menu_start_available",
+        "ok": true,
+        "at_ms": 21377
+      },
+      {
+        "step": "mission_loaded",
+        "ok": true,
+        "at_ms": 22276
+      },
+      {
+        "step": "walk_completed",
+        "ok": true,
+        "at_ms": 91653
+      },
+      {
+        "step": "map_meter_opened_20_of_20",
+        "ok": true,
+        "at_ms": 140007
+      },
+      {
+        "step": "map_meter_closed_20_of_20",
+        "ok": true,
+        "at_ms": 140007
+      },
+      {
+        "step": "pause_opened_10_of_10",
+        "ok": true,
+        "at_ms": 160163
+      },
+      {
+        "step": "pause_closed_10_of_10",
+        "ok": true,
+        "at_ms": 160163
+      }
+    ],
+    "engine_segments": {
+      "0": {
+        "segment": 0,
+        "name": "menu_idle",
+        "started_ms": 1481,
+        "frames": 2368,
+        "video_mem_peak_bytes": 24309955,
+        "texture_mem_peak_bytes": 17849283,
+        "draw_calls_peak": 12,
+        "primitives_peak": 1996,
+        "objects_peak": 439
+      },
+      "1": {
+        "segment": 1,
+        "name": "mission_idle",
+        "started_ms": 22276,
+        "frames": 3519,
+        "video_mem_peak_bytes": 28117341,
+        "texture_mem_peak_bytes": 21545521,
+        "draw_calls_peak": 454,
+        "primitives_peak": 7782,
+        "objects_peak": 741
+      },
+      "2": {
+        "segment": 2,
+        "name": "walk_look",
+        "started_ms": 51565,
+        "frames": 4810,
+        "video_mem_peak_bytes": 28073651,
+        "texture_mem_peak_bytes": 21501831,
+        "draw_calls_peak": 454,
+        "primitives_peak": 7782,
+        "objects_peak": 741
+      },
+      "3": {
+        "segment": 3,
+        "name": "tablet_toggle",
+        "started_ms": 91653,
+        "frames": 5768,
+        "video_mem_peak_bytes": 29220875,
+        "texture_mem_peak_bytes": 22303583,
+        "draw_calls_peak": 516,
+        "primitives_peak": 15531,
+        "objects_peak": 1724
+      },
+      "4": {
+        "segment": 4,
+        "name": "pause_toggle",
+        "started_ms": 140007,
+        "frames": 2387,
+        "video_mem_peak_bytes": 29926261,
+        "texture_mem_peak_bytes": 23002633,
+        "draw_calls_peak": 428,
+        "primitives_peak": 9712,
+        "objects_peak": 956
+      },
+      "5": {
+        "segment": 5,
+        "name": "final_idle",
+        "started_ms": 160163,
+        "frames": 2401,
+        "video_mem_peak_bytes": 29895181,
+        "texture_mem_peak_bytes": 23002633,
+        "draw_calls_peak": 410,
+        "primitives_peak": 7276,
+        "objects_peak": 697
+      }
+    },
+    "frames_overall": {
+      "count": 20676,
+      "p50_ms": 8.275,
+      "p95_ms": 10.975,
+      "p99_ms": 12.515,
+      "max_ms": 687.473,
+      "over_16_7ms": 56,
+      "over_33_3ms": 12
+    },
+    "frames_by_segment": {
+      "0": {
+        "count": 1791,
+        "p50_ms": 8.342,
+        "p95_ms": 8.591,
+        "p99_ms": 8.7,
+        "max_ms": 211.389,
+        "over_16_7ms": 1,
+        "over_33_3ms": 1
+      },
+      "1": {
+        "count": 3519,
+        "p50_ms": 8.208,
+        "p95_ms": 11.272,
+        "p99_ms": 12.044,
+        "max_ms": 687.473,
+        "over_16_7ms": 1,
+        "over_33_3ms": 1
+      },
+      "2": {
+        "count": 4810,
+        "p50_ms": 8.21,
+        "p95_ms": 11.091,
+        "p99_ms": 12.427,
+        "max_ms": 44.46,
+        "over_16_7ms": 2,
+        "over_33_3ms": 1
+      },
+      "3": {
+        "count": 5768,
+        "p50_ms": 8.174,
+        "p95_ms": 11.792,
+        "p99_ms": 12.894,
+        "max_ms": 41.286,
+        "over_16_7ms": 41,
+        "over_33_3ms": 1
+      },
+      "4": {
+        "count": 2387,
+        "p50_ms": 8.381,
+        "p95_ms": 10.193,
+        "p99_ms": 12.235,
+        "max_ms": 46.261,
+        "over_16_7ms": 11,
+        "over_33_3ms": 8
+      },
+      "5": {
+        "count": 2401,
+        "p50_ms": 8.192,
+        "p95_ms": 11.228,
+        "p99_ms": 12.402,
+        "max_ms": 13.688,
+        "over_16_7ms": 0,
+        "over_33_3ms": 0
+      }
+    },
+    "windows_samples": 45,
+    "working_set_peak_mib": 377.9,
+    "private_peak_mib": 397.3,
+    "gpu_dedicated_peak_mib": 196.8,
+    "gpu_shared_peak_mib": 122.2,
+    "working_set_late_minus_mid_mib": 2.4
+  },
+  {
+    "label": "amd_gl_1080_warm_r2",
+    "exit_code": 0,
+    "timed_out": false,
+    "error": "",
+    "adapter_name": "AMD Radeon(TM) RX Vega 10 Graphics",
+    "adapter_api_version": "3.3.0 Core Profile Context 26.5.2.260413",
+    "rendering_method": "gl_compatibility",
+    "rendering_driver": "opengl3",
+    "viewport_size": [
+      1920,
+      1080
+    ],
+    "vsync_mode": 0,
+    "screen_refresh_hz": 120.0,
+    "steps": [
+      {
+        "step": "menu_start_available",
+        "ok": true,
+        "at_ms": 21212
+      },
+      {
+        "step": "replace_checkpoint_confirmed",
+        "ok": true,
+        "at_ms": 21434
+      },
+      {
+        "step": "mission_loaded",
+        "ok": true,
+        "at_ms": 21662
+      },
+      {
+        "step": "walk_completed",
+        "ok": true,
+        "at_ms": 91439
+      },
+      {
+        "step": "map_meter_opened_20_of_20",
+        "ok": true,
+        "at_ms": 139491
+      },
+      {
+        "step": "map_meter_closed_20_of_20",
+        "ok": true,
+        "at_ms": 139492
+      },
+      {
+        "step": "pause_opened_10_of_10",
+        "ok": true,
+        "at_ms": 159511
+      },
+      {
+        "step": "pause_closed_10_of_10",
+        "ok": true,
+        "at_ms": 159511
+      }
+    ],
+    "engine_segments": {
+      "0": {
+        "segment": 0,
+        "name": "menu_idle",
+        "started_ms": 1312,
+        "frames": 16793,
+        "video_mem_peak_bytes": 24325551,
+        "texture_mem_peak_bytes": 17850647,
+        "draw_calls_peak": 14,
+        "primitives_peak": 2346,
+        "objects_peak": 454
+      },
+      "1": {
+        "segment": 1,
+        "name": "mission_idle",
+        "started_ms": 21662,
+        "frames": 12740,
+        "video_mem_peak_bytes": 34465591,
+        "texture_mem_peak_bytes": 21546885,
+        "draw_calls_peak": 454,
+        "primitives_peak": 7782,
+        "objects_peak": 741
+      },
+      "2": {
+        "segment": 2,
+        "name": "walk_look",
+        "started_ms": 51433,
+        "frames": 22032,
+        "video_mem_peak_bytes": 34465591,
+        "texture_mem_peak_bytes": 21503195,
+        "draw_calls_peak": 454,
+        "primitives_peak": 7782,
+        "objects_peak": 741
+      },
+      "3": {
+        "segment": 3,
+        "name": "tablet_toggle",
+        "started_ms": 91439,
+        "frames": 18780,
+        "video_mem_peak_bytes": 35612815,
+        "texture_mem_peak_bytes": 22304947,
+        "draw_calls_peak": 517,
+        "primitives_peak": 15527,
+        "objects_peak": 1725
+      },
+      "4": {
+        "segment": 4,
+        "name": "pause_toggle",
+        "started_ms": 139492,
+        "frames": 8880,
+        "video_mem_peak_bytes": 36318201,
+        "texture_mem_peak_bytes": 23003997,
+        "draw_calls_peak": 429,
+        "primitives_peak": 9708,
+        "objects_peak": 957
+      },
+      "5": {
+        "segment": 5,
+        "name": "final_idle",
+        "started_ms": 159512,
+        "frames": 9010,
+        "video_mem_peak_bytes": 36287121,
+        "texture_mem_peak_bytes": 23003997,
+        "draw_calls_peak": 411,
+        "primitives_peak": 7272,
+        "objects_peak": 698
+      }
+    },
+    "frames_overall": {
+      "count": 84224,
+      "p50_ms": 1.942,
+      "p95_ms": 3.211,
+      "p99_ms": 6.217,
+      "max_ms": 228.426,
+      "over_16_7ms": 38,
+      "over_33_3ms": 7
+    },
+    "frames_by_segment": {
+      "0": {
+        "count": 12782,
+        "p50_ms": 1.07,
+        "p95_ms": 1.697,
+        "p99_ms": 1.791,
+        "max_ms": 222.189,
+        "over_16_7ms": 1,
+        "over_33_3ms": 1
+      },
+      "1": {
+        "count": 12740,
+        "p50_ms": 2.239,
+        "p95_ms": 3.198,
+        "p99_ms": 6.539,
+        "max_ms": 228.426,
+        "over_16_7ms": 3,
+        "over_33_3ms": 2
+      },
+      "2": {
+        "count": 22032,
+        "p50_ms": 1.682,
+        "p95_ms": 2.552,
+        "p99_ms": 5.778,
+        "max_ms": 37.915,
+        "over_16_7ms": 1,
+        "over_33_3ms": 1
+      },
+      "3": {
+        "count": 18780,
+        "p50_ms": 2.421,
+        "p95_ms": 3.603,
+        "p99_ms": 6.786,
+        "max_ms": 42.134,
+        "over_16_7ms": 22,
+        "over_33_3ms": 1
+      },
+      "4": {
+        "count": 8880,
+        "p50_ms": 2.191,
+        "p95_ms": 2.997,
+        "p99_ms": 5.899,
+        "max_ms": 38.133,
+        "over_16_7ms": 11,
+        "over_33_3ms": 2
+      },
+      "5": {
+        "count": 9010,
+        "p50_ms": 2.135,
+        "p95_ms": 3.099,
+        "p99_ms": 6.4,
+        "max_ms": 9.361,
+        "over_16_7ms": 0,
+        "over_33_3ms": 0
+      }
+    },
+    "windows_samples": 45,
+    "working_set_peak_mib": 370.6,
+    "private_peak_mib": 413.6,
+    "gpu_dedicated_peak_mib": 220.9,
+    "gpu_shared_peak_mib": 122.2,
+    "working_set_late_minus_mid_mib": 3.0
+  },
+  {
+    "label": "amd_gl_720",
+    "exit_code": 0,
+    "timed_out": false,
+    "error": "",
+    "adapter_name": "AMD Radeon(TM) RX Vega 10 Graphics",
+    "adapter_api_version": "3.3.0 Core Profile Context 26.5.2.260413",
+    "rendering_method": "gl_compatibility",
+    "rendering_driver": "opengl3",
+    "viewport_size": [
+      1280,
+      720
+    ],
+    "vsync_mode": 0,
+    "screen_refresh_hz": 120.0,
+    "steps": [
+      {
+        "step": "menu_start_available",
+        "ok": true,
+        "at_ms": 21302
+      },
+      {
+        "step": "mission_loaded",
+        "ok": true,
+        "at_ms": 22186
+      },
+      {
+        "step": "walk_completed",
+        "ok": true,
+        "at_ms": 91522
+      },
+      {
+        "step": "map_meter_opened_20_of_20",
+        "ok": true,
+        "at_ms": 139565
+      },
+      {
+        "step": "map_meter_closed_20_of_20",
+        "ok": true,
+        "at_ms": 139565
+      },
+      {
+        "step": "pause_opened_10_of_10",
+        "ok": true,
+        "at_ms": 159580
+      },
+      {
+        "step": "pause_closed_10_of_10",
+        "ok": true,
+        "at_ms": 159580
+      }
+    ],
+    "engine_segments": {
+      "0": {
+        "segment": 0,
+        "name": "menu_idle",
+        "started_ms": 1400,
+        "frames": 21788,
+        "video_mem_peak_bytes": 14431253,
+        "texture_mem_peak_bytes": 7977925,
+        "draw_calls_peak": 10,
+        "primitives_peak": 1832,
+        "objects_peak": 437
+      },
+      "1": {
+        "segment": 1,
+        "name": "mission_idle",
+        "started_ms": 22186,
+        "frames": 13541,
+        "video_mem_peak_bytes": 23030655,
+        "texture_mem_peak_bytes": 12198451,
+        "draw_calls_peak": 479,
+        "primitives_peak": 8074,
+        "objects_peak": 766
+      },
+      "2": {
+        "segment": 2,
+        "name": "walk_look",
+        "started_ms": 51516,
+        "frames": 30896,
+        "video_mem_peak_bytes": 23030655,
+        "texture_mem_peak_bytes": 12198451,
+        "draw_calls_peak": 479,
+        "primitives_peak": 8074,
+        "objects_peak": 766
+      },
+      "3": {
+        "segment": 3,
+        "name": "tablet_toggle",
+        "started_ms": 91522,
+        "frames": 21698,
+        "video_mem_peak_bytes": 25871163,
+        "texture_mem_peak_bytes": 12563295,
+        "draw_calls_peak": 489,
+        "primitives_peak": 15189,
+        "objects_peak": 1699
+      },
+      "4": {
+        "segment": 4,
+        "name": "pause_toggle",
+        "started_ms": 139565,
+        "frames": 9865,
+        "video_mem_peak_bytes": 26576549,
+        "texture_mem_peak_bytes": 13262345,
+        "draw_calls_peak": 401,
+        "primitives_peak": 9368,
+        "objects_peak": 929
+      },
+      "5": {
+        "segment": 5,
+        "name": "final_idle",
+        "started_ms": 159580,
+        "frames": 10197,
+        "video_mem_peak_bytes": 26545469,
+        "texture_mem_peak_bytes": 13262345,
+        "draw_calls_peak": 383,
+        "primitives_peak": 6932,
+        "objects_peak": 670
+      }
+    },
+    "frames_overall": {
+      "count": 103156,
+      "p50_ms": 1.729,
+      "p95_ms": 2.717,
+      "p99_ms": 5.58,
+      "max_ms": 671.924,
+      "over_16_7ms": 24,
+      "over_33_3ms": 7
+    },
+    "frames_by_segment": {
+      "0": {
+        "count": 16959,
+        "p50_ms": 0.703,
+        "p95_ms": 2.323,
+        "p99_ms": 2.693,
+        "max_ms": 212.93,
+        "over_16_7ms": 1,
+        "over_33_3ms": 1
+      },
+      "1": {
+        "count": 13541,
+        "p50_ms": 2.08,
+        "p95_ms": 2.881,
+        "p99_ms": 6.063,
+        "max_ms": 671.924,
+        "over_16_7ms": 1,
+        "over_33_3ms": 1
+      },
+      "2": {
+        "count": 30896,
+        "p50_ms": 0.984,
+        "p95_ms": 2.513,
+        "p99_ms": 4.993,
+        "max_ms": 37.289,
+        "over_16_7ms": 2,
+        "over_33_3ms": 1
+      },
+      "3": {
+        "count": 21698,
+        "p50_ms": 2.125,
+        "p95_ms": 2.97,
+        "p99_ms": 6.075,
+        "max_ms": 88.737,
+        "over_16_7ms": 9,
+        "over_33_3ms": 2
+      },
+      "4": {
+        "count": 9865,
+        "p50_ms": 1.947,
+        "p95_ms": 2.56,
+        "p99_ms": 5.416,
+        "max_ms": 37.823,
+        "over_16_7ms": 11,
+        "over_33_3ms": 2
+      },
+      "5": {
+        "count": 10197,
+        "p50_ms": 1.887,
+        "p95_ms": 2.588,
+        "p99_ms": 5.82,
+        "max_ms": 7.671,
+        "over_16_7ms": 0,
+        "over_33_3ms": 0
+      }
+    },
+    "windows_samples": 45,
+    "working_set_peak_mib": 388.6,
+    "private_peak_mib": 410.6,
+    "gpu_dedicated_peak_mib": 137.8,
+    "gpu_shared_peak_mib": 122.2,
+    "working_set_late_minus_mid_mib": -65.7
+  },
+  {
+    "label": "amd_mobile_1080_r2",
+    "exit_code": 0,
+    "timed_out": false,
+    "error": "",
+    "adapter_name": "AMD Radeon(TM) RX Vega 10 Graphics",
+    "adapter_api_version": "1.3.260",
+    "rendering_method": "mobile",
+    "rendering_driver": "vulkan",
+    "viewport_size": [
+      1920,
+      1080
+    ],
+    "vsync_mode": 0,
+    "screen_refresh_hz": 120.0,
+    "steps": [
+      {
+        "step": "menu_start_available",
+        "ok": true,
+        "at_ms": 23621
+      },
+      {
+        "step": "mission_loaded",
+        "ok": true,
+        "at_ms": 25391
+      },
+      {
+        "step": "walk_completed",
+        "ok": true,
+        "at_ms": 93862
+      },
+      {
+        "step": "map_meter_opened_20_of_20",
+        "ok": true,
+        "at_ms": 141940
+      },
+      {
+        "step": "map_meter_closed_20_of_20",
+        "ok": true,
+        "at_ms": 141940
+      },
+      {
+        "step": "pause_opened_10_of_10",
+        "ok": true,
+        "at_ms": 161974
+      },
+      {
+        "step": "pause_closed_10_of_10",
+        "ok": true,
+        "at_ms": 161974
+      }
+    ],
+    "engine_segments": {
+      "0": {
+        "segment": 0,
+        "name": "menu_idle",
+        "started_ms": 3742,
+        "frames": 7896,
+        "video_mem_peak_bytes": 23565344,
+        "texture_mem_peak_bytes": 10325344,
+        "draw_calls_peak": 12,
+        "primitives_peak": 1996,
+        "objects_peak": 439
+      },
+      "1": {
+        "segment": 1,
+        "name": "mission_idle",
+        "started_ms": 25391,
+        "frames": 8851,
+        "video_mem_peak_bytes": 104673168,
+        "texture_mem_peak_bytes": 35642736,
+        "draw_calls_peak": 445,
+        "primitives_peak": 7782,
+        "objects_peak": 732
+      },
+      "2": {
+        "segment": 2,
+        "name": "walk_look",
+        "started_ms": 53840,
+        "frames": 12390,
+        "video_mem_peak_bytes": 103780176,
+        "texture_mem_peak_bytes": 34724976,
+        "draw_calls_peak": 445,
+        "primitives_peak": 7782,
+        "objects_peak": 732
+      },
+      "3": {
+        "segment": 3,
+        "name": "tablet_toggle",
+        "started_ms": 93862,
+        "frames": 13388,
+        "video_mem_peak_bytes": 104906640,
+        "texture_mem_peak_bytes": 35391856,
+        "draw_calls_peak": 510,
+        "primitives_peak": 15527,
+        "objects_peak": 1718
+      },
+      "4": {
+        "segment": 4,
+        "name": "pause_toggle",
+        "started_ms": 141940,
+        "frames": 5911,
+        "video_mem_peak_bytes": 105294400,
+        "texture_mem_peak_bytes": 35916144,
+        "draw_calls_peak": 422,
+        "primitives_peak": 9708,
+        "objects_peak": 950
+      },
+      "5": {
+        "segment": 5,
+        "name": "final_idle",
+        "started_ms": 161975,
+        "frames": 6082,
+        "video_mem_peak_bytes": 105193760,
+        "texture_mem_peak_bytes": 35916144,
+        "draw_calls_peak": 404,
+        "primitives_peak": 7272,
+        "objects_peak": 691
+      }
+    },
+    "frames_overall": {
+      "count": 52654,
+      "p50_ms": 3.102,
+      "p95_ms": 4.179,
+      "p99_ms": 7.394,
+      "max_ms": 1548.894,
+      "over_16_7ms": 39,
+      "over_33_3ms": 7
+    },
+    "frames_by_segment": {
+      "0": {
+        "count": 6032,
+        "p50_ms": 2.42,
+        "p95_ms": 2.893,
+        "p99_ms": 3.05,
+        "max_ms": 222.208,
+        "over_16_7ms": 1,
+        "over_33_3ms": 1
+      },
+      "1": {
+        "count": 8851,
+        "p50_ms": 3.012,
+        "p95_ms": 4.078,
+        "p99_ms": 7.21,
+        "max_ms": 1548.894,
+        "over_16_7ms": 3,
+        "over_33_3ms": 1
+      },
+      "2": {
+        "count": 12390,
+        "p50_ms": 3.065,
+        "p95_ms": 4.208,
+        "p99_ms": 7.404,
+        "max_ms": 37.878,
+        "over_16_7ms": 1,
+        "over_33_3ms": 1
+      },
+      "3": {
+        "count": 13388,
+        "p50_ms": 3.491,
+        "p95_ms": 4.383,
+        "p99_ms": 7.775,
+        "max_ms": 42.229,
+        "over_16_7ms": 23,
+        "over_33_3ms": 2
+      },
+      "4": {
+        "count": 5911,
+        "p50_ms": 3.241,
+        "p95_ms": 4.122,
+        "p99_ms": 7.245,
+        "max_ms": 38.452,
+        "over_16_7ms": 11,
+        "over_33_3ms": 2
+      },
+      "5": {
+        "count": 6082,
+        "p50_ms": 3.121,
+        "p95_ms": 4.161,
+        "p99_ms": 7.311,
+        "max_ms": 9.197,
+        "over_16_7ms": 0,
+        "over_33_3ms": 0
+      }
+    },
+    "windows_samples": 46,
+    "working_set_peak_mib": 553.9,
+    "private_peak_mib": 656.0,
+    "gpu_dedicated_peak_mib": 189.0,
+    "gpu_shared_peak_mib": 139.1,
+    "working_set_late_minus_mid_mib": -97.7
+  },
+  {
+    "label": "intel_fplus_1080",
+    "exit_code": 0,
+    "timed_out": false,
+    "error": "",
+    "adapter_name": "Intel(R) RaptorLake-S Mobile Graphics Controller",
+    "adapter_api_version": "1.4.323",
+    "rendering_method": "forward_plus",
+    "rendering_driver": "vulkan",
+    "viewport_size": [
+      2560,
+      1600
+    ],
+    "vsync_mode": 0,
+    "screen_refresh_hz": 240.0,
+    "steps": [
+      {
+        "step": "menu_start_available",
+        "ok": true,
+        "at_ms": 21057
+      },
+      {
+        "step": "replace_checkpoint_confirmed",
+        "ok": true,
+        "at_ms": 21153
+      },
+      {
+        "step": "mission_loaded",
+        "ok": true,
+        "at_ms": 22400
+      },
+      {
+        "step": "walk_completed",
+        "ok": true,
+        "at_ms": 91197
+      },
+      {
+        "step": "map_meter_opened_20_of_20",
+        "ok": true,
+        "at_ms": 139384
+      },
+      {
+        "step": "map_meter_closed_20_of_20",
+        "ok": true,
+        "at_ms": 139384
+      },
+      {
+        "step": "pause_opened_10_of_10",
+        "ok": true,
+        "at_ms": 159517
+      },
+      {
+        "step": "pause_closed_10_of_10",
+        "ok": true,
+        "at_ms": 159517
+      }
+    ],
+    "engine_segments": {
+      "0": {
+        "segment": 0,
+        "name": "menu_idle",
+        "started_ms": 1192,
+        "frames": 7623,
+        "video_mem_peak_bytes": 34177536,
+        "texture_mem_peak_bytes": 20623744,
+        "draw_calls_peak": 14,
+        "primitives_peak": 2346,
+        "objects_peak": 454
+      },
+      "1": {
+        "segment": 1,
+        "name": "mission_idle",
+        "started_ms": 22400,
+        "frames": 3016,
+        "video_mem_peak_bytes": 195172416,
+        "texture_mem_peak_bytes": 80347648,
+        "draw_calls_peak": 119,
+        "primitives_peak": 7706,
+        "objects_peak": 735
+      },
+      "2": {
+        "segment": 2,
+        "name": "walk_look",
+        "started_ms": 51161,
+        "frames": 3347,
+        "video_mem_peak_bytes": 193872192,
+        "texture_mem_peak_bytes": 79036928,
+        "draw_calls_peak": 121,
+        "primitives_peak": 7706,
+        "objects_peak": 735
+      },
+      "3": {
+        "segment": 3,
+        "name": "tablet_toggle",
+        "started_ms": 91198,
+        "frames": 4274,
+        "video_mem_peak_bytes": 195465536,
+        "texture_mem_peak_bytes": 80167424,
+        "draw_calls_peak": 216,
+        "primitives_peak": 15333,
+        "objects_peak": 1710
+      },
+      "4": {
+        "segment": 4,
+        "name": "pause_toggle",
+        "started_ms": 139384,
+        "frames": 1830,
+        "video_mem_peak_bytes": 195851072,
+        "texture_mem_peak_bytes": 80691712,
+        "draw_calls_peak": 128,
+        "primitives_peak": 9514,
+        "objects_peak": 942
+      },
+      "5": {
+        "segment": 5,
+        "name": "final_idle",
+        "started_ms": 159518,
+        "frames": 1816,
+        "video_mem_peak_bytes": 195750016,
+        "texture_mem_peak_bytes": 80691712,
+        "draw_calls_peak": 110,
+        "primitives_peak": 7078,
+        "objects_peak": 683
+      }
+    },
+    "frames_overall": {
+      "count": 20057,
+      "p50_ms": 10.448,
+      "p95_ms": 12.843,
+      "p99_ms": 13.927,
+      "max_ms": 1246.022,
+      "over_16_7ms": 44,
+      "over_33_3ms": 3
+    },
+    "frames_by_segment": {
+      "0": {
+        "count": 5774,
+        "p50_ms": 2.846,
+        "p95_ms": 3.218,
+        "p99_ms": 3.354,
+        "max_ms": 96.911,
+        "over_16_7ms": 1,
+        "over_33_3ms": 1
+      },
+      "1": {
+        "count": 3016,
+        "p50_ms": 9.529,
+        "p95_ms": 11.024,
+        "p99_ms": 11.398,
+        "max_ms": 1246.022,
+        "over_16_7ms": 2,
+        "over_33_3ms": 2
+      },
+      "2": {
+        "count": 3347,
+        "p50_ms": 12.057,
+        "p95_ms": 13.804,
+        "p99_ms": 14.465,
+        "max_ms": 24.691,
+        "over_16_7ms": 1,
+        "over_33_3ms": 0
+      },
+      "3": {
+        "count": 4274,
+        "p50_ms": 11.414,
+        "p95_ms": 12.726,
+        "p99_ms": 14.029,
+        "max_ms": 29.121,
+        "over_16_7ms": 29,
+        "over_33_3ms": 0
+      },
+      "4": {
+        "count": 1830,
+        "p50_ms": 11.04,
+        "p95_ms": 12.309,
+        "p99_ms": 13.117,
+        "max_ms": 24.056,
+        "over_16_7ms": 11,
+        "over_33_3ms": 0
+      },
+      "5": {
+        "count": 1816,
+        "p50_ms": 10.97,
+        "p95_ms": 12.578,
+        "p99_ms": 12.956,
+        "max_ms": 14.139,
+        "over_16_7ms": 0,
+        "over_33_3ms": 0
+      }
+    },
+    "windows_samples": 45,
+    "working_set_peak_mib": 832.2,
+    "private_peak_mib": 700.6,
+    "gpu_dedicated_peak_mib": 0.3,
+    "gpu_shared_peak_mib": 645.4,
+    "working_set_late_minus_mid_mib": 2.6
+  },
+  {
+    "label": "intel_gl_1080",
+    "exit_code": 0,
+    "timed_out": false,
+    "error": "",
+    "adapter_name": "Intel(R) RaptorLake-S Mobile Graphics Controller",
+    "adapter_api_version": "3.3.0 - Build 32.0.101.7092",
+    "rendering_method": "gl_compatibility",
+    "rendering_driver": "opengl3",
+    "viewport_size": [
+      2560,
+      1600
+    ],
+    "vsync_mode": 0,
+    "screen_refresh_hz": 240.0,
+    "steps": [
+      {
+        "step": "shift_started_before_driver_in_MissionRoot",
+        "ok": false,
+        "at_ms": 21223
+      },
+      {
+        "step": "mission_loaded",
+        "ok": true,
+        "at_ms": 21224
+      },
+      {
+        "step": "walk_completed",
+        "ok": true,
+        "at_ms": 91259
+      },
+      {
+        "step": "map_meter_opened_20_of_20",
+        "ok": true,
+        "at_ms": 139372
+      },
+      {
+        "step": "map_meter_closed_20_of_20",
+        "ok": true,
+        "at_ms": 139372
+      },
+      {
+        "step": "pause_opened_10_of_10",
+        "ok": true,
+        "at_ms": 159427
+      },
+      {
+        "step": "pause_closed_9_of_10",
+        "ok": false,
+        "at_ms": 159427
+      }
+    ],
+    "engine_segments": {
+      "0": {
+        "segment": 0,
+        "name": "menu_idle",
+        "started_ms": 1280,
+        "frames": 4325,
+        "video_mem_peak_bytes": 55517869,
+        "texture_mem_peak_bytes": 38295089,
+        "draw_calls_peak": 514,
+        "primitives_peak": 8382,
+        "objects_peak": 765
+      },
+      "1": {
+        "segment": 1,
+        "name": "mission_idle",
+        "started_ms": 21224,
+        "frames": 6564,
+        "video_mem_peak_bytes": 56259077,
+        "texture_mem_peak_bytes": 38950449,
+        "draw_calls_peak": 515,
+        "primitives_peak": 8466,
+        "objects_peak": 802
+      },
+      "2": {
+        "segment": 2,
+        "name": "walk_look",
+        "started_ms": 51226,
+        "frames": 7551,
+        "video_mem_peak_bytes": 56014273,
+        "texture_mem_peak_bytes": 38731997,
+        "draw_calls_peak": 44,
+        "primitives_peak": 3002,
+        "objects_peak": 331
+      },
+      "3": {
+        "segment": 3,
+        "name": "tablet_toggle",
+        "started_ms": 91259,
+        "frames": 8152,
+        "video_mem_peak_bytes": 57814517,
+        "texture_mem_peak_bytes": 40191497,
+        "draw_calls_peak": 383,
+        "primitives_peak": 11197,
+        "objects_peak": 1378
+      },
+      "4": {
+        "segment": 4,
+        "name": "pause_toggle",
+        "started_ms": 139373,
+        "frames": 3798,
+        "video_mem_peak_bytes": 57766085,
+        "texture_mem_peak_bytes": 40191497,
+        "draw_calls_peak": 59,
+        "primitives_peak": 5354,
+        "objects_peak": 608
+      },
+      "5": {
+        "segment": 5,
+        "name": "final_idle",
+        "started_ms": 159427,
+        "frames": 3861,
+        "video_mem_peak_bytes": 57766085,
+        "texture_mem_peak_bytes": 40191497,
+        "draw_calls_peak": 59,
+        "primitives_peak": 5354,
+        "objects_peak": 608
+      }
+    },
+    "frames_overall": {
+      "count": 33480,
+      "p50_ms": 4.972,
+      "p95_ms": 7.797,
+      "p99_ms": 16.673,
+      "max_ms": 44.803,
+      "over_16_7ms": 331,
+      "over_33_3ms": 2
+    },
+    "frames_by_segment": {
+      "0": {
+        "count": 3554,
+        "p50_ms": 4.129,
+        "p95_ms": 5.869,
+        "p99_ms": 12.926,
+        "max_ms": 17.187,
+        "over_16_7ms": 2,
+        "over_33_3ms": 0
+      },
+      "1": {
+        "count": 6564,
+        "p50_ms": 4.291,
+        "p95_ms": 7.799,
+        "p99_ms": 14.711,
+        "max_ms": 27.62,
+        "over_16_7ms": 28,
+        "over_33_3ms": 0
+      },
+      "2": {
+        "count": 7551,
+        "p50_ms": 5.319,
+        "p95_ms": 7.361,
+        "p99_ms": 16.565,
+        "max_ms": 27.67,
+        "over_16_7ms": 60,
+        "over_33_3ms": 0
+      },
+      "3": {
+        "count": 8152,
+        "p50_ms": 5.749,
+        "p95_ms": 8.266,
+        "p99_ms": 20.169,
+        "max_ms": 44.803,
+        "over_16_7ms": 187,
+        "over_33_3ms": 2
+      },
+      "4": {
+        "count": 3798,
+        "p50_ms": 5.3,
+        "p95_ms": 6.906,
+        "p99_ms": 16.481,
+        "max_ms": 18.291,
+        "over_16_7ms": 30,
+        "over_33_3ms": 0
+      },
+      "5": {
+        "count": 3861,
+        "p50_ms": 4.809,
+        "p95_ms": 8.088,
+        "p99_ms": 15.961,
+        "max_ms": 23.002,
+        "over_16_7ms": 24,
+        "over_33_3ms": 0
+      }
+    },
+    "windows_samples": 45,
+    "working_set_peak_mib": 491.5,
+    "private_peak_mib": 360.7,
+    "gpu_dedicated_peak_mib": 0.0,
+    "gpu_shared_peak_mib": 342.9,
+    "working_set_late_minus_mid_mib": 5.7
+  },
+  {
+    "label": "intel_mobile_1080",
+    "exit_code": 0,
+    "timed_out": false,
+    "error": "",
+    "adapter_name": "Intel(R) RaptorLake-S Mobile Graphics Controller",
+    "adapter_api_version": "1.4.323",
+    "rendering_method": "mobile",
+    "rendering_driver": "vulkan",
+    "viewport_size": [
+      2560,
+      1600
+    ],
+    "vsync_mode": 0,
+    "screen_refresh_hz": 240.0,
+    "steps": [
+      {
+        "step": "menu_start_available",
+        "ok": true,
+        "at_ms": 21065
+      },
+      {
+        "step": "replace_checkpoint_confirmed",
+        "ok": true,
+        "at_ms": 21169
+      },
+      {
+        "step": "mission_loaded",
+        "ok": true,
+        "at_ms": 21992
+      },
+      {
+        "step": "walk_completed",
+        "ok": true,
+        "at_ms": 91193
+      },
+      {
+        "step": "map_meter_opened_20_of_20",
+        "ok": true,
+        "at_ms": 139321
+      },
+      {
+        "step": "map_meter_closed_20_of_20",
+        "ok": true,
+        "at_ms": 139321
+      },
+      {
+        "step": "pause_opened_10_of_10",
+        "ok": true,
+        "at_ms": 159369
+      },
+      {
+        "step": "pause_closed_10_of_10",
+        "ok": true,
+        "at_ms": 159369
+      }
+    ],
+    "engine_segments": {
+      "0": {
+        "segment": 0,
+        "name": "menu_idle",
+        "started_ms": 1119,
+        "frames": 7436,
+        "video_mem_peak_bytes": 32718656,
+        "texture_mem_peak_bytes": 19444096,
+        "draw_calls_peak": 14,
+        "primitives_peak": 2346,
+        "objects_peak": 454
+      },
+      "1": {
+        "segment": 1,
+        "name": "mission_idle",
+        "started_ms": 21992,
+        "frames": 5926,
+        "video_mem_peak_bytes": 131769728,
+        "texture_mem_peak_bytes": 62718464,
+        "draw_calls_peak": 441,
+        "primitives_peak": 7706,
+        "objects_peak": 728
+      },
+      "2": {
+        "segment": 2,
+        "name": "walk_look",
+        "started_ms": 51168,
+        "frames": 7699,
+        "video_mem_peak_bytes": 130469504,
+        "texture_mem_peak_bytes": 61407744,
+        "draw_calls_peak": 441,
+        "primitives_peak": 7706,
+        "objects_peak": 728
+      },
+      "3": {
+        "segment": 3,
+        "name": "tablet_toggle",
+        "started_ms": 91193,
+        "frames": 8518,
+        "video_mem_peak_bytes": 132062848,
+        "texture_mem_peak_bytes": 62538240,
+        "draw_calls_peak": 497,
+        "primitives_peak": 15333,
+        "objects_peak": 1705
+      },
+      "4": {
+        "segment": 4,
+        "name": "pause_toggle",
+        "started_ms": 139321,
+        "frames": 3713,
+        "video_mem_peak_bytes": 132448384,
+        "texture_mem_peak_bytes": 63062528,
+        "draw_calls_peak": 409,
+        "primitives_peak": 9514,
+        "objects_peak": 937
+      },
+      "5": {
+        "segment": 5,
+        "name": "final_idle",
+        "started_ms": 159369,
+        "frames": 3793,
+        "video_mem_peak_bytes": 132347328,
+        "texture_mem_peak_bytes": 63062528,
+        "draw_calls_peak": 391,
+        "primitives_peak": 7078,
+        "objects_peak": 678
+      }
+    },
+    "frames_overall": {
+      "count": 35291,
+      "p50_ms": 4.955,
+      "p95_ms": 7.076,
+      "p99_ms": 7.987,
+      "max_ms": 822.939,
+      "over_16_7ms": 7,
+      "over_33_3ms": 2
+    },
+    "frames_by_segment": {
+      "0": {
+        "count": 5642,
+        "p50_ms": 2.922,
+        "p95_ms": 3.34,
+        "p99_ms": 3.542,
+        "max_ms": 104.234,
+        "over_16_7ms": 1,
+        "over_33_3ms": 1
+      },
+      "1": {
+        "count": 5926,
+        "p50_ms": 4.887,
+        "p95_ms": 6.677,
+        "p99_ms": 8.267,
+        "max_ms": 822.939,
+        "over_16_7ms": 2,
+        "over_33_3ms": 1
+      },
+      "2": {
+        "count": 7699,
+        "p50_ms": 5.163,
+        "p95_ms": 6.972,
+        "p99_ms": 7.842,
+        "max_ms": 18.203,
+        "over_16_7ms": 1,
+        "over_33_3ms": 0
+      },
+      "3": {
+        "count": 8518,
+        "p50_ms": 5.772,
+        "p95_ms": 7.374,
+        "p99_ms": 8.319,
+        "max_ms": 23.445,
+        "over_16_7ms": 1,
+        "over_33_3ms": 0
+      },
+      "4": {
+        "count": 3713,
+        "p50_ms": 5.419,
+        "p95_ms": 7.02,
+        "p99_ms": 7.965,
+        "max_ms": 18.06,
+        "over_16_7ms": 2,
+        "over_33_3ms": 0
+      },
+      "5": {
+        "count": 3793,
+        "p50_ms": 5.283,
+        "p95_ms": 6.977,
+        "p99_ms": 7.964,
+        "max_ms": 8.836,
+        "over_16_7ms": 0,
+        "over_33_3ms": 0
+      }
+    },
+    "windows_samples": 45,
+    "working_set_peak_mib": 644.0,
+    "private_peak_mib": 512.8,
+    "gpu_dedicated_peak_mib": 0.3,
+    "gpu_shared_peak_mib": 479.5,
+    "working_set_late_minus_mid_mib": 3.6
+  },
+  {
+    "label": "nv_fplus_1080",
+    "exit_code": 0,
+    "timed_out": false,
+    "error": "",
+    "adapter_name": "NVIDIA GeForce GTX 1650",
+    "adapter_api_version": "1.4.357",
+    "rendering_method": "forward_plus",
+    "rendering_driver": "vulkan",
+    "viewport_size": [
+      1920,
+      1080
+    ],
+    "vsync_mode": 0,
+    "screen_refresh_hz": 120.0,
+    "steps": [
+      {
+        "step": "menu_start_available",
+        "ok": true,
+        "at_ms": 27137
+      },
+      {
+        "step": "mission_loaded",
+        "ok": true,
+        "at_ms": 31847
+      },
+      {
+        "step": "walk_completed",
+        "ok": true,
+        "at_ms": 97378
+      },
+      {
+        "step": "map_meter_opened_20_of_20",
+        "ok": true,
+        "at_ms": 145416
+      },
+      {
+        "step": "map_meter_closed_20_of_20",
+        "ok": true,
+        "at_ms": 145416
+      },
+      {
+        "step": "pause_opened_10_of_10",
+        "ok": true,
+        "at_ms": 165435
+      },
+      {
+        "step": "pause_closed_10_of_10",
+        "ok": true,
+        "at_ms": 165435
+      }
+    ],
+    "engine_segments": {
+      "0": {
+        "segment": 0,
+        "name": "menu_idle",
+        "started_ms": 7262,
+        "frames": 10303,
+        "video_mem_peak_bytes": 24832800,
+        "texture_mem_peak_bytes": 11313664,
+        "draw_calls_peak": 12,
+        "primitives_peak": 1996,
+        "objects_peak": 439
+      },
+      "1": {
+        "segment": 1,
+        "name": "mission_idle",
+        "started_ms": 31848,
+        "frames": 12826,
+        "video_mem_peak_bytes": 143675008,
+        "texture_mem_peak_bytes": 51450368,
+        "draw_calls_peak": 125,
+        "primitives_peak": 7782,
+        "objects_peak": 741
+      },
+      "2": {
+        "segment": 2,
+        "name": "walk_look",
+        "started_ms": 57369,
+        "frames": 19948,
+        "video_mem_peak_bytes": 142781760,
+        "texture_mem_peak_bytes": 50532352,
+        "draw_calls_peak": 125,
+        "primitives_peak": 7782,
+        "objects_peak": 741
+      },
+      "3": {
+        "segment": 3,
+        "name": "tablet_toggle",
+        "started_ms": 97379,
+        "frames": 23567,
+        "video_mem_peak_bytes": 143917184,
+        "texture_mem_peak_bytes": 51208192,
+        "draw_calls_peak": 219,
+        "primitives_peak": 15459,
+        "objects_peak": 1718
+      },
+      "4": {
+        "segment": 4,
+        "name": "pause_toggle",
+        "started_ms": 145416,
+        "frames": 9924,
+        "video_mem_peak_bytes": 144304944,
+        "texture_mem_peak_bytes": 51732480,
+        "draw_calls_peak": 131,
+        "primitives_peak": 9640,
+        "objects_peak": 950
+      },
+      "5": {
+        "segment": 5,
+        "name": "final_idle",
+        "started_ms": 165435,
+        "frames": 10177,
+        "video_mem_peak_bytes": 144204304,
+        "texture_mem_peak_bytes": 51732480,
+        "draw_calls_peak": 113,
+        "primitives_peak": 7204,
+        "objects_peak": 691
+      }
+    },
+    "frames_overall": {
+      "count": 84342,
+      "p50_ms": 1.726,
+      "p95_ms": 3.427,
+      "p99_ms": 5.506,
+      "max_ms": 4480.616,
+      "over_16_7ms": 25,
+      "over_33_3ms": 7
+    },
+    "frames_by_segment": {
+      "0": {
+        "count": 7900,
+        "p50_ms": 1.791,
+        "p95_ms": 3.019,
+        "p99_ms": 3.284,
+        "max_ms": 230.271,
+        "over_16_7ms": 1,
+        "over_33_3ms": 1
+      },
+      "1": {
+        "count": 12826,
+        "p50_ms": 1.702,
+        "p95_ms": 3.453,
+        "p99_ms": 5.925,
+        "max_ms": 4480.616,
+        "over_16_7ms": 2,
+        "over_33_3ms": 2
+      },
+      "2": {
+        "count": 19948,
+        "p50_ms": 1.702,
+        "p95_ms": 3.567,
+        "p99_ms": 5.646,
+        "max_ms": 38.637,
+        "over_16_7ms": 1,
+        "over_33_3ms": 1
+      },
+      "3": {
+        "count": 23567,
+        "p50_ms": 1.755,
+        "p95_ms": 3.434,
+        "p99_ms": 5.608,
+        "max_ms": 38.922,
+        "over_16_7ms": 10,
+        "over_33_3ms": 1
+      },
+      "4": {
+        "count": 9924,
+        "p50_ms": 1.711,
+        "p95_ms": 3.406,
+        "p99_ms": 5.007,
+        "max_ms": 37.088,
+        "over_16_7ms": 11,
+        "over_33_3ms": 2
+      },
+      "5": {
+        "count": 10177,
+        "p50_ms": 1.694,
+        "p95_ms": 3.425,
+        "p99_ms": 5.533,
+        "max_ms": 8.465,
+        "over_16_7ms": 0,
+        "over_33_3ms": 0
+      }
+    },
+    "windows_samples": 46,
+    "working_set_peak_mib": 747.7,
+    "private_peak_mib": 904.4,
+    "gpu_dedicated_peak_mib": 277.2,
+    "gpu_shared_peak_mib": 241.7,
+    "working_set_late_minus_mid_mib": 0.1
+  },
+  {
+    "label": "nv_gl_1080_r2",
+    "exit_code": 0,
+    "timed_out": false,
+    "error": "",
+    "adapter_name": "NVIDIA GeForce GTX 1650",
+    "adapter_api_version": "3.3.0 NVIDIA 621.14",
+    "rendering_method": "gl_compatibility",
+    "rendering_driver": "opengl3",
+    "viewport_size": [
+      1920,
+      1080
+    ],
+    "vsync_mode": 0,
+    "screen_refresh_hz": 120.0,
+    "steps": [
+      {
+        "step": "shift_started_before_driver_in_MissionRoot",
+        "ok": false,
+        "at_ms": 22319
+      },
+      {
+        "step": "mission_loaded",
+        "ok": true,
+        "at_ms": 22319
+      },
+      {
+        "step": "walk_completed",
+        "ok": true,
+        "at_ms": 92333
+      },
+      {
+        "step": "map_meter_opened_20_of_20",
+        "ok": true,
+        "at_ms": 140381
+      },
+      {
+        "step": "map_meter_closed_20_of_20",
+        "ok": true,
+        "at_ms": 140381
+      },
+      {
+        "step": "pause_opened_10_of_10",
+        "ok": true,
+        "at_ms": 160407
+      },
+      {
+        "step": "pause_closed_10_of_10",
+        "ok": true,
+        "at_ms": 160407
+      }
+    ],
+    "engine_segments": {
+      "0": {
+        "segment": 0,
+        "name": "menu_idle",
+        "started_ms": 2421,
+        "frames": 7188,
+        "video_mem_peak_bytes": 28117341,
+        "texture_mem_peak_bytes": 21545521,
+        "draw_calls_peak": 515,
+        "primitives_peak": 8394,
+        "objects_peak": 766
+      },
+      "1": {
+        "segment": 1,
+        "name": "mission_idle",
+        "started_ms": 22319,
+        "frames": 10452,
+        "video_mem_peak_bytes": 28117341,
+        "texture_mem_peak_bytes": 21545521,
+        "draw_calls_peak": 446,
+        "primitives_peak": 7638,
+        "objects_peak": 733
+      },
+      "2": {
+        "segment": 2,
+        "name": "walk_look",
+        "started_ms": 52322,
+        "frames": 15392,
+        "video_mem_peak_bytes": 28073651,
+        "texture_mem_peak_bytes": 21501831,
+        "draw_calls_peak": 514,
+        "primitives_peak": 8384,
+        "objects_peak": 766
+      },
+      "3": {
+        "segment": 3,
+        "name": "tablet_toggle",
+        "started_ms": 92334,
+        "frames": 17422,
+        "video_mem_peak_bytes": 29220875,
+        "texture_mem_peak_bytes": 22303583,
+        "draw_calls_peak": 179,
+        "primitives_peak": 11515,
+        "objects_peak": 1387
+      },
+      "4": {
+        "segment": 4,
+        "name": "pause_toggle",
+        "started_ms": 140381,
+        "frames": 7444,
+        "video_mem_peak_bytes": 29926261,
+        "texture_mem_peak_bytes": 23002633,
+        "draw_calls_peak": 91,
+        "primitives_peak": 5696,
+        "objects_peak": 619
+      },
+      "5": {
+        "segment": 5,
+        "name": "final_idle",
+        "started_ms": 160408,
+        "frames": 7779,
+        "video_mem_peak_bytes": 29895181,
+        "texture_mem_peak_bytes": 23002633,
+        "draw_calls_peak": 120,
+        "primitives_peak": 3764,
+        "objects_peak": 407
+      }
+    },
+    "frames_overall": {
+      "count": 63393,
+      "p50_ms": 2.62,
+      "p95_ms": 3.913,
+      "p99_ms": 5.894,
+      "max_ms": 295.202,
+      "over_16_7ms": 16,
+      "over_33_3ms": 6
+    },
+    "frames_by_segment": {
+      "0": {
+        "count": 4904,
+        "p50_ms": 2.803,
+        "p95_ms": 4.226,
+        "p99_ms": 6.51,
+        "max_ms": 295.202,
+        "over_16_7ms": 2,
+        "over_33_3ms": 2
+      },
+      "1": {
+        "count": 10452,
+        "p50_ms": 2.72,
+        "p95_ms": 3.883,
+        "p99_ms": 5.998,
+        "max_ms": 7.953,
+        "over_16_7ms": 0,
+        "over_33_3ms": 0
+      },
+      "2": {
+        "count": 15392,
+        "p50_ms": 2.517,
+        "p95_ms": 3.847,
+        "p99_ms": 5.876,
+        "max_ms": 41.631,
+        "over_16_7ms": 1,
+        "over_33_3ms": 1
+      },
+      "3": {
+        "count": 17422,
+        "p50_ms": 2.657,
+        "p95_ms": 3.998,
+        "p99_ms": 5.847,
+        "max_ms": 38.212,
+        "over_16_7ms": 3,
+        "over_33_3ms": 2
+      },
+      "4": {
+        "count": 7444,
+        "p50_ms": 2.569,
+        "p95_ms": 3.803,
+        "p99_ms": 5.153,
+        "max_ms": 34.418,
+        "over_16_7ms": 10,
+        "over_33_3ms": 1
+      },
+      "5": {
+        "count": 7779,
+        "p50_ms": 2.458,
+        "p95_ms": 3.945,
+        "p99_ms": 5.774,
+        "max_ms": 7.462,
+        "over_16_7ms": 0,
+        "over_33_3ms": 0
+      }
+    },
+    "windows_samples": 45,
+    "working_set_peak_mib": 268.7,
+    "private_peak_mib": 309.4,
+    "gpu_dedicated_peak_mib": 132.1,
+    "gpu_shared_peak_mib": 86.2,
+    "working_set_late_minus_mid_mib": -35.3
+  },
+  {
+    "label": "nv_gl_1080_vsync_r2",
+    "exit_code": 0,
+    "timed_out": false,
+    "error": "",
+    "adapter_name": "NVIDIA GeForce GTX 1650",
+    "adapter_api_version": "3.3.0 NVIDIA 621.14",
+    "rendering_method": "gl_compatibility",
+    "rendering_driver": "opengl3",
+    "viewport_size": [
+      1920,
+      1080
+    ],
+    "vsync_mode": 1,
+    "screen_refresh_hz": 120.0,
+    "steps": [
+      {
+        "step": "menu_start_available",
+        "ok": true,
+        "at_ms": 21907
+      },
+      {
+        "step": "mission_loaded",
+        "ok": true,
+        "at_ms": 22411
+      },
+      {
+        "step": "walk_completed",
+        "ok": true,
+        "at_ms": 92166
+      },
+      {
+        "step": "map_meter_opened_20_of_20",
+        "ok": true,
+        "at_ms": 140470
+      },
+      {
+        "step": "map_meter_closed_20_of_20",
+        "ok": true,
+        "at_ms": 140470
+      },
+      {
+        "step": "pause_opened_10_of_10",
+        "ok": true,
+        "at_ms": 160668
+      },
+      {
+        "step": "pause_closed_10_of_10",
+        "ok": true,
+        "at_ms": 160668
+      }
+    ],
+    "engine_segments": {
+      "0": {
+        "segment": 0,
+        "name": "menu_idle",
+        "started_ms": 2002,
+        "frames": 2374,
+        "video_mem_peak_bytes": 24309955,
+        "texture_mem_peak_bytes": 17849283,
+        "draw_calls_peak": 12,
+        "primitives_peak": 1996,
+        "objects_peak": 439
+      },
+      "1": {
+        "segment": 1,
+        "name": "mission_idle",
+        "started_ms": 22411,
+        "frames": 3567,
+        "video_mem_peak_bytes": 28117341,
+        "texture_mem_peak_bytes": 21545521,
+        "draw_calls_peak": 454,
+        "primitives_peak": 7782,
+        "objects_peak": 741
+      },
+      "2": {
+        "segment": 2,
+        "name": "walk_look",
+        "started_ms": 52104,
+        "frames": 4810,
+        "video_mem_peak_bytes": 28073651,
+        "texture_mem_peak_bytes": 21501831,
+        "draw_calls_peak": 454,
+        "primitives_peak": 7782,
+        "objects_peak": 741
+      },
+      "3": {
+        "segment": 3,
+        "name": "tablet_toggle",
+        "started_ms": 92166,
+        "frames": 5800,
+        "video_mem_peak_bytes": 29165495,
+        "texture_mem_peak_bytes": 22303583,
+        "draw_calls_peak": 516,
+        "primitives_peak": 15531,
+        "objects_peak": 1724
+      },
+      "4": {
+        "segment": 4,
+        "name": "pause_toggle",
+        "started_ms": 140470,
+        "frames": 2418,
+        "video_mem_peak_bytes": 29926261,
+        "texture_mem_peak_bytes": 23002633,
+        "draw_calls_peak": 428,
+        "primitives_peak": 9712,
+        "objects_peak": 956
+      },
+      "5": {
+        "segment": 5,
+        "name": "final_idle",
+        "started_ms": 160668,
+        "frames": 2401,
+        "video_mem_peak_bytes": 29895181,
+        "texture_mem_peak_bytes": 23002633,
+        "draw_calls_peak": 410,
+        "primitives_peak": 7276,
+        "objects_peak": 697
+      }
+    },
+    "frames_overall": {
+      "count": 20789,
+      "p50_ms": 8.322,
+      "p95_ms": 11.625,
+      "p99_ms": 12.265,
+      "max_ms": 289.132,
+      "over_16_7ms": 53,
+      "over_33_3ms": 13
+    },
+    "frames_by_segment": {
+      "0": {
+        "count": 1793,
+        "p50_ms": 8.326,
+        "p95_ms": 8.457,
+        "p99_ms": 8.582,
+        "max_ms": 215.169,
+        "over_16_7ms": 1,
+        "over_33_3ms": 1
+      },
+      "1": {
+        "count": 3567,
+        "p50_ms": 8.267,
+        "p95_ms": 11.882,
+        "p99_ms": 12.247,
+        "max_ms": 289.132,
+        "over_16_7ms": 2,
+        "over_33_3ms": 1
+      },
+      "2": {
+        "count": 4810,
+        "p50_ms": 8.226,
+        "p95_ms": 12.146,
+        "p99_ms": 12.312,
+        "max_ms": 45.473,
+        "over_16_7ms": 2,
+        "over_33_3ms": 1
+      },
+      "3": {
+        "count": 5800,
+        "p50_ms": 8.319,
+        "p95_ms": 11.447,
+        "p99_ms": 12.277,
+        "max_ms": 41.924,
+        "over_16_7ms": 37,
+        "over_33_3ms": 1
+      },
+      "4": {
+        "count": 2418,
+        "p50_ms": 8.322,
+        "p95_ms": 9.114,
+        "p99_ms": 12.18,
+        "max_ms": 44.29,
+        "over_16_7ms": 11,
+        "over_33_3ms": 9
+      },
+      "5": {
+        "count": 2401,
+        "p50_ms": 8.251,
+        "p95_ms": 11.741,
+        "p99_ms": 12.135,
+        "max_ms": 13.928,
+        "over_16_7ms": 0,
+        "over_33_3ms": 0
+      }
+    },
+    "windows_samples": 45,
+    "working_set_peak_mib": 268.3,
+    "private_peak_mib": 304.7,
+    "gpu_dedicated_peak_mib": 132.2,
+    "gpu_shared_peak_mib": 86.2,
+    "working_set_late_minus_mid_mib": 1.9
+  },
+  {
+    "label": "nv_gl_1080_warm",
+    "exit_code": 0,
+    "timed_out": false,
+    "error": "",
+    "adapter_name": "NVIDIA GeForce GTX 1650",
+    "adapter_api_version": "3.3.0 NVIDIA 621.14",
+    "rendering_method": "gl_compatibility",
+    "rendering_driver": "opengl3",
+    "viewport_size": [
+      1920,
+      1080
+    ],
+    "vsync_mode": 0,
+    "screen_refresh_hz": 120.0,
+    "steps": [
+      {
+        "step": "menu_start_available",
+        "ok": true,
+        "at_ms": 22282
+      },
+      {
+        "step": "replace_checkpoint_confirmed",
+        "ok": true,
+        "at_ms": 22500
+      },
+      {
+        "step": "mission_loaded",
+        "ok": true,
+        "at_ms": 22702
+      },
+      {
+        "step": "walk_completed",
+        "ok": true,
+        "at_ms": 92509
+      },
+      {
+        "step": "map_meter_opened_20_of_20",
+        "ok": true,
+        "at_ms": 140563
+      },
+      {
+        "step": "map_meter_closed_20_of_20",
+        "ok": true,
+        "at_ms": 140563
+      },
+      {
+        "step": "pause_opened_10_of_10",
+        "ok": true,
+        "at_ms": 160592
+      },
+      {
+        "step": "pause_closed_10_of_10",
+        "ok": true,
+        "at_ms": 160592
+      }
+    ],
+    "engine_segments": {
+      "0": {
+        "segment": 0,
+        "name": "menu_idle",
+        "started_ms": 2389,
+        "frames": 9368,
+        "video_mem_peak_bytes": 24325551,
+        "texture_mem_peak_bytes": 17850647,
+        "draw_calls_peak": 14,
+        "primitives_peak": 2346,
+        "objects_peak": 454
+      },
+      "1": {
+        "segment": 1,
+        "name": "mission_idle",
+        "started_ms": 22703,
+        "frames": 10357,
+        "video_mem_peak_bytes": 28118705,
+        "texture_mem_peak_bytes": 21546885,
+        "draw_calls_peak": 454,
+        "primitives_peak": 7782,
+        "objects_peak": 741
+      },
+      "2": {
+        "segment": 2,
+        "name": "walk_look",
+        "started_ms": 52500,
+        "frames": 15718,
+        "video_mem_peak_bytes": 28075015,
+        "texture_mem_peak_bytes": 21503195,
+        "draw_calls_peak": 454,
+        "primitives_peak": 7782,
+        "objects_peak": 741
+      },
+      "3": {
+        "segment": 3,
+        "name": "tablet_toggle",
+        "started_ms": 92509,
+        "frames": 15461,
+        "video_mem_peak_bytes": 29222239,
+        "texture_mem_peak_bytes": 22304947,
+        "draw_calls_peak": 529,
+        "primitives_peak": 15661,
+        "objects_peak": 1737
+      },
+      "4": {
+        "segment": 4,
+        "name": "pause_toggle",
+        "started_ms": 140564,
+        "frames": 6879,
+        "video_mem_peak_bytes": 29927625,
+        "texture_mem_peak_bytes": 23003997,
+        "draw_calls_peak": 500,
+        "primitives_peak": 10536,
+        "objects_peak": 1028
+      },
+      "5": {
+        "segment": 5,
+        "name": "final_idle",
+        "started_ms": 160592,
+        "frames": 6936,
+        "video_mem_peak_bytes": 29896545,
+        "texture_mem_peak_bytes": 23003997,
+        "draw_calls_peak": 482,
+        "primitives_peak": 8100,
+        "objects_peak": 769
+      }
+    },
+    "frames_overall": {
+      "count": 62451,
+      "p50_ms": 2.677,
+      "p95_ms": 4.0,
+      "p99_ms": 5.852,
+      "max_ms": 219.682,
+      "over_16_7ms": 17,
+      "over_33_3ms": 6
+    },
+    "frames_by_segment": {
+      "0": {
+        "count": 7100,
+        "p50_ms": 2.098,
+        "p95_ms": 2.737,
+        "p99_ms": 3.193,
+        "max_ms": 219.682,
+        "over_16_7ms": 1,
+        "over_33_3ms": 1
+      },
+      "1": {
+        "count": 10357,
+        "p50_ms": 2.727,
+        "p95_ms": 3.847,
+        "p99_ms": 5.949,
+        "max_ms": 201.519,
+        "over_16_7ms": 1,
+        "over_33_3ms": 1
+      },
+      "2": {
+        "count": 15718,
+        "p50_ms": 2.469,
+        "p95_ms": 3.735,
+        "p99_ms": 5.746,
+        "max_ms": 38.795,
+        "over_16_7ms": 2,
+        "over_33_3ms": 1
+      },
+      "3": {
+        "count": 15461,
+        "p50_ms": 2.934,
+        "p95_ms": 4.46,
+        "p99_ms": 6.209,
+        "max_ms": 35.494,
+        "over_16_7ms": 2,
+        "over_33_3ms": 1
+      },
+      "4": {
+        "count": 6879,
+        "p50_ms": 2.744,
+        "p95_ms": 3.579,
+        "p99_ms": 5.581,
+        "max_ms": 37.284,
+        "over_16_7ms": 11,
+        "over_33_3ms": 2
+      },
+      "5": {
+        "count": 6936,
+        "p50_ms": 2.728,
+        "p95_ms": 3.782,
+        "p99_ms": 5.858,
+        "max_ms": 7.846,
+        "over_16_7ms": 0,
+        "over_33_3ms": 0
+      }
+    },
+    "windows_samples": 45,
+    "working_set_peak_mib": 263.6,
+    "private_peak_mib": 306.2,
+    "gpu_dedicated_peak_mib": 137.5,
+    "gpu_shared_peak_mib": 86.2,
+    "working_set_late_minus_mid_mib": 2.8
+  },
+  {
+    "label": "nv_gl_720",
+    "exit_code": 0,
+    "timed_out": false,
+    "error": "",
+    "adapter_name": "NVIDIA GeForce GTX 1650",
+    "adapter_api_version": "3.3.0 NVIDIA 621.14",
+    "rendering_method": "gl_compatibility",
+    "rendering_driver": "opengl3",
+    "viewport_size": [
+      1280,
+      720
+    ],
+    "vsync_mode": 0,
+    "screen_refresh_hz": 120.0,
+    "steps": [
+      {
+        "step": "menu_start_available",
+        "ok": true,
+        "at_ms": 21871
+      },
+      {
+        "step": "mission_loaded",
+        "ok": true,
+        "at_ms": 22372
+      },
+      {
+        "step": "walk_completed",
+        "ok": true,
+        "at_ms": 92086
+      },
+      {
+        "step": "map_meter_opened_20_of_20",
+        "ok": true,
+        "at_ms": 140156
+      },
+      {
+        "step": "map_meter_closed_20_of_20",
+        "ok": true,
+        "at_ms": 140156
+      },
+      {
+        "step": "pause_opened_10_of_10",
+        "ok": true,
+        "at_ms": 160182
+      },
+      {
+        "step": "pause_closed_10_of_10",
+        "ok": true,
+        "at_ms": 160182
+      }
+    ],
+    "engine_segments": {
+      "0": {
+        "segment": 0,
+        "name": "menu_idle",
+        "started_ms": 1971,
+        "frames": 14252,
+        "video_mem_peak_bytes": 14431253,
+        "texture_mem_peak_bytes": 7977925,
+        "draw_calls_peak": 10,
+        "primitives_peak": 1832,
+        "objects_peak": 437
+      },
+      "1": {
+        "segment": 1,
+        "name": "mission_idle",
+        "started_ms": 22372,
+        "frames": 11654,
+        "video_mem_peak_bytes": 18770271,
+        "texture_mem_peak_bytes": 12198451,
+        "draw_calls_peak": 454,
+        "primitives_peak": 7782,
+        "objects_peak": 741
+      },
+      "2": {
+        "segment": 2,
+        "name": "walk_look",
+        "started_ms": 52082,
+        "frames": 20121,
+        "video_mem_peak_bytes": 18770271,
+        "texture_mem_peak_bytes": 12198451,
+        "draw_calls_peak": 454,
+        "primitives_peak": 7782,
+        "objects_peak": 741
+      },
+      "3": {
+        "segment": 3,
+        "name": "tablet_toggle",
+        "started_ms": 92086,
+        "frames": 17460,
+        "video_mem_peak_bytes": 19480587,
+        "texture_mem_peak_bytes": 12563295,
+        "draw_calls_peak": 517,
+        "primitives_peak": 15529,
+        "objects_peak": 1727
+      },
+      "4": {
+        "segment": 4,
+        "name": "pause_toggle",
+        "started_ms": 140156,
+        "frames": 8132,
+        "video_mem_peak_bytes": 20185973,
+        "texture_mem_peak_bytes": 13262345,
+        "draw_calls_peak": 429,
+        "primitives_peak": 9708,
+        "objects_peak": 957
+      },
+      "5": {
+        "segment": 5,
+        "name": "final_idle",
+        "started_ms": 160182,
+        "frames": 8009,
+        "video_mem_peak_bytes": 20154893,
+        "texture_mem_peak_bytes": 13262345,
+        "draw_calls_peak": 518,
+        "primitives_peak": 8490,
+        "objects_peak": 805
+      }
+    },
+    "frames_overall": {
+      "count": 76351,
+      "p50_ms": 2.259,
+      "p95_ms": 3.03,
+      "p99_ms": 5.558,
+      "max_ms": 290.335,
+      "over_16_7ms": 21,
+      "over_33_3ms": 6
+    },
+    "frames_by_segment": {
+      "0": {
+        "count": 10975,
+        "p50_ms": 1.308,
+        "p95_ms": 1.7,
+        "p99_ms": 2.381,
+        "max_ms": 211.098,
+        "over_16_7ms": 1,
+        "over_33_3ms": 1
+      },
+      "1": {
+        "count": 11654,
+        "p50_ms": 2.442,
+        "p95_ms": 3.044,
+        "p99_ms": 5.668,
+        "max_ms": 290.335,
+        "over_16_7ms": 1,
+        "over_33_3ms": 1
+      },
+      "2": {
+        "count": 20121,
+        "p50_ms": 1.835,
+        "p95_ms": 2.63,
+        "p99_ms": 5.113,
+        "max_ms": 37.038,
+        "over_16_7ms": 2,
+        "over_33_3ms": 1
+      },
+      "3": {
+        "count": 17460,
+        "p50_ms": 2.714,
+        "p95_ms": 3.358,
+        "p99_ms": 5.93,
+        "max_ms": 38.966,
+        "over_16_7ms": 6,
+        "over_33_3ms": 1
+      },
+      "4": {
+        "count": 8132,
+        "p50_ms": 2.334,
+        "p95_ms": 2.838,
+        "p99_ms": 5.377,
+        "max_ms": 36.598,
+        "over_16_7ms": 11,
+        "over_33_3ms": 2
+      },
+      "5": {
+        "count": 8009,
+        "p50_ms": 2.368,
+        "p95_ms": 3.043,
+        "p99_ms": 5.586,
+        "max_ms": 7.853,
+        "over_16_7ms": 0,
+        "over_33_3ms": 0
+      }
+    },
+    "windows_samples": 45,
+    "working_set_peak_mib": 239.4,
+    "private_peak_mib": 272.3,
+    "gpu_dedicated_peak_mib": 74.5,
+    "gpu_shared_peak_mib": 57.7,
+    "working_set_late_minus_mid_mib": 2.0
+  },
+  {
+    "label": "nv_mobile_1080",
+    "exit_code": 0,
+    "timed_out": false,
+    "error": "",
+    "adapter_name": "NVIDIA GeForce GTX 1650",
+    "adapter_api_version": "1.4.357",
+    "rendering_method": "mobile",
+    "rendering_driver": "vulkan",
+    "viewport_size": [
+      1920,
+      1080
+    ],
+    "vsync_mode": 0,
+    "screen_refresh_hz": 120.0,
+    "steps": [
+      {
+        "step": "menu_start_available",
+        "ok": true,
+        "at_ms": 23174
+      },
+      {
+        "step": "mission_loaded",
+        "ok": true,
+        "at_ms": 23907
+      },
+      {
+        "step": "walk_completed",
+        "ok": true,
+        "at_ms": 93398
+      },
+      {
+        "step": "map_meter_opened_20_of_20",
+        "ok": true,
+        "at_ms": 141431
+      },
+      {
+        "step": "map_meter_closed_20_of_20",
+        "ok": true,
+        "at_ms": 141431
+      },
+      {
+        "step": "pause_opened_10_of_10",
+        "ok": true,
+        "at_ms": 161456
+      },
+      {
+        "step": "pause_closed_10_of_10",
+        "ok": true,
+        "at_ms": 161456
+      }
+    ],
+    "engine_segments": {
+      "0": {
+        "segment": 0,
+        "name": "menu_idle",
+        "started_ms": 3274,
+        "frames": 10828,
+        "video_mem_peak_bytes": 23374144,
+        "texture_mem_peak_bytes": 10134016,
+        "draw_calls_peak": 12,
+        "primitives_peak": 1996,
+        "objects_peak": 439
+      },
+      "1": {
+        "segment": 1,
+        "name": "mission_idle",
+        "started_ms": 23908,
+        "frames": 16028,
+        "video_mem_peak_bytes": 101606560,
+        "texture_mem_peak_bytes": 32576000,
+        "draw_calls_peak": 445,
+        "primitives_peak": 7782,
+        "objects_peak": 732
+      },
+      "2": {
+        "segment": 2,
+        "name": "walk_look",
+        "started_ms": 53384,
+        "frames": 21746,
+        "video_mem_peak_bytes": 100713312,
+        "texture_mem_peak_bytes": 31657984,
+        "draw_calls_peak": 445,
+        "primitives_peak": 7782,
+        "objects_peak": 732
+      },
+      "3": {
+        "segment": 3,
+        "name": "tablet_toggle",
+        "started_ms": 93399,
+        "frames": 24705,
+        "video_mem_peak_bytes": 101848736,
+        "texture_mem_peak_bytes": 32333824,
+        "draw_calls_peak": 510,
+        "primitives_peak": 15527,
+        "objects_peak": 1718
+      },
+      "4": {
+        "segment": 4,
+        "name": "pause_toggle",
+        "started_ms": 141431,
+        "frames": 10468,
+        "video_mem_peak_bytes": 102236496,
+        "texture_mem_peak_bytes": 32858112,
+        "draw_calls_peak": 422,
+        "primitives_peak": 9708,
+        "objects_peak": 950
+      },
+      "5": {
+        "segment": 5,
+        "name": "final_idle",
+        "started_ms": 161456,
+        "frames": 10785,
+        "video_mem_peak_bytes": 102135856,
+        "texture_mem_peak_bytes": 32858112,
+        "draw_calls_peak": 404,
+        "primitives_peak": 7272,
+        "objects_peak": 691
+      }
+    },
+    "frames_overall": {
+      "count": 92041,
+      "p50_ms": 1.667,
+      "p95_ms": 3.117,
+      "p99_ms": 5.308,
+      "max_ms": 517.125,
+      "over_16_7ms": 21,
+      "over_33_3ms": 7
+    },
+    "frames_by_segment": {
+      "0": {
+        "count": 8309,
+        "p50_ms": 1.733,
+        "p95_ms": 2.951,
+        "p99_ms": 3.208,
+        "max_ms": 216.699,
+        "over_16_7ms": 1,
+        "over_33_3ms": 1
+      },
+      "1": {
+        "count": 16028,
+        "p50_ms": 1.649,
+        "p95_ms": 3.021,
+        "p99_ms": 5.353,
+        "max_ms": 517.125,
+        "over_16_7ms": 1,
+        "over_33_3ms": 1
+      },
+      "2": {
+        "count": 21746,
+        "p50_ms": 1.631,
+        "p95_ms": 3.108,
+        "p99_ms": 5.638,
+        "max_ms": 37.209,
+        "over_16_7ms": 1,
+        "over_33_3ms": 1
+      },
+      "3": {
+        "count": 24705,
+        "p50_ms": 1.702,
+        "p95_ms": 3.216,
+        "p99_ms": 5.446,
+        "max_ms": 210.791,
+        "over_16_7ms": 7,
+        "over_33_3ms": 2
+      },
+      "4": {
+        "count": 10468,
+        "p50_ms": 1.647,
+        "p95_ms": 3.221,
+        "p99_ms": 4.73,
+        "max_ms": 38.504,
+        "over_16_7ms": 11,
+        "over_33_3ms": 2
+      },
+      "5": {
+        "count": 10785,
+        "p50_ms": 1.64,
+        "p95_ms": 3.083,
+        "p99_ms": 5.572,
+        "max_ms": 8.567,
+        "over_16_7ms": 0,
+        "over_33_3ms": 0
+      }
+    },
+    "windows_samples": 45,
+    "working_set_peak_mib": 601.1,
+    "private_peak_mib": 773.3,
+    "gpu_dedicated_peak_mib": 282.7,
+    "gpu_shared_peak_mib": 240.5,
+    "working_set_late_minus_mid_mib": 15.0
+  },
+  {
+    "label": "release_gate",
+    "exit_code": 0,
+    "timed_out": false,
+    "error": "",
+    "frames_overall": {
+      "count": 320,
+      "p50_ms": 8.326,
+      "p95_ms": 8.446,
+      "p99_ms": 8.649,
+      "max_ms": 8.777,
+      "over_16_7ms": 0,
+      "over_33_3ms": 0
+    },
+    "frames_by_segment": {
+      "0": {
+        "count": 320,
+        "p50_ms": 8.326,
+        "p95_ms": 8.446,
+        "p99_ms": 8.649,
+        "max_ms": 8.777,
+        "over_16_7ms": 0,
+        "over_33_3ms": 0
+      }
+    },
+    "windows_samples": 3,
+    "working_set_peak_mib": 197.1,
+    "private_peak_mib": 223.1,
+    "gpu_dedicated_peak_mib": 68.3,
+    "gpu_shared_peak_mib": 51.7,
+    "working_set_late_minus_mid_mib": -60.6
+  }
+]

@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "session_id": "7a7a8364af9a4064a08ac40bc88ab246",
+  "exit_code": 0,
+  "engine": "4.7.2-stable (official)",
+  "rendering_method": "forward_plus",
+  "rendering_driver": "vulkan",
+  "adapter_vendor": "Intel",
+  "adapter_name": "Intel(R) RaptorLake-S Mobile Graphics Controller",
+  "adapter_api_version": "1.4.323",
+  "window_mode": 3,
+  "vsync_mode": 0,
+  "viewport_size": [
+    2560,
+    1600
+  ],
+  "screen_refresh_hz": 240.0,
+  "segments": [
+    {
+      "segment": 0,
+      "name": "menu_idle",
+      "started_ms": 1192,
+      "frames": 7623,
+      "video_mem_peak_bytes": 34177536,
+      "texture_mem_peak_bytes": 20623744,
+      "draw_calls_peak": 14,
+      "primitives_peak": 2346,
+      "objects_peak": 454
+    },
+    {
+      "segment": 1,
+      "name": "mission_idle",
+      "started_ms": 22400,
+      "frames": 3016,
+      "video_mem_peak_bytes": 195172416,
+      "texture_mem_peak_bytes": 80347648,
+      "draw_calls_peak": 119,
+      "primitives_peak": 7706,
+      "objects_peak": 735
+    },
+    {
+      "segment": 2,
+      "name": "walk_look",
+      "started_ms": 51161,
+      "frames": 3347,
+      "video_mem_peak_bytes": 193872192,
+      "texture_mem_peak_bytes": 79036928,
+      "draw_calls_peak": 121,
+      "primitives_peak": 7706,
+      "objects_peak": 735
+    },
+    {
+      "segment": 3,
+      "name": "tablet_toggle",
+      "started_ms": 91198,
+      "frames": 4274,
+      "video_mem_peak_bytes": 195465536,
+      "texture_mem_peak_bytes": 80167424,
+      "draw_calls_peak": 216,
+      "primitives_peak": 15333,
+      "objects_peak": 1710
+    },
+    {
+      "segment": 4,
+      "name": "pause_toggle",
+      "started_ms": 139384,
+      "frames": 1830,
+      "video_mem_peak_bytes": 195851072,
+      "texture_mem_peak_bytes": 80691712,
+      "draw_calls_peak": 128,
+      "primitives_peak": 9514,
+      "objects_peak": 942
+    },
+    {
+      "segment": 5,
+      "name": "final_idle",
+      "started_ms": 159518,
+      "frames": 1816,
+      "video_mem_peak_bytes": 195750016,
+      "texture_mem_peak_bytes": 80691712,
+      "draw_calls_peak": 110,
+      "primitives_peak": 7078,
+      "objects_peak": 683
+    }
+  ],
+  "steps": [
+    {
+      "step": "menu_start_available",
+      "ok": true,
+      "at_ms": 21057
+    },
+    {
+      "step": "replace_checkpoint_confirmed",
+      "ok": true,
+      "at_ms": 21153
+    },
+    {
+      "step": "mission_loaded",
+      "ok": true,
+      "at_ms": 22400
+    },
+    {
+      "step": "walk_completed",
+      "ok": true,
+      "at_ms": 91197
+    },
+    {
+      "step": "map_meter_opened_20_of_20",
+      "ok": true,
+      "at_ms": 139384
+    },
+    {
+      "step": "map_meter_closed_20_of_20",
+      "ok": true,
+      "at_ms": 139384
+    },
+    {
+      "step": "pause_opened_10_of_10",
+      "ok": true,
+      "at_ms": 159517
+    },
+    {
+      "step": "pause_closed_10_of_10",
+      "ok": true,
+      "at_ms": 159517
+    }
+  ],
+  "real_input_events": []
+}

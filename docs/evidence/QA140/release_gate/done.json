@@ -1,0 +1,27 @@
+﻿{
+    "label":  "release_gate",
+    "error":  "",
+    "session_id":  "f5e9e8dd6bb04b8984d5460243662138",
+    "started_utc":  "2026-11-08T19:50:23.5488469Z",
+    "duration_s":  12.6,
+    "exit_code":  0,
+    "timed_out":  false,
+    "samples":  3,
+    "gpu_pref":  2,
+    "args":  [
+                 "--log-file",
+                 "\"C:\\Users\\user\\LBO-QA140\\runs\\release_gate\\godot.log\"",
+                 "--quit-after",
+                 "900",
+                 "--resolution",
+                 "1280x720",
+                 "--",
+                 "--qa56-capture",
+                 "--qa56-id=f5e9e8dd6bb04b8984d5460243662138",
+                 "--qa140-scenario"
+             ],
+    "exe_sha256":  "d34d36f3be1a6c49c56525ae86469b92e4f417ddf0b43cf00dd80c385c4b0562",
+    "pck_sha256":  "e288a53796e3ea5317dd9bd260d5f22be2fb97ddc63bb6ef1a173f834ea507f2",
+    "power_scheme":  "Power Scheme GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (Balanced)",
+    "on_ac":  true
+}
