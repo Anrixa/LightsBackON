@@ -55,6 +55,8 @@ If testers can finish every mission by following markers and holding Interact, f
 
 **Owner quality bar (ADR-004):** bright, professional, accurate design. Icons, characters and UI elements match the real game states
 and industry conventions; blueprint design tokens, icon + text for every status, WCAG AA contrast on the rendered background.
+**Visual hardening and engine questions (ADR-016):** read `docs/adr/ADR-016-engine-and-visual-hardening.md` before any UI, lookdev, art,
+renderer or engine work. Stay on Godot; world art/lookdev waits for the owner decisions listed there or for V09.
 
 ## 3. Power network rules (exact)
 

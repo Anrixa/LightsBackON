@@ -83,6 +83,12 @@ approval is not a test result: the item stays open here until the owner has look
   Rules are in the ADR-004 V07 addendum point 3/5.
 - [ ] **V01 graybox look**: the renders and the five layout interpretations in `docs/evidence/V01.md` (listed in V01's pending items).
 
+Owner decisions (not reviews; nothing proceeds until answered), from ADR-016 section 4:
+- [ ] **Lookdev spike before V09?** One non-shipping `scenes/lookdev/` scene, kit and project-made materials only (ADR-016 4.1).
+- [ ] **Renderer by measurement?** Spike runs under Compatibility and Mobile/Forward+, measured on a GTX 1650-class PC (ADR-016 4.2).
+  Needs access to that class of machine; the RTX 5090 cannot decide it.
+- [ ] **Art capacity:** commission an artist or license a coherent asset kit, licence recorded first (ADR-016 4.3).
+
 Not deferrable by approval (these are test runs, not judgements; they stay in sections 2b-4):
 - [ ] **UX01 controller-only run** of the HUD and tablet with a real pad once a player controller scene exists (stick focus, pan, zoom,
   evidence-panel scrolling). The automated focus-graph test passes; a person must still press the buttons.
