@@ -1,17 +1,25 @@
 #!/usr/bin/env bash
 # Install the pinned Godot export templates (Windows x86_64 only) for headless exports
-# on Linux (cloud sessions, CI). Idempotent. Verifies the official SHA512 of the .tpz.
+# on Linux (cloud sessions, CI) and Git Bash on Windows (CI, local desktop sessions).
+# Idempotent. Verifies the official SHA512 of the .tpz.
 # The .tpz is ~1.3 GB; only the Windows templates are kept (~200 MB).
 #
 # Source: GitHub release assets of godotengine/godot-builds (same as setup_godot_linux.sh).
-# On Windows use the editor's Export Template Manager instead and record the hash in the evidence file.
+# The editor's Export Template Manager is an alternative on Windows; record the hash in the evidence file.
 #
 # Usage:  tools/setup_export_templates.sh      # prints the template directory
 set -euo pipefail
 
 GODOT_VERSION="${GODOT_VERSION:-4.7.2-stable}"
 WANT="${GODOT_VERSION%-stable}.stable"   # e.g. 4.7.2.stable
-DEST="${GODOT_TEMPLATES_DIR:-$HOME/.local/share/godot/export_templates/$WANT}"
+# Windows Godot reads templates from %APPDATA%\Godot, not the XDG path; a wrong default
+# installs ~200 MB where the exporter never looks.
+if [ -n "${APPDATA:-}" ]; then
+  DEFAULT_DEST="$APPDATA/Godot/export_templates/$WANT"
+else
+  DEFAULT_DEST="$HOME/.local/share/godot/export_templates/$WANT"
+fi
+DEST="${GODOT_TEMPLATES_DIR:-$DEFAULT_DEST}"
 KEEP=(windows_release_x86_64.exe windows_debug_x86_64.exe version.txt)
 
 if [ -f "$DEST/windows_release_x86_64.exe" ] && [ -f "$DEST/version.txt" ] && grep -q "^${WANT}$" "$DEST/version.txt"; then
