@@ -63,7 +63,6 @@ func _process(_delta: float) -> void:
 	current["frames"] = int(current["frames"]) + 1
 	_peak(current, "video_mem_peak_bytes", Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED))
 	_peak(current, "texture_mem_peak_bytes", Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED))
-	_peak(current, "static_mem_peak_bytes", Performance.get_monitor(Performance.MEMORY_STATIC))
 	_peak(current, "draw_calls_peak", Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME))
 	_peak(current, "primitives_peak", Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME))
 	_peak(current, "objects_peak", Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME))
@@ -191,7 +190,7 @@ func _begin_segment(index: int) -> void:
 		_probe.call("mark_segment", index)
 	_segments.append({
 		"segment": index, "name": SEGMENT_NAMES[index], "started_ms": Time.get_ticks_msec(), "frames": 0,
-		"video_mem_peak_bytes": 0, "texture_mem_peak_bytes": 0, "static_mem_peak_bytes": 0,
+		"video_mem_peak_bytes": 0, "texture_mem_peak_bytes": 0,
 		"draw_calls_peak": 0, "primitives_peak": 0, "objects_peak": 0,
 	})
 

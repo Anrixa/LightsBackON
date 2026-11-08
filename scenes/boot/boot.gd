@@ -63,7 +63,9 @@ func _start_qa56_capture_if_requested() -> void:
 		return
 	var probe := QA56FrameProbe.new()
 	probe.name = "QA56FrameProbe"
-	get_tree().root.add_child(probe)
+	# Deferred: during boot _ready() the root is still adding its children and a direct add_child() fails, which left
+	# the probe outside the tree and every QA56 frame CSV header-only (found on the GTX 1650 run, QA140).
+	get_tree().root.add_child.call_deferred(probe)
 	if not probe.configure(session_id):
 		probe.queue_free()
 		return

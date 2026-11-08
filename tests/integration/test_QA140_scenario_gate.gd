@@ -23,6 +23,15 @@ func test_QA140_scenario_is_gated_to_internal_or_editor_builds() -> void:
 		boot_source.find("if not probe.configure(session_id):"))
 
 
+## Regression: a direct add_child() from boot _ready() fails while the root sets up children, so the QA56 probe never
+## processed and the frame CSV stayed header-only on the GTX 1650 (QA140). Both diagnostics nodes must be added deferred.
+func test_QA140_boot_adds_diagnostics_nodes_deferred() -> void:
+	var boot_source: String = FileAccess.get_file_as_string("res://scenes/boot/boot.gd")
+	assert_true(boot_source.contains("get_tree().root.add_child.call_deferred(probe)"))
+	assert_true(boot_source.contains("get_tree().root.add_child.call_deferred(driver)"))
+	assert_false(boot_source.contains("get_tree().root.add_child(probe)"))
+
+
 func test_QA140_driver_is_idle_until_added_to_tree() -> void:
 	var driver: Node = Scenario.new()
 	assert_false(driver.is_processing(), "no monitor sampling or input before the scenario starts")
