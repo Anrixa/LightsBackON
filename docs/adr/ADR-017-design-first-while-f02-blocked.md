@@ -32,7 +32,10 @@
    - P95 frame time and memory from an internal export with the QA140 harness on at least one GPU from the QA140 set. The Intel UHD on the
      owner's PC is the slowest of the three and counts as the conservative check. The GTX 1650 laptop is used only after the owner confirms
      it is free (another project's session shares it; see QA140).
-   - Collision, gameplay node paths, stable IDs and content revisions do not change; dressing is visual only.
+   - Collision, gameplay node paths, stable IDs and contract data do not change; dressing is visual only. Look data lives under
+     `content/` (no magic numbers in code), so it changes the content revision like any content edit; peers on the same build
+     still match. Offline checkpoints written by an older content revision are refused with CONTENT_MISMATCH and preserved
+     (ADR-008 behaviour, found in DS08); keying checkpoints on gameplay content only is a follow-up, not decided here.
 3. **Contracts C02-C12 may start now as logic and data** (owner's answer, 9 Nov 2026: "In parallel, logic only"). Grid, mission, repair,
    equipment and solution-trace data, replayed by `tools/godot/validate_solution.gd`, following the contract authoring checklist
    (blueprint p.21). Art for them follows the approved C01 look. They reuse the graybox until then. No contract counts as qualified (CT
