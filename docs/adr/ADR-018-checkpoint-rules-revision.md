@@ -1,10 +1,11 @@
 # ADR-018: Checkpoints check a rules revision, so presentation-only content edits keep a shift resumable
 
-- Status: **Proposed (draft, SAVE22, 9 Nov 2026). Not implemented. Needs the owner's yes**, because it changes when an existing
-  checkpoint is accepted (CLAUDE.md section 6 stop-and-ask: "deleting or migrating save data"; ADR-008 defines the envelope).
+- Status: **Accepted**, 9 Nov 2026: the owner approved the SAVE22 draft in the session ("Approve ADR-018"); implemented in SAVE22.
+  It changes when an existing checkpoint is accepted, which is on the stop-and-ask list (CLAUDE.md section 6), hence the explicit approval.
+  No save is migrated, rewritten or deleted (decision 5).
 - Amends ADR-008 decision 1 (envelope) and the offline load check in `scripts/persistence/offline_persistence.gd`. Leaves the join handshake
   (ADR-010, `session_host.gd` / `session_client.gd`) and the build manifest's `content_revision` unchanged.
-- Found in DS08 (`docs/evidence/DS08.md`, "Finding: content revision and checkpoints"). Evidence for this draft: `docs/evidence/SAVE22.md`.
+- Found in DS08 (`docs/evidence/DS08.md`, "Finding: content revision and checkpoints"). Evidence: `docs/evidence/SAVE22.md`.
 
 ## Context
 `content_revision` is one SHA-256 over every file under `content/` (sorted relative path + bytes; `scripts/network/content_hash.gd`, mirrored by
@@ -26,17 +27,19 @@ consumers, capacities, repair steps, switches, equipment anchors, mission predic
 saved state reachable, and the district layout that makes the saved player position (`view.position_cm`) valid. It does not depend on display
 strings, UI tokens, status icon styling, the lighting look or non-colliding dressing.
 
-## Decision (proposed)
+## Decision
 1. **Two revisions.** Keep `content_revision` exactly as it is (every file). Add `rules_revision`: the same algorithm over every file under
    `content/` **except** an explicit list of presentation-only paths. Default is "it counts": a new file, or one nobody classified, is in the
    rules revision, so forgetting to classify a file fails safe (refuse, preserve), never open.
 2. **The list lives in `content/save_compat.json`**, which is itself inside the rules revision (moving a file onto the list changes the rules
-   revision once, so the move cannot silently re-label old saves). Initial list, each with a one-line reason:
-   - `content/ui/strings/*.json`: display text only; on 9 Nov 2026 only `scripts/ui/ui_text.gd` loads it.
+   revision once, so the move cannot silently re-label old saves). Entries are exact paths, never globs: a glob such as `world/look_*.json`
+   would silently swallow a future gameplay file that happens to match. Each entry carries a reason. Initial list:
+   - `content/ui/strings/en.json`: display text only; on 9 Nov 2026 only `scripts/ui/ui_text.gd` loads it.
    - `content/ui/tokens.json`, `content/ui/status_states.json`: colours, sizes, icon mapping; loaded by `scripts/ui/` and by
      `mission_root.gd` for the HUD. (`meter_model.gd` names `status_states.json` in a comment only; a test already ties its finding codes to it.)
-   - `content/world/look_*.json`: sky, fog, tonemap, materials (DS08).
-   - `content/world/*_dressing.json`: signs, plaques, lamps, van; DS08's test proves it adds no collision and moves no gameplay node.
+   - Added by DS08 when it merges (the files exist only on that branch today): `content/world/look_stormglass.json` (sky, fog, tonemap,
+     materials) and `content/world/alder_street_dressing.json` (signs, plaques, lamps, van; DS08's test proves it adds no collision and moves
+     no gameplay node).
    Not on the list (mixed or gameplay, so they stay in the rules revision until split): `offline_solo.json` (player, selection radius and
    presentation in one file), `world/alder_street.json` and `world/kit_*.json` (layout and collision), `accessibility.json` (presentation by its own note,
    but it holds the tutorial step IDs and events; a good second candidate once that is checked), `movement.json`, `interaction.json`, `comms.json`, `network.json`, `economy.json`, `campaign.json`,
@@ -56,21 +59,26 @@ strings, UI tokens, status icon styling, the lighting look or non-colliding dres
    ADR-010's "every peer builds identical gameplay node paths" is easier to trust that way. Revisit only if real players hit it.
 7. **Guards that ship with the implementation**: `rules_revision` in `build_manifest.py` and in the Python vs Godot cross-check (byte-equal);
    a test that no authoritative module (`scripts/simulation/`, `scripts/interaction/`, `scripts/persistence/`, `scripts/network/`, the session's
-   rule loading in `scripts/gameplay/offline_c01_session.gd`) loads a path on the presentation list; a test that editing a listed file changes
+   rule loading in `scripts/gameplay/offline_c01_session.gd`) loads a path on the presentation list (the offline session may phrase its
+   prompts through `ui_text.gd`, display only, as long as no line compares translated text); a test that editing a listed file changes
    `content_revision` but not `rules_revision`, and editing any other file changes both; load tests for all three branches of rule 4 and for an
-   old save without the field; `validate_content.py` fails if a list entry matches no file.
+   old save without the field; `validate_content.py` fails if an entry names no file, repeats, has no reason, or names
+   `save_compat.json`, `versions.json` or anything under `content/contracts/`.
+8. **Fail safe on a broken list**: if `save_compat.json` is missing or malformed, the rules revision is empty, no new save records it and no
+   checkpoint is accepted by it; loading falls back to today's full-revision rule.
 
 ## Options considered
 | Option | For | Against |
 |---|---|---|
 | A. Keep today's rule (any byte refuses) | No work; strictest | Every look/string/dressing update strands every in-progress shift; DS phases will do this weekly |
-| **B. Rules revision with a presentation list (proposed)** | Small (one hash variant, one list, one load branch); additive; existing saves unchanged; fails safe on unclassified files | The list is a judgement that tests can only partly check; a mixed file (offline_solo.json) keeps stranding saves until it is split |
+| **B. Rules revision with a presentation list (chosen)** | Small (one hash variant, one list, one load branch); additive; existing saves unchanged; fails safe on unclassified files | The list is a judgement that tests can only partly check; a mixed file (offline_solo.json) keeps stranding saves until it is split |
 | C. Per-file hash map in each save; compare only files the codec "uses" | Precise | Bigger saves; "uses" is hard to define (layout affects positions, limits affect reachability); more code in the save path |
 | D. Hand-bumped `checkpoint_compat_version` in `versions.json` | Tiny | Relies on a person remembering; a forgotten bump loads a save under changed capacities or IDs. Codec validation catches missing IDs but not changed numbers. Fails open |
 | E. Migrate: table of old full revisions known to be presentation-only variants | Rescues saves written before this change | Grows forever; needs every historical revision classified; this is the save migration the owner must approve; little value while the only checkpoints are the owner's dev runs |
 
 ## Consequences
 - Presentation work (DS08 onward) stops costing players their shift, once a save has been written by a build with this change.
+- `rules_revision` is also written into profile and identity envelopes (one writer for all records); only checkpoints check it.
 - Saves written before the change (today: the owner's own dev checkpoints) still refuse after the next content edit, as they do now. If the
   owner wants those rescued, that is option E and a separate decision.
 - Splitting a mixed file (for example moving the `presentation` block out of `offline_solo.json`) changes the rules revision once, which strands

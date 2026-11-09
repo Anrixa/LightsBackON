@@ -1,0 +1,8 @@
+{
+  "_note": "ADR-018. Files listed here are presentation-only: they are left out of the rules revision, so editing them keeps an offline checkpoint resumable. Exact paths only, never globs. Every other file under content/ counts as rules. This file itself counts as rules, so adding or removing an entry changes the rules revision once. Check before adding: no module in scripts/simulation, scripts/interaction, scripts/persistence, scripts/network or the offline session's rule loading reads the file (test_SAVE22_rules_revision.gd enforces this).",
+  "presentation_only": [
+    {"path": "content/ui/strings/en.json", "reason": "display text; read only by scripts/ui/ui_text.gd"},
+    {"path": "content/ui/tokens.json", "reason": "colours, sizes and spacing for the HUD, tablet and menus"},
+    {"path": "content/ui/status_states.json", "reason": "status icon and colour mapping for display"}
+  ]
+}

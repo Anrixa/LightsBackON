@@ -5,6 +5,8 @@ extends RefCounted
 ## One random pseudonymous identity is saved once. Subsequent launches reuse it.
 ## A corrupt/newer identity fails closed so it cannot orphan an existing profile.
 ## A mismatched checkpoint is never silently overwritten by autosave.
+## ADR-018: a checkpoint from content that differs only in presentation-only files (content/save_compat.json) is
+## accepted when it carries the same rules_revision; saves without that field keep the strict full-revision rule.
 
 const SaveService := preload("res://scripts/persistence/save_service.gd")
 const Codec := preload("res://scripts/persistence/checkpoint_codec.gd")
@@ -25,6 +27,7 @@ var account_key: String = ""
 var _root: String = ""
 var _save: SaveService
 var _revision: String = ""
+var _rules_revision: String = ""
 var _initialized: bool = false
 
 
@@ -41,8 +44,9 @@ func initialize(storage_root: String = "") -> Dictionary:
 	account_key = ""
 	var versions: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://content/versions.json"))
 	_revision = ContentHash.content_revision()
+	_rules_revision = ContentHash.rules_revision()
 	_save = SaveService.new()
-	_save.configure(int(versions["save_schema_version"]), SAVE_BUILD_ID, _revision)
+	_save.configure(int(versions["save_schema_version"]), SAVE_BUILD_ID, _revision, _rules_revision)
 	var path: String = _root.path_join("offline_identity.json")
 	var read: Dictionary = _save.read_record(path)
 	if read.get("ok", false):
@@ -98,7 +102,8 @@ func checkpoint_status() -> Dictionary:
 	if not placement.get("ok", false):
 		return placement
 	return {"ok": true, "available": true, "payload": payload,
-		"view": placement["view"], "issues": read.get("issues", []), "source": read["source"]}
+		"view": placement["view"], "issues": read.get("issues", []), "source": read["source"],
+		"presentation_changed": checked.get("presentation_changed", false)}
 
 
 ## Caller must pass a *freshly configured* session and discard it on any
@@ -169,9 +174,14 @@ func _validate_envelope(read: Dictionary, kind: String, record_id: String, check
 	var env: Dictionary = read.get("envelope", {})
 	if env.get("kind") != kind or env.get("record_id") != record_id:
 		return _failure("BAD_RECORD", "saved record has an unexpected identity or type")
-	if check_revision and env.get("content_revision") != _revision:
-		return _failure("CONTENT_MISMATCH", "mission content changed; existing progress is preserved")
-	return {"ok": true}
+	if not check_revision or env.get("content_revision") == _revision:
+		return {"ok": true}
+	# ADR-018: only presentation-only files changed. Old saves carry no rules_revision and stay on the strict rule;
+	# an empty local rules revision (broken save_compat.json) never matches anything.
+	var saved_rules: Variant = env.get(SaveService.RULES_REVISION_FIELD)
+	if _rules_revision != "" and saved_rules is String and saved_rules == _rules_revision:
+		return {"ok": true, "presentation_changed": true}
+	return _failure("CONTENT_MISMATCH", "mission content changed; existing progress is preserved")
 
 
 static func _validate_view(view: Variant) -> Dictionary:
