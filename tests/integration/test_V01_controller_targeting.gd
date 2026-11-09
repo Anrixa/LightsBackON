@@ -30,7 +30,8 @@ func test_V01_Dpad_cycles_all_five_tools_and_fifth_key_is_present() -> void:
 	assert_eq(Offline.TOOL_LIST.size(), 5, "all five authored tools available")
 
 
-func test_V01_fifth_tool_is_named_even_when_HUD_only_shows_four_slots() -> void:
+func test_V01_fifth_tool_has_its_own_named_slot() -> void:
+	# DS09 replaced the four-slot bar with "+1 more": every tool, the fifth (crimper) included, has a numbered slot.
 	var tree: SceneTree = Engine.get_main_loop() as SceneTree
 	var hud: FieldHud = FieldHud.new()
 	# This test measures a fixed canvas; unpin FULL_RECT anchors before sizing
@@ -41,12 +42,13 @@ func test_V01_fifth_tool_is_named_even_when_HUD_only_shows_four_slots() -> void:
 	var view: Dictionary = Fixture.worst_hud_view()
 	view["selected_slot"] = 5
 	hud.apply(view)
-	var labels: Array[Node] = hud.find_children("*", "Label", true, false)
+	var slot: Control = hud.tool_card.find_child("Slot_5", true, false) as Control
+	assert_true(slot != null and bool(slot.get_meta("selected")), "the fifth tool has its own selected slot")
 	var found: bool = false
-	for label: Node in labels:
-		if (label as Label).text == UiText.tf("offline.hud.fifth_tool", [UiText.t("tool.crimper")]):
+	for label: Node in hud.tool_card.find_children("*", "Label", true, false):
+		if (label as Label).text == UiText.t("tool.crimper") and (label as Label).is_visible_in_tree():
 			found = true
-	assert_true(found, "selected fifth tool name remains visible without expanding the four-slot bar")
+	assert_true(found, "the selected fifth tool is named on the bar")
 	assert_true(hud.tool_card != null)
 	tree.root.remove_child(hud)
 	hud.free()

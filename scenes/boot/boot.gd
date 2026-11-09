@@ -5,6 +5,7 @@ extends Node
 const SaveSoak := preload("res://scripts/persistence/save_soak.gd")
 const QA56FrameProbe := preload("res://scripts/diagnostics/qa56_frame_probe.gd")
 const QA140Scenario := preload("res://scripts/diagnostics/qa140_scenario_driver.gd")
+const FirstReading := preload("res://scripts/diagnostics/ds09_first_reading_driver.gd")
 const MANIFEST_PATH: String = "res://build_manifest.json"
 const MENU_PATH: String = "res://scenes/menu/main_menu.tscn"
 
@@ -12,6 +13,7 @@ const MENU_PATH: String = "res://scenes/menu/main_menu.tscn"
 func _ready() -> void:
 	print("Lights Back On boot | engine %s | build %s" % [Engine.get_version_info()["string"], _build_id()])
 	_start_qa56_capture_if_requested()
+	_start_first_reading_if_requested()
 	var mode: String = SaveSoak.requested_mode(OS.get_cmdline_user_args())
 	if mode != "":
 		_run_save_soak(mode)
@@ -82,4 +84,16 @@ func _start_qa140_scenario_if_requested(args: PackedStringArray, probe: Node, se
 	var driver: QA140Scenario = QA140Scenario.new()
 	driver.name = "QA140Scenario"
 	driver.setup(probe, session_id)
+	get_tree().root.add_child.call_deferred(driver)
+
+
+## DS09 scripted first-minute measure (internal exports / editor only, opt-in argument).
+func _start_first_reading_if_requested() -> void:
+	if DisplayServer.get_name() == "headless" or not FirstReading.requested(OS.get_cmdline_user_args()):
+		return
+	if not FirstReading.allowed():
+		print("DS09 first-reading run is not available in this build")
+		return
+	var driver: FirstReading = FirstReading.new()
+	driver.name = "DS09FirstReading"
 	get_tree().root.add_child.call_deferred(driver)

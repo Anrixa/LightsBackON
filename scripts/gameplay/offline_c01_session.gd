@@ -193,7 +193,7 @@ func host_state() -> Dictionary:
 
 func hud_view(selected_slot: int, target: String, tool: String) -> Dictionary:
 	var context: Dictionary = {
-		"local_player": PLAYER_ID, "names": {PLAYER_ID: "You"}, "tools": TOOL_LIST,
+		"local_player": PLAYER_ID, "names": {PLAYER_ID: UiText.t("hud.you")}, "tools": TOOL_LIST,
 		"selected_slot": selected_slot,
 		"district_key": "district.alder_street", "contract_key": "contract.c01",
 		"repairs": _content["repairs"], "equipment": _content["equipment"],
@@ -222,7 +222,7 @@ func tablet_view() -> Dictionary:
 		"grid": _content["grid"], "tablet": _content["tablet"], "meter": _content["meter"],
 		"repairs": _content["repairs"], "grid_source": _content["mission"]["grid_source"]
 	}, {"grid": grid.canonical_state(), "readings": readings, "findings": findings,
-		"repairs": interaction.canonical_state(), "names": {PLAYER_ID: "You"}})
+		"repairs": interaction.canonical_state(), "names": {PLAYER_ID: UiText.t("hud.you")}})
 
 
 func interact(target: String, tool: String) -> Dictionary:

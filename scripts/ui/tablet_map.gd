@@ -12,10 +12,11 @@ const ThemeTokens := preload("res://scripts/ui/theme_tokens.gd")
 const TabletNode := preload("res://scripts/ui/tablet_node.gd")
 const TabletPresenter := preload("res://scripts/ui/tablet_presenter.gd")
 
-const NODE_WIDTH_PX: int = 230
-const COL_GAP_PX: int = 44
-const ROW_GAP_PX: int = 64
-const PAD_PX: int = 28
+## DS09: tighter cells so the five-column, four-row C01 map fits the 1080p view at zoom 1.0 (body-size text).
+const NODE_WIDTH_PX: int = 236
+const COL_GAP_PX: int = 18
+const ROW_GAP_PX: int = 30
+const PAD_PX: int = 12
 const LANE_PX: int = 22
 const ARROW_PX: int = 11
 const DASH_PX: int = 10

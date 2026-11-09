@@ -52,7 +52,7 @@ static func hud_view(ctx: Dictionary, local: String = "P1") -> Dictionary:
 	var c: Dictionary = content()
 	var mission_objectives: Array[Dictionary] = ctx["mission"].objectives()
 	return HudPresenter.build(ctx["host"].authoritative_state(), mission_objectives, {
-		"local_player": local, "names": NAMES, "tools": TOOLS.slice(0, 4), "selected_slot": 1,
+		"local_player": local, "names": NAMES, "tools": TOOLS, "selected_slot": 1,
 		"repairs": c["repairs"], "equipment": c["equipment"],
 		"prompt": {"object_key": "prompt.object.pad_pump", "action": "interact", "verb_key": "prompt.verb.connect",
 			"detail_text": UiText.tf("prompt.detail.demand_capacity", [4, 6])},

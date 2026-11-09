@@ -1,6 +1,11 @@
 extends PanelContainer
 ## One focusable node on the network tablet map: name, status chip (icon + text + token color) and its measured lines.
 ## Accept (A / Enter / click) emits activated; the tablet turns that into an inspect intent. It never toggles anything.
+## DS09: on the map a node is an overview card (name, status chip, its first line: demand, source limit or the measured
+## load); every line stays in the evidence panel for the focused node. That lets the whole C01 network fit at zoom 1.0,
+## where map text is body size.
+
+const MAP_LINES: int = 1
 
 signal activated(node_id: String)
 
@@ -35,7 +40,11 @@ func setup(tokens: Dictionary, scale_percent: float, node_view: Dictionary) -> v
 	box.add_child(title)
 	chip = StatusChip.make(tokens, scale_percent, node_view["status_group"], node_view["status_state"], "", true)
 	box.add_child(chip)
-	for line: String in node_view["lines"]:
+	# A node that was never (or no longer) measured already says so in its chip ("Not measured"); its wording line
+	# ("Changed since inspection - inspect again") is read in the evidence panel instead.
+	var unknown: bool = node_view["status_group"] == "other" and node_view["status_state"] == "unknown"
+	var shown: Array = [] if unknown else (node_view["lines"] as Array).slice(0, MAP_LINES)
+	for line: String in shown:
 		var l: Label = Label.new()
 		l.text = line
 		l.theme_type_variation = "MutedLabel"

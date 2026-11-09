@@ -17,7 +17,7 @@ const TabletPresenter := preload("res://scripts/ui/tablet_presenter.gd")
 const FocusScroll := preload("res://scripts/ui/focus_scroll.gd")
 
 const MAP_INTENTS: Array[String] = ["inspect", "ping"]
-const DETAIL_WIDTH_PX: int = 480
+const DETAIL_WIDTH_PX: int = 410  # DS09: 480 -> 410 so five 236 px map columns fit at 1080p
 const DETAIL_MAX_CONTENT_FRACTION: float = 0.44
 const SECTION_GAP_PX: int = 16
 const TAB_NETWORK: String = "network"
@@ -848,21 +848,28 @@ func _neighbor(from: Control, side: Side, to: Control) -> void:
 
 func _header() -> Control:
 	var s: float = scale_percent
-	# Stack title and tabs: a 35% longer pseudo-locale must not push the
-	# Network/Objectives controller tabs out of the viewport at 720p.
-	var row: VBoxContainer = VBoxContainer.new()
+	# A 35% longer pseudo-locale must not push the Network/Objectives controller tabs out of the viewport at 720p, so the
+	# row wraps. DS09: title and subtitle on the left, the street/shift context above the tabs on the right; at 1080p
+	# that is one header band, and the map gets the height of the old context and tab rows back.
+	var row: HFlowContainer = HFlowContainer.new()
+	row.add_theme_constant_override("h_separation", ThemeTokens.px(24, s))
 	var titles: VBoxContainer = VBoxContainer.new()
 	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	titles.add_theme_constant_override("separation", ThemeTokens.px(4, s))
 	row.add_child(titles)
-	var ctx: Label = _label(titles, "%s  /  %s" % [UiText.t(_context[0]), UiText.t(_context[1])], "StrongLabel", "restored")
-	ctx.uppercase = true
 	_label(titles, UiText.t("tablet.title"), "HeaderLarge")
 	_label(titles, UiText.t("tablet.subtitle"), "MutedLabel")
-	var tabs: HFlowContainer = HFlowContainer.new()
+	var side: VBoxContainer = VBoxContainer.new()
+	side.add_theme_constant_override("separation", ThemeTokens.px(4, s))
+	row.add_child(side)
+	var ctx: Label = _label(side, "%s  /  %s" % [UiText.t(_context[0]), UiText.t(_context[1])], "StrongLabel", "restored")
+	ctx.uppercase = true
+	ctx.autowrap_mode = TextServer.AUTOWRAP_OFF
+	ctx.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	var tabs: HBoxContainer = HBoxContainer.new()
 	tabs.name = "Tabs"
-	tabs.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(tabs)
+	tabs.alignment = BoxContainer.ALIGNMENT_END
+	side.add_child(tabs)
 	var group: ButtonGroup = ButtonGroup.new()
 	for t: String in [TAB_NETWORK, TAB_OBJECTIVES]:
 		var b: Button = _button(tabs, UiText.t("tablet.tab." + t))
@@ -878,18 +885,20 @@ func _header() -> Control:
 func _footer() -> Control:
 	# Legends and primary actions get independent wrapping rows. A single
 	# horizontal strip overflows at 720p and with the +35% pseudo-locale.
-	var column: VBoxContainer = VBoxContainer.new()
-	column.add_theme_constant_override("separation", ThemeTokens.px(8, scale_percent))
-	var legend: HFlowContainer = HFlowContainer.new()
-	legend.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	legend.add_theme_constant_override("h_separation", ThemeTokens.px(24, scale_percent))
+	# DS09: legend and actions share one wrapping row at 1080p (the map gets that row's height back) and still drop to
+	# two rows at 720p or with the longer pseudo-locale.
+	var column: HFlowContainer = HFlowContainer.new()
+	column.add_theme_constant_override("h_separation", ThemeTokens.px(32, scale_percent))
+	column.add_theme_constant_override("v_separation", ThemeTokens.px(8, scale_percent))
+	var legend: HBoxContainer = HBoxContainer.new()
+	legend.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	legend.add_theme_constant_override("separation", ThemeTokens.px(24, scale_percent))
 	column.add_child(legend)
 	for entry: Array in LEGEND:
 		legend.add_child(StatusChip.make(tokens, scale_percent, entry[0], entry[1]))
-	var actions: HFlowContainer = HFlowContainer.new()
+	var actions: HBoxContainer = HBoxContainer.new()
 	actions.name = "FooterActions"
-	actions.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	actions.add_theme_constant_override("h_separation", ThemeTokens.px(8, scale_percent))
+	actions.add_theme_constant_override("separation", ThemeTokens.px(8, scale_percent))
 	column.add_child(actions)
 	for z: Array in [["tablet.zoom_out", -1], ["tablet.zoom_in", 1]]:
 		var b: Button = _button(actions, UiText.t(z[0]))

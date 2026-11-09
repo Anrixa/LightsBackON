@@ -85,6 +85,8 @@
     "world.substation.label": "ALDER SUBSTATION",
     "access.pump_house_drained": "Drain the basement to reach this repair",
     "hud.crew": "Crew",
+    "hud.objective.now": "Now",
+    "hud.objective.later": "Later",
     "hud.you": "You",
     "hud.crew_task.free": "No task",
     "hud.tools_more": "+%d more",
