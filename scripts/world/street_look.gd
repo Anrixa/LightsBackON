@@ -81,7 +81,8 @@ static func apply_environment(parent: Node, look: Dictionary) -> WorldEnvironmen
 	var r: Array = m["rotation_deg"]
 	moon.rotation_degrees = Vector3(float(r[0]), float(r[1]), float(r[2]))
 	moon.shadow_enabled = bool(m["shadow"])
-	moon.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
+	moon.directional_shadow_mode = (DirectionalLight3D.SHADOW_ORTHOGONAL if bool(m.get("shadow_orthogonal", false))
+		else DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS)
 	moon.directional_shadow_max_distance = float(m["shadow_max_distance_cm"]) / PERCENT
 	parent.add_child(moon)
 	return world_env

@@ -36,11 +36,13 @@
       150,
       0
     ],
-    "shadow": true,
-    "shadow_max_distance_cm": 6000
+    "_note": "No moon shadow: under a full storm deck moonlight is diffuse, and the shadow pass cost 1.1-1.3 ms at 2560x1600 on Intel UHD (docs/evidence/DS08.md). If re-enabled, one orthogonal map over 40 m is the cheaper mode.",
+    "shadow": false,
+    "shadow_orthogonal": true,
+    "shadow_max_distance_cm": 4000
   },
   "rain": {
-    "amount": 2600,
+    "amount": 1800,
     "box_cm": [
       2600,
       200,
@@ -77,7 +79,10 @@
     "light_energy_percent": 1100,
     "light_range_cm": 1100,
     "light_angle_deg": 54,
-    "light_attenuation_percent": 170
+    "light_attenuation_percent": 170,
+    "_fade_note": "Lamp lights fade out past 30-40 m (inside the fog) so the GLES3 per-object light loop stays short.",
+    "light_fade_begin_cm": 3000,
+    "light_fade_length_cm": 1000
   },
   "windows": {
     "_note": "Glass colours per supply state, rendered by RestorationPresentation from the host snapshot. Replaces content/offline_solo.json restoration colours when the look is applied.",

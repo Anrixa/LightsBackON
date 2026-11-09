@@ -324,6 +324,7 @@
       1800
     ],
     "color": "#1C2733",
+    "_shading_note": "Distant silhouettes are unshaded (fog still applies): lit blocks cost 1.2 ms at 2560x1600 on Intel UHD.",
     "lit_window_color": "#E8B66A",
     "lit_window_percent": 6,
     "seed": 1029

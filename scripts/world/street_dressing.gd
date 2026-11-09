@@ -335,6 +335,9 @@ func _lamps(root: Node3D, s: Dictionary, lamps: Array) -> void:
 		light.spot_angle = float(s["light_angle_deg"])
 		light.spot_attenuation = float(s["light_attenuation_percent"]) / PERCENT
 		light.shadow_enabled = false
+		light.distance_fade_enabled = true
+		light.distance_fade_begin = float(s["light_fade_begin_cm"]) / PERCENT
+		light.distance_fade_length = float(s["light_fade_length_cm"]) / PERCENT
 		light.position = Vector3(0, height - head.y, arm)
 		light.rotation_degrees = Vector3(-90, 0, 0)
 		h.add_child(light)
@@ -536,7 +539,7 @@ func _skyline(root: Node3D, s: Dictionary) -> void:
 						basis = Basis(Vector3.UP, PI * 0.5 * toward) * basis
 						windows.append(Transform3D(basis, Vector3(at + toward * 0.02, y, u)))
 			pos += width
-	root.add_child(_multimesh("Skyline", BoxMesh.new(), blocks, _flat(str(s["color"]), 0.95)))
+	root.add_child(_multimesh("Skyline", BoxMesh.new(), blocks, _unshaded(str(s["color"]))))
 	var quad: QuadMesh = QuadMesh.new()
 	root.add_child(_multimesh("SkylineWindows", quad, windows, _emissive(str(s["lit_window_color"]), 2.0)))
 
