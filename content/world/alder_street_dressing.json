@@ -1,0 +1,399 @@
+{
+  "_note": "DS08 visual dressing for Alder Street (presentation only; scripts/world/street_dressing.gd). Nothing here collides, moves a gameplay node or changes a stable ID (the file counts toward the content revision like every content file). Positions are integer cm in district space (content/world/alder_street.json). Fascia names are localization keys; plaque titles reuse the tablet node keys so the world and the tablet use the same names.",
+  "signs": {
+    "APT_W": {
+      "fascia_key": "world.sign.apt_w",
+      "plaque_key": "node.c01.apt_w"
+    },
+    "MARKET": {
+      "fascia_key": "world.sign.market",
+      "plaque_key": "node.c01.market"
+    },
+    "PUB": {
+      "fascia_key": "world.sign.pub",
+      "plaque_key": "node.c01.pub"
+    },
+    "APT_E": {
+      "fascia_key": "world.sign.apt_e",
+      "plaque_key": "node.c01.apt_e"
+    },
+    "WORKSHOP": {
+      "fascia_key": "world.sign.workshop",
+      "plaque_key": "node.c01.workshop"
+    },
+    "PUMP_HOUSE": {
+      "fascia_key": "world.sign.pump_house",
+      "plaque_key": ""
+    }
+  },
+  "cabinets": [
+    {
+      "prop": "CABINET_JW",
+      "plate_key": "world.cabinet.jw",
+      "face": "+z"
+    },
+    {
+      "prop": "CABINET_JE",
+      "plate_key": "world.cabinet.je",
+      "face": "+z"
+    }
+  ],
+  "cabinet_style": {
+    "body": "#4F6B5C",
+    "trim": "#2E3E36",
+    "plate": "#F0EBDD",
+    "plate_text": "#1B2229",
+    "hazard": "#E4C23A"
+  },
+  "van": {
+    "prop": "VAN",
+    "body": "#E9ECEE",
+    "stripe": "#E4A72E",
+    "stripe_reflective": "#F3F5EF",
+    "glass": "#1D2B38",
+    "tyre": "#1A1D21",
+    "beacon": "#FFB23F",
+    "flood_color": "#FFF1DA",
+    "flood_energy_percent": 260,
+    "flood_range_cm": 900,
+    "label_key": "world.van.label",
+    "label_color": "#1F3A52"
+  },
+  "lamps": [
+    {
+      "pos_cm": [
+        1000,
+        0,
+        3900
+      ],
+      "yaw": 180
+    },
+    {
+      "pos_cm": [
+        3200,
+        0,
+        3900
+      ],
+      "yaw": 180
+    },
+    {
+      "pos_cm": [
+        5600,
+        0,
+        3900
+      ],
+      "yaw": 180
+    },
+    {
+      "pos_cm": [
+        8000,
+        0,
+        3900
+      ],
+      "yaw": 180
+    },
+    {
+      "pos_cm": [
+        10400,
+        0,
+        3900
+      ],
+      "yaw": 180
+    },
+    {
+      "pos_cm": [
+        2100,
+        0,
+        2930
+      ],
+      "yaw": 0
+    },
+    {
+      "pos_cm": [
+        4400,
+        0,
+        2930
+      ],
+      "yaw": 0
+    },
+    {
+      "pos_cm": [
+        6900,
+        0,
+        2930
+      ],
+      "yaw": 0
+    },
+    {
+      "pos_cm": [
+        9200,
+        0,
+        2930
+      ],
+      "yaw": 0
+    },
+    {
+      "pos_cm": [
+        2350,
+        0,
+        1000
+      ],
+      "yaw": 90
+    }
+  ],
+  "kerbs": [
+    {
+      "min_cm": [
+        200,
+        3780
+      ],
+      "size_cm": [
+        10600,
+        20
+      ]
+    },
+    {
+      "min_cm": [
+        200,
+        2990
+      ],
+      "size_cm": [
+        1200,
+        20
+      ]
+    },
+    {
+      "min_cm": [
+        2200,
+        2990
+      ],
+      "size_cm": [
+        3000,
+        20
+      ]
+    },
+    {
+      "min_cm": [
+        6800,
+        2990
+      ],
+      "size_cm": [
+        3200,
+        20
+      ]
+    }
+  ],
+  "kerb_height_cm": 12,
+  "kerb_color": "#7C848B",
+  "lane_marks": {
+    "route": "MAIN_STREET",
+    "dash_cm": 300,
+    "gap_cm": 300,
+    "width_cm": 15,
+    "color": "#CFC9B4",
+    "edge_inset_cm": 40
+  },
+  "substation": {
+    "min_cm": [
+      2700,
+      750
+    ],
+    "size_cm": [
+      700,
+      450
+    ],
+    "fence_height_cm": 220,
+    "transformer_cm": [
+      260,
+      220,
+      200
+    ],
+    "color": "#5D6A72",
+    "fence": "#3A454D",
+    "label_key": "world.substation.label"
+  },
+  "poles": [
+    {
+      "pos_cm": [
+        3050,
+        0,
+        1250
+      ]
+    },
+    {
+      "pos_cm": [
+        3050,
+        0,
+        1900
+      ]
+    }
+  ],
+  "pole_height_cm": 750,
+  "pole_color": "#4A3B30",
+  "wire_color": "#15191D",
+  "overhead_runs": [
+    {
+      "from": "SUBSTATION",
+      "via": [
+        0,
+        1
+      ],
+      "to": "CABINET_JW"
+    }
+  ],
+  "cable_markers": {
+    "spacing_cm": 600,
+    "color": "#E4C23A",
+    "post_color": "#2C3740",
+    "paths_cm": [
+      [
+        [
+          3400,
+          1000
+        ],
+        [
+          5900,
+          1000
+        ],
+        [
+          5900,
+          1150
+        ]
+      ],
+      [
+        [
+          5900,
+          2080
+        ],
+        [
+          5900,
+          2300
+        ],
+        [
+          7250,
+          2300
+        ]
+      ]
+    ]
+  },
+  "skyline": {
+    "rows": [
+      {
+        "along": "x",
+        "at_cm": -2600,
+        "from_cm": -4000,
+        "to_cm": 15000,
+        "height_cm": [
+          900,
+          2400
+        ]
+      },
+      {
+        "along": "x",
+        "at_cm": 9600,
+        "from_cm": -4000,
+        "to_cm": 15000,
+        "height_cm": [
+          1200,
+          3000
+        ]
+      },
+      {
+        "along": "z",
+        "at_cm": -2600,
+        "from_cm": -2000,
+        "to_cm": 9000,
+        "height_cm": [
+          1000,
+          2600
+        ]
+      },
+      {
+        "along": "z",
+        "at_cm": 13600,
+        "from_cm": -2000,
+        "to_cm": 9000,
+        "height_cm": [
+          1000,
+          2800
+        ]
+      }
+    ],
+    "block_width_cm": [
+      800,
+      1800
+    ],
+    "color": "#1C2733",
+    "_shading_note": "Distant silhouettes are unshaded (fog still applies): lit blocks cost 1.2 ms at 2560x1600 on Intel UHD.",
+    "lit_window_color": "#E8B66A",
+    "lit_window_percent": 6,
+    "seed": 1029
+  },
+  "capture_views": [
+    {
+      "id": "spawn",
+      "eye_cm": [
+        450,
+        175,
+        1500
+      ],
+      "look_cm": [
+        3000,
+        150,
+        2700
+      ]
+    },
+    {
+      "id": "van_eye",
+      "eye_cm": [
+        800,
+        175,
+        1450
+      ],
+      "look_cm": [
+        2900,
+        250,
+        4200
+      ]
+    },
+    {
+      "id": "je_eye",
+      "eye_cm": [
+        7300,
+        175,
+        2550
+      ],
+      "look_cm": [
+        8100,
+        250,
+        4200
+      ]
+    },
+    {
+      "id": "street",
+      "eye_cm": [
+        3600,
+        175,
+        3350
+      ],
+      "look_cm": [
+        9000,
+        300,
+        3900
+      ]
+    },
+    {
+      "id": "van",
+      "eye_cm": [
+        1500,
+        190,
+        1750
+      ],
+      "look_cm": [
+        800,
+        120,
+        900
+      ]
+    }
+  ]
+}

@@ -71,7 +71,7 @@ func test_A04_live_restoration_fade_is_monotone_and_rebases_mid_mission() -> voi
 	assert_true(bool(fx.call("is_transitioning", "APT_W")))
 	fx.call("advance", 0.21)
 	var before: float = float(fx.call("light_energy_of", "APT_W"))
-	assert_true(before > 0.0 and before < 0.55)
+	assert_true(before > 0.0 and before < float(fx.call("max_energy")))
 	# Rebase the actual presentation component directly. The standalone C01
 	# host above supplies the visual target; changing the real scene's panel
 	# would correctly reapply its still-dark authoritative mission state.
@@ -81,10 +81,10 @@ func test_A04_live_restoration_fade_is_monotone_and_rebases_mid_mission() -> voi
 		"preference rebase mid-fade cannot cause a brightness spike")
 	fx.call("advance", 0.21)
 	var after: float = float(fx.call("light_energy_of", "APT_W"))
-	assert_true(after >= before and after < 0.55, "reduced transition remains monotone and slower")
+	assert_true(after >= before and after < float(fx.call("max_energy")), "reduced transition remains monotone and slower")
 	fx.call("advance", 2.0)
 	assert_false(bool(fx.call("is_transitioning", "APT_W")))
-	assert_true(is_equal_approx(float(fx.call("light_energy_of", "APT_W")), 0.55))
+	assert_true(is_equal_approx(float(fx.call("light_energy_of", "APT_W")), float(fx.call("max_energy"))))
 	assert_eq(fx.call("state_of", "APT_W"), "grid",
 		"essential restored/unpowered state remains readable with reduced flashes")
 	assert_eq(fx.call("state_of", "PUB"), "dark", "other services cannot light before host supply")
