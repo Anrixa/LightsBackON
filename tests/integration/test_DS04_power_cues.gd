@@ -48,7 +48,7 @@ func test_DS04_cascade_and_sign_follow_authoritative_restoration() -> void:
 	fx.call("advance", 3.0)
 	assert_false(bool(fx.call("is_transitioning", "APT_W")))
 	for i: int in range(count):
-		assert_true(is_equal_approx(float(fx.call("pane_energy_of", "APT_W", i)), 0.55))
+		assert_true(is_equal_approx(float(fx.call("pane_energy_of", "APT_W", i)), float(fx.call("max_energy"))))
 	assert_eq(host.grid.canonical_state(), before,
 		"visual work must never modify the authoritative power graph")
 
@@ -74,7 +74,7 @@ func test_DS04_preferences_rebase_each_window_without_light_jumps() -> void:
 	fx.call("advance", 0.20)
 	for i: int in range(count):
 		var next: float = float(fx.call("pane_energy_of", "APT_W", i))
-		assert_true(next >= before[i] and next <= 0.55,
+		assert_true(next >= before[i] and next <= float(fx.call("max_energy")),
 			"flashes-off transitions must be bounded and monotonically rising")
 	assert_true(float(fx.call("light_energy_of", "APT_W")) >= lamp_before)
 	fx.call("advance", 3.0)

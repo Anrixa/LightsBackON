@@ -1,0 +1,22 @@
+{
+  "label": "intel_gl_ds08_warm",
+  "error": "",
+  "session_id": "419ac67ae8094528969c2993ea38dfac",
+  "started_utc": "2026-11-09T09:02:57.8970258Z",
+  "duration_s": 180.4,
+  "exit_code": 0,
+  "timed_out": false,
+  "samples": 60,
+  "gpu_pref": 1,
+  "args": [
+    "--log-file",
+    "\"<scratch>\\qa140_v3\\intel_gl_ds08_warm\\godot.log\"",
+    "--fullscreen --disable-vsync",
+    "--",
+    "--qa56-capture",
+    "--qa56-id=419ac67ae8094528969c2993ea38dfac",
+    "--qa140-scenario"
+  ],
+  "exe_sha256": "d34d36f3be1a6c49c56525ae86469b92e4f417ddf0b43cf00dd80c385c4b0562",
+  "pck_sha256": "85eb7a698134148e84b0a535653e165f79db232286934b074620e50f3e232e1d"
+}

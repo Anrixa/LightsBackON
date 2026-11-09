@@ -4,11 +4,20 @@ extends RefCounted
 ## All fades are monotone, including when accessibility changes mid-transition.
 
 const TabletPresenter := preload("res://scripts/ui/tablet_presenter.gd")
+const UiText := preload("res://scripts/ui/ui_text.gd")
+const TOKENS_PATH: String = "res://content/ui/tokens.json"
+# DS08 status plaques: one supply icon per state (ADR-004: icon + text), tinted with the token for that state.
+const STATUS_ICONS: Dictionary = {
+	"dark": ["res://assets/ui/icons/48/icon_supply_dark.png", "fault"],
+	"temporary": ["res://assets/ui/icons/48/icon_supply_temporary.png", "action"],
+	"grid": ["res://assets/ui/icons/48/icon_supply_restored.png", "restored"],
+}
 const CONFIG_PATH: String = "res://content/offline_solo.json"
 const SERVICES: Array[String] = ["APT_W", "MARKET", "PUB", "APT_E", "WORKSHOP"]
 # Offset successive panes over the first 35% of a fade. A code-side cosmetic
 # value, not a puzzle rule or a reason to change the C01 content revision.
 const PANE_CASCADE_FRACTION: float = 0.35
+const GLASS_ROUGHNESS: float = 0.12
 
 var _world: Node3D
 var _panes: Dictionary = {}
@@ -17,6 +26,8 @@ var _materials: Dictionary = {}
 var _pane_energies: Dictionary = {}
 var _pane_colors: Dictionary = {}
 var _labels: Dictionary = {}
+var _icons: Dictionary = {}
+var _token_colors: Dictionary = {}
 var _base_labels: Dictionary = {}
 var _last_status: Dictionary = {}
 var _colors: Dictionary = {}
@@ -27,13 +38,19 @@ var _dark: Color
 var _grid: Color
 var _temporary: Color
 var _max_energy: float = 0.0
+## Window emission at full supply. 1.0 = the graybox look; the DS08 look raises it so lit glass blooms.
+var _glass_emission: float = 1.0
 var _normal_duration: float = 0.0
 var _reduced_duration: float = 0.0
 var _reduce_flashes: bool = true
 
 
-func setup(world: Node3D) -> void:
+## `look_windows` (optional) is the DS08 look's "windows" block; it replaces the graybox glass colours and lamp values.
+func setup(world: Node3D, look_windows: Dictionary = {}) -> void:
 	_world = world
+	_icons.clear()
+	var tokens: Variant = JSON.parse_string(FileAccess.get_file_as_string(TOKENS_PATH))
+	_token_colors = (tokens as Dictionary)["colors"] if tokens is Dictionary else {}
 	_panes.clear()
 	_lights.clear()
 	_materials.clear()
@@ -46,11 +63,15 @@ func setup(world: Node3D) -> void:
 	_energies.clear()
 	_fades.clear()
 	var config: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(CONFIG_PATH))
-	var d: Dictionary = config["restoration"]
+	var d: Dictionary = (config["restoration"] as Dictionary).duplicate()
+	for key: String in look_windows.keys():
+		if d.has(key):
+			d[key] = look_windows[key]
 	_dark = Color(str(d["dark_glass_color"]))
 	_grid = Color(str(d["grid_glass_color"]))
 	_temporary = Color(str(d["temporary_glass_color"]))
 	_max_energy = float(d["light_energy_percent"]) / 100.0
+	_glass_emission = float(look_windows.get("glass_emission_percent", 100)) / 100.0
 	_normal_duration = float(ProjectSettings.get_setting("a04_presentation/normal_transition_ms")) / 1000.0
 	_reduced_duration = float(ProjectSettings.get_setting("a04_presentation/reduced_transition_ms")) / 1000.0
 	var glass: QuadMesh = QuadMesh.new()
@@ -65,6 +86,9 @@ func setup(world: Node3D) -> void:
 		if label != null:
 			_labels[service] = label
 			_base_labels[service] = label.text
+			var icon: Sprite3D = label.get_node_or_null("StatusIcon") as Sprite3D
+			if icon != null:
+				_icons[service] = icon
 		var panes: Array[MeshInstance3D] = []
 		var materials: Array[StandardMaterial3D] = []
 		var levels: Array[float] = []
@@ -76,6 +100,10 @@ func setup(world: Node3D) -> void:
 			pane.name = "PowerGlass"
 			pane.mesh = glass
 			var material: StandardMaterial3D = _material(_dark)
+			if _glass_emission > 1.0:
+				# DS08 look: lit glass that also catches the sky and lamps, so emission blooms and dark panes read as glass
+				material.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
+				material.roughness = GLASS_ROUGHNESS
 			pane.material_override = material
 			pane.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 			marker.add_child(pane)
@@ -137,7 +165,10 @@ func apply(state: Dictionary, drained: bool) -> void:
 		# Animation is visual evidence, never the source of gameplay truth.
 		if _labels.has(service):
 			var sign: Label3D = _labels[service]
-			sign.text = str(_base_labels[service]) + "\n" + _power_caption(next)
+			var base: String = str(_base_labels[service])
+			sign.text = (base + "\n" if base != "" else "") + _power_caption(next)
+		if _icons.has(service):
+			_set_icon(_icons[service], next)
 		var color: Color = _dark
 		if next == "grid":
 			color = _grid
@@ -166,6 +197,11 @@ func advance(delta: float) -> void:
 
 func is_transitioning(service: String) -> bool:
 	return _fades.has(service)
+
+
+## Pane and lamp energy at full supply (graybox 0.55 from offline_solo.json, or the DS08 look's value).
+func max_energy() -> float:
+	return _max_energy
 
 
 func light_energy_of(service: String) -> float:
@@ -243,14 +279,33 @@ func _render(service: String, fade: Dictionary, progress: float, eased: float) -
 		material.albedo_color = pane_color
 		material.emission_enabled = pane_energy > 0.001
 		material.emission = pane_color
-		material.emission_energy_multiplier = pane_energy / maxf(_max_energy, 0.001)
+		material.emission_energy_multiplier = pane_energy / maxf(_max_energy, 0.001) * _glass_emission
 
 
+## Caption under the service name. The plaque icon (DS08) carries the same state as a shape; the words are the
+## colour-blind-safe channel and never depend on the glow.
 static func _power_caption(status: String) -> String:
 	match status:
-		"grid": return "[+] GRID POWER"
-		"temporary": return "[~] TEMPORARY POWER"
-	return "[-] NO POWER"
+		"grid": return UiText.t("world.supply.grid")
+		"temporary": return UiText.t("world.supply.temporary")
+	return UiText.t("world.supply.dark")
+
+
+func _set_icon(icon: Sprite3D, status: String) -> void:
+	var entry: Array = STATUS_ICONS.get(status, STATUS_ICONS["dark"])
+	icon.texture = load(str(entry[0])) as Texture2D
+	icon.modulate = Color(str(_token_colors.get(str(entry[1]), "#F3F5EF")))
+
+
+## Which supply icon a plaque shows (DS08 tests): "dark" / "temporary" / "grid", or "" without a plaque.
+func icon_state_of(service: String) -> String:
+	if not _icons.has(service):
+		return ""
+	var tex: Texture2D = (_icons[service] as Sprite3D).texture
+	for status: String in STATUS_ICONS.keys():
+		if tex != null and tex.resource_path == str(STATUS_ICONS[status][0]):
+			return status
+	return ""
 
 
 static func _smoothstep(t: float) -> float:

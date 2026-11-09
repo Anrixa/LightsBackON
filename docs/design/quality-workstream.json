@@ -169,7 +169,7 @@
     {
       "id": "DS08",
       "title": "Stormglass look and diegetic world (lighting recipe, wet materials, rain, dressing props, diegetic signs)",
-      "status": "NOT_STARTED",
+      "status": "DONE",
       "depends_on": [
         "DS07"
       ],
@@ -181,7 +181,8 @@
       ],
       "evidence_file": "docs/evidence/DS08.md",
       "plan": "docs/design/DS07-design-plan.md",
-      "authority": "ADR-017"
+      "authority": "ADR-017",
+      "notes": "Intel UHD misses the 14 ms target at native 2560x1600 (mean 14.1-14.7 ms, harness P95 42 ms); owner decision 9 Nov 2026: merge, 3D resolution setting first in DS09. See docs/evidence/DS08.md."
     },
     {
       "id": "DS09",
@@ -191,6 +192,7 @@
         "DS08"
       ],
       "acceptance": [
+        "3D resolution setting (owner decision 9 Nov 2026, DS08 evidence): Intel UHD at native 2560x1600 within the ADR-017 target at its default",
         "A new player is pointed at the west junction cabinet without a marker revealing the repair",
         "Tablet opens with every required consumer visible at body text size",
         "unknown token at least 5:1 on the panel; contrast 224/224",
