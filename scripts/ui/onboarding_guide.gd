@@ -34,6 +34,11 @@ func instruction_key() -> String:
 	return "" if completed() else str((_steps[_index] as Dictionary)["text_key"])
 
 
+## DS09: input actions whose live binding labels fill the instruction's %s slots, as [{"kbm": action, "pad": action}].
+func instruction_bindings() -> Array:
+	return [] if completed() else ((_steps[_index] as Dictionary).get("bindings", []) as Array)
+
+
 func observe(event_id: String) -> bool:
 	if completed() or event_id != str((_steps[_index] as Dictionary)["event"]):
 		return false

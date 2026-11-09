@@ -16,8 +16,10 @@ func before_each() -> void:
 
 
 func test_F05_tokens_match_blueprint_screen_specification() -> void:
+	# The blueprint's unknown gray-blue #7E93A3 measured 4.59:1 on the panel (x1.02 of AA, QA138 item 5); DS09 lightened it
+	# to #8A9FAF (5.34:1), recorded in the ADR-004 DS09 addendum. Every other token is the blueprint value.
 	var want: Dictionary = {"background": "#111B25", "panel": "#1B2A38", "elevated": "#243748", "text": "#F3F5EF",
-		"text_muted": "#B9C6CF", "restored": "#65D6B4", "action": "#FFC86B", "fault": "#F28B82", "unknown": "#7E93A3"}
+		"text_muted": "#B9C6CF", "restored": "#65D6B4", "action": "#FFC86B", "fault": "#F28B82", "unknown": "#8A9FAF"}
 	assert_eq(_tokens["colors"], want)
 	assert_eq(int(_tokens["type_px"]["body"]), 22)
 	assert_eq(int(_tokens["type_px"]["button"]), 26)

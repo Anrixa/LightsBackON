@@ -20,8 +20,9 @@ const RETICLE_PX: int = 24
 const EVENT_WIDTH_PX: int = 510
 const EVENT_MIN_WIDTH_PX: int = 300
 const SLOT_MIN_WIDTH_PX: int = 120
-const SLOT_COMPACT_WIDTH_PX: int = 64
-const MAX_TOOL_SLOTS: int = 4
+const SLOT_COMPACT_WIDTH_PX: int = 52
+## DS09: every C01 tool has a slot (the cable reel was hidden behind "+1 more"); compact slots handle tight screens.
+const MAX_TOOL_SLOTS: int = 5
 const REGION_GAP_PX: int = 24
 const CREW_NAME_PX: int = 110
 
@@ -140,6 +141,9 @@ func _notification(what: int) -> void:
 	var prompt_w: float = minf(ThemeTokens.px(PROMPT_WIDTH_PX, minf(s, fit_percent)), inner.size.x)
 	var prompt_h: float = _height_at(prompt_card, prompt_w)
 	_place_bottom(inner, gap)
+	if not compact_tools and tool_card.get_rect().end.x + gap > event_card.position.x:
+		_set_compact_tools(true)  # five full slots and the event card do not fit side by side (720p at 150 %)
+		_place_bottom(inner, gap)
 	_inner_bottom = inner.end.y
 	var prompt: Rect2 = _prompt_rect(center, r, gap, prompt_w, prompt_h)
 	if prompt_card.visible and prompt.grow(gap * 0.5).intersects(tool_card.get_rect()) and not compact_tools:
@@ -184,6 +188,9 @@ func _set_compact_tools(compact: bool) -> void:
 		(n as Label).visible = not compact
 	for n: Node in tool_card.find_children("Slot_*", "PanelContainer", true, false):
 		(n as Control).custom_minimum_size.x = ThemeTokens.px(SLOT_COMPACT_WIDTH_PX if compact else SLOT_MIN_WIDTH_PX, scale_percent)
+	for n: Node in tool_card.find_children("SlotHead", "BoxContainer", true, false):
+		(n as BoxContainer).vertical = compact
+		(n as BoxContainer).alignment = BoxContainer.ALIGNMENT_CENTER if compact else BoxContainer.ALIGNMENT_BEGIN
 	var title: Label = tool_card.find_child("SelectedTool", true, false) as Label
 	if title != null:
 		title.visible = compact
@@ -247,8 +254,17 @@ func _objectives() -> PanelContainer:
 	var head: Label = _label(box, context, "StrongLabel", "restored")
 	head.uppercase = true
 	var rows: Array = _view.get("objectives", [])
+	var lane: String = ""
 	for i: int in mini(rows.size(), max_objective_rows):
 		var o: Dictionary = rows[i]
+		# DS09: a small "NOW" / "LATER" heading where the lane changes, so the one current job reads first.
+		var row_lane: String = str(o.get("lane", ""))
+		if row_lane != lane and (row_lane == "now" or row_lane == "later"):
+			var heading: Label = _label(box, UiText.t("hud.objective." + row_lane), "StrongLabel",
+				"action" if row_lane == "now" else "text_muted", false)
+			heading.name = "Lane_" + row_lane
+			heading.uppercase = true
+		lane = row_lane
 		var chip: HBoxContainer = StatusChip.make(tokens, scale_percent, "objectives", str(o["status"]), UiText.t(str(o["text_key"])), true,
 			"StrongLabel" if o["status"] == "active" else "")
 		chip.name = "Objective_%s" % o.get("id", str(i))
@@ -303,13 +319,18 @@ func _crew() -> PanelContainer:
 	var box: VBoxContainer = _vbox(card)
 	var title: Label = _label(box, UiText.t("hud.crew"), "StrongLabel", "text_muted")
 	title.uppercase = true
-	for m: Dictionary in _view.get("crew", []):
+	var crew: Array = _view.get("crew", [])
+	# DS09: a crew of one has nobody to coordinate with; the solo player's own task already shows on the tool bar
+	# (carried item) and the prompt (repair lock), so the card stays hidden instead of showing a lone "You - No task".
+	card.visible = crew.size() > 1
+	for m: Dictionary in crew:
 		var row: HBoxContainer = HBoxContainer.new()
 		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		row.name = "Crew_%s" % m["player"]
 		box.add_child(row)
 		var name_text: String = str(m["name"])
-		if m.get("local", false):
+		# The local row is marked "(You)" once; an offline name that already is "You" is not repeated ("You (You)").
+		if m.get("local", false) and name_text != UiText.t("hud.you"):
 			name_text = "%s (%s)" % [name_text, UiText.t("hud.you")]
 		var who: Label = _label(row, name_text, "StrongLabel", "restored" if m.get("local", false) else "text", false)
 		who.custom_minimum_size.x = ThemeTokens.px(CREW_NAME_PX, scale_percent)
@@ -383,7 +404,10 @@ func _slot(number: int, tool: String, selected: bool) -> PanelContainer:
 	slot.add_theme_stylebox_override("panel", style)
 	slot.set_meta("selected", selected)
 	var box: VBoxContainer = _vbox(slot, 4)
-	var top: HBoxContainer = HBoxContainer.new()
+	# A BoxContainer so the compact bar can stack the number over the icon: five side-by-side heads were 73 px each and
+	# pushed the bar under the prompt at 150 % (DS09); stacked they are icon-wide.
+	var top: BoxContainer = BoxContainer.new()
+	top.name = "SlotHead"
 	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_child(top)
 	_label(top, str(number), "StrongLabel", "action", false)

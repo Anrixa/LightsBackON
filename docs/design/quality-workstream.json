@@ -187,7 +187,7 @@
     {
       "id": "DS09",
       "title": "First-minute clarity (onboarding target, Now objective, crew label, full tool bar, tablet fit zoom, unknown token headroom, loading screen)",
-      "status": "NOT_STARTED",
+      "status": "DONE",
       "depends_on": [
         "DS08"
       ],
@@ -200,7 +200,8 @@
       ],
       "evidence_file": "docs/evidence/DS09.md",
       "plan": "docs/design/DS07-design-plan.md",
-      "authority": "ADR-017"
+      "authority": "ADR-017",
+      "notes": "Suite 502/0, HUD contrast 270/270, unknown 5.34:1, five tools, tablet fits at zoom 1.0, warm-up behind the loading card (no visible stall over 1 s). Intel UHD 2560x1600 at the Auto default (75 %): mission mean 11.1-11.7 ms (14 ms target met); harness P95 33-38 ms (vsync-off pacing, recorded). See docs/evidence/DS09.md."
     },
     {
       "id": "DS10",

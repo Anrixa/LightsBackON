@@ -1,0 +1,664 @@
+{
+  "schema_version": 1,
+  "session_id": "b53e7592653d4c41ad4d265dd5c092db",
+  "exit_code": 0,
+  "engine": "4.7.2-stable (official)",
+  "rendering_method": "gl_compatibility",
+  "rendering_driver": "opengl3",
+  "adapter_vendor": "Intel",
+  "adapter_name": "Intel(R) RaptorLake-S Mobile Graphics Controller",
+  "adapter_api_version": "3.3.0 - Build 32.0.101.7092",
+  "window_mode": 3,
+  "vsync_mode": 0,
+  "viewport_size": [
+    2560,
+    1600
+  ],
+  "screen_refresh_hz": 240.0,
+  "segments": [
+    {
+      "segment": 0,
+      "name": "menu_idle",
+      "started_ms": 713,
+      "frames": 2827,
+      "video_mem_peak_bytes": 95739567,
+      "texture_mem_peak_bytes": 70877663,
+      "draw_calls_peak": 922,
+      "primitives_peak": 30886,
+      "objects_peak": 1387
+    },
+    {
+      "segment": 1,
+      "name": "mission_idle",
+      "started_ms": 20655,
+      "frames": 2707,
+      "video_mem_peak_bytes": 95659739,
+      "texture_mem_peak_bytes": 70802563,
+      "draw_calls_peak": 917,
+      "primitives_peak": 27926,
+      "objects_peak": 1236
+    },
+    {
+      "segment": 2,
+      "name": "walk_look",
+      "started_ms": 50684,
+      "frames": 3603,
+      "video_mem_peak_bytes": 95655011,
+      "texture_mem_peak_bytes": 70802563,
+      "draw_calls_peak": 630,
+      "primitives_peak": 18284,
+      "objects_peak": 968
+    },
+    {
+      "segment": 3,
+      "name": "tablet_toggle",
+      "started_ms": 90738,
+      "frames": 4262,
+      "video_mem_peak_bytes": 97457207,
+      "texture_mem_peak_bytes": 72249783,
+      "draw_calls_peak": 291,
+      "primitives_peak": 21381,
+      "objects_peak": 1421
+    },
+    {
+      "segment": 4,
+      "name": "pause_toggle",
+      "started_ms": 139059,
+      "frames": 1875,
+      "video_mem_peak_bytes": 98153089,
+      "texture_mem_peak_bytes": 72948833,
+      "draw_calls_peak": 203,
+      "primitives_peak": 15748,
+      "objects_peak": 776
+    },
+    {
+      "segment": 5,
+      "name": "final_idle",
+      "started_ms": 159176,
+      "frames": 1886,
+      "video_mem_peak_bytes": 98122009,
+      "texture_mem_peak_bytes": 72948833,
+      "draw_calls_peak": 185,
+      "primitives_peak": 13324,
+      "objects_peak": 523
+    }
+  ],
+  "steps": [
+    {
+      "step": "shift_started_before_driver_in_MissionRoot",
+      "ok": false,
+      "at_ms": 20655
+    },
+    {
+      "step": "mission_loaded",
+      "ok": true,
+      "at_ms": 20655
+    },
+    {
+      "step": "shader_warmup_done",
+      "ok": true,
+      "at_ms": 20655
+    },
+    {
+      "step": "walk_completed",
+      "ok": true,
+      "at_ms": 90737
+    },
+    {
+      "step": "map_meter_opened_20_of_20",
+      "ok": true,
+      "at_ms": 139059
+    },
+    {
+      "step": "map_meter_closed_20_of_20",
+      "ok": true,
+      "at_ms": 139059
+    },
+    {
+      "step": "pause_opened_10_of_10",
+      "ok": true,
+      "at_ms": 159176
+    },
+    {
+      "step": "pause_closed_10_of_10",
+      "ok": true,
+      "at_ms": 159176
+    }
+  ],
+  "shader_warmup": {
+    "views": 48,
+    "vantages": 12,
+    "total_ms": 3131,
+    "worst_frame_ms": 839
+  },
+  "real_input_events": [
+    {
+      "at_ms": 9427,
+      "type": "InputEventMouseButton",
+      "device": 32,
+      "pressed": true,
+      "scene": "MainMenu",
+      "text": "Left Mouse Button",
+      "position": [
+        415,
+        861
+      ]
+    },
+    {
+      "at_ms": 9502,
+      "type": "InputEventMouseButton",
+      "device": 32,
+      "pressed": false,
+      "scene": "MainMenu",
+      "text": "Left Mouse Button",
+      "position": [
+        414,
+        861
+      ]
+    },
+    {
+      "at_ms": 10466,
+      "type": "InputEventMouseButton",
+      "device": 32,
+      "pressed": true,
+      "scene": "MainMenu",
+      "text": "Left Mouse Button",
+      "position": [
+        1291,
+        1305
+      ]
+    },
+    {
+      "at_ms": 10546,
+      "type": "InputEventMouseButton",
+      "device": 32,
+      "pressed": false,
+      "scene": "MainMenu",
+      "text": "Left Mouse Button",
+      "position": [
+        1290,
+        1303
+      ]
+    },
+    {
+      "at_ms": 18317,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 18815,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 18850,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 18876,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 18912,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 18929,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 18975,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 18989,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 19037,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 19037,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": false,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 20458,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "E"
+    },
+    {
+      "at_ms": 20524,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": false,
+      "scene": "MissionRoot",
+      "text": "E"
+    },
+    {
+      "at_ms": 24699,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 25208,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 25240,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 25294,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 25299,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 25348,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 25360,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 25403,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 25426,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 25457,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 25480,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 25511,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 25565,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 25577,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 25620,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 25632,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 25674,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 25697,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 25729,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 25784,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 25787,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 25838,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 25850,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 25892,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 25909,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 25948,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 25971,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 26003,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 26060,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 26060,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 26115,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 26121,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 26169,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 26191,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 26225,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 26248,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 26281,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 26303,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 26335,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 26391,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 26394,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 26447,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 26460,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 26502,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 26525,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 26556,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 26580,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    },
+    {
+      "at_ms": 26611,
+      "type": "InputEventKey",
+      "device": 16,
+      "pressed": true,
+      "scene": "MissionRoot",
+      "text": "W"
+    }
+  ]
+}

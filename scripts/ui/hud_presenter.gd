@@ -27,6 +27,9 @@ static func build(state: Dictionary, objectives: Array[Dictionary], ctx: Diction
 
 
 ## The last finished objective, then the visible open ones, at most max_rows (blueprint p.11: three rows).
+## DS09 Now/Later: the first open objective in the mission director's order is the one to do now ("lane": "now", active
+## icon); the other open ones keep their host status but show as "later" with the pending icon, so the card always names
+## exactly one current job. The host's objective states are not changed; this is presentation order only.
 static func objective_rows(objectives: Array[Dictionary], max_rows: int) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	var last_done: Dictionary = {}
@@ -34,10 +37,18 @@ static func objective_rows(objectives: Array[Dictionary], max_rows: int) -> Arra
 		if o["status"] == MissionDirector.STATUS_DONE:
 			last_done = o
 	if not last_done.is_empty():
-		out.append(last_done)
+		var done_row: Dictionary = last_done.duplicate()
+		done_row["lane"] = "done"
+		out.append(done_row)
+	var now_given: bool = false
 	for o: Dictionary in objectives:
 		if o["status"] == MissionDirector.STATUS_ACTIVE and o.get("visible", true) and out.size() < max_rows:
-			out.append(o)
+			var row: Dictionary = o.duplicate()
+			row["lane"] = "later" if now_given else "now"
+			if now_given:
+				row["status"] = MissionDirector.STATUS_PENDING
+			now_given = true
+			out.append(row)
 	return out
 
 

@@ -5,6 +5,7 @@ extends Control
 const UiText := preload("res://scripts/ui/ui_text.gd")
 const ThemeTokens := preload("res://scripts/ui/theme_tokens.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
+const LoadingCard := preload("res://scripts/ui/loading_card.gd")
 
 const MISSION_PATH: String = "res://scenes/mission/mission_root.tscn"
 var start_button: Button
@@ -219,43 +220,16 @@ func _launch(resume: bool, replacement_confirmed: bool = false) -> void:
 	get_tree().change_scene_to_file(MISSION_PATH)
 
 
-## Full-screen card that stays on screen while the mission scene loads and compiles. Blocks input so a second
-## press cannot launch twice.
+## Full-screen card that stays on screen while the mission scene loads. Blocks input so a second press cannot launch
+## twice. DS09: the mission keeps the same card (with the shift briefing and a progress bar) up while it warms the
+## street's shaders, so menu -> mission reads as one loading screen.
 func show_loading_card() -> Control:
 	if _loading_card != null:
 		return _loading_card
 	var focused: Control = get_viewport().gui_get_focus_owner()
 	if focused != null:
 		focused.release_focus()
-	_loading_card = ColorRect.new()
-	_loading_card.name = "LoadingCard"
-	_loading_card.color = ThemeTokens.color(_tokens, "background")
-	_loading_card.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_loading_card.mouse_filter = Control.MOUSE_FILTER_STOP
+	var effective: float = ThemeTokens.effective_percent(100, size if size.x > 0.0 else ThemeTokens.DESIGN_SIZE)
+	_loading_card = LoadingCard.build(_tokens, effective, _heading.get_theme_font_size("font_size"), true, true)
 	add_child(_loading_card)
-	var center: CenterContainer = CenterContainer.new()
-	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_loading_card.add_child(center)
-	var column: VBoxContainer = VBoxContainer.new()
-	column.add_theme_constant_override("separation", 14)
-	center.add_child(column)
-	var eyebrow: Label = Label.new()
-	eyebrow.text = UiText.t("offline.menu.subtitle")
-	eyebrow.theme_type_variation = "StrongLabel"
-	eyebrow.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	eyebrow.add_theme_color_override("font_color", ThemeTokens.color(_tokens, "restored"))
-	column.add_child(eyebrow)
-	var title: Label = Label.new()
-	title.name = "LoadingTitle"
-	title.text = UiText.t("offline.loading.title")
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", _heading.get_theme_font_size("font_size"))
-	title.add_theme_color_override("font_color", ThemeTokens.color(_tokens, "text"))
-	column.add_child(title)
-	var detail: Label = Label.new()
-	detail.name = "LoadingDetail"
-	detail.text = UiText.t("offline.loading.detail")
-	detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	detail.add_theme_color_override("font_color", ThemeTokens.color(_tokens, "text_muted"))
-	column.add_child(detail)
 	return _loading_card

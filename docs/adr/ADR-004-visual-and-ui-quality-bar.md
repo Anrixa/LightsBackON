@@ -116,3 +116,19 @@ Decisions made while building S06/S07 (blueprint p.23, references p.42-43). None
    restored windows, 100 % and 150 %) and the tablet at 100 % and 150 %. Every frame is drawn twice, the second time with only the text and
    icons hidden, so each probe is measured against the pixels actually behind it. Result: 252 probes, none below AA. The tightest is the
    `unknown` gray-blue "Not measured" on the panel at 4.59:1, consistent with the F05 contrast addendum.
+
+## Addendum DS09 (9 Nov 2026): `unknown` token and five-slot tool bar
+
+Lead-designer decision under ADR-017 decision 4 (no owner input needed; recorded so it is not a silent deviation).
+
+1. **`unknown` is `#8A9FAF`** (was `#7E93A3`). The old value passed AA at 4.59:1 on the panel, the tightest probe in the rendered
+   capture (V07 addendum point 8). "Not measured" is the first state a new player reads on the tablet, so it gets head-room:
+   5.34:1 on `panel`, 6.34:1 on `background`. On `elevated` it is 4.47:1, so it must stay off elevated surfaces for body text
+   (`tools/check_contrast.py` checks the pairs that are used: 44 checks, 0 failures). It is still visibly cooler and dimmer than
+   `text`, so unknown never reads as a measured value.
+2. **The tool bar shows every C01 tool** (five slots; the cable reel used to be behind "+1 more"). This changes reflow rule 3 of the V07
+   addendum: in the compact bar each slot stacks its number over its icon (52 px per slot at 100 %) instead of side by side, so five
+   compact slots end before the centered prompt at 150 % on 1280x720, 1920x1080 and 1920x1200 with the pseudo-locale. The full bar
+   switches to compact also when it would run into the event card.
+3. Rendered contrast after DS09: 270 probes, 0 below AA (`docs/evidence/DS09/DS09_hud_contrast.json`, RTX 5090 Laptop GPU). The
+   probe count grew from 224 because the HUD gained the Now/Later headings, the fifth slot and the tablet header/footer changes.
