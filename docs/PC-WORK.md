@@ -83,11 +83,12 @@ approval is not a test result: the item stays open here until the owner has look
   Rules are in the ADR-004 V07 addendum point 3/5.
 - [ ] **V01 graybox look**: the renders and the five layout interpretations in `docs/evidence/V01.md` (listed in V01's pending items).
 
-Owner decisions (not reviews; nothing proceeds until answered), from ADR-016 section 4:
-- [ ] **Lookdev spike before V09?** One non-shipping `scenes/lookdev/` scene, kit and project-made materials only (ADR-016 4.1).
-- [ ] **Renderer by measurement?** Spike runs under Compatibility and Mobile/Forward+, measured on a GTX 1650-class PC (ADR-016 4.2).
-  Needs access to that class of machine; the RTX 5090 cannot decide it.
-- [ ] **Art capacity:** commission an artist or license a coherent asset kit, licence recorded first (ADR-016 4.3).
+Owner decisions from ADR-016 section 4, **answered 9 Nov 2026** (ADR-016 section 6, ADR-017):
+- [x] **Lookdev spike before V09?** Approved; the owner hired Claude as main design artist ("make it the best").
+- [x] **Renderer?** Keep Compatibility (QA140 data). The Mobile/Forward+ A/B is dropped.
+- [x] **Art capacity:** Claude is the designer; Claude approves the lookdev look and then starts the design agent
+  (`.claude/agents/lbo-design-artist.md`). Third-party assets and money still need the owner.
+- [x] **More contracts before C01 polish?** Yes, in parallel as logic and data only (ADR-017 decision 3).
 
 Not deferrable by approval (these are test runs, not judgements; they stay in sections 2b-4):
 - [ ] **UX01 controller-only run** of the HUD and tablet with a real pad once a player controller scene exists (stick focus, pan, zoom,
