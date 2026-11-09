@@ -16,3 +16,15 @@ find_godot() {
     if command -v "$c" >/dev/null 2>&1; then command -v "$c"; return; fi
   done
 }
+
+# SAVE22: point Godot's user:// at a fresh per-run directory so tests never read or write the PC's real saves
+# (a checkpoint from an older content revision fails unrelated tests with CONTENT_MISMATCH). Godot reads APPDATA
+# on Windows and XDG_DATA_HOME on Linux at startup; tests/run_tests.gd refuses to run unless user:// lands inside
+# LBO_TEST_USER_ROOT. Exports the three variables in the calling shell; the caller removes the directory.
+isolate_godot_user_dir() {
+  local root
+  root="$(mktemp -d "${TMPDIR:-/tmp}/lbo_test_user.XXXXXX")" || return 1
+  # Git Bash: hand Godot a Windows path (C:/Users/...), which it also prints back from OS.get_user_data_dir().
+  if command -v cygpath >/dev/null 2>&1; then root="$(cygpath -m "$root")"; fi
+  export LBO_TEST_USER_ROOT="$root" APPDATA="$root" XDG_DATA_HOME="$root"
+}

@@ -1,13 +1,18 @@
 extends SceneTree
 ## Minimal headless test runner with no third-party addons.
 ##
-##   godot --headless --path . -s res://tests/run_tests.gd -- [--filter=text] [--dir=res://tests]\n##   Optional QA53 diagnosis: --settle-frames=30 (2 normally); never hides engine warnings.
+##   bash tools/run_tests.sh [--filter=text]     (normal entry point)
+##   godot --headless --path . -s res://tests/run_tests.gd -- [--filter=text] [--dir=res://tests]
+##   Optional QA53 diagnosis: --settle-frames=30 (2 normally); never hides engine warnings.
+## SAVE22: refuses to run (exit 2) unless the launcher isolated user:// (LBO_TEST_USER_ROOT, see
+## tests/support/user_dir_guard.gd); a direct call needs APPDATA / XDG_DATA_HOME and LBO_TEST_USER_ROOT set to a temp dir.
 ##
 ## Finds every res://tests/**/test_*.gd, instantiates it, and runs each method whose
 ## name starts with "test_". Exit code 0 = all passed, 1 = failures, 2 = runner error.
 ## Name test methods after the acceptance-matrix ID where one exists, e.g. test_SIM08_equality_is_not_overload.
 
 const TEST_CASE_PATH := "res://tests/test_case.gd"
+const UserDirGuard := preload("res://tests/support/user_dir_guard.gd")
 
 
 func _initialize() -> void:
@@ -23,6 +28,12 @@ func _initialize() -> void:
 			var value: String = a.trim_prefix("--settle-frames=")
 			if value.is_valid_int():
 				settle_frames = clampi(int(value), 2, 60)
+	var isolation: String = UserDirGuard.current_error()
+	if isolation != "":
+		print("RUNNER ERROR: %s" % isolation)
+		quit(2)
+		return
+	print("user:// isolated at %s" % OS.get_user_data_dir())
 	# The root window joins the tree after _initialize starts; scene tests need its physics world.
 	await process_frame
 	var result: int = _run(root_dir, filter)
