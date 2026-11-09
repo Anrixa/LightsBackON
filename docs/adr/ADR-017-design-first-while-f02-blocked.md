@@ -66,3 +66,13 @@
 - Look changes can break HUD contrast or frame time; points 2 and the guardrails make both measured on every look change.
 - If F02 later forces an engine re-evaluation (ADR-016 section 2.3), project-made shaders and dressing code are Godot-specific; the
   design decisions, layouts, palettes and content data carry over.
+
+## Amendment DS09 (9 Nov 2026): 3D resolution setting and its default
+
+Owner decision (9 Nov 2026): a 3D resolution setting (100 / 85 / 75 / 50 %, bilinear `scaling_3d` on the root viewport; the 2D UI stays
+native). Lead-designer default: **Auto**, stored as `0` in the preferences (no save migration; older profiles without the key get Auto).
+Auto picks the largest option whose 3D pixel count is at most 1920x1200 (`content/accessibility.json`,
+`render_scale_percent.auto_max_render_pixels`): 100 % at 1920x1080 and 1920x1200, 75 % at 2560x1600, 50 % at 3840x2160. Measured in the
+DS08 bench on the Intel UHD at 2560x1600 (spawn view, mean frame): 100 % 14.0 ms, 75 % 10.8 ms, 50 % 8.4 ms, so Auto meets the 14 ms
+guardrail there with margin. That is a mean from a bench, not the QA140 P95; the P95 check is listed in `docs/evidence/DS09.md`.
+The player can always pick a fixed value in Settings.
