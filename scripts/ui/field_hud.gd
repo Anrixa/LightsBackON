@@ -20,7 +20,7 @@ const RETICLE_PX: int = 24
 const EVENT_WIDTH_PX: int = 510
 const EVENT_MIN_WIDTH_PX: int = 300
 const SLOT_MIN_WIDTH_PX: int = 120
-const SLOT_COMPACT_WIDTH_PX: int = 64
+const SLOT_COMPACT_WIDTH_PX: int = 52
 ## DS09: every C01 tool has a slot (the cable reel was hidden behind "+1 more"); compact slots handle tight screens.
 const MAX_TOOL_SLOTS: int = 5
 const REGION_GAP_PX: int = 24
@@ -188,6 +188,9 @@ func _set_compact_tools(compact: bool) -> void:
 		(n as Label).visible = not compact
 	for n: Node in tool_card.find_children("Slot_*", "PanelContainer", true, false):
 		(n as Control).custom_minimum_size.x = ThemeTokens.px(SLOT_COMPACT_WIDTH_PX if compact else SLOT_MIN_WIDTH_PX, scale_percent)
+	for n: Node in tool_card.find_children("SlotHead", "BoxContainer", true, false):
+		(n as BoxContainer).vertical = compact
+		(n as BoxContainer).alignment = BoxContainer.ALIGNMENT_CENTER if compact else BoxContainer.ALIGNMENT_BEGIN
 	var title: Label = tool_card.find_child("SelectedTool", true, false) as Label
 	if title != null:
 		title.visible = compact
@@ -401,7 +404,10 @@ func _slot(number: int, tool: String, selected: bool) -> PanelContainer:
 	slot.add_theme_stylebox_override("panel", style)
 	slot.set_meta("selected", selected)
 	var box: VBoxContainer = _vbox(slot, 4)
-	var top: HBoxContainer = HBoxContainer.new()
+	# A BoxContainer so the compact bar can stack the number over the icon: five side-by-side heads were 73 px each and
+	# pushed the bar under the prompt at 150 % (DS09); stacked they are icon-wide.
+	var top: BoxContainer = BoxContainer.new()
+	top.name = "SlotHead"
 	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_child(top)
 	_label(top, str(number), "StrongLabel", "action", false)

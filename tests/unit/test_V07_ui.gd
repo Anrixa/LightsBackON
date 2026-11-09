@@ -150,10 +150,18 @@ func test_QA75_new_selected_node_resets_long_evidence_scroll() -> void:
 	var tablet: PanelContainer = _tablet(Vector2(1280, 720), 150)
 	tablet.open()
 	var updated: Dictionary = (tablet.get("_view") as Dictionary).duplicate(true)
-	var first: String = str(updated["order"][0])
-	var second: String = str(updated["order"][1])
+	# An unmeasured junction may only carry its single unknown line, so use the first two nodes that can hold evidence.
+	var evidence_nodes: Array[String] = []
+	for nid: Variant in updated["order"]:
+		var candidate: Dictionary = (updated["nodes"] as Dictionary)[nid]
+		if str(candidate["kind"]) != "junction" or bool(candidate.get("measured", false)):
+			evidence_nodes.append(str(nid))
+	assert_true(evidence_nodes.size() >= 2, "C01 tablet has two nodes that can carry evidence")
+	var first: String = evidence_nodes[0]
+	var second: String = evidence_nodes[1]
 	var long_lines: Array[String] = []
-	for i: int in 70:
+	# The tablet refuses snapshots over MAX_TABLET_LINES (DS09 found the old 70-line fixture was silently rejected).
+	for i: int in NetworkTablet.MAX_TABLET_LINES:
 		long_lines.append("Measured evidence line %d" % i)
 	var node_views: Dictionary = updated["nodes"]
 	for nid: String in [first, second]:
@@ -162,6 +170,8 @@ func test_QA75_new_selected_node_resets_long_evidence_scroll() -> void:
 		node_views[nid] = node_view
 	tablet.show_data(updated, [])
 	Fixture.settle(tablet)
+	assert_eq(((tablet.get("_view") as Dictionary)["nodes"][first]["lines"] as Array).size(), long_lines.size(),
+		"the long-evidence snapshot was accepted")
 	var evidence: ScrollContainer = tablet.detail_scroll
 	var bar: VScrollBar = evidence.get_v_scroll_bar()
 	assert_true(bar.max_value > bar.page + 120.0,
@@ -182,7 +192,7 @@ func test_QA76_same_node_refresh_and_reflow_keep_evidence_reading_position() -> 
 	var view: Dictionary = (tablet.get("_view") as Dictionary).duplicate(true)
 	var current: String = str(tablet.selected)
 	var long_lines: Array[String] = []
-	for i: int in 70:
+	for i: int in NetworkTablet.MAX_TABLET_LINES:
 		long_lines.append("Measurement %d: branch load remains under inspection" % i)
 	var nodes: Dictionary = view["nodes"]
 	var node: Dictionary = nodes[current]
@@ -190,6 +200,8 @@ func test_QA76_same_node_refresh_and_reflow_keep_evidence_reading_position() -> 
 	nodes[current] = node
 	tablet.show_data(view, [])
 	Fixture.settle(tablet)
+	assert_eq(((tablet.get("_view") as Dictionary)["nodes"][current]["lines"] as Array).size(), long_lines.size(),
+		"the long-evidence snapshot was accepted")
 	var scroller: ScrollContainer = tablet.detail_scroll
 	assert_true(scroller.get_v_scroll_bar().max_value > scroller.get_v_scroll_bar().page + 160.0)
 	scroller.scroll_vertical = 150
@@ -301,7 +313,7 @@ func test_QA81_action_outcome_is_outside_long_evidence_scroll() -> void:
 	var view: Dictionary = (tablet.get("_view") as Dictionary).duplicate(true)
 	var node: Dictionary = (view["nodes"] as Dictionary)[str(tablet.selected)]
 	var lines: Array[String] = []
-	for i: int in 75:
+	for i: int in NetworkTablet.MAX_TABLET_LINES:
 		lines.append("Measured branch evidence row %d" % i)
 	node["lines"] = lines
 	(view["nodes"] as Dictionary)[str(tablet.selected)] = node

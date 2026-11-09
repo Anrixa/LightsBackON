@@ -896,9 +896,13 @@ func _footer() -> Control:
 	column.add_child(legend)
 	for entry: Array in LEGEND:
 		legend.add_child(StatusChip.make(tokens, scale_percent, entry[0], entry[1]))
-	var actions: HBoxContainer = HBoxContainer.new()
+	# A flow of its own (DS05): it takes the rest of the legend's row and wraps its buttons instead of clipping Close.
+	var actions: HFlowContainer = HFlowContainer.new()
 	actions.name = "FooterActions"
-	actions.add_theme_constant_override("separation", ThemeTokens.px(8, scale_percent))
+	actions.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	actions.alignment = FlowContainer.ALIGNMENT_END
+	actions.add_theme_constant_override("h_separation", ThemeTokens.px(8, scale_percent))
+	actions.add_theme_constant_override("v_separation", ThemeTokens.px(8, scale_percent))
 	column.add_child(actions)
 	for z: Array in [["tablet.zoom_out", -1], ["tablet.zoom_in", 1]]:
 		var b: Button = _button(actions, UiText.t(z[0]))

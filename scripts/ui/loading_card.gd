@@ -43,6 +43,9 @@ static func build(tokens: Dictionary, scale_percent: float, heading_px: int, wit
 		bar.custom_minimum_size.y = float(ThemeTokens.px(float(PROGRESS_HEIGHT_PX), scale_percent))
 		bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		bar.focus_mode = Control.FOCUS_NONE
+		# Track in the elevated token and fill in the restored teal, so the bar reads on the background card.
+		bar.add_theme_stylebox_override("background", _bar_box(tokens, "elevated", scale_percent))
+		bar.add_theme_stylebox_override("fill", _bar_box(tokens, "restored", scale_percent))
 		column.add_child(bar)
 	return card
 
@@ -53,6 +56,13 @@ static func set_progress(card: Control, fraction: float) -> void:
 	var bar: ProgressBar = card.find_child("LoadingProgress", true, false) as ProgressBar
 	if bar != null:
 		bar.value = clampf(fraction, 0.0, 1.0) * 100.0
+
+
+static func _bar_box(tokens: Dictionary, color_token: String, scale_percent: float) -> StyleBoxFlat:
+	var box: StyleBoxFlat = StyleBoxFlat.new()
+	box.bg_color = ThemeTokens.color(tokens, color_token)
+	box.set_corner_radius_all(ThemeTokens.px(float(PROGRESS_HEIGHT_PX) * 0.5, scale_percent))
+	return box
 
 
 static func _line(parent: Control, node_name: String, text: String, tokens: Dictionary, color_token: String,
