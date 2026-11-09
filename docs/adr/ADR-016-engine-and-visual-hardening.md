@@ -1,7 +1,8 @@
 # ADR-016: Engine assessment and visual-hardening instructions
 
-- Status: **Accepted in part** (8 Nov 2026). Sections 1-3 and 5 are accepted guidance. The three decisions in section 4 are **proposed** and
-  need the owner's explicit yes; until then the current rules (Compatibility renderer, art gated behind V09) stay in force.
+- Status: **Accepted** (8 Nov 2026 in part; section 4 decided by the owner on 9 Nov 2026, see section 6). Sections 1-3 and 5 are accepted
+  guidance. Section 4 decision 1 is approved, decision 2 is resolved (Compatibility stays), decision 3 is answered (Claude is the designer).
+  The design-first re-ordering that follows from this is ADR-017.
 - Trigger: owner review of the RTX 5090 renders (QA138): "design obviously needs hardening. Is this all that we can achieve by Godot?
   Is it the best engine for this project?"
 - Changes no locked decision by itself. Clarifies CLAUDE.md sections 1, 6 and 7, ADR-004 and `docs/design/quality-workstream.json`.
@@ -91,7 +92,7 @@ Two different jobs, kept apart:
 Follow these with ADR-004 (quality bar, tokens, licensing) and CLAUDE.md:
 
 1. **Check the gate first.** World art and lookdev only after section 4 decision 1 is approved (record the approval date here) or after V09 is
-   DONE. Until then, do UI/UX hardening only.
+   DONE. Until then, do UI/UX hardening only. **Approved 9 Nov 2026 (section 6).** The gate is open; ADR-017 sets the order and guardrails.
 2. **Local desktop session on the GPU.** Never claim a visual result from the cloud. Export with
    `bash tools/setup_export_templates.sh` (once per PC), then
    `Godot --headless --path . --export-release "Windows Desktop" build/windows/LightsBackOn.exe`.
@@ -110,3 +111,28 @@ Follow these with ADR-004 (quality bar, tokens, licensing) and CLAUDE.md:
    creator/source/licence/version. Original sources go in `art_source/` (Git LFS); exported assets never contain placeholders at release.
 9. **One task per session and branch** (CLAUDE.md section 6). Name lookdev work `DS03-...` or `A01-...` as the backlog/workstream says. Evidence in
    `docs/evidence/<ID>.md` with what was not verified.
+
+## 6. Owner decisions on section 4 (9 Nov 2026)
+
+Recorded in the design session of 9 Nov 2026 (branch `task/DS07-design-mandate-plan`). The owner's words, given when hiring Claude as the main
+design artist and developer: the current design and graphics are "extremely poor"; "make the game better looking, intuitively understandable,
+easy to play and navigate; more levels and tasks"; "design and playability and UX and intuitive understandability should be prioritized and
+finished"; "perform the most beneficial way"; "make it the best".
+
+1. **Decision 4.1, lookdev spike before V09: APPROVED, 9 Nov 2026.** The owner's mandate above is the yes. The spike scene
+   `scenes/lookdev/alder_lookdev.tscn` may fake supply states (labelled). ADR-017 decision 2 adds when the reusable look (which never fakes
+   state) may also dress the mission scene.
+2. **Decision 4.2, renderer: KEEP COMPATIBILITY, 9 Nov 2026.** Owner's answer to the question with the QA140 numbers (GTX 1650 1080p P95 about
+   4 ms, Vega 10 about 3.3 ms, Intel UHD 7.8 ms at 2560x1600; Mobile similar frame time but about 2x memory and longer load stalls;
+   Forward+ about 2x slower on integrated GPUs): "Keep Compatibility". The locked decision stands. The lookdev is designed for Compatibility
+   only (no SSR, SSAO, SDFGI or volumetric fog) and is measured with the QA140 harness; the dual-renderer A/B in 4.2 is dropped.
+3. **Decision 4.3, art capacity: CLAUDE IS THE DESIGNER, 9 Nov 2026.** The owner's answer: "I hire you as a designer, make necessary
+   instructions and have our design agent ready to work as soon as it is necessary. You can build lighting, materials, VFX and kit props now.
+   After you approve the lookdev look, start the design agent for solid professional design and necessary elements design."
+   - Claude builds lighting, materials, VFX and kit props now, project-made only.
+   - **Claude (lead designer) approves the lookdev look**, against ADR-004 and the DS07 plan, with the three-state screenshots as the record.
+   - Then the project design agent (`.claude/agents/lbo-design-artist.md`) is started for the element design listed in
+     `docs/design/DS07-design-plan.md`.
+   - Unchanged: any third-party model, texture, font, sound or shader still needs the owner's approval and a recorded creator, source, licence
+     and version before import (ADR-004 point 6, CLAUDE.md section 6). Spending money (for example commissioning a human artist) is still
+     the owner's call.
