@@ -10,10 +10,13 @@ extends SceneTree
 ## 3D scene, the scene itself under the reticle. For each probe the worst pixel decides: min over B pixels in the probe rect
 ## of contrast(token color, pixel). "rendered_peak" is the best A-vs-B contrast in the rect, a check that the glyphs drew.
 ## Thresholds (WCAG 2.2 AA): 4.5:1 body text, 3:1 large text (>= 24 px, blueprint large_text_px) and icons/graphics.
-## Lighting: "dark" is the graybox as built; "restored" adds warm emissive panes and lights in the west windows, as
-## capture_district_views.gd does (the presentation layer that drives real window states does not exist yet).
+## Lighting (DS08): the HUD is measured over the shipping Stormglass look (scripts/world/street_look.gd + dressing + rain),
+## hosted by the lookdev scene. "dark" and "restored" are that scene's labelled FAKE supply states (every C01 service dark,
+## or every service on grid), driven through RestorationPresentation like the mission. The lookdev caption is hidden in
+## these frames so it cannot sit under a probe; the evidence file names the state instead.
 
 const Fixture := preload("res://tests/support/ui_fixture.gd")
+const Lookdev := preload("res://scenes/lookdev/alder_lookdev.gd")
 const KitBuilder := preload("res://scripts/world/kit_builder.gd")
 const DistrictBuilder := preload("res://scripts/world/district_builder.gd")
 const FieldHud := preload("res://scripts/ui/field_hud.gd")
@@ -24,12 +27,6 @@ const ThemeTokens := preload("res://scripts/ui/theme_tokens.gd")
 
 const SETTLE_FRAMES: int = 12
 const FOV_DEG: float = 75.0
-const SKY := Color(0.42, 0.5, 0.58)
-const AMBIENT := Color(0.55, 0.62, 0.7)
-const WINDOW_GLOW := Color(1.0, 0.8, 0.45)
-const WINDOW_PANE_CM: Array[int] = [150, 150, 5]
-const WINDOW_SILL_CM: int = 100
-const WINDOW_LIGHT_RANGE_M: float = 5.0
 const BODY_MIN: float = 4.5
 const LARGE_MIN: float = 3.0
 const ICON_MIN: float = 3.0
@@ -51,14 +48,13 @@ func _initialize() -> void:
 	_tokens = Runner.json("res://content/ui/tokens.json")
 	var ctx: Dictionary = Fixture.mid_shift()
 	var d: Dictionary = DistrictBuilder.load_district()
-	var world := Node3D.new()
-	root.add_child(world)
-	_environment(world)
-	world.add_child((load(str(d["scene"])) as PackedScene).instantiate())
-	var cam := Camera3D.new()
+	var scene: Lookdev = (load("res://scenes/lookdev/alder_lookdev.tscn") as PackedScene).instantiate()
+	root.add_child(scene)
+	await process_frame  # _ready() builds the look on the first frame
+	scene.set_fake_state("dark")
+	scene._caption.visible = false
+	var cam: Camera3D = scene.camera
 	cam.fov = FOV_DEG
-	world.add_child(cam)
-	cam.current = true
 	var line: Dictionary = d["sightlines"][0]  # VAN_EYE -> APT_W, MARKET: the first restoration seen from the van
 	var markers: Dictionary = {}
 	for m: Dictionary in d["markers"]:
@@ -75,12 +71,8 @@ func _initialize() -> void:
 	var hud: Container = FieldHud.new()
 	layer.add_child(hud)
 	hud.apply(Fixture.hud_view(ctx))
-	var glow := Node3D.new()
-	world.add_child(glow)
 	for light: String in ["dark", "restored"]:
-		if light == "restored":
-			for id: String in line["to"]:
-				_restore_windows(glow, buildings[id])
+		scene.set_fake_state("grid" if light == "restored" else "dark")
 		for scale: int in SCALES:
 			hud.set_ui_scale(scale)
 			await _measure(hud, "hud_%s_%d" % [light, scale], out_dir)
@@ -235,53 +227,7 @@ static func _luminance(c: Color) -> float:
 	return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2]
 
 
-## Warm pane and light in every front window_wall opening (same stand-in as capture_district_views.gd).
-func _restore_windows(parent: Node3D, b: Dictionary) -> void:
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = WINDOW_GLOW
-	mat.emission_enabled = true
-	mat.emission = WINDOW_GLOW
-	mat.emission_energy_multiplier = 2.0
-	var face: String = b["front"]
-	for s: int in int(b["storeys"]):
-		var pieces: Array = DistrictBuilder.face_pieces(b, face, b["ground"] if s == 0 else b["upper"])
-		for i: int in pieces.size():
-			if pieces[i] != "window_wall":
-				continue
-			var x: int = int(b["min_cm"][0]) + i * DistrictBuilder.MODULE_CM + DistrictBuilder.MODULE_CM / 2
-			var z: int = int(b["min_cm"][1]) + 12 if face == "south" else int(b["min_cm"][1]) + int(b["size_cm"][1]) - 12
-			var y: int = s * DistrictBuilder.MODULE_CM + WINDOW_SILL_CM + WINDOW_PANE_CM[1] / 2
-			var pane := MeshInstance3D.new()
-			var box := BoxMesh.new()
-			box.size = KitBuilder.cm(WINDOW_PANE_CM)
-			pane.mesh = box
-			pane.material_override = mat
-			pane.position = KitBuilder.cm([x, y, z])
-			parent.add_child(pane)
-			var light := OmniLight3D.new()
-			light.light_color = WINDOW_GLOW
-			light.omni_range = WINDOW_LIGHT_RANGE_M
-			light.position = pane.position + Vector3(0.0, 0.0, -1.0 if face == "south" else 1.0)
-			parent.add_child(light)
-
-
 func _front_center(b: Dictionary) -> Vector3:
 	var x: int = int(b["min_cm"][0]) + int(b["size_cm"][0]) / 2
 	var z: int = int(b["min_cm"][1]) if b["front"] == "south" else int(b["min_cm"][1]) + int(b["size_cm"][1])
 	return KitBuilder.cm([x, 250, z])
-
-
-func _environment(world: Node3D) -> void:
-	var env := Environment.new()
-	env.background_mode = Environment.BG_COLOR
-	env.background_color = SKY
-	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = AMBIENT
-	env.ambient_light_energy = 0.6
-	var we := WorldEnvironment.new()
-	we.environment = env
-	world.add_child(we)
-	var sun := DirectionalLight3D.new()
-	sun.rotation_degrees = Vector3(-50.0, -30.0, 0.0)
-	sun.shadow_enabled = true
-	world.add_child(sun)
