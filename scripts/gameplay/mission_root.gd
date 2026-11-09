@@ -17,6 +17,9 @@ const ThemeTokens := preload("res://scripts/ui/theme_tokens.gd")
 const UiText := preload("res://scripts/ui/ui_text.gd")
 const InputDeviceTracker := preload("res://scripts/ui/input_device_tracker.gd")
 const RestorationPresentation := preload("res://scripts/world/restoration_presentation.gd")
+const StreetLook := preload("res://scripts/world/street_look.gd")
+const StreetDressing := preload("res://scripts/world/street_dressing.gd")
+const DistrictBuilder := preload("res://scripts/world/district_builder.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ShiftOperations := preload("res://scripts/gameplay/shift_operations.gd")
 const ShiftDebrief := preload("res://scripts/gameplay/shift_debrief.gd")
@@ -35,6 +38,7 @@ var accessibility: AccessibilityPanel
 var settings: AccessibilitySettings
 var _world: Node3D
 var _world_fx: RestorationPresentation
+var _look: Dictionary = {}
 var _store: OfflinePersistence
 var _save_enabled: bool = false
 var _save_issue: String = ""
@@ -79,10 +83,12 @@ func _ready() -> void:
 	# Playtest capture is strictly opt-in. An ordinary release creates no file.
 	_measurements.begin(OS.get_cmdline_user_args().has("--lbo-local-measure"),
 		_json("res://content/diagnostics/shift_measurements.json"))
-	_make_lighting()
+	_look = StreetLook.load_look()
+	StreetLook.apply_environment(self, _look)
 	_world = WorldScene.instantiate()
 	_world.name = "District"
 	add_child(_world)
+	_dress_world()
 	_make_player()
 
 	session = OfflineSession.new()
@@ -113,7 +119,7 @@ func _ready() -> void:
 		_apply_restored_view(_restored_view)
 	session.set_tool(TOOL_LIST[_slot - 1])
 	_world_fx = RestorationPresentation.new()
-	_world_fx.setup(_world)
+	_world_fx.setup(_world, _look["windows"])
 	_make_ui()
 	if not _restored_view.is_empty():
 		_sync_onboarding_progress(true)
@@ -178,25 +184,13 @@ static func _json(path: String) -> Dictionary:
 	return parsed if parsed is Dictionary else {}
 
 
-func _make_lighting() -> void:
-	var visual: Dictionary = _solo_tuning["presentation"]
-	var env: Environment = Environment.new()
-	env.background_mode = Environment.BG_COLOR
-	env.background_color = Color(str(visual["environment_color"]))
-	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color(str(visual["ambient_color"]))
-	env.ambient_light_energy = 1.0
-	var sky_light: WorldEnvironment = WorldEnvironment.new()
-	sky_light.name = "WorldLight"
-	sky_light.environment = env
-	add_child(sky_light)
-	var sun: DirectionalLight3D = DirectionalLight3D.new()
-	sun.name = "Sun"
-	sun.light_color = Color(str(visual["sun_color"]))
-	sun.light_energy = float(visual["sun_energy_percent"]) / 100.0
-	var sun_angles: Array = visual["sun_rotation_deg"]
-	sun.rotation_degrees = Vector3(float(sun_angles[0]), float(sun_angles[1]), float(sun_angles[2]))
-	add_child(sun)
+## DS08 Stormglass look (ADR-017 decision 2): re-skin, dress and rain. Visual only; collision, gameplay node paths and
+## stable IDs are untouched, and supply cues stay with RestorationPresentation, which reads the host snapshot.
+func _dress_world() -> void:
+	var district: Dictionary = DistrictBuilder.load_district()
+	StreetLook.skin_world(_world, _look, district)
+	StreetDressing.new().build(_world, district, _look, StreetDressing.load_dressing())
+	StreetLook.add_rain(self, _look)
 
 
 func _make_player() -> void:

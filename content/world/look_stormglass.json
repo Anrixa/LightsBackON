@@ -1,0 +1,270 @@
+{
+  "_note": "DS08 'Stormglass / Civic Revival' look (docs/design/DS07-design-plan.md section 3). District-agnostic lighting, weather and material values read by scripts/world/street_look.gd. Presentation only: nothing here is a gameplay rule (it is still under content/, so it counts toward the content revision like every content file). Compatibility renderer only (ADR-016 section 6.2). Colours are sRGB hex; percentages are x100 integers; lengths in cm.",
+  "environment": {
+    "sky_zenith": "#0E1A2B",
+    "sky_horizon": "#3E5A72",
+    "sky_ground": "#151E27",
+    "sky_far_glow": "#C98A4E",
+    "sky_far_glow_dir_deg": [
+      8,
+      205
+    ],
+    "sky_far_glow_percent": 45,
+    "cloud_tint": "#2A3E52",
+    "cloud_percent": 55,
+    "ambient_color": "#5F7C96",
+    "ambient_sky_contribution_percent": 45,
+    "ambient_energy_percent": 55,
+    "fog_color": "#33495C",
+    "fog_density_x10000": 120,
+    "fog_sky_affect_percent": 35,
+    "tonemap": "filmic",
+    "exposure_percent": 110,
+    "white_percent": 600,
+    "glow_intensity_percent": 70,
+    "glow_bloom_percent": 4,
+    "glow_hdr_threshold_percent": 110,
+    "glow_strength_percent": 100,
+    "adjust_saturation_percent": 108,
+    "adjust_contrast_percent": 104
+  },
+  "moon": {
+    "color": "#AFC6E4",
+    "energy_percent": 45,
+    "rotation_deg": [
+      -38,
+      150,
+      0
+    ],
+    "shadow": true,
+    "shadow_max_distance_cm": 6000
+  },
+  "rain": {
+    "amount": 2600,
+    "box_cm": [
+      2600,
+      200,
+      2600
+    ],
+    "height_above_camera_cm": 900,
+    "fall_speed_cm_s": 1500,
+    "wind_cm_s": [
+      180,
+      0,
+      60
+    ],
+    "lifetime_ms": 1100,
+    "streak_cm": [
+      1,
+      42
+    ],
+    "color": "#B8CCE6",
+    "alpha_percent": 20
+  },
+  "street_lamp": {
+    "pole_height_cm": 650,
+    "pole_radius_cm": 9,
+    "arm_cm": 140,
+    "head_cm": [
+      70,
+      16,
+      32
+    ],
+    "pole_color": "#2C3740",
+    "lens_color": "#DCEBFF",
+    "lens_emission_percent": 350,
+    "light_color": "#CFE0FF",
+    "light_energy_percent": 1100,
+    "light_range_cm": 1100,
+    "light_angle_deg": 54,
+    "light_attenuation_percent": 170
+  },
+  "windows": {
+    "_note": "Glass colours per supply state, rendered by RestorationPresentation from the host snapshot. Replaces content/offline_solo.json restoration colours when the look is applied.",
+    "dark_glass_color": "#1A2C3D",
+    "temporary_glass_color": "#BFE6FF",
+    "grid_glass_color": "#FFC978",
+    "light_energy_percent": 260,
+    "light_range_cm": 750,
+    "glass_emission_percent": 300
+  },
+  "ground_tile_cm": 800,
+  "materials": {
+    "_note": "Surface roles. pattern: 0 render/plaster, 1 brick, 2 corrugated metal, 3 concrete panels, 4 painted metal, 5 asphalt, 6 paving slabs, 7 bare ground. Wetness 0-100 lowers roughness in streaks and puddles.",
+    "asphalt": {
+      "pattern": 5,
+      "base": "#2A3036",
+      "accent": "#1C2126",
+      "roughness_percent": 72,
+      "wetness_percent": 85,
+      "scale_cm": 100
+    },
+    "paving": {
+      "pattern": 6,
+      "base": "#5F676E",
+      "accent": "#3E454B",
+      "roughness_percent": 80,
+      "wetness_percent": 70,
+      "scale_cm": 60
+    },
+    "ground": {
+      "pattern": 7,
+      "base": "#3B4248",
+      "accent": "#2E3439",
+      "roughness_percent": 90,
+      "wetness_percent": 55,
+      "scale_cm": 150
+    },
+    "boundary": {
+      "pattern": 3,
+      "base": "#4A535B",
+      "accent": "#353C42",
+      "roughness_percent": 88,
+      "wetness_percent": 40,
+      "scale_cm": 200
+    },
+    "pad": {
+      "pattern": 4,
+      "base": "#C99A22",
+      "accent": "#1D2328",
+      "roughness_percent": 60,
+      "wetness_percent": 50,
+      "scale_cm": 50
+    },
+    "water": {
+      "pattern": 4,
+      "base": "#24506E",
+      "accent": "#1A3A52",
+      "roughness_percent": 8,
+      "wetness_percent": 0,
+      "scale_cm": 100
+    },
+    "pump": {
+      "pattern": 4,
+      "base": "#3F7F5F",
+      "accent": "#26493A",
+      "roughness_percent": 55,
+      "wetness_percent": 30,
+      "scale_cm": 50
+    },
+    "floor": {
+      "pattern": 3,
+      "base": "#5A6168",
+      "accent": "#41474D",
+      "roughness_percent": 85,
+      "wetness_percent": 20,
+      "scale_cm": 150
+    },
+    "trim_default": {
+      "pattern": 4,
+      "base": "#4B555E",
+      "accent": "#2F363C",
+      "roughness_percent": 70,
+      "wetness_percent": 40,
+      "scale_cm": 50
+    },
+    "panel_recess": {
+      "pattern": 4,
+      "base": "#3C464F",
+      "accent": "#272E34",
+      "roughness_percent": 70,
+      "wetness_percent": 30,
+      "scale_cm": 50
+    }
+  },
+  "buildings": {
+    "_note": "Per-building palette so each service location is a landmark (DS07 principle 5). wall/trim are surface roles; sign is the fascia board colour.",
+    "APT_W": {
+      "wall": {
+        "pattern": 1,
+        "base": "#7A3F31",
+        "accent": "#B9AFA2"
+      },
+      "trim": "#D8CFC0",
+      "sign": "#22303C",
+      "sign_text": "#F3E6C8"
+    },
+    "MARKET": {
+      "wall": {
+        "pattern": 0,
+        "base": "#3D7A72",
+        "accent": "#2B5952"
+      },
+      "trim": "#E4E0D3",
+      "sign": "#F0E9D6",
+      "sign_text": "#1F4F49"
+    },
+    "PUB": {
+      "wall": {
+        "pattern": 1,
+        "base": "#2F5040",
+        "accent": "#9FA79B"
+      },
+      "trim": "#C9A44A",
+      "sign": "#1C2B23",
+      "sign_text": "#E8C66A"
+    },
+    "APT_E": {
+      "wall": {
+        "pattern": 0,
+        "base": "#C9BCA2",
+        "accent": "#A39679"
+      },
+      "trim": "#5B6A78",
+      "sign": "#2C3B49",
+      "sign_text": "#F1EEE4"
+    },
+    "WORKSHOP": {
+      "wall": {
+        "pattern": 2,
+        "base": "#566C80",
+        "accent": "#3A4A59"
+      },
+      "trim": "#E0A93A",
+      "sign": "#E0A93A",
+      "sign_text": "#1B2229"
+    },
+    "PUMP_HOUSE": {
+      "wall": {
+        "pattern": 3,
+        "base": "#7E8387",
+        "accent": "#5F6468"
+      },
+      "trim": "#E4C23A",
+      "sign": "#E4C23A",
+      "sign_text": "#1B2229"
+    },
+    "SOUTH_FILLER": {
+      "wall": {
+        "pattern": 1,
+        "base": "#5E4A44",
+        "accent": "#8E857C"
+      },
+      "trim": "#3E4850",
+      "sign": "",
+      "sign_text": ""
+    }
+  },
+  "signs": {
+    "fascia_height_cm": 90,
+    "fascia_depth_cm": 12,
+    "fascia_above_door_cm": 300,
+    "fascia_width_modules": 2,
+    "fascia_font_px": 120,
+    "fascia_pixel_size_x10000": 32,
+    "plaque_cm": [
+      230,
+      62,
+      6
+    ],
+    "plaque_offset_cm": [
+      190,
+      140
+    ],
+    "plaque_color": "#111B25",
+    "plaque_font_px": 50,
+    "plaque_pixel_size_x10000": 30,
+    "plaque_icon_cm": 30,
+    "outline_px": 8
+  }
+}

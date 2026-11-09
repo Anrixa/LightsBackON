@@ -21,17 +21,6 @@
     "normal_seconds": 4,
     "important_seconds": 9
   },
-  "presentation": {
-    "environment_color": "#324A5B",
-    "ambient_color": "#829DB0",
-    "sun_color": "#FFF0D7",
-    "sun_rotation_deg": [
-      -53,
-      24,
-      0
-    ],
-    "sun_energy_percent": 135
-  },
   "restoration": {
     "dark_glass_color": "#1E3444",
     "grid_glass_color": "#FFD180",
