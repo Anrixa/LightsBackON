@@ -66,6 +66,8 @@
 | Temp dirs cleaned | `ls -d /tmp/lbo_test_user.*` after runs | none left |
 | Full suite | `bash tools/run_tests.sh` | backlog OK, Python 19 + 172 OK, **Godot 486 passed, 0 failed, 9671 assertions**, C01 solution SOLVED, cross-check passed, **ALL CHECKS PASSED** |
 | Probe helper | `python -m unittest tests.python.test_qa_resource_probe` | 11 OK |
+| ADR-018 tests | `bash tools/run_tests.sh --filter=SAVE22` | first run caught the offline session preloading `ui_text.gd` (display-only prompts); guard narrowed to "never compares translated text"; then 16 Godot SAVE22 tests pass |
+| Full suite after ADR-018 (commit 1a4e5ae) | `bash tools/run_tests.sh` | content 25 JSON files 0 errors; Python 19 + 179 OK; **Godot 496 passed, 0 failed**; C01 SOLVED; cross-check **MATCH** incl. the new `rules_revision` record; **ALL CHECKS PASSED** |
 
 ## Tests
 - `tests/integration/test_SAVE22_rules_revision.gd` (10): shipped list gives a distinct rules revision; on a copy of `content/` in the isolated
