@@ -36,6 +36,10 @@ if [ -f project.godot ] && [ -z "$GODOT_BIN" ]; then
   echo "FAIL: Godot 4.7.2 not found; set GODOT_BIN to the console exe (see docs/PC-RUNBOOK.md A.3)"; FAIL=1
 elif [ -f project.godot ]; then
   "$GODOT_BIN" --headless --path . --import >/dev/null 2>&1 || true   # builds the class cache on a fresh clone
+  # Every Godot run below (tests, solution traces, cross-check) gets its own empty user:// (SAVE22).
+  isolate_godot_user_dir || { echo "FAIL: cannot create an isolated Godot user dir"; exit 1; }
+  trap 'rm -rf "$LBO_TEST_USER_ROOT"' EXIT
+  echo "isolated Godot user dir: $LBO_TEST_USER_ROOT"
   GD_OUT="$(mktemp)"
   "$GODOT_BIN" --headless --path . -s res://tests/run_tests.gd -- "$@" 2>&1 | tee "$GD_OUT"
   [ "${PIPESTATUS[0]}" -eq 0 ] || FAIL=1

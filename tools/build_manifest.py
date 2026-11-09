@@ -80,12 +80,46 @@ def templates_info(version: str, explicit: str | None) -> dict:
     return {"export_templates_hash": combined, "export_templates_files": files}
 
 
-def content_revision() -> str:
+def content_revision(base: Path | None = None) -> str:
     """SHA-256 over sorted (relative path, bytes) of everything under content/."""
+    return _content_hash(base or ROOT / "content", set())
+
+
+def presentation_paths(base: Path | None = None) -> set[str]:
+    """ADR-018: exact paths listed in content/save_compat.json; empty on any format problem (fail safe)."""
+    base = base or ROOT / "content"
+    try:
+        entries = json.loads((base / "save_compat.json").read_text(encoding="utf-8"))["presentation_only"]
+    except (OSError, ValueError, KeyError, TypeError):
+        return set()
+    if not isinstance(entries, list):
+        return set()
+    own = (base / "save_compat.json").relative_to(base.parent).as_posix()
+    out: set[str] = set()
+    for entry in entries:
+        if not (isinstance(entry, dict) and isinstance(entry.get("path"), str)):
+            return set()
+        rel = entry["path"]
+        if rel == own or not (base.parent / rel).is_file():
+            return set()
+        out.add(rel)
+    return out
+
+
+def rules_revision(base: Path | None = None) -> str:
+    """ADR-018: content_revision without the presentation-only files; "" when the list is unusable."""
+    base = base or ROOT / "content"
+    excluded = presentation_paths(base)
+    return _content_hash(base, excluded) if excluded else ""
+
+
+def _content_hash(base: Path, excluded: set[str]) -> str:
+    # Sort by the relative-path string, as Godot sorts its path strings, so both hashes agree byte for byte.
+    files = sorted((p.relative_to(base.parent).as_posix(), p) for p in base.rglob("*") if p.is_file())
     h = hashlib.sha256()
-    base = ROOT / "content"
-    for p in sorted(x for x in base.rglob("*") if x.is_file()):
-        rel = p.relative_to(ROOT).as_posix()
+    for rel, p in files:
+        if rel in excluded:
+            continue
         h.update(rel.encode() + b"\0")
         h.update(p.read_bytes() + b"\0")
     return h.hexdigest()
@@ -122,6 +156,7 @@ def build(args: argparse.Namespace) -> dict:
         "protocol_version": int(versions["protocol_version"]),
         "save_schema_version": int(versions["save_schema_version"]),
         "content_revision": content_revision(),
+        "rules_revision": rules_revision(),
         "git_commit": commit,
         "git_dirty": dirty,
         "build_id": build_id,
