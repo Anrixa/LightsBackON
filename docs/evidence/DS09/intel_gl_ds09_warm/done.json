@@ -1,0 +1,24 @@
+{
+  "label": "intel_gl_ds09_warm",
+  "error": "",
+  "session_id": "23ae6d8bc1b34e4fb7baae350b41682a",
+  "started_utc": "2026-11-09T13:02:47.4469930Z",
+  "duration_s": 180.2,
+  "exit_code": 0,
+  "timed_out": false,
+  "samples": 45,
+  "gpu_pref": 1,
+  "ac_power": true,
+  "args": [
+    "--log-file",
+    "\"<scratch>\\intel_gl_ds09_warm\\godot.log\"",
+    "--fullscreen --disable-vsync",
+    "--",
+    "--qa56-capture",
+    "--qa56-id=23ae6d8bc1b34e4fb7baae350b41682a",
+    "--qa140-scenario"
+  ],
+  "exe_sha256": "d34d36f3be1a6c49c56525ae86469b92e4f417ddf0b43cf00dd80c385c4b0562",
+  "pck_sha256": "58bea7ac38d94e8cd8c037d76ab6a0b65b0f97f63507b336bb068b824098f38f",
+  "note": "scratch runner (DS09 session): Start-Process with the renderer args as one string, 3 s Windows samples; AC power"
+}
