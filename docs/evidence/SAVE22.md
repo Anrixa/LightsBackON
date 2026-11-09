@@ -42,8 +42,8 @@
 
 ### ADR-018 implementation (after the owner's approval)
 - `content/save_compat.json`: exact paths, each with a reason: `content/ui/strings/en.json`, `content/ui/tokens.json`,
-  `content/ui/status_states.json`. Explicit paths instead of the draft's globs (a glob could swallow a future gameplay file); the DS08 look and
-  dressing files get added when DS08 merges.
+  `content/ui/status_states.json`, and, after merging main with DS08, `content/world/look_stormglass.json` and
+  `content/world/alder_street_dressing.json`. Explicit paths instead of the draft's globs (a glob could swallow a future gameplay file).
 - `scripts/network/content_hash.gd`: `rules_revision()` and `presentation_paths()`; empty on a missing or malformed list (fail safe).
   `content_revision()` is byte-identical to before.
 - `tools/build_manifest.py`: same functions in Python, `rules_revision` in the manifest; `tools/cross_check_reference.py` and
@@ -67,6 +67,7 @@
 | Full suite | `bash tools/run_tests.sh` | backlog OK, Python 19 + 172 OK, **Godot 486 passed, 0 failed, 9671 assertions**, C01 solution SOLVED, cross-check passed, **ALL CHECKS PASSED** |
 | Probe helper | `python -m unittest tests.python.test_qa_resource_probe` | 11 OK |
 | ADR-018 tests | `bash tools/run_tests.sh --filter=SAVE22` | first run caught the offline session preloading `ui_text.gd` (display-only prompts); guard narrowed to "never compares translated text"; then 16 Godot SAVE22 tests pass |
+| Full suite after merging main (DS08) and listing its look and dressing files | `bash tools/run_tests.sh` | content 27 JSON files 0 errors; **Godot 503 passed, 0 failed** (incl. DS08's tests); C01 SOLVED; cross-check **MATCH**; **ALL CHECKS PASSED** |
 | Full suite after ADR-018 (commit 1a4e5ae) | `bash tools/run_tests.sh` | content 25 JSON files 0 errors; Python 19 + 179 OK; **Godot 496 passed, 0 failed**; C01 SOLVED; cross-check **MATCH** incl. the new `rules_revision` record; **ALL CHECKS PASSED** |
 
 ## Tests
@@ -97,7 +98,6 @@
 ## Resume notes (for the next session)
 - Done here: test isolation and ADR-018 (Accepted). Anyone launching `run_tests.gd` directly must set `APPDATA`/`XDG_DATA_HOME` and
   `LBO_TEST_USER_ROOT` to a temp dir (the runner says so).
-- When DS08 merges: add `content/world/look_stormglass.json` and `content/world/alder_street_dressing.json` to `content/save_compat.json`
-  with reasons (DS08's no-collision test is the reason for the dressing file), then rerun `bash tools/run_tests.sh`.
+- DS08's look and dressing files are on the list. Future presentation-only files must be added there by the task that creates them.
 - Later candidates for the list, each needing its own check: `accessibility.json` (tutorial step IDs), the `presentation` block of
   `offline_solo.json` (split it out first; that split changes the rules revision once).

@@ -37,9 +37,8 @@ strings, UI tokens, status icon styling, the lighting look or non-colliding dres
    - `content/ui/strings/en.json`: display text only; on 9 Nov 2026 only `scripts/ui/ui_text.gd` loads it.
    - `content/ui/tokens.json`, `content/ui/status_states.json`: colours, sizes, icon mapping; loaded by `scripts/ui/` and by
      `mission_root.gd` for the HUD. (`meter_model.gd` names `status_states.json` in a comment only; a test already ties its finding codes to it.)
-   - Added by DS08 when it merges (the files exist only on that branch today): `content/world/look_stormglass.json` (sky, fog, tonemap,
-     materials) and `content/world/alder_street_dressing.json` (signs, plaques, lamps, van; DS08's test proves it adds no collision and moves
-     no gameplay node).
+   - `content/world/look_stormglass.json` (sky, fog, tonemap, materials, rain; DS08) and `content/world/alder_street_dressing.json` (signs,
+     plaques, lamps, van; DS08's test proves it adds no collision and moves no gameplay node). Added in SAVE22 after DS08 merged.
    Not on the list (mixed or gameplay, so they stay in the rules revision until split): `offline_solo.json` (player, selection radius and
    presentation in one file), `world/alder_street.json` and `world/kit_*.json` (layout and collision), `accessibility.json` (presentation by its own note,
    but it holds the tutorial step IDs and events; a good second candidate once that is checked), `movement.json`, `interaction.json`, `comms.json`, `network.json`, `economy.json`, `campaign.json`,

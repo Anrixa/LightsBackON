@@ -3,6 +3,8 @@
   "presentation_only": [
     {"path": "content/ui/strings/en.json", "reason": "display text; read only by scripts/ui/ui_text.gd"},
     {"path": "content/ui/tokens.json", "reason": "colours, sizes and spacing for the HUD, tablet and menus"},
-    {"path": "content/ui/status_states.json", "reason": "status icon and colour mapping for display"}
+    {"path": "content/ui/status_states.json", "reason": "status icon and colour mapping for display"},
+    {"path": "content/world/look_stormglass.json", "reason": "sky, fog, tonemap, materials and rain; read only by scripts/world/street_look.gd and rain_fx.gd (DS08)"},
+    {"path": "content/world/alder_street_dressing.json", "reason": "signs, plaques, lamps and van; read only by scripts/world/street_dressing.gd; test_DS08_dressing_adds_no_collision_and_moves_no_gameplay_node"}
   ]
 }
