@@ -56,7 +56,9 @@ If testers can finish every mission by following markers and holding Interact, f
 **Owner quality bar (ADR-004):** bright, professional, accurate design. Icons, characters and UI elements match the real game states
 and industry conventions; blueprint design tokens, icon + text for every status, WCAG AA contrast on the rendered background.
 **Visual hardening and engine questions (ADR-016):** read `docs/adr/ADR-016-engine-and-visual-hardening.md` before any UI, lookdev, art,
-renderer or engine work. Stay on Godot; world art/lookdev waits for the owner decisions listed there or for V09.
+renderer or engine work. Stay on Godot; Compatibility stays. The owner approved the lookdev on 9 Nov 2026 and hired Claude as the main
+design artist (ADR-016 section 6, ADR-017); the design plan is `docs/design/DS07-design-plan.md` and the design agent is
+`.claude/agents/lbo-design-artist.md`.
 
 ## 3. Power network rules (exact)
 
@@ -159,7 +161,9 @@ Code style: static types on every variable, parameter and return; `class_name` o
 1. `python3 tools/backlog.py next --env cloud` (cloud session) or `python tools/backlog.py next --env local` (desktop session on the PC;
    on Windows `python3` is the Microsoft Store stub, use `python` or `py -3`). Tasks printed under "parked" are not actionable; do not start them.
 2. Read only that task (`backlog.py show ID`) and the blueprint pages it needs. Do the **first unblocked task**; do not skip ahead
-   and do not start art or content while the current interaction/network model is unproven.
+   and do not start art or content while the current interaction/network model is unproven. **Exception (ADR-017, 9 Nov 2026):** while F02
+   is blocked, the design workstream (`docs/design/DS07-design-plan.md`, DS07 onward) and C02-C12 logic/data go ahead; when
+   `backlog.py next` is empty, take the next DS phase from that plan.
 3. Branch `task/<ID>-<slug>` cut from `origin/main` (cloud and desktop worktree sessions may be forced onto `claude/...`; put the task ID in
    every commit: `G01: port evaluator`). One task per branch; never stack a task branch on another unmerged one (ADR-015).
 4. Write tests first or alongside. Name them after matrix IDs (`test_SIM08_...`). Run `bash tools/run_tests.sh`. Test authoritative state, not visuals.

@@ -150,6 +150,130 @@
         "Owner and real-hardware screenshots + performance gate",
         "No publishing actions without owner request"
       ]
+    },
+    {
+      "id": "DS07",
+      "title": "Design mandate, decisions and prioritized design plan",
+      "status": "DONE",
+      "depends_on": [],
+      "acceptance": [
+        "ADR-016 section 6 records the owner's 9 Nov 2026 decisions",
+        "ADR-017 design-first order",
+        "docs/design/DS07-design-plan.md",
+        "Design agent definition .claude/agents/lbo-design-artist.md"
+      ],
+      "evidence_file": "docs/evidence/DS07.md",
+      "plan": "docs/design/DS07-design-plan.md",
+      "authority": "ADR-017"
+    },
+    {
+      "id": "DS08",
+      "title": "Stormglass look and diegetic world (lighting recipe, wet materials, rain, dressing props, diegetic signs)",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "DS07"
+      ],
+      "acceptance": [
+        "Three-state 1920x1080 screenshots (dark, temporary, restored) from the lookdev scene, fake states labelled",
+        "Mission scene uses the same look; HUD contrast 224/224",
+        "P95 frame time and memory with the QA140 harness on at least the Intel UHD",
+        "Debug-ID billboards replaced by localized signs with icon + text supply plaques driven by host state"
+      ],
+      "evidence_file": "docs/evidence/DS08.md",
+      "plan": "docs/design/DS07-design-plan.md",
+      "authority": "ADR-017"
+    },
+    {
+      "id": "DS09",
+      "title": "First-minute clarity (onboarding target, Now objective, crew label, full tool bar, tablet fit zoom, unknown token headroom, loading screen)",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "DS08"
+      ],
+      "acceptance": [
+        "A new player is pointed at the west junction cabinet without a marker revealing the repair",
+        "Tablet opens with every required consumer visible at body text size",
+        "unknown token at least 5:1 on the panel; contrast 224/224",
+        "No frozen frame over 1 s between menu and mission without a loading screen"
+      ],
+      "evidence_file": "docs/evidence/DS09.md",
+      "plan": "docs/design/DS07-design-plan.md",
+      "authority": "ADR-017"
+    },
+    {
+      "id": "DS10",
+      "title": "Fault evidence in the world (pillar 1)",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "DS09"
+      ],
+      "acceptance": [
+        "Cabinet visuals follow host repair states only",
+        "No world cue names the failed part"
+      ],
+      "evidence_file": "docs/evidence/DS10.md",
+      "plan": "docs/design/DS07-design-plan.md",
+      "authority": "ADR-017"
+    },
+    {
+      "id": "DS11",
+      "title": "Temporary supply tradeoff readable (pillar 2)",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "DS09"
+      ],
+      "acceptance": [
+        "Generator load gauge and trip warning visible before the 1.5 s trip",
+        "Cables as authored curves"
+      ],
+      "evidence_file": "docs/evidence/DS11.md",
+      "plan": "docs/design/DS07-design-plan.md",
+      "authority": "ADR-017"
+    },
+    {
+      "id": "DS12",
+      "title": "Recovery payoff: cascade, signs, project-made audio (pillar 3)",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "DS09"
+      ],
+      "acceptance": [
+        "Restore readable without audio and with Reduce Flashes on",
+        "No third-party sound without owner approval"
+      ],
+      "evidence_file": "docs/evidence/DS12.md",
+      "plan": "docs/design/DS07-design-plan.md",
+      "authority": "ADR-017"
+    },
+    {
+      "id": "DS13",
+      "title": "Project-drawn keyboard/mouse and controller glyphs",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "DS09"
+      ],
+      "acceptance": [
+        "Glyphs follow last device and remapping",
+        "ADR-004 icon family rules"
+      ],
+      "evidence_file": "docs/evidence/DS13.md",
+      "plan": "docs/design/DS07-design-plan.md",
+      "authority": "ADR-017"
+    },
+    {
+      "id": "DS14",
+      "title": "First-person hands, tools and hero props (design agent)",
+      "status": "NOT_STARTED",
+      "depends_on": [
+        "DS08"
+      ],
+      "acceptance": [
+        "Lead designer approved the DS08 look before the design agent starts",
+        "Project-made, asset record in evidence"
+      ],
+      "evidence_file": "docs/evidence/DS14.md",
+      "plan": "docs/design/DS07-design-plan.md",
+      "authority": "ADR-017"
     }
   ]
 }
