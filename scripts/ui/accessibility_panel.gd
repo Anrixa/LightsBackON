@@ -15,6 +15,11 @@ var scale_up: Button
 var motion_toggle: CheckBox
 var flash_toggle: CheckBox
 var hints_toggle: CheckBox
+## DS09: one toggle button per 3D resolution option (Auto, 100, 85, 75, 50 %), a segmented control that a
+## controller walks with left/right and a mouse clicks directly.
+var render_buttons: Array[Button] = []
+var render_detail: Label
+var _render_group: ButtonGroup = ButtonGroup.new()
 var _tokens: Dictionary = {}
 
 
@@ -49,6 +54,8 @@ func set_ui_scale(percent: int) -> void:
 	for toggle: CheckBox in [motion_toggle, flash_toggle, hints_toggle]:
 		toggle.custom_minimum_size.y = height
 		toggle.add_theme_stylebox_override("focus", ThemeTokens.focus_box(_tokens, scale))
+	for button: Button in render_buttons:
+		button.custom_minimum_size = Vector2(float(ThemeTokens.px(int(_tokens["min_target_px"]), scale)), height)
 
 
 ## Refresh the visible controls after profile restore, not only after local clicks.
@@ -83,7 +90,34 @@ func _build() -> void:
 	motion_toggle.toggled.connect(_set_boolean.bind("reduce_camera_motion"))
 	flash_toggle.toggled.connect(_set_boolean.bind("reduce_flashes"))
 	hints_toggle.toggled.connect(_set_boolean.bind("hints_enabled"))
+	_build_render_scale(layout)
 	_sync()
+
+
+func _build_render_scale(layout: VBoxContainer) -> void:
+	var heading: Label = Label.new()
+	heading.name = "RenderScaleTitle"
+	heading.text = UiText.t("settings.render_scale")
+	heading.theme_type_variation = "StrongLabel"
+	layout.add_child(heading)
+	var row: HFlowContainer = HFlowContainer.new()
+	row.name = "RenderScaleRow"
+	layout.add_child(row)
+	var auto_value: int = int(settings.call("render_scale_auto"))
+	for option: int in settings.call("render_scale_options"):
+		var text: String = UiText.t("settings.render_scale.auto") if option == auto_value else UiText.tf("settings.render_scale.option", [option])
+		var button: Button = _button(row, text)
+		button.name = "RenderScale_%d" % option
+		button.toggle_mode = true
+		button.button_group = _render_group
+		button.set_meta("render_scale_percent", option)
+		button.pressed.connect(_set_render_scale.bind(option))
+		render_buttons.append(button)
+	render_detail = Label.new()
+	render_detail.name = "RenderScaleDetail"
+	render_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	render_detail.theme_type_variation = "MutedLabel"
+	layout.add_child(render_detail)
 
 
 func _button(parent: Control, title: String) -> Button:
@@ -111,6 +145,12 @@ func _adjust_scale(delta: int) -> void:
 	settings_changed.emit(settings.call("snapshot"))
 
 
+func _set_render_scale(percent: int) -> void:
+	settings.call("set_value", Settings.RENDER_SCALE_KEY, percent)
+	_sync()
+	settings_changed.emit(settings.call("snapshot"))
+
+
 func _set_boolean(enabled: bool, key: String) -> void:
 	settings.call("set_value", key, enabled)
 	settings_changed.emit(settings.call("snapshot"))
@@ -134,3 +174,15 @@ func _sync() -> void:
 	motion_toggle.set_pressed_no_signal(bool(settings.call("value", "reduce_camera_motion")))
 	flash_toggle.set_pressed_no_signal(bool(settings.call("value", "reduce_flashes")))
 	hints_toggle.set_pressed_no_signal(bool(settings.call("value", "hints_enabled")))
+	_sync_render_scale()
+
+
+## The detail line names the percentage Auto chose for this window, so "Auto" is never a mystery setting.
+func _sync_render_scale() -> void:
+	var chosen: int = int(settings.call("value", Settings.RENDER_SCALE_KEY))
+	for button: Button in render_buttons:
+		button.set_pressed_no_signal(int(button.get_meta("render_scale_percent")) == chosen)
+	var window: Vector2 = get_viewport_rect().size if is_inside_tree() else ThemeTokens.DESIGN_SIZE
+	var used: int = int(settings.call("resolved_render_scale_percent", window))
+	render_detail.text = UiText.tf("settings.render_scale.detail_auto" if bool(settings.call("render_scale_is_auto"))
+		else "settings.render_scale.detail_fixed", [used, int(window.x), int(window.y)])

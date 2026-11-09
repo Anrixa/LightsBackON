@@ -1,0 +1,9 @@
+{
+  "_note": "DS09 shader warm-up (plan U7). While the loading card is up, a hidden camera looks around from the spawn and from every local light so the GLES3 renderer compiles each material with the light and fog variants the player will meet, one view per frame. Values are presentation timing only; no gameplay rule reads them.",
+  "eye_height_cm": 160,
+  "fov_deg": 100,
+  "pitch_deg": -12,
+  "yaw_steps": 4,
+  "vantage_min_spacing_cm": 1200,
+  "max_vantages": 16
+}

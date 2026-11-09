@@ -80,7 +80,9 @@ func test_A04_controls_and_guide_card_instantiate_with_text() -> void:
 	var instruction: Label = card.get("instruction")
 	assert_eq(instruction.text, UiText.t("guide.step.move"))
 	card.call("observe", "player_moved")
-	assert_eq(instruction.text, UiText.t("guide.step.measure"))
+	# DS09: the measure step names the real keys (meter slot, interact) from the live InputMap.
+	assert_eq(instruction.text, UiText.tf("guide.step.measure", [UiText.binding("tool_slot_1", UiText.DEVICE_KBM),
+		UiText.binding("interact", UiText.DEVICE_KBM)]))
 	card.call("show_hint")
 	var hint: Label = card.get("hint")
 	assert_true(not hint.text.is_empty())

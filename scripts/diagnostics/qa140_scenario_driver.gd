@@ -112,6 +112,10 @@ func _run() -> void:
 	if not loaded:
 		_finish(4)
 		return
+	# DS09: the mission keeps its loading card up while the shader warm-up runs; idle measurement starts on the first
+	# frame the player can see. The warm-up's own frames stay in segment 0, and its stats go into the report.
+	var warmed: bool = await _wait_for_warmup(MISSION_LOAD_TIMEOUT_S)
+	_step("shader_warmup_done", warmed)
 	_begin_segment(1)
 	await _wait(MISSION_IDLE_S)
 	_begin_segment(2)
@@ -208,6 +212,16 @@ func _wait_for_scene(scene_name: String, timeout_s: float) -> bool:
 	return false
 
 
+func _wait_for_warmup(timeout_s: float) -> bool:
+	var deadline_usec: int = Time.get_ticks_usec() + int(timeout_s * 1000000.0)
+	while Time.get_ticks_usec() < deadline_usec:
+		var scene: Node = get_tree().current_scene
+		if scene == null or not scene.has_method("is_warming") or not bool(scene.call("is_warming")):
+			return true
+		await get_tree().process_frame
+	return false
+
+
 func _begin_segment(index: int) -> void:
 	_segment = index
 	if _probe != null and _probe.has_method("mark_segment"):
@@ -221,6 +235,12 @@ func _begin_segment(index: int) -> void:
 
 func _peak(segment: Dictionary, key: String, value: float) -> void:
 	segment[key] = maxi(int(segment[key]), int(value))
+
+
+func _warmup_stats() -> Dictionary:
+	var scene: Node = get_tree().current_scene
+	var stats: Variant = scene.get("warmup_stats") if scene != null else null
+	return stats if stats is Dictionary else {}
 
 
 func _step(label: String, ok: bool) -> void:
@@ -246,6 +266,7 @@ func _finish(exit_code: int) -> void:
 		"screen_refresh_hz": DisplayServer.screen_get_refresh_rate(),
 		"segments": _segments,
 		"steps": _steps,
+		"shader_warmup": _warmup_stats(),
 		"real_input_events": _input_log,
 	}
 	var file: FileAccess = FileAccess.open("user://qa56/%s_qa140.json" % _session_id, FileAccess.WRITE)

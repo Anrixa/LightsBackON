@@ -5,12 +5,25 @@
     "ui_scale_percent": 100,
     "reduce_camera_motion": true,
     "reduce_flashes": true,
-    "hints_enabled": true
+    "hints_enabled": true,
+    "render_scale_percent": 0
   },
   "ui_scale_percent": {
     "min": 80,
     "max": 150,
     "step": 10
+  },
+  "render_scale_percent": {
+    "_note": "DS09 (owner decision 9 Nov 2026): 3D resolution as a percentage of the window, bilinear scaling_3d on the root viewport; the HUD and menus stay at native resolution. 0 = Auto: the largest option whose 3D pixel count stays within auto_max_render_pixels (1920x1200), so a 2560x1600 laptop panel renders at 75 % and a 1080p screen at 100 %. Older profiles without this key read as Auto.",
+    "options": [
+      0,
+      100,
+      85,
+      75,
+      50
+    ],
+    "auto": 0,
+    "auto_max_render_pixels": 2304000
   },
   "idle_hint_seconds": [
     20,
@@ -36,6 +49,16 @@
         "guide.hint.measure.1",
         "guide.hint.measure.2",
         "guide.hint.measure.3"
+      ],
+      "bindings": [
+        {
+          "kbm": "tool_slot_1",
+          "pad": "tool_next"
+        },
+        {
+          "kbm": "interact",
+          "pad": "interact"
+        }
       ]
     },
     {

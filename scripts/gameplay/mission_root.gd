@@ -24,6 +24,8 @@ const OfflinePersistence := preload("res://scripts/persistence/offline_persisten
 const ShiftOperations := preload("res://scripts/gameplay/shift_operations.gd")
 const ShiftDebrief := preload("res://scripts/gameplay/shift_debrief.gd")
 const ShiftMeasurements := preload("res://scripts/diagnostics/shift_measurements.gd")
+const ShaderWarmup := preload("res://scripts/world/shader_warmup.gd")
+const LoadingCard := preload("res://scripts/ui/loading_card.gd")
 
 const MENU_PATH: String = "res://scenes/menu/main_menu.tscn"
 const HOST_TICK_SECONDS: float = 0.1
@@ -73,6 +75,12 @@ var _interaction: Dictionary = {}
 var _solo_tuning: Dictionary = {}
 var _measurements: ShiftMeasurements
 var _measurement_tick: int = 0
+## DS09: true while the loading card covers the street and the shader warm-up runs. Host time, input and onboarding
+## idle time wait for it, so a cold cache costs the player nothing but load time.
+var _warming: bool = false
+var _warmup: ShaderWarmup
+var _loading_layer: CanvasLayer
+var warmup_stats: Dictionary = {}
 
 
 func _ready() -> void:
@@ -145,6 +153,52 @@ func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	if session.completed():
 		_finish()
+	elif DisplayServer.get_name() != "headless":
+		begin_shader_warmup()
+
+
+func is_warming() -> bool:
+	return _warming
+
+
+## Puts the same loading card the menu showed back on top of everything and runs the warm-up tour under it. Public so a
+## headless test can drive it (headless runs skip it on their own: nothing is compiled there).
+func begin_shader_warmup() -> void:
+	if _warming or player == null:
+		return
+	_warming = true
+	player.set_controls_active(false)
+	_loading_layer = CanvasLayer.new()
+	_loading_layer.name = "LoadingLayer"
+	_loading_layer.layer = 100
+	add_child(_loading_layer)
+	var screen: Vector2 = get_viewport().get_visible_rect().size
+	var effective: float = ThemeTokens.effective_percent(100, screen)
+	var card: ColorRect = LoadingCard.build(_ui_tokens, effective, ThemeTokens.px(46.0, effective), true, true)
+	_loading_layer.add_child(card)
+	var lights: Array[Node3D] = []
+	for node: Node in find_children("*", "Light3D", true, false):
+		if not node is DirectionalLight3D:
+			lights.append(node as Node3D)
+	_warmup = ShaderWarmup.new()
+	_warmup.name = "ShaderWarmup"
+	_warmup.setup(player.camera.global_position, lights, player.camera)
+	_warmup.progressed.connect(func(fraction: float) -> void: LoadingCard.set_progress(card, fraction))
+	_warmup.finished.connect(_end_shader_warmup)
+	add_child(_warmup)
+
+
+func _end_shader_warmup(stats: Dictionary) -> void:
+	warmup_stats = stats
+	_warming = false
+	if is_instance_valid(_warmup):
+		_warmup.queue_free()
+	if is_instance_valid(_loading_layer):
+		_loading_layer.queue_free()
+	_warmup = null
+	_loading_layer = null
+	if not _paused and not _finished and (tablet == null or not tablet.visible):
+		player.set_controls_active(true)
 
 
 ## Only a successfully restored *finished* campaign is excluded. Fresh shifts
@@ -485,12 +539,12 @@ func _process(delta: float) -> void:
 			_feedback_remaining_s = maxf(0.0, _feedback_remaining_s - maxf(0.0, delta))
 			if _feedback_remaining_s <= 0.0:
 				_status.text = ""
-	if onboarding != null and not _paused and not _finished and tablet != null and not tablet.visible:
+	if onboarding != null and not _paused and not _finished and not _warming and tablet != null and not tablet.visible:
 		onboarding.advance_idle(delta)
 
 
 func _physics_process(delta: float) -> void:
-	if session == null or _paused or _finished:
+	if session == null or _paused or _finished or _warming:
 		return
 	_time_accumulator += delta
 	while _time_accumulator >= HOST_TICK_SECONDS:
@@ -568,7 +622,7 @@ func _position_cm(player_id: String) -> Vector3i:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if session == null or _finished:
+	if session == null or _finished or _warming:
 		return
 	if event.is_action_pressed("pause") or event.is_action_pressed("ui_cancel"):
 		_toggle_pause()
@@ -857,6 +911,8 @@ func _toggle_accessibility() -> void:
 
 func _settings_changed(_values: Dictionary, persist: bool = true) -> void:
 	settings.apply_to_views(hud, tablet)
+	# DS09: the 3D resolution scales only the street; Auto is re-resolved here on every window size change.
+	settings.apply_render_scale(get_viewport())
 	accessibility.refresh()
 	if player != null:
 		player.set_reduce_camera_motion(bool(settings.value("reduce_camera_motion")))

@@ -67,6 +67,7 @@ func set_hints_enabled(enabled: bool) -> void:
 func set_device(device: String) -> void:
 	_device = device
 	_update_binding()
+	_update_instruction()
 
 
 func set_ui_scale(percent: int) -> void:
@@ -86,6 +87,19 @@ func advance_idle(delta: float) -> void:
 			hint.text = UiText.t(key)
 
 
+## Instructions name real keys from the live InputMap for the device in use (DS09: "Equip the meter (1) ... press E").
+func _update_instruction() -> void:
+	var key: String = str(guide.call("instruction_key"))
+	if key == "":
+		instruction.text = UiText.t("guide.complete")
+		return
+	var labels: Array = []
+	for b: Variant in guide.call("instruction_bindings"):
+		var actions: Dictionary = b as Dictionary
+		labels.append(UiText.binding(str(actions.get(_device, actions.get(UiText.DEVICE_KBM, ""))), _device))
+	instruction.text = UiText.tf(key, labels) if not labels.is_empty() else UiText.t(key)
+
+
 func _update_binding() -> void:
 	hint_button.text = "%s (%s)" % [UiText.t("guide.more_help"), UiText.binding("onboarding_hint", _device)]
 
@@ -98,7 +112,7 @@ func show_hint() -> void:
 
 func refresh() -> void:
 	var key: String = str(guide.call("instruction_key"))
-	instruction.text = UiText.t(key) if key != "" else UiText.t("guide.complete")
+	_update_instruction()
 	hint.text = ""
 	hint_button.visible = key != ""
 	_update_binding()
