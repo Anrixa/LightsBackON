@@ -19,3 +19,5 @@
    hashed key (letters, digits, `_`, `-`, at most 64), never a raw Steam ID.
 6. Limits: Godot offers flush but no fsync, so power-loss durability depends on the OS. SAVE01 here is fault injection at three crash points inside
    the writer, not a killed process; the real kill test runs on the exported build (H01 / local).
+7. Amended by ADR-018 (9 Nov 2026): envelopes may carry an optional `rules_revision`; an offline checkpoint whose full `content_revision`
+   differs is still accepted when its `rules_revision` equals this build's (only presentation-only files changed). Saves without it are unchanged.

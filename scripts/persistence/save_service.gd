@@ -20,6 +20,7 @@ const BAK_SUFFIX: String = ".bak"
 const UNREADABLE_SUFFIX: String = ".unreadable-"
 const PROFILES_ROOT: String = "user://profiles"
 const ENVELOPE_FIELDS: Array[String] = ["schema_version", "build_id", "content_revision", "saved_at_utc", "kind", "record_id", "payload"]
+const RULES_REVISION_FIELD: String = "rules_revision"  # optional (ADR-018), deliberately not in ENVELOPE_FIELDS
 ## Test-only crash points for write_record (SAVE01 fault injection).
 const FAULT_PARTIAL_TMP: String = "partial_tmp"
 const FAULT_AFTER_TMP: String = "after_tmp"
@@ -28,13 +29,17 @@ const FAULT_AFTER_BACKUP: String = "after_backup"
 var _schema_version: int = 0
 var _build_id: String = ""
 var _content_revision: String = ""
+var _rules_revision: String = ""
 
 
 ## schema_version from content/versions.json; build_id and content_revision from build_manifest.json.
-func configure(schema_version: int, build_id: String, content_revision: String) -> void:
+## rules_revision (ADR-018) is an optional extra envelope field: written only when non-empty, never required on read,
+## so schema_version stays 1 and older readers ignore it (the checksum still covers it).
+func configure(schema_version: int, build_id: String, content_revision: String, rules_revision: String = "") -> void:
 	_schema_version = schema_version
 	_build_id = build_id
 	_content_revision = content_revision
+	_rules_revision = rules_revision
 
 
 ## account_key is a random or hashed local key, never a raw Steam ID (CLAUDE.md section 9).
@@ -61,6 +66,8 @@ func write_record(path: String, kind: String, record_id: String, payload: Dictio
 		fault: String = "") -> Dictionary:
 	var envelope: Dictionary = {"schema_version": _schema_version, "build_id": _build_id, "content_revision": _content_revision,
 		"saved_at_utc": saved_at_utc, "kind": kind, "record_id": record_id, "payload": payload}
+	if _rules_revision != "":
+		envelope[RULES_REVISION_FIELD] = _rules_revision
 	var body: String = PowerGrid.serialize(envelope)
 	if body == "":
 		return _fail("NOT_CANONICAL", "save payload must hold only ints, bools, ASCII strings, arrays and objects")

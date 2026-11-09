@@ -1,7 +1,7 @@
 """QA51 parser tests: prove that diagnostic warnings remain visible as counts."""
 import unittest
 
-from tools.qa_resource_probe import CASES, parse_log, regression_violations
+from tools.qa_resource_probe import CASES, isolated_env, parse_log, regression_violations
 
 
 class ResourceProbeTests(unittest.TestCase):
@@ -135,6 +135,15 @@ tests: 2 passed, 0 failed, 10 assertions
     def test_script_error_cannot_be_hidden_by_passing_summary(self):
         parsed = parse_log("SCRIPT ERROR: Invalid set index\ntests: 5 passed, 0 failed, 7 assertions")
         self.assertTrue(parsed["script_error"])
+
+    def test_SAVE22_probe_runs_point_godot_user_dir_at_the_temp_root(self):
+        env = isolated_env("build/some_root", base={"APPDATA": "C:/Users/me/AppData/Roaming", "KEEP": "1"})
+        root = env["LBO_TEST_USER_ROOT"]
+        self.assertTrue(root.endswith("build/some_root"))
+        self.assertNotIn("\\", root)
+        self.assertEqual(env["APPDATA"], root)
+        self.assertEqual(env["XDG_DATA_HOME"], root)
+        self.assertEqual(env["KEEP"], "1")
 
 
 if __name__ == "__main__":

@@ -48,8 +48,9 @@ def python_records() -> list[list[str]]:
             codes = sorted({d["code"] for d in e.diagnostics})
         out.append(["DEF", c["name"], ",".join(codes)])
     sys.path.insert(0, str(ROOT / "tools"))
-    from build_manifest import content_revision  # noqa: E402  (same hash the build manifest and the join handshake use)
+    from build_manifest import content_revision, rules_revision  # noqa: E402  (same hashes the build manifest, join and saves use)
     out.append(["CONTENT", "content_revision", content_revision()])
+    out.append(["CONTENT", "rules_revision", rules_revision()])
     return out
 
 

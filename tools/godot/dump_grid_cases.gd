@@ -34,4 +34,5 @@ func _initialize() -> void:
 		codes.sort()
 		print("\t".join(["DEF", c["name"], ",".join(codes)]))
 	print("\t".join(["CONTENT", "content_revision", ContentHash.content_revision()]))
+	print("\t".join(["CONTENT", "rules_revision", ContentHash.rules_revision()]))
 	quit(0)

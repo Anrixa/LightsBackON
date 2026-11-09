@@ -18,6 +18,7 @@ import platform
 import re
 import subprocess
 import sys
+import tempfile
 
 CASES = {
     "empty": ["--dir=res://tests/qa51_empty_no_scripts"],
@@ -159,12 +160,26 @@ def regression_violations(case: str, counts: dict[str, int]) -> list[str]:
     ]
 
 
+def isolated_env(root: str, base: dict[str, str] | None = None) -> dict[str, str]:
+    """SAVE22: point Godot's user:// (APPDATA on Windows, XDG_DATA_HOME on Linux) at an empty directory.
+
+    tests/run_tests.gd refuses to start unless user:// resolves inside LBO_TEST_USER_ROOT, so a stale
+    checkpoint in the PC's real user dir can never fail (or be overwritten by) a probe run.
+    """
+    env = dict(os.environ if base is None else base)
+    path = Path(root).resolve().as_posix()
+    env.update({"LBO_TEST_USER_ROOT": path, "APPDATA": path, "XDG_DATA_HOME": path})
+    return env
+
+
 def run_case(godot: str, case: str, out_dir: Path, timeout: int) -> dict[str, object]:
     args = [godot, "--headless", "--verbose", "--path", ".", "-s",
             "res://tests/run_tests.gd", "--", *CASES[case]]
     try:
-        run = subprocess.run(args, capture_output=True, text=True, encoding="utf-8",
-                             errors="replace", timeout=timeout, check=False)
+        with tempfile.TemporaryDirectory(prefix="lbo_test_user.") as user_root:
+            run = subprocess.run(args, capture_output=True, text=True, encoding="utf-8",
+                                 errors="replace", timeout=timeout, check=False,
+                                 env=isolated_env(user_root))
         log = run.stdout + "\n" + run.stderr
         returncode: int | None = run.returncode
         timed_out = False
