@@ -156,3 +156,16 @@ func test_DS08_lookdev_fakes_are_labelled_and_not_shipped() -> void:
 			if f.ends_with(".gd") or f.ends_with(".tscn"):
 				var text: String = FileAccess.get_file_as_string(dir.path_join(f))
 				assert_false(text.contains("scenes/lookdev"), "%s must not reference the lookdev scene" % f)
+
+
+func test_DS08_menu_shows_a_loading_card_before_the_mission_loads() -> void:
+	# A cold shader cache makes the first mission frame take seconds on integrated GPUs (docs/evidence/DS08.md);
+	# the menu must present a loading card first so the wait never looks like a hang.
+	var menu: Control = (load("res://scenes/menu/main_menu.tscn") as PackedScene).instantiate() as Control
+	_holder.add_child(menu)
+	var card: Control = menu.call("show_loading_card") as Control
+	assert_true(card != null and card.visible)
+	assert_eq(card.mouse_filter, Control.MOUSE_FILTER_STOP, "the card blocks a second launch press")
+	assert_eq((card.find_child("LoadingTitle", true, false) as Label).text, UiText.t("offline.loading.title"))
+	assert_true(UiText.has("offline.loading.detail"))
+	assert_eq(menu.call("show_loading_card"), card, "only one card")

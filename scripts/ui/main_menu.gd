@@ -19,6 +19,7 @@ var _scroll: ScrollContainer
 var _panel: PanelContainer
 var _heading: Label
 var _margin: MarginContainer
+var _loading_card: ColorRect
 
 
 func _ready() -> void:
@@ -206,6 +207,55 @@ func _launch(resume: bool, replacement_confirmed: bool = false) -> void:
 	if not resume and _save_available and not replacement_confirmed:
 		(get_node("ReplaceCheckpointConfirmation") as ConfirmationDialog).popup_centered()
 		return
+	if _loading_card != null:
+		return
 	# The flag is scene-local launch state, not a save file or a gameplay authority.
 	get_tree().set_meta("offline_resume", resume)
+	# DS08: on a cold shader cache (first launch, new driver) the street's materials compile on the first mission
+	# frame, several seconds on integrated GPUs. Present a loading card first so the wait reads as loading, not a hang.
+	show_loading_card()
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
 	get_tree().change_scene_to_file(MISSION_PATH)
+
+
+## Full-screen card that stays on screen while the mission scene loads and compiles. Blocks input so a second
+## press cannot launch twice.
+func show_loading_card() -> Control:
+	if _loading_card != null:
+		return _loading_card
+	var focused: Control = get_viewport().gui_get_focus_owner()
+	if focused != null:
+		focused.release_focus()
+	_loading_card = ColorRect.new()
+	_loading_card.name = "LoadingCard"
+	_loading_card.color = ThemeTokens.color(_tokens, "background")
+	_loading_card.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_loading_card.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(_loading_card)
+	var center: CenterContainer = CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_loading_card.add_child(center)
+	var column: VBoxContainer = VBoxContainer.new()
+	column.add_theme_constant_override("separation", 14)
+	center.add_child(column)
+	var eyebrow: Label = Label.new()
+	eyebrow.text = UiText.t("offline.menu.subtitle")
+	eyebrow.theme_type_variation = "StrongLabel"
+	eyebrow.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	eyebrow.add_theme_color_override("font_color", ThemeTokens.color(_tokens, "restored"))
+	column.add_child(eyebrow)
+	var title: Label = Label.new()
+	title.name = "LoadingTitle"
+	title.text = UiText.t("offline.loading.title")
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", _heading.get_theme_font_size("font_size"))
+	title.add_theme_color_override("font_color", ThemeTokens.color(_tokens, "text"))
+	column.add_child(title)
+	var detail: Label = Label.new()
+	detail.name = "LoadingDetail"
+	detail.text = UiText.t("offline.loading.detail")
+	detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	detail.add_theme_color_override("font_color", ThemeTokens.color(_tokens, "text_muted"))
+	column.add_child(detail)
+	return _loading_card
