@@ -16,8 +16,8 @@ var _tree: SceneTree
 var _holder: Node3D
 var _world: Node3D
 var _eyes: Camera3D
-var _fx: RefCounted
-var _session: RefCounted
+var _fx: FaultEvidence
+var _session: Offline
 
 
 func before_each() -> void:
