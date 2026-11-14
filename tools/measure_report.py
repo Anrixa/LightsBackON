@@ -30,6 +30,7 @@ ROOT_KEYS = frozenset({
     "dropped_events", "outcome", "last_tick",
 })
 EVENT_KEYS = frozenset({"kind", "tick", "objective_index", "value_ticks"})
+MAX_JSON_NESTING = 64  # Deterministic guard across Python JSON decoder implementations.
 MAX_FILE_BYTES = 1_000_000
 MAX_REPORTS = 100
 MAX_EVENTS = 4096
@@ -57,6 +58,35 @@ def _object_no_duplicates(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
 
 def _bad_constant(_value: str) -> None:
     raise InvalidReport("NONFINITE_NUMBER")
+
+
+
+def _reject_excessive_json_depth(payload: bytes) -> None:
+    """Bound JSON structure depth before decoding, independent of Python version.
+
+    The standard decoder's recursion limit differs by interpreter/build.
+    Ignore brackets inside quoted JSON strings (including escaped quotes);
+    json.loads remains responsible for the full syntax check.
+    """
+    depth = 0
+    quoted = False
+    escaped = False
+    for char in payload:
+        if quoted:
+            if escaped:
+                escaped = False
+            elif char == 0x5C:  # backslash
+                escaped = True
+            elif char == 0x22:  # unescaped closing quote
+                quoted = False
+        elif char == 0x22:
+            quoted = True
+        elif char in (0x5B, 0x7B):  # [ or {
+            depth += 1
+            if depth > MAX_JSON_NESTING:
+                raise InvalidReport("INVALID_JSON")
+        elif char in (0x5D, 0x7D):  # ] or }
+            depth -= 1
 
 
 def validate(data: Any) -> dict[str, Any]:
@@ -224,6 +254,7 @@ def _read_bounded_snapshot(path: Path) -> tuple[bytes, float]:
 def read_report(path: Path) -> dict[str, Any]:
     """Validate one bounded file snapshot with its matching review metadata."""
     payload, modified_at = _read_bounded_snapshot(path)
+    _reject_excessive_json_depth(payload)
     try:
         data = json.loads(payload.decode("utf-8"),
                           object_pairs_hook=_object_no_duplicates,

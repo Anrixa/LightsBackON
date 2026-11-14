@@ -127,6 +127,22 @@ class MeasurementReportTests(unittest.TestCase):
         with self.assertRaisesRegex(measure_report.InvalidReport, "INVALID_JSON"):
             measure_report.read_report(path)
 
+    def test_MEASURE33_depth_limit_is_parser_independent_and_string_safe(self) -> None:
+        # Different Python JSON backends disagree about where deeply nested
+        # arrays raise RecursionError. Enforce our own portable ceiling.
+        measure_report._reject_excessive_json_depth(
+            b'{"value":"[[{\\\"quoted\\\"}]]","events":[]}'
+        )
+        measure_report._reject_excessive_json_depth(
+            b"[" * measure_report.MAX_JSON_NESTING + b"0" +
+            b"]" * measure_report.MAX_JSON_NESTING
+        )
+        with self.assertRaisesRegex(measure_report.InvalidReport, "INVALID_JSON"):
+            measure_report._reject_excessive_json_depth(
+                b"[" * (measure_report.MAX_JSON_NESTING + 1) + b"0" +
+                b"]" * (measure_report.MAX_JSON_NESTING + 1)
+            )
+
     def test_MEASURE22_zero_duration_idle_span_round_trips_truthfully(self) -> None:
         report = copy.deepcopy(self.sample)
         report["events"][2]["tick"] = 30
