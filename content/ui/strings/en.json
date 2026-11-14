@@ -278,6 +278,11 @@
     "offline.debrief.award_row": "%s — %s",
     "offline.debrief.earned": "Earned",
     "offline.debrief.missed": "Not earned",
-    "offline.debrief.unavailable": "Completion results unavailable; no score was issued."
+    "offline.debrief.unavailable": "Completion results unavailable; no score was issued.",
+    "world.meter.unmeasured": "?  NOT MEASURED",
+    "world.meter.source": "SOURCE",
+    "world.meter.demand": "LOAD PU",
+    "world.meter.capacity": "LIMIT PU",
+    "world.meter.breaker": "BREAKER"
   }
 }
