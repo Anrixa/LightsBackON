@@ -17,6 +17,7 @@ const ThemeTokens := preload("res://scripts/ui/theme_tokens.gd")
 const UiText := preload("res://scripts/ui/ui_text.gd")
 const InputDeviceTracker := preload("res://scripts/ui/input_device_tracker.gd")
 const RestorationPresentation := preload("res://scripts/world/restoration_presentation.gd")
+const FaultEvidencePresentation := preload("res://scripts/world/fault_evidence_presentation.gd")
 const StreetLook := preload("res://scripts/world/street_look.gd")
 const StreetDressing := preload("res://scripts/world/street_dressing.gd")
 const DistrictBuilder := preload("res://scripts/world/district_builder.gd")
@@ -40,6 +41,7 @@ var accessibility: AccessibilityPanel
 var settings: AccessibilitySettings
 var _world: Node3D
 var _world_fx: RestorationPresentation
+var _fault_fx: FaultEvidencePresentation
 var _look: Dictionary = {}
 var _store: OfflinePersistence
 var _save_enabled: bool = false
@@ -128,6 +130,8 @@ func _ready() -> void:
 	session.set_tool(TOOL_LIST[_slot - 1])
 	_world_fx = RestorationPresentation.new()
 	_world_fx.setup(_world, _look["windows"])
+	_fault_fx = FaultEvidencePresentation.new()
+	_fault_fx.setup(_world, player.camera)
 	_make_ui()
 	if not _restored_view.is_empty():
 		_sync_onboarding_progress(true)
@@ -776,6 +780,8 @@ func _show_feedback(message: String, important: bool = false, persistent: bool =
 
 
 func _on_mission_event(event: Dictionary) -> void:
+	if _fault_fx != null:
+		_fault_fx.on_host_event(event)
 	var kind: String = str(event.get("type", ""))
 	if _measurements != null:
 		# Host event ticks can be absolute campaign ticks restored from a checkpoint.
@@ -813,8 +819,14 @@ func _refresh_hud() -> void:
 	if hud == null or session == null:
 		return
 	hud.apply(session.hud_view(_slot, _target, TOOL_LIST[_slot - 1]))
+	var snapshot: Dictionary = session.host_state()
 	if _world_fx != null:
-		_world_fx.apply(session.host_state(), session.mission.is_latched(OfflineSession.PUMP_LATCH))
+		_world_fx.apply(snapshot, session.mission.is_latched(OfflineSession.PUMP_LATCH))
+	if _fault_fx != null:
+		var reading: Dictionary = {}
+		if _target.begins_with("PANEL_") and TOOL_LIST[_slot - 1] == "meter":
+			reading = session.meter.readings(_target, session.grid)
+		_fault_fx.apply(snapshot, TOOL_LIST[_slot - 1], _target, reading)
 	if _paused:
 		_refresh_shift_briefing()
 
