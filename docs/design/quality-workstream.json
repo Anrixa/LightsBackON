@@ -206,7 +206,7 @@
     {
       "id": "DS10",
       "title": "Fault evidence in the world (pillar 1)",
-      "status": "IN_PROGRESS",
+      "status": "CLOUD_VERIFIED",
       "depends_on": [
         "DS09"
       ],
@@ -217,13 +217,17 @@
       "evidence_file": "docs/evidence/DS10.md",
       "plan": "docs/design/DS07-design-plan.md",
       "authority": "ADR-017",
-      "code_phase": "WORLD_CABINET_METER_AND_PING_PRESENTATION_IN_REVIEW",
+      "code_phase": "WORLD_FAULT_EVIDENCE_MERGED_LINUX_WINDOWS_CI_VERIFIED",
       "pending_acceptance": [
-        "Exact-head focused/full Godot tests and Linux + Windows CI + CodeQL",
-        "Real Windows rendered open/closed cabinet and first-person meter review",
-        "Rendered contrast and exported-build QA140 P95/memory on a target-class GPU",
-        "Physical controller/human C01 walkthrough; V09/F02 networking gates remain open"
-      ]
+        "Real Windows 720p/1080p cabinet/meter and host-ping screenshots with inspectable text/focus",
+        "DS10 modified-scene HUD rendered contrast and QA140 exported-build frame P95/memory",
+        "Physical-controller/human first-repair readability and interaction review",
+        "F02/F06/V09 remain independent unqualified gates"
+      ],
+      "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43544693205",
+      "verified_resource_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43544693203",
+      "merged_pr": "https://github.com/Anrixa/LightsBackON/pull/146",
+      "merged_main_sha": "3866793084b422b57f052bc99c4d725e509169dc"
     },
     {
       "id": "DS11",
