@@ -206,7 +206,7 @@
     {
       "id": "DS10",
       "title": "Fault evidence in the world (pillar 1)",
-      "status": "NOT_STARTED",
+      "status": "IN_PROGRESS",
       "depends_on": [
         "DS09"
       ],
@@ -216,7 +216,14 @@
       ],
       "evidence_file": "docs/evidence/DS10.md",
       "plan": "docs/design/DS07-design-plan.md",
-      "authority": "ADR-017"
+      "authority": "ADR-017",
+      "code_phase": "WORLD_CABINET_METER_AND_PING_PRESENTATION_IN_REVIEW",
+      "pending_acceptance": [
+        "Exact-head focused/full Godot tests and Linux + Windows CI + CodeQL",
+        "Real Windows rendered open/closed cabinet and first-person meter review",
+        "Rendered contrast and exported-build QA140 P95/memory on a target-class GPU",
+        "Physical controller/human C01 walkthrough; V09/F02 networking gates remain open"
+      ]
     },
     {
       "id": "DS11",
