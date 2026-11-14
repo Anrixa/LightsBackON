@@ -132,7 +132,7 @@ func _make_meter(eyes: Camera3D) -> void:
 func cabinet_open(repair_id: String) -> bool:
 	if not _cabinets.has(repair_id):
 		return false
-	return bool((_cabinets[repair_id] as Dictionary)["interior"].visible)
+	return ((_cabinets[repair_id] as Dictionary)["interior"] as Node3D).visible
 
 
 func meter_text() -> String:
@@ -142,7 +142,7 @@ func meter_text() -> String:
 func ping_visible(repair_id: String) -> bool:
 	if not _cabinets.has(repair_id):
 		return false
-	return bool(((_cabinets[repair_id] as Dictionary)["ping"] as Label3D).visible)
+	return ((_cabinets[repair_id] as Dictionary)["ping"] as Label3D).visible
 
 
 ## Called only with SessionHost.authoritative_state() and MeterModel.readings().
@@ -216,7 +216,7 @@ static func _format_reading(readings: Dictionary) -> String:
 		var value: Variant = reading.get("value")
 		var shown: String = str(value)
 		if value is bool:
-			shown = UiText.t("meter.value.yes" if value else "meter.value.no")
+			shown = UiText.t("offline.briefing.yes" if value else "offline.briefing.no")
 		elif value is String and UiText.has("meter.value." + str(value)):
 			shown = UiText.t("meter.value." + str(value))
 		rows.append("%s: %s" % [UiText.t(str(METER_LABELS[field])), shown])
