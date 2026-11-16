@@ -92,8 +92,20 @@ func node_rect(nid: String) -> Rect2:
 
 
 func ensure_visible(nid: String) -> void:
+	# A padded node can be wider or taller than the viewport at 720p / 150%
+	# pseudo-locale even when its actual card fits. In that case bringing the
+	# padded rect to an edge crops the visible card after offset clamping.
+	# Preserve all of the card first, and only apply padding where it fits.
 	var margin: float = ThemeTokens.px(PAD_PX, scale_percent)
-	var r: Rect2 = node_rect(nid).grow(margin)
+	var actual: Rect2 = node_rect(nid)
+	var padded: Rect2 = actual.grow(margin)
+	var r: Rect2 = actual
+	if padded.size.x <= size.x:
+		r.position.x = padded.position.x
+		r.size.x = padded.size.x
+	if padded.size.y <= size.y:
+		r.position.y = padded.position.y
+		r.size.y = padded.size.y
 	var shift: Vector2 = Vector2.ZERO
 	if r.size.x > size.x or r.position.x < 0.0:
 		shift.x = -r.position.x
