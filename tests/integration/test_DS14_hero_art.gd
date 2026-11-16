@@ -46,7 +46,7 @@ func test_DS14_all_five_distinct_tools_are_original_noncancellable_visual_nodes(
 	for id: String in HeroProps.TOOLS:
 		var model: Node3D = art.build_tool(id)
 		_holder.add_child(model)
-		assert_eq(model.name, "Tool_" + id)
+		assert_eq(str(model.name), "Tool_" + id)
 		var meshes: Array[Node] = model.find_children("*", "MeshInstance3D", true, false)
 		assert_true(meshes.size() >= 5, "each canonical tool needs a distinct close-up silhouette")
 		assert_eq(model.find_children("*", "CollisionObject3D", true, false).size(), 0)
@@ -125,7 +125,7 @@ func test_DS14_three_worker_variants_do_not_spawn_fake_players() -> void:
 	for name: String in variants:
 		var model: Node3D = art.build_worker(name)
 		_holder.add_child(model)
-		assert_eq(model.name, "Worker_" + name)
+		assert_eq(str(model.name), "Worker_" + name)
 		assert_true(model.get_node_or_null("HardHat") is MeshInstance3D)
 		assert_true(model.get_node_or_null("ToolPouch") is MeshInstance3D)
 		assert_eq(model.find_children("*", "CollisionObject3D", true, false).size(), 0)
