@@ -311,7 +311,7 @@
     {
       "id": "DS14",
       "title": "First-person hands, tools and hero props (design agent)",
-      "status": "NOT_STARTED",
+      "status": "IN_PROGRESS",
       "depends_on": [
         "DS08"
       ],
@@ -321,7 +321,15 @@
       ],
       "evidence_file": "docs/evidence/DS14.md",
       "plan": "docs/design/DS07-design-plan.md",
-      "authority": "ADR-017"
+      "authority": "ADR-017",
+      "code_phase": "ORIGINAL_HERO_GEOMETRY_AND_FIRST_PERSON_INTEGRATION_STAGED",
+      "execution_policy": "docs/design/BATCH-EXECUTION-HANDOFF.md",
+      "pending_acceptance": [
+        "Run once-per-significant-batch Linux/Windows GitHub CI, Windows export smoke, QA57 and QA51 resources before any merge",
+        "Real GPU first-person 720p/1080p 80/100/150% screenshots, occlusion and contrast",
+        "Real controller-only tool switching and owner visual signoff",
+        "Target Intel UHD/GTX1650 exported frame P95/memory and DS10–DS13 earlier physical gates remain unverified"
+      ]
     }
   ]
 }

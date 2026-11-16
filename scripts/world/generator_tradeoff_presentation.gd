@@ -5,6 +5,7 @@ extends RefCounted
 ## Curves are authored world points, never loose rigid bodies or physics ropes.
 
 const UiText := preload("res://scripts/ui/ui_text.gd")
+const HeroProps := preload("res://scripts/world/hero_prop_builder.gd")
 const DRESSING_PATH: String = "res://content/world/alder_street_dressing.json"
 const WORLD_PATH: String = "res://content/world/alder_street.json"
 const CM_PER_M: float = 100.0
@@ -95,6 +96,8 @@ func _make_generator() -> void:
 	_sound.max_distance = 14.0
 	_sound.stream = _warning_sample()
 	_generator.add_child(_sound)
+	# These original inert details move and hide with the DS11 host-state generator.
+	HeroProps.new().dress_generator(_generator, dims)
 	_generator.visible = false
 
 

@@ -1,0 +1,38 @@
+{
+  "_note": "DS14 original Stormglass procedural presentation only. Stored under assets/ to keep existing C01 gameplay content revisions and checkpoints stable. No third-party meshes, logos, downloaded media, shaders or input authority.",
+  "creator": "Lights Back On project original procedural art, 2026-11-16",
+  "license": "project-owned",
+  "palette": {
+    "shell": "#314A59",
+    "shell_dark": "#1A2934",
+    "steel": "#A7B7BF",
+    "steel_dark": "#566D7A",
+    "rubber": "#17232C",
+    "glove": "#263E49",
+    "glove_pad": "#182B33",
+    "fabric": "#31424D",
+    "reflective": "#E3CA71",
+    "hi_vis": "#CDD865",
+    "hi_vis_alt": "#E7B950",
+    "screen": "#A0E0E7",
+    "screen_off": "#244250",
+    "mark": "#E9F0E8"
+  },
+  "view": {
+    "offset_m": [0.28, -0.29, -0.60],
+    "tool_offset_m": [0.0, 0.12, -0.17],
+    "glove_spread_m": 0.16,
+    "hands_raise_m": 0.0
+  },
+  "generator": {
+    "wheel_radius_m": 0.13,
+    "wheel_thickness_m": 0.07,
+    "vent_rows": 5,
+    "reel_radius_m": 0.23,
+    "reel_width_m": 0.28,
+    "wire_turns": 7
+  },
+  "worker": {
+    "variants": ["field", "line", "supervisor"]
+  }
+}
