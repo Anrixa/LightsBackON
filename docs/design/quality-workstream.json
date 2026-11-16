@@ -285,7 +285,7 @@
     {
       "id": "DS13",
       "title": "Project-drawn keyboard/mouse and controller glyphs",
-      "status": "IN_PROGRESS",
+      "status": "CLOUD_VERIFIED",
       "depends_on": [
         "DS09"
       ],
@@ -296,15 +296,17 @@
       "evidence_file": "docs/evidence/DS13.md",
       "plan": "docs/design/DS07-design-plan.md",
       "authority": "ADR-017",
-      "code_phase": "ORIGINAL_INPUT_GLYPHS_LIVE_MAPPING_HUD_TABLET_ONBOARDING_MENU_STAGED",
+      "code_phase": "LIVE_INPUT_GLYPH_FAMILY_AND_ALL_UI_SURFACES_LINUX_WINDOWS_CI_VERIFIED",
       "execution_policy": "docs/design/BATCH-EXECUTION-HANDOFF.md",
       "pending_acceptance": [
-        "Run significant-batch DS13 focused/full Godot/Python suite and exact-head Linux/Windows CI",
-        "Windows release export, headless smoke, QA57 integrity and QA51 lifetime probes",
-        "Physical GPU 720/1080p, 80/100/150% and pseudo-locale glyph screenshots and rendered AA contrast",
-        "Actual keyboard/US and non-US layout remapping, mouse-wheel and controller-only interaction/focus human checks",
-        "F02/F06/V09 independent networking/player study gates remain pending"
-      ]
+        "Real Windows GPU 720p/1080p 80/100/150% captures and actual rendered AA glyph/verb contrast",
+        "Physical controller-only navigation, mouse wheel and US/non-US keyboard remapping/focus/human assessment",
+        "DS10–DS12 prior physical design gates and F02/F06/V09 networking/human gates remain independent"
+      ],
+      "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43891196597",
+      "verified_resource_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43891196620",
+      "merged_pr": "https://github.com/Anrixa/LightsBackON/pull/152",
+      "merged_main_sha": "7aa85791aef7d1798fda7676523dd8378cbb63be"
     },
     {
       "id": "DS14",
