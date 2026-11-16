@@ -29,10 +29,17 @@ const ShiftDebrief := preload("res://scripts/gameplay/shift_debrief.gd")
 const ShiftMeasurements := preload("res://scripts/diagnostics/shift_measurements.gd")
 const ShaderWarmup := preload("res://scripts/world/shader_warmup.gd")
 const LoadingCard := preload("res://scripts/ui/loading_card.gd")
+const C03LadderView := preload("res://scripts/world/c03_fixed_ladder_view.gd")
 
 const MENU_PATH: String = "res://scenes/menu/main_menu.tscn"
 const HOST_TICK_SECONDS: float = 0.1
 const TOOL_LIST: Array[String] = OfflineSession.TOOL_LIST
+
+## C01 remains the production scene. C03 uses an explicit, unsaved preview
+## scene that shares this controller/UI without touching SOLO_C01 checkpoints.
+@export var contract_id: String = "C01"
+var _c03_preview: bool = false
+var _ladder_view: C03LadderView
 
 var session: OfflineSession
 var player: PlayerController
@@ -90,6 +97,10 @@ var warmup_stats: Dictionary = {}
 
 
 func _ready() -> void:
+	if not ["C01", "C03"].has(contract_id):
+		push_error("UNKNOWN_OFFLINE_CONTRACT: " + contract_id)
+		return
+	_c03_preview = contract_id == "C03"
 	_ui_tokens = _json("res://content/ui/tokens.json")
 	_interaction = _json("res://content/interaction.json")
 	_solo_tuning = _json("res://content/offline_solo.json")
@@ -103,20 +114,32 @@ func _ready() -> void:
 	_world.name = "District"
 	add_child(_world)
 	_dress_world()
+	if _c03_preview:
+		_ladder_view = C03LadderView.new()
+		_ladder_view.name = "C03RoofRoute"
+		_world.add_child(_ladder_view)
+		if not _ladder_view.setup(_world, _json(OfflineSession.C03_CONTRACT.path_join("world.json"))):
+			push_error("C03_ROOF_WORLD_INVALID")
+			return
 	_make_player()
 
 	session = OfflineSession.new()
-	var errors: Array[Dictionary] = session.setup(_in_range, _position_cm)
+	var errors: Array[Dictionary] = session.setup(_in_range, _position_cm,
+		OfflineSession.C03_CONTRACT if _c03_preview else OfflineSession.CONTRACT)
 	if not errors.is_empty():
-		push_error("OFFLINE_C01_SETUP_FAILED: %s" % str(errors))
+		push_error("OFFLINE_CONTRACT_SETUP_FAILED: %s" % str(errors))
 		return
-	_store = OfflinePersistence.new()
-	var identity: Dictionary = _store.initialize()
-	_save_enabled = bool(identity.get("ok", false))
-	if not _save_enabled:
-		_save_issue = str(identity.get("code", "IDENTITY_ERROR"))
-	var resume: bool = bool(get_tree().get_meta("offline_resume", false))
+	# C03 preview is strictly ephemeral and never initializes the C01
+	# checkpoint writer. Corrupt or newer C01 saves are therefore untouched.
+	var identity: Dictionary = {}
+	var resume: bool = bool(get_tree().get_meta("offline_resume", false)) and not _c03_preview
 	get_tree().remove_meta("offline_resume")
+	if not _c03_preview:
+		_store = OfflinePersistence.new()
+		identity = _store.initialize()
+		_save_enabled = bool(identity.get("ok", false))
+		if not _save_enabled:
+			_save_issue = str(identity.get("code", "IDENTITY_ERROR"))
 	if _save_enabled and resume:
 		var restored: Dictionary = _store.restore_into(session)
 		if restored.get("ok", false) and restored.get("available", false):
@@ -142,6 +165,13 @@ func _ready() -> void:
 	_recovery_fx = RecoveryPayoffPresentation.new()
 	_recovery_fx.setup(_world)
 	_make_ui()
+	if _c03_preview:
+		onboarding.visible = false
+		onboarding.set_hints_enabled(false)
+		if _briefing_pump != null:
+			_briefing_pump.visible = false
+		if _briefing_pump_label != null:
+			_briefing_pump_label.visible = false
 	if not _restored_view.is_empty():
 		_sync_onboarding_progress(true)
 	if bool(identity.get("ok", false)):
@@ -163,6 +193,8 @@ func _ready() -> void:
 	if _measurements.enabled():
 		_measurements.observe_tick(0, session.mission.objectives())
 	_refresh_hud()
+	if _c03_preview:
+		_show_feedback(UiText.t("offline.c03.unsaved_notice"), true)
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	if session.completed():
 		_finish()
@@ -593,7 +625,7 @@ func _process(delta: float) -> void:
 			_feedback_remaining_s = maxf(0.0, _feedback_remaining_s - maxf(0.0, delta))
 			if _feedback_remaining_s <= 0.0:
 				_status.text = ""
-	if onboarding != null and not _paused and not _finished and not _warming and tablet != null and not tablet.visible:
+	if onboarding != null and not _c03_preview and not _paused and not _finished and not _warming and tablet != null and not tablet.visible:
 		onboarding.advance_idle(delta)
 
 
@@ -687,10 +719,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	if _paused or tablet.visible:
 		return
 	if event.is_action_pressed("onboarding_hint"):
-		if bool(settings.value("hints_enabled")):
+		if not _c03_preview and bool(settings.value("hints_enabled")):
 			_measurements.mark_activity(_measurement_tick)
 			_measurements.note("hint_requested", _measurement_tick)
-		onboarding.show_hint()
+		if not _c03_preview:
+			onboarding.show_hint()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("map_meter"):
 		_open_tablet()
@@ -713,6 +746,12 @@ func _unhandled_input(event: InputEvent) -> void:
 func _interact() -> void:
 	if _target == "":
 		return
+	# Reversible interaction transition, not climb physics. Check actual
+	# destination capsule clearance before the host is asked to authorize it.
+	if _c03_preview and _target.begins_with("LADDER_") and _ladder_view != null:
+		if not _ladder_view.can_transfer(player, _target):
+			_show_feedback(UiText.t("offline.c03.landing_blocked"), true)
+			return
 	var reply: Dictionary = session.interact(_target, TOOL_LIST[_slot - 1])
 	if not reply.get("ok", false):
 		_show_feedback(str(reply.get("message", UiText.t("offline.status.refused"))), true)
@@ -744,7 +783,7 @@ func _on_player_moved() -> void:
 ## snapshots. Loading a checkpoint deliberately erases meter snapshots, so
 ## partially completed repairs first guide the player to inspect again.
 func _sync_onboarding_progress(resumed: bool = false) -> void:
-	if session == null or onboarding == null:
+	if _c03_preview or session == null or onboarding == null:
 		return
 	var any_measured: bool = false
 	var measured_isolation: bool = false
@@ -787,6 +826,15 @@ func _on_action_replied(envelope: Dictionary, reply: Dictionary) -> void:
 			_generator_fx.on_host_refusal(reply)
 		_show_feedback(str(reply.get("message", UiText.t("offline.status.refused"))), true)
 		return
+	# A local position change is allowed only after the host-authorized reply.
+	# This C03 preview transfer does not claim a Steam movement implementation.
+	if kind == "use_ladder" and _c03_preview and _ladder_view != null:
+		if not _ladder_view.transfer(player, str(envelope["entity"])):
+			_show_feedback(UiText.t("offline.c03.landing_blocked"), true)
+			return
+		_target = ""
+		_last_position_zone = session.inside_van(player.global_position)
+		session.set_in_van_zone(_last_position_zone)
 	# Tool selection is already conveyed by the live loadout, not another toast.
 	if kind != "equip":
 		_show_feedback(UiText.tf("offline.status.accepted", [UiText.t("offline.verb." + _action_verb(kind))]))
@@ -819,6 +867,7 @@ static func _action_verb(kind: String) -> String:
 		"toggle_switch": return "switch"
 		"place_item": return "interact"
 		"request_extract": return "depart"
+		"use_ladder": return "roof_ladder"
 	return "interact"
 
 
@@ -875,6 +924,8 @@ func _refresh_hud() -> void:
 		return
 	hud.apply(session.hud_view(_slot, _target, TOOL_LIST[_slot - 1]))
 	var snapshot: Dictionary = session.host_state()
+	if _ladder_view != null:
+		_ladder_view.apply_host(snapshot)
 	if _world_fx != null:
 		_world_fx.apply(snapshot, session.mission.is_latched(OfflineSession.PUMP_LATCH))
 	if _recovery_fx != null:
