@@ -1,0 +1,231 @@
+{
+  "contract_id": "C03",
+  "source_note": "Host-intent full solution includes expected NO_ACCESS before fixed ladder, rooftop splice repair, optional beacon and extraction. It is not an in-game physical ladder playtest.",
+  "players": [
+    "P1"
+  ],
+  "tools": [
+    "screwdriver",
+    "puller",
+    "cutter",
+    "crimper",
+    "meter"
+  ],
+  "max_ticks": 400,
+  "pace_ticks_per_command": 1,
+  "steps": [
+    {
+      "note": "West services lit, east feed broken; the roof repair cannot be reached before the ladder."
+    },
+    {
+      "as": "P1",
+      "intent": "request_lock",
+      "entity": "R_ROOF_SPLICE",
+      "payload": {},
+      "expect": "NO_ACCESS"
+    },
+    {
+      "as": "P1",
+      "intent": "use_ladder",
+      "entity": "LADDER_WEST",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "request_lock",
+      "entity": "R_ROOF_SPLICE",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "inspect",
+      "entity": "PANEL_ROOF",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_ROOF_SPLICE",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_ROOF_SPLICE",
+      "payload": {
+        "step": "diagnose"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_ROOF_SPLICE",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_ROOF_SPLICE",
+      "payload": {
+        "step": "isolate"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_ROOF_SPLICE",
+      "payload": {
+        "tool": "screwdriver"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_ROOF_SPLICE",
+      "payload": {
+        "step": "open"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_ROOF_SPLICE",
+      "payload": {
+        "tool": "cutter"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_ROOF_SPLICE",
+      "payload": {
+        "step": "remove"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_ROOF_SPLICE",
+      "payload": {
+        "tool": "crimper"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_ROOF_SPLICE",
+      "payload": {
+        "step": "install"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_ROOF_SPLICE",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_ROOF_SPLICE",
+      "payload": {
+        "step": "close"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_ROOF_SPLICE",
+      "payload": {
+        "tool": "meter"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_ROOF_SPLICE",
+      "payload": {
+        "step": "test"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_ROOF_SPLICE",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_ROOF_SPLICE",
+      "payload": {
+        "step": "restore"
+      },
+      "expect": "ok"
+    },
+    {
+      "note": "Optional beacon adds one PU, so roof edge reaches exactly 12/12 without a protection trip."
+    },
+    {
+      "as": "P1",
+      "intent": "toggle_switch",
+      "entity": "SW_BEACON",
+      "payload": {
+        "value": true
+      },
+      "expect": "ok"
+    },
+    {
+      "ticks": 100,
+      "expect_events": [
+        "verified"
+      ]
+    },
+    {
+      "zone": "ZONE_VAN",
+      "as": "P1",
+      "inside": true
+    },
+    {
+      "as": "P1",
+      "intent": "request_extract",
+      "entity": "ZONE_VAN",
+      "payload": {
+        "action": "start"
+      },
+      "expect": "ok"
+    },
+    {
+      "ticks": 50,
+      "expect_events": [
+        "mission_complete"
+      ]
+    }
+  ]
+}
