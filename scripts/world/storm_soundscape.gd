@@ -105,7 +105,7 @@ func _wave(kind: String, repeat: bool) -> AudioStreamWAV:
 				sound = 0.21 * (sin(TAU * 293.0 * t) + 0.62 * sin(TAU * 440.0 * t))
 		# Smooth sample boundaries (and soften the transients of non-loop cues).
 		var edge: float = minf(1.0, minf(phase, 1.0 - phase) * 100.0)
-		var envelope: float = edge if repeat else edge * powf(1.0 - phase, 1.4)
+		var envelope: float = edge if repeat else edge * pow(1.0 - phase, 1.4)
 		var value: int = roundi(clampf(sound * envelope, -1.0, 1.0) * 32767.0)
 		data.encode_s16(i * 2, value)
 	var wav: AudioStreamWAV = AudioStreamWAV.new()
