@@ -395,5 +395,120 @@
         900
       ]
     }
-  ]
+  ],
+  "temporary_supply": {
+    "_note": "DS11 visual-only presentation data: authored curve points are (east cm, height cm, north cm). Only accepted host equipment anchor, edge-enabled flags and canonical overload timers control visibility/state. Geometry is noncolliding and never enters the save, grid, or network command path.",
+    "generator_id": "GEN_PORTABLE",
+    "source_id": "GEN",
+    "breaker_id": "TEMP",
+    "feed_edge_id": "E_GEN_TEMP",
+    "protected_route_id": "BRK_TEMP",
+    "pad_anchor_id": "PAD_PUMP",
+    "body_cm": [
+      105,
+      82,
+      68
+    ],
+    "body_color": "#D7B545",
+    "housing_color": "#283D49",
+    "socket_color": "#F2E3B2",
+    "cable_color": "#E1AF55",
+    "trip_color": "#F28B82",
+    "normal_color": "#65D6B4",
+    "ring_segments": 16,
+    "cable_radius_cm": 4,
+    "cable_sample_cm": 55,
+    "display_y_cm": 104,
+    "max_wire_segments": 180,
+    "pad_label_key": "world.generator.pad",
+    "route_label_key": "world.generator.route_plate",
+    "routes": [
+      {
+        "edge_id": "E_TEMP_PUMP",
+        "end_label_key": "world.generator.pump_socket",
+        "end_cm": [
+          5750,
+          -100,
+          1350
+        ],
+        "curve_cm": [
+          [
+            6250,
+            66,
+            1600
+          ],
+          [
+            6120,
+            18,
+            1600
+          ],
+          [
+            6010,
+            14,
+            1510
+          ],
+          [
+            5860,
+            12,
+            1430
+          ],
+          [
+            5750,
+            -92,
+            1350
+          ]
+        ]
+      },
+      {
+        "edge_id": "E_TEMP_PUB",
+        "end_label_key": "world.generator.pub_socket",
+        "end_cm": [
+          7000,
+          110,
+          4190
+        ],
+        "curve_cm": [
+          [
+            6250,
+            66,
+            1600
+          ],
+          [
+            6450,
+            18,
+            1860
+          ],
+          [
+            6650,
+            15,
+            2200
+          ],
+          [
+            6850,
+            15,
+            2650
+          ],
+          [
+            7020,
+            15,
+            3260
+          ],
+          [
+            7000,
+            15,
+            3840
+          ],
+          [
+            7000,
+            104,
+            4190
+          ]
+        ]
+      }
+    ],
+    "warning_tone_hz": 740,
+    "warning_tone_ms": 160,
+    "warning_tone_mix_rate": 22050,
+    "warning_tone_amplitude_percent": 14
+  }
 }
