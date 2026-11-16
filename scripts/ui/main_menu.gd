@@ -280,7 +280,7 @@ func _launch(resume: bool, replacement_confirmed: bool = false) -> void:
 func _launch_c03_preview() -> void:
 	if _loading_card != null:
 		return
-	show_loading_card()
+	show_loading_card("offline.loading.c03_briefing")
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	get_tree().change_scene_to_file(C03_PREVIEW_PATH)
@@ -289,13 +289,13 @@ func _launch_c03_preview() -> void:
 ## Full-screen card that stays on screen while the mission scene loads. Blocks input so a second press cannot launch
 ## twice. DS09: the mission keeps the same card (with the shift briefing and a progress bar) up while it warms the
 ## street's shaders, so menu -> mission reads as one loading screen.
-func show_loading_card() -> Control:
+func show_loading_card(briefing_key: String = "offline.loading.briefing") -> Control:
 	if _loading_card != null:
 		return _loading_card
 	var focused: Control = get_viewport().gui_get_focus_owner()
 	if focused != null:
 		focused.release_focus()
 	var effective: float = ThemeTokens.effective_percent(100, size if size.x > 0.0 else ThemeTokens.DESIGN_SIZE)
-	_loading_card = LoadingCard.build(_tokens, effective, _heading.get_theme_font_size("font_size"), true, true)
+	_loading_card = LoadingCard.build(_tokens, effective, _heading.get_theme_font_size("font_size"), true, true, briefing_key)
 	add_child(_loading_card)
 	return _loading_card
