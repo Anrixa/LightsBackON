@@ -40,6 +40,10 @@ var _completed_tick: int = -1
 var _objectives: Array[Dictionary] = []
 var _max_visible: int = 0
 var _optional: Array[String] = []
+## C02+: optional services can have a contract-local opening-time cutoff.
+## -1 retains C01's original "on grid at completion" behaviour byte-for-byte.
+var _optional_deadline_ticks: int = -1
+var _optional_first_supplied: Dictionary = {}  # optional ID -> first authoritative supplied tick, if within cutoff
 var _trip_allowance: int = 0
 var _trips: int = 0
 var _recoveries: int = 0
@@ -88,6 +92,14 @@ func load_definition(definition: Dictionary, grid: PowerGrid, interaction: Inter
 		_zone = ex["zone"]
 		_max_visible = int(visible)
 	_optional = _consumer_list(definition.get("optional_services", []), nodes, "optional_services", errs)
+	var deadline_raw: Variant = definition.get("optional_deadline_ticks", null)
+	if deadline_raw != null:
+		var deadline: Variant = PowerGrid.to_int(deadline_raw)
+		if deadline == null or int(deadline) < 1 or _optional.is_empty():
+			errs.append(PowerGrid.diag("BAD_MISSION",
+				"optional_deadline_ticks requires >=1 and an optional service", []))
+		else:
+			_optional_deadline_ticks = int(deadline)
 	var allowance: Variant = PowerGrid.to_int(definition.get("tutorial_trip_allowance", 0))
 	if allowance == null or int(allowance) < 0:
 		errs.append(PowerGrid.diag("BAD_MISSION", "tutorial_trip_allowance must be an int >= 0", []))
@@ -153,6 +165,13 @@ func tick(now: int) -> Array[Dictionary]:
 			_latched[lid] = now
 			_interaction.set_access(l["grants"], true)
 			events.append({"type": "latch", "id": lid, "grants": l["grants"], "tick": now})
+	# An optional opening deadline affects a bonus only, never repair/access,
+	# extraction, required supply, or a host's grid state.
+	if _optional_deadline_ticks >= 0 and now <= _optional_deadline_ticks:
+		for optional_id: String in _optional:
+			if not _optional_first_supplied.has(optional_id) and _on_grid(optional_id, st):
+				_optional_first_supplied[optional_id] = now
+				events.append({"type": "optional_service_on_time", "id": optional_id, "tick": now})
 	var was_verified: bool = verified()
 	_verify_ticks = mini(_verify_ticks + 1, _verify_needed) if _all_required_on_grid(st) else 0
 	if verified() and not was_verified:
@@ -200,7 +219,7 @@ func _build_results() -> Dictionary:
 			restored += 1
 	var optional_restored: Array[String] = []
 	for c: String in _optional:  # already sorted by _consumer_list
-		if _on_grid(c, st):
+		if _on_grid(c, st) and (_optional_deadline_ticks < 0 or _optional_first_supplied.has(c)):
 			optional_restored.append(c)
 	var preventable: int = maxi(0, _trips - _trip_allowance)
 	var stars: int = 1 + (1 if optional_restored.size() == _optional.size() else 0) + (1 if preventable == 0 else 0)
@@ -316,9 +335,12 @@ func canonical_state() -> Dictionary:
 	var latch_ticks: Dictionary = {}
 	for lid: String in _latch_ticks:
 		latch_ticks[lid] = _latch_ticks[lid]
-	return {"schema": SCHEMA, "latch_ticks": latch_ticks, "latched": _latched.duplicate(), "verify_ticks": _verify_ticks,
+	var out: Dictionary = {"schema": SCHEMA, "latch_ticks": latch_ticks, "latched": _latched.duplicate(), "verify_ticks": _verify_ticks,
 		"trips": _trips, "recoveries": _recoveries,
 		"countdown_left": _countdown_left, "completed_tick": _completed_tick, "in_zone": _sorted(_in_zone.keys())}
+	if _optional_deadline_ticks >= 0:
+		out["optional_first_supplied"] = _optional_first_supplied.duplicate()
+	return out
 
 
 ## Durable mission progress for host checkpoints: latches, continuous-supply counters, scoring counters and the frozen
@@ -328,8 +350,11 @@ func durable_state() -> Dictionary:
 	var latch_ticks: Dictionary = {}
 	for lid: String in _latch_ticks:
 		latch_ticks[lid] = _latch_ticks[lid]
-	return {"schema": SCHEMA, "latch_ticks": latch_ticks, "latched": _latched.duplicate(), "verify_ticks": _verify_ticks,
+	var out: Dictionary = {"schema": SCHEMA, "latch_ticks": latch_ticks, "latched": _latched.duplicate(), "verify_ticks": _verify_ticks,
 		"trips": _trips, "recoveries": _recoveries, "completed_tick": _completed_tick, "results": _results.duplicate(true)}
+	if _optional_deadline_ticks >= 0:
+		out["optional_first_supplied"] = _optional_first_supplied.duplicate()
+	return out
 
 
 ## Restores durable_state() onto a freshly loaded director. Refuses (without change) anything that does not match this
@@ -356,6 +381,18 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 		if not _latches.has(lid) or v == null:
 			return bad
 		latched[lid] = int(v)
+	# C01 legacy checkpoint dictionaries remain unchanged. Deadline contracts
+	# require validated persisted first-supply ticks, or reject without mutation.
+	var optional_first: Dictionary = {}
+	if _optional_deadline_ticks >= 0:
+		if not d.get("optional_first_supplied") is Dictionary:
+			return bad
+		for id: Variant in d["optional_first_supplied"]:
+			var when: Variant = PowerGrid.to_int(d["optional_first_supplied"][id])
+			if not (id is String and _optional.has(id)) or when == null \
+					or int(when) < 1 or int(when) > _optional_deadline_ticks:
+				return bad
+			optional_first[id] = int(when)
 	if (counters["completed_tick"] >= 0) == (d["results"] as Dictionary).is_empty():
 		return bad  # a finished run must carry its frozen results, an unfinished one none
 	for lid: String in latch_ticks:
@@ -366,6 +403,7 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 	_recoveries = counters["recoveries"]
 	_completed_tick = counters["completed_tick"]
 	_results = (d["results"] as Dictionary).duplicate(true)
+	_optional_first_supplied = optional_first
 	_countdown_left = -1
 	_in_zone = {}
 	return []

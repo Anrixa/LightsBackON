@@ -1,0 +1,378 @@
+{
+  "contract_id": "C02",
+  "source_note": "C02 Dinner Rush host-intent solution trace: restore east before the fictional opening deadline, explicitly switch on The Lantern sign (optional 3 PU; east load 14/15), repair west, verify all five required GRID services for 100 ticks, and extract. No generator deployment or water drain. Design trace, not human completion evidence.",
+  "players": [
+    "P1"
+  ],
+  "tools": [
+    "screwdriver",
+    "puller",
+    "cutter",
+    "crimper",
+    "meter"
+  ],
+  "max_ticks": 3000,
+  "steps": [
+    {
+      "note": "East junction first. Repair the broken feeder before the Lantern's opening deadline."
+    },
+    {
+      "as": "P1",
+      "intent": "request_lock",
+      "entity": "R_JE_TRUNK",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "inspect",
+      "entity": "PANEL_JE",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "step": "diagnose"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "step": "isolate"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "tool": "screwdriver"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "step": "open"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "tool": "cutter"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "step": "remove"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "tool": "crimper"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "step": "install"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "step": "close"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "tool": "meter"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "step": "test"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "step": "restore"
+      },
+      "expect": "ok"
+    },
+    {
+      "note": "The Lantern sign is a separately switched optional venue service, not a mandatory condition."
+    },
+    {
+      "as": "P1",
+      "intent": "toggle_switch",
+      "entity": "SW_SIGN",
+      "payload": {
+        "value": true
+      },
+      "expect": "ok"
+    },
+    {
+      "note": "West fuse is the second independent fault. All five required services need grid supply."
+    },
+    {
+      "as": "P1",
+      "intent": "request_lock",
+      "entity": "R_JW_FUSE",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "inspect",
+      "entity": "PANEL_JW",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "step": "diagnose"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "step": "isolate"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "tool": "screwdriver"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "step": "open"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "tool": "puller"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "step": "remove"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "tool": "puller"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "step": "install"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "step": "close"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "tool": "meter"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "step": "test"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "step": "restore"
+      },
+      "expect": "ok"
+    },
+    {
+      "ticks": 100,
+      "expect_events": [
+        "verified"
+      ]
+    },
+    {
+      "zone": "ZONE_VAN",
+      "as": "P1",
+      "inside": true
+    },
+    {
+      "as": "P1",
+      "intent": "request_extract",
+      "entity": "ZONE_VAN",
+      "payload": {
+        "action": "start"
+      },
+      "expect": "ok"
+    },
+    {
+      "ticks": 50,
+      "expect_events": [
+        "mission_complete"
+      ]
+    }
+  ],
+  "pace_ticks_per_command": 1
+}

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "title": "ADR-017 allowed contract-logic track independent of gated CT03",
+  "parent_backlog": "CT03",
+  "parent_backlog_status": "NOT_STARTED",
+  "authority": "docs/adr/ADR-017-design-first-while-f02-blocked.md",
+  "episodes": [
+    {
+      "id": "CTL1-C02",
+      "contract_id": "C02",
+      "title": "Dinner Rush",
+      "status": "IN_PROGRESS",
+      "source": "content/contracts/c02_dinner_rush",
+      "evidence": "docs/evidence/CTL1-C02.md",
+      "pending": [
+        "full exact-head Linux/Windows CI",
+        "physical/human acceptance and player-selectable mission"
+      ]
+    },
+    {
+      "id": "CTL1-C03",
+      "contract_id": "C03",
+      "title": "Roof Route",
+      "status": "NOT_STARTED"
+    },
+    {
+      "id": "CTL1-C04",
+      "contract_id": "C04",
+      "title": "The Whole Block",
+      "status": "NOT_STARTED"
+    }
+  ]
+}

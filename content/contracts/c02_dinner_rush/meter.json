@@ -1,0 +1,29 @@
+{
+  "contract_id": "C02",
+  "source_note": "C02 reuse authored Alder meter panels; JW starts with a fault breaker reason and JE has a broken upstream trunk. Readings remain unknown until inspected.",
+  "panels": [
+    {
+      "id": "PANEL_GRID",
+      "target": "GRID"
+    },
+    {
+      "id": "PANEL_GEN",
+      "target": "GEN"
+    },
+    {
+      "id": "PANEL_JW",
+      "target": "JW"
+    },
+    {
+      "id": "PANEL_JE",
+      "target": "JE"
+    },
+    {
+      "id": "PANEL_TEMP",
+      "target": "TEMP"
+    }
+  ],
+  "initial_breaker_reasons": {
+    "JW": "fault"
+  }
+}

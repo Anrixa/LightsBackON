@@ -306,6 +306,12 @@
     "offline.menu.control.ping": "Ping",
     "offline.menu.control.tools": "Cycle tools",
     "offline.menu.control.drop": "Drop equipment",
-    "offline.menu.control.help": "Hint"
+    "offline.menu.control.help": "Hint",
+    "contract.c02": "Dinner Rush",
+    "repair.c02.west_fuse": "West junction fuse",
+    "repair.c02.east_trunk": "East service feeder",
+    "objective.c02.restore_east": "Restore the east service row",
+    "objective.c02.restore_west": "Bring power back to the west homes and market",
+    "objective.c02.open_lantern": "Optional: power The Lantern sign before opening"
   }
 }
