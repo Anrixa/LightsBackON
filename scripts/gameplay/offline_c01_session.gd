@@ -24,6 +24,7 @@ const UiText := preload("res://scripts/ui/ui_text.gd")
 const ShiftOperations := preload("res://scripts/gameplay/shift_operations.gd")
 
 const CONTRACT: String = "res://content/contracts/c01_alder_street"
+const C03_CONTRACT: String = "res://content/contracts/c03_roof_route"
 const SESSION_ID: String = "S_C01_LOCAL"
 const CONTENT_REVISION: String = "C01_LOCAL_DEVELOPMENT"
 const PLAYER_ID: String = "P1"
@@ -66,6 +67,7 @@ var _solo_tuning: Dictionary = {}
 var _tick: int = 0
 var _last_zone_state: bool = false
 var _position_of: Callable
+var _contract_dir: String = CONTRACT
 
 
 static func _json(path: String) -> Dictionary:
@@ -75,17 +77,30 @@ static func _json(path: String) -> Dictionary:
 
 ## The caller supplies live host-side range and position checks from its physical character.
 ## Nothing in this module silently bypasses proximity merely because play is offline.
-func setup(range_check: Callable, position_of: Callable) -> Array[Dictionary]:
+func setup(range_check: Callable, position_of: Callable, contract_dir: String = CONTRACT) -> Array[Dictionary]:
+	# C03 is an explicitly selected development preview. A bad directory
+	# never loads arbitrary content or modifies the existing C01 campaign.
+	if not [CONTRACT, C03_CONTRACT].has(contract_dir):
+		return [{"code": "UNKNOWN_CONTRACT", "message": "unsupported offline contract"}]
+	_contract_dir = contract_dir
 	_position_of = position_of
+	var world: Dictionary = _json("res://content/world/alder_street.json")
+	if _contract_dir == C03_CONTRACT:
+		var overlay: Dictionary = _json(_contract_dir.path_join("world.json"))
+		if overlay.get("contract_id") != "C03":
+			return [{"code": "BAD_WORLD", "message": "C03 marker overlay is invalid"}]
+		var markers: Array = world.get("markers", [])
+		for record: Dictionary in overlay.get("markers", []):
+			markers.append(record)
 	_content = {
-		"grid": _json(CONTRACT.path_join("grid.json")),
-		"meter": _json(CONTRACT.path_join("meter.json")),
-		"repairs": _json(CONTRACT.path_join("repairs.json")),
-		"equipment": _json(CONTRACT.path_join("equipment.json")),
-		"switches": _json(CONTRACT.path_join("switches.json")),
-		"mission": _json(CONTRACT.path_join("mission.json")),
-		"tablet": _json(CONTRACT.path_join("tablet.json")),
-		"world": _json("res://content/world/alder_street.json"),
+		"grid": _json(_contract_dir.path_join("grid.json")),
+		"meter": _json(_contract_dir.path_join("meter.json")),
+		"repairs": _json(_contract_dir.path_join("repairs.json")),
+		"equipment": _json(_contract_dir.path_join("equipment.json")),
+		"switches": _json(_contract_dir.path_join("switches.json")),
+		"mission": _json(_contract_dir.path_join("mission.json")),
+		"tablet": _json(_contract_dir.path_join("tablet.json")),
+		"world": world,
 		"comms": _json("res://content/comms.json")
 	}
 	_tuning = _json("res://content/interaction.json")
@@ -117,8 +132,9 @@ func setup(range_check: Callable, position_of: Callable) -> Array[Dictionary]:
 		return errors
 
 	host = SessionHost.new()
-	errors.append_array(host.configure(_json("res://content/network.json"), PROTOCOL_VERSION, CONTENT_REVISION,
-		SESSION_ID, grid, meter, interaction, equipment, _content["switches"], range_check))
+	errors.append_array(host.configure(_json("res://content/network.json"), PROTOCOL_VERSION,
+		"C03_LOCAL_PREVIEW" if _contract_dir == C03_CONTRACT else CONTENT_REVISION,
+		"S_C03_PREVIEW" if _contract_dir == C03_CONTRACT else SESSION_ID, grid, meter, interaction, equipment, _content["switches"], range_check))
 	if not errors.is_empty():
 		return errors
 	host.set_position_provider(position_of)
@@ -128,7 +144,8 @@ func setup(range_check: Callable, position_of: Callable) -> Array[Dictionary]:
 	if not errors.is_empty():
 		return errors
 	host.set_comms(comms)
-	var admitted: Dictionary = host.admit(PEER_ID, PLAYER_ID, PROTOCOL_VERSION, CONTENT_REVISION, TOOL_LIST)
+	var admitted: Dictionary = host.admit(PEER_ID, PLAYER_ID, PROTOCOL_VERSION,
+		"C03_LOCAL_PREVIEW" if _contract_dir == C03_CONTRACT else CONTENT_REVISION, TOOL_LIST)
 	if not admitted.get("ok", false):
 		errors.append({"code": "OFFLINE_ADMISSION_FAILED", "message": str(admitted)})
 		return errors
@@ -136,7 +153,8 @@ func setup(range_check: Callable, position_of: Callable) -> Array[Dictionary]:
 	# The bridge keeps only weak references, so exiting a scene releases the
 	# authoritative host and its complete offline state without manual disposal.
 	_outbox_bridge = OfflineOutboxBridge.new(host, self, PEER_ID)
-	outbox = IntentOutbox.new(SESSION_ID, Callable(_outbox_bridge, "send"))
+	outbox = IntentOutbox.new("S_C03_PREVIEW" if _contract_dir == C03_CONTRACT else SESSION_ID,
+		Callable(_outbox_bridge, "send"))
 	outbox.replied.connect(Callable(_outbox_bridge, "on_reply"))
 	return errors
 
@@ -195,7 +213,8 @@ func hud_view(selected_slot: int, target: String, tool: String) -> Dictionary:
 	var context: Dictionary = {
 		"local_player": PLAYER_ID, "names": {PLAYER_ID: UiText.t("hud.you")}, "tools": TOOL_LIST,
 		"selected_slot": selected_slot,
-		"district_key": "district.alder_street", "contract_key": "contract.c01",
+		"district_key": "district.alder_street",
+		"contract_key": "contract.c03" if _contract_dir == C03_CONTRACT else "contract.c01",
 		"repairs": _content["repairs"], "equipment": _content["equipment"],
 		"prompt": prompt_for(target, tool)
 	}
@@ -239,6 +258,9 @@ func interact(target: String, tool: String) -> Dictionary:
 func action_for(target: String, tool: String) -> Dictionary:
 	if target == "ZONE_VAN":
 		return extraction_action()
+	if _contract_dir == C03_CONTRACT and _markers.has(target) and (
+			str((_markers[target] as Dictionary).get("kind", "")) == "ladder"):
+		return {"kind": "use_ladder", "entity": target, "payload": {}}
 	if _repair_targets.has(target):
 		var repair: Dictionary = _repair_targets[target]
 		var state: String = interaction.repair_state(str(repair["id"]))
@@ -293,6 +315,9 @@ func prompt_for(target: String, tool: String) -> Dictionary:
 	if target == "ZONE_VAN":
 		object_key = "offline.object.van"
 		verb_key = "offline.verb.depart"
+	elif _contract_dir == C03_CONTRACT and target.begins_with("LADDER_"):
+		object_key = "offline.object.roof_ladder"
+		verb_key = "offline.verb.roof_ladder"
 	elif _repair_targets.has(target):
 		var record: Dictionary = _repair_targets[target]
 		object_key = "offline.object.exposed_trunk" if target == EAST_WORK_MARKER else "node.c01.jw"
@@ -374,7 +399,7 @@ func targets() -> Array[Dictionary]:
 			continue
 		if kind == "anchor" and equipment.carrier_of(GENERATOR) != PLAYER_ID:
 			continue
-		if not ["panel", "switch", "anchor"].has(kind):
+		if not ["panel", "switch", "anchor", "ladder"].has(kind):
 			continue
 		out.append({"id": id, "position": entity_position(id), "radius": _radius(kind)})
 	if equipment.carrier_of(GENERATOR) == "":
@@ -388,6 +413,8 @@ func radius_for(entity: String) -> float:
 	if entity == GENERATOR:
 		return _radius("equipment")
 	if entity.begins_with("R_"):
+		return _radius("panel")
+	if _contract_dir == C03_CONTRACT and entity.begins_with("LADDER_"):
 		return _radius("panel")
 	if _markers.has(entity):
 		return _radius(str((_markers[entity] as Dictionary)["kind"]))
