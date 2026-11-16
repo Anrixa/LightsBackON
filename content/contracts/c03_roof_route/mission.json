@@ -1,0 +1,82 @@
+{
+  "contract_id": "C03",
+  "source_note": "LADDER_WEST is host-ranged fixed ladder access. Physical roof transition is a later scene gate. Repaired rooftop bypass supplies required 11 PU east; optional 1 PU beacon at capacity. Verify GRID supply for 100 ticks; extract in 50 ticks.",
+  "grid_source": "GRID",
+  "required_consumers": [
+    "APT_E",
+    "APT_W",
+    "MARKET",
+    "PUB",
+    "WORKSHOP"
+  ],
+  "excluded_loads": [
+    "SIGN"
+  ],
+  "access_latches": [],
+  "fixed_ladders": [
+    {
+      "id": "LADDER_WEST",
+      "grants": "ROOF_REACHED"
+    }
+  ],
+  "final_verification_ticks": 100,
+  "extraction": {
+    "zone": "ZONE_VAN",
+    "countdown_ticks": 50
+  },
+  "objectives": [
+    {
+      "id": "OBJ_REACH_ROOF",
+      "text_key": "objective.c03.reach_roof",
+      "done_when": {
+        "ladder": "LADDER_WEST"
+      }
+    },
+    {
+      "id": "OBJ_BYPASS",
+      "text_key": "objective.c03.restore_east",
+      "done_when": {
+        "supplied_from_grid": [
+          "APT_E",
+          "PUB",
+          "WORKSHOP"
+        ]
+      }
+    },
+    {
+      "id": "OBJ_BEACON",
+      "text_key": "objective.c03.beacon",
+      "done_when": {
+        "supplied_from_grid": [
+          "ROOF_BEACON"
+        ]
+      }
+    },
+    {
+      "id": "OBJ_VERIFY",
+      "text_key": "objective.c01.verify_supply",
+      "done_when": {
+        "verified": true
+      }
+    },
+    {
+      "id": "OBJ_STOW",
+      "text_key": "objective.c01.stow_equipment",
+      "done_when": {
+        "stowed": true
+      }
+    },
+    {
+      "id": "OBJ_EXTRACT",
+      "text_key": "objective.c01.extract",
+      "done_when": {
+        "completed": true
+      }
+    }
+  ],
+  "max_visible_objectives": 3,
+  "optional_services": [
+    "ROOF_BEACON"
+  ],
+  "tutorial_trip_allowance": 0
+}
