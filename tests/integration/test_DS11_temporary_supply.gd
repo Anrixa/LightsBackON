@@ -180,6 +180,27 @@ func test_DS11_host_refused_dual_supply_highlights_actual_tie_only() -> void:
 	assert_false(_fx.refusal_active(), "only the host-proven conflict receives the dual-supply highlight")
 
 
+func test_DS11_real_host_refuses_pub_second_route_without_switching_cables() -> void:
+	# Preparation simulates an already-repaired east trunk (the repair sequence
+	# is covered by G04). The actual SessionHost still adjudicates the tie.
+	_start_pump_only()
+	var opened: Dictionary = _session.grid.apply({
+		"op": "set", "id": "E_GRID_JE", "field": "healthy", "value": true})
+	assert_true(bool(opened.get("ok", false)))
+	var source: Dictionary = _session.host_state()
+	assert_true(bool((source["grid"]["nodes"]["PUB"] as Dictionary)["supplied"]))
+	var refused: Dictionary = _command("connect", {"route": "E_TEMP_PUB"})
+	assert_false(bool(refused.get("ok", true)), "grid and generator may not both feed the pub")
+	assert_eq(refused.get("code"), "GRID_REFUSED")
+	assert_eq(refused.get("grid_code"), "DUAL_SUPPLY")
+	assert_false(bool((_session.host_state()["grid"]["edges"]["E_TEMP_PUB"] as Dictionary)["enabled"]))
+	_fx.apply(_session.host_state())
+	_fx.on_host_refusal(refused)
+	assert_true(_fx.refusal_active())
+	assert_false(_fx.cable_visible("E_TEMP_PUB"))
+	assert_true(_fx.cable_visible("E_TEMP_PUMP"))
+
+
 func test_DS11_hud_exposes_host_numbers_without_color_or_audio_dependency() -> void:
 	_start_pump_only()
 	var overlay: FieldHud = FieldHud.new()
