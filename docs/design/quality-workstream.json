@@ -311,7 +311,7 @@
     {
       "id": "DS14",
       "title": "First-person hands, tools and hero props (design agent)",
-      "status": "IN_PROGRESS",
+      "status": "CLOUD_VERIFIED",
       "depends_on": [
         "DS08"
       ],
@@ -322,14 +322,18 @@
       "evidence_file": "docs/evidence/DS14.md",
       "plan": "docs/design/DS07-design-plan.md",
       "authority": "ADR-017",
-      "code_phase": "ORIGINAL_HERO_GEOMETRY_AND_FIRST_PERSON_INTEGRATION_STAGED",
+      "code_phase": "ORIGINAL_FIRST_PERSON_HERO_GEOMETRY_INTEGRATED_LINUX_WINDOWS_CI_VERIFIED",
       "execution_policy": "docs/design/BATCH-EXECUTION-HANDOFF.md",
       "pending_acceptance": [
-        "Run once-per-significant-batch Linux/Windows GitHub CI, Windows export smoke, QA57 and QA51 resources before any merge",
-        "Real GPU first-person 720p/1080p 80/100/150% screenshots, occlusion and contrast",
-        "Real controller-only tool switching and owner visual signoff",
-        "Target Intel UHD/GTX1650 exported frame P95/memory and DS10–DS13 earlier physical gates remain unverified"
-      ]
+        "Real Windows GPU 720p/1080p first-person camera/tool/carry/reticle occlusion and 80/100/150% accessibility screenshot set with rendered contrast",
+        "Physical mouse/controller-only equipped tools, camera motion, accessibility and human visual/art readability acceptance",
+        "Target-class Intel UHD and GTX 1650 exported frame P95 and memory measurements; DS10–DS13 preceding physical visual gates remain pending",
+        "F02/F06 two-network Steam and V09 human gates are independent and not qualified"
+      ],
+      "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43902620395",
+      "verified_resource_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43902620422",
+      "merged_pr": "https://github.com/Anrixa/LightsBackON/pull/154",
+      "merged_main_sha": "5143509b52f7064cc2932f1b618c856171fea60a"
     }
   ]
 }
