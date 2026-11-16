@@ -163,3 +163,7 @@ Nothing needs migrating; the repo is the memory.
 - Use a stronger model for the authoritative-logic tasks (G01, G02, G04, later V04) and a lighter one for scaffolding, docs and data (`/model <name>` works in cloud sessions).
 - No art, audio, trailer or store work in the cloud. Keep test output short (the runner prints one line per test).
 - Tell it to stop rather than guess: ambiguity goes in an ADR, not in a long chat.
+
+## Owner's November 2026 DS11+ engineering cadence (supersedes per-edit test timing)
+
+The project owner requested substantial uninterrupted engineering batches beginning with DS11 and future design/content phases. **Write production code, assets, regression cases and evidence together; defer focused/full automated execution until the phase contains a significant coherent amount of work.** Do not run CI after each small commit. An early test is justified only by a genuine blocker or safety risk; explain this to the owner. **All exact-head Linux + Windows CI, export, resource and applicable human/hardware gates remain mandatory before merge/status promotion.** Keep one reviewable phase per branch and use the existing owner-delegated GitHub merge flow after gates pass. For handoff, always read and update `docs/design/BATCH-EXECUTION-HANDOFF.md`, `docs/design/quality-workstream.json` and the current phase `docs/evidence/<ID>.md`. Reconcile with `main` rather than resuming from obsolete ZIPs or conversation claims. Owner instruction recorded 16 Nov 2026.
