@@ -123,7 +123,8 @@ func _build_spill(service: String, fascia: Node3D) -> void:
 	glow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_root.add_child(glow)
 	var outward: Vector3 = fascia.global_transform.basis.z.normalized()
-	glow.global_position = Vector3(fascia.global_position.x, 0.065, fascia.global_position.z) + 		outward * float(_config["spill_offset_cm"]) / CM_PER_M
+	glow.global_position = (Vector3(fascia.global_position.x, 0.065, fascia.global_position.z) +
+		outward * float(_config["spill_offset_cm"]) / CM_PER_M)
 	glow.visible = false
 	_spills[service] = glow
 
