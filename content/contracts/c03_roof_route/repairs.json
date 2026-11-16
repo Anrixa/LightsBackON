@@ -1,0 +1,35 @@
+{
+  "contract_id": "C03",
+  "source_note": "Rooftop cable repair requires host-issued ROOF_REACHED ladder receipt, the regular meter-first isolation/tools sequence, and a single splice.",
+  "supplies": {
+    "CABLE_SPLICE": 1
+  },
+  "repairs": [
+    {
+      "id": "R_ROOF_SPLICE",
+      "name_key": "repair.c03.roof_splice",
+      "panel": "PANEL_ROOF",
+      "access": "ROOF_REACHED",
+      "isolate": "ROOF",
+      "fix": {
+        "op": "set",
+        "id": "E_ROOF_JE",
+        "field": "healthy",
+        "value": true
+      },
+      "component": "CABLE_SPLICE",
+      "tools": {
+        "open": "screwdriver",
+        "remove": "cutter",
+        "install": "crimper",
+        "test": "meter"
+      },
+      "hold_ticks": {
+        "open": 6,
+        "remove": 10,
+        "install": 12,
+        "close": 6
+      }
+    }
+  ]
+}
