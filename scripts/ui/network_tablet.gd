@@ -717,17 +717,18 @@ func _rebuild() -> void:
 	_feedback_label = _label(detail_box, "", "StrongLabel", "action")
 	_feedback_label.name = "ActionFeedback"
 	_feedback_label.visible = false
-	var ping_row: HBoxContainer = HBoxContainer.new()
-	ping_row.name = "PingGlyphRow"
-	ping_row.add_theme_constant_override("separation", ThemeTokens.px(8.0, s))
-	detail_box.add_child(ping_row)
+	# Keep Ping as a direct child of Detail: the existing focus and tablet
+	# height budget depend on this. Its original glyph is painted *inside*
+	# the button without adding another flex-row to the map layout.
+	ping_button = _button(detail_box, "", "PrimaryButton")
+	ping_button.name = "Ping"
+	ping_button.alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	ping_button.custom_minimum_size.x = ThemeTokens.px(138.0, s)
 	var ping_glyph: InputGlyph = InputGlyph.new()
 	ping_glyph.name = "PingGlyph"
+	ping_button.add_child(ping_glyph)
 	ping_glyph.configure("ping", device, s, tokens)
-	ping_row.add_child(ping_glyph)
-	ping_button = _button(ping_row, "", "PrimaryButton")
-	ping_button.name = "Ping"
-	ping_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_place_button_glyph(ping_glyph, s)
 	ping_button.pressed.connect(ping_selected)
 	page.add_child(_footer())
 	_link_focus()
@@ -928,16 +929,17 @@ func _footer() -> Control:
 	zoom_buttons.append(center)
 	for b: Button in zoom_buttons:
 		b.visible = tab == TAB_NETWORK
-	var close_row: HBoxContainer = HBoxContainer.new()
-	close_row.name = "CloseGlyphRow"
-	close_row.add_theme_constant_override("separation", ThemeTokens.px(6.0, scale_percent))
-	actions.add_child(close_row)
+	# The Close button must remain a direct child of FooterActions. A new
+	# nested HBox made its immediate post-reflow rect spill past the safe area.
+	close_button = _button(actions, UiText.t("tablet.close"))
+	close_button.name = "Close"
+	close_button.alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	close_button.custom_minimum_size.x = ThemeTokens.px(138.0, scale_percent)
 	var close_glyph: InputGlyph = InputGlyph.new()
 	close_glyph.name = "CloseGlyph"
+	close_button.add_child(close_glyph)
 	close_glyph.configure("map_meter", device, scale_percent, tokens)
-	close_row.add_child(close_glyph)
-	close_button = _button(close_row, UiText.t("tablet.close"))
-	close_button.name = "Close"
+	_place_button_glyph(close_glyph, scale_percent)
 	close_button.pressed.connect(close)
 	return column
 
@@ -997,10 +999,10 @@ func _fill_detail() -> void:
 		inspect_prompt.configure("ui_accept", UiText.t("tablet.inspect_action"), device, scale_percent, tokens, false)
 		_detail.add_child(inspect_prompt)
 	_label(_detail, UiText.t("tablet.footnote"), "MutedLabel")
-	ping_button.text = UiText.tf("tablet.ping_branch", [name_text])
+	# The current selected branch is already announced in the detail heading;
+	# a compact button preserves the width budget for the measured network map.
+	ping_button.text = UiText.t("hud.hint.ping")
 	ping_button.visible = tab == TAB_NETWORK
-	# The glyph and button form one semantic row, hidden together on Objectives.
-	(ping_button.get_parent() as Control).visible = tab == TAB_NETWORK
 
 
 func _section(title: String, lines: Array) -> void:
@@ -1063,6 +1065,20 @@ func _label(parent: Control, text: String, variation: String = "", color_token: 
 		l.add_theme_color_override("font_color", ThemeTokens.color(tokens, color_token))
 	parent.add_child(l)
 	return l
+
+
+## Position an original glyph within a focusable button. The button itself
+## stays in the existing HFlow and focus graph; the decorative glyph never
+## captures a click or creates an extra layout minimum.
+func _place_button_glyph(glyph: InputGlyph, scale: float) -> void:
+	glyph.anchor_left = 0.0
+	glyph.anchor_right = 0.0
+	glyph.anchor_top = 0.5
+	glyph.anchor_bottom = 0.5
+	glyph.offset_left = float(ThemeTokens.px(9.0, scale))
+	glyph.offset_right = glyph.offset_left + glyph.custom_minimum_size.x
+	glyph.offset_top = -glyph.custom_minimum_size.y * 0.5
+	glyph.offset_bottom = glyph.custom_minimum_size.y * 0.5
 
 
 func _button(parent: Control, text: String, variation: String = "") -> Button:
