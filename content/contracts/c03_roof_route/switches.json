@@ -1,0 +1,26 @@
+{
+  "contract_id": "C03",
+  "source_note": "West crossfeed is a deliberately bad branch if all west and east services are supplied; isolator must be opened by the player. Beacon is an optional 1 PU switch.",
+  "switches": [
+    {
+      "id": "SW_CROSSFEED",
+      "target": "TIE",
+      "field": "isolated"
+    },
+    {
+      "id": "SW_BEACON",
+      "target": "ROOF_BEACON",
+      "field": "enabled"
+    },
+    {
+      "id": "SW_JW_BREAKER",
+      "target": "JW",
+      "field": "tripped"
+    },
+    {
+      "id": "SW_ROOF_BREAKER",
+      "target": "ROOF",
+      "field": "tripped"
+    }
+  ]
+}

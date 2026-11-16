@@ -21,7 +21,7 @@ const HOST_PEER: int = 1
 const CHUNK_ENVELOPE_BYTES: int = 96  # {"type":"snapshot_chunk","index":N,"data":"..."} around the escaped slice
 const ENVELOPE_KEYS: Array[String] = ["session", "seq", "type", "entity", "payload"]
 const INTENTS: Array[String] = ["inspect", "request_lock", "release", "heartbeat", "repair_step", "equip", "toggle_switch", "place_item",
-	"request_extract", "recover_self", "ping", "chat"]
+	"request_extract", "use_ladder", "recover_self", "ping", "chat"]
 const DEFERRED_INTENTS: Array[String] = ["ready"]  # lobby; refused until implemented
 const PLACE_ACTIONS: Array[String] = ["pickup", "place", "connect", "disconnect", "start", "stop", "reset_breaker", "recover", "drop"]
 
@@ -314,6 +314,14 @@ func _dispatch(player: String, msg: Dictionary) -> Dictionary:
 			return _refuse("NO_MISSION", "no contract is running", [])
 		var action: Variant = payload.get("action")
 		return _mission.request_extract(player, action if action is String else "")
+	# Ladder access follows membership/rate/dedupe checks and trusts only the
+	# host range callback, never a client position or permission flag.
+	if kind == "use_ladder":
+		if _mission == null:
+			return _refuse("NO_MISSION", "no contract is running", [])
+		if not payload.is_empty():
+			return _refuse("MALFORMED", "use_ladder takes no payload", [entity])
+		return _mission.use_ladder(entity, _range_check.call(player, entity))
 	var in_range: bool = _range_check.call(player, entity)
 	match kind:
 		"toggle_switch":

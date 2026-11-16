@@ -25,7 +25,15 @@
       "id": "CTL1-C03",
       "contract_id": "C03",
       "title": "Roof Route",
-      "status": "NOT_STARTED"
+      "status": "CLOUD_VERIFIED",
+      "source": "content/contracts/c03_roof_route",
+      "evidence": "docs/evidence/CTL1-C03.md",
+      "pending": [
+        "physical C03 ladder landing scene, contract selectability and real host range check",
+        "physical Windows keyboard/controller playthrough and target GPU P95/memory",
+        "global rules revision checkpoint continuity, F02/F06 Steam verification, official CT03 D08 gate"
+      ],
+      "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43919744681"
     },
     {
       "id": "CTL1-C04",

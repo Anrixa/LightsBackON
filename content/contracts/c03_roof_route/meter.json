@@ -1,0 +1,35 @@
+{
+  "contract_id": "C03",
+  "source_note": "Meter evidence is unknown until inspection, including the rooftop access point.",
+  "panels": [
+    {
+      "id": "PANEL_GRID",
+      "target": "GRID"
+    },
+    {
+      "id": "PANEL_GEN",
+      "target": "GEN"
+    },
+    {
+      "id": "PANEL_JW",
+      "target": "JW"
+    },
+    {
+      "id": "PANEL_JE",
+      "target": "JE"
+    },
+    {
+      "id": "PANEL_TEMP",
+      "target": "TEMP"
+    },
+    {
+      "id": "PANEL_ROOF",
+      "target": "ROOF"
+    },
+    {
+      "id": "PANEL_TIE",
+      "target": "TIE"
+    }
+  ],
+  "initial_breaker_reasons": {}
+}

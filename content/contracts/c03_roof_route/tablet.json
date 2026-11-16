@@ -1,0 +1,98 @@
+{
+  "contract_id": "C03",
+  "source_note": "Pure logical network positions, not physical scene coordinates. Fixed ladder is an access interaction, not a grid node.",
+  "columns": 6,
+  "rows": 4,
+  "nodes": [
+    {
+      "id": "GRID",
+      "col": 2,
+      "row": 0,
+      "name_key": "node.c01.grid"
+    },
+    {
+      "id": "ROOF",
+      "col": 4,
+      "row": 0,
+      "name_key": "node.c03.roof"
+    },
+    {
+      "id": "JW",
+      "col": 1,
+      "row": 1,
+      "name_key": "node.c01.jw"
+    },
+    {
+      "id": "TIE",
+      "col": 2,
+      "row": 1,
+      "name_key": "node.c03.tie"
+    },
+    {
+      "id": "JE",
+      "col": 4,
+      "row": 1,
+      "name_key": "node.c01.je"
+    },
+    {
+      "id": "ROOF_BEACON",
+      "col": 5,
+      "row": 1,
+      "name_key": "node.c03.beacon"
+    },
+    {
+      "id": "APT_W",
+      "col": 0,
+      "row": 2,
+      "name_key": "node.c01.apt_w"
+    },
+    {
+      "id": "MARKET",
+      "col": 1,
+      "row": 2,
+      "name_key": "node.c01.market"
+    },
+    {
+      "id": "PUB",
+      "col": 2,
+      "row": 2,
+      "name_key": "node.c01.pub"
+    },
+    {
+      "id": "APT_E",
+      "col": 3,
+      "row": 2,
+      "name_key": "node.c01.apt_e"
+    },
+    {
+      "id": "WORKSHOP",
+      "col": 4,
+      "row": 2,
+      "name_key": "node.c01.workshop"
+    },
+    {
+      "id": "SIGN",
+      "col": 5,
+      "row": 2,
+      "name_key": "node.c01.sign"
+    },
+    {
+      "id": "GEN",
+      "col": 0,
+      "row": 3,
+      "name_key": "node.c01.gen"
+    },
+    {
+      "id": "TEMP",
+      "col": 1,
+      "row": 3,
+      "name_key": "node.c01.temp"
+    },
+    {
+      "id": "PUMP",
+      "col": 2,
+      "row": 3,
+      "name_key": "node.c01.pump"
+    }
+  ]
+}

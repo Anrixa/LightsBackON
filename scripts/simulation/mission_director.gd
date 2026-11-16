@@ -31,6 +31,8 @@ var _excluded: Array[String] = []
 var _latches: Dictionary = {}  # latch id -> {"id", "consumer", "supplied_ticks", "grants"}
 var _latch_ticks: Dictionary = {}  # latch id -> continuous supplied ticks so far
 var _latched: Dictionary = {}  # latch id -> tick it latched
+var _fixed_ladders: Dictionary = {}  # ladder id -> access flag
+var _ladder_access: Dictionary = {}  # ladder id -> first authoritative use tick
 var _verify_needed: int = 0
 var _verify_ticks: int = 0
 var _zone: String = ""
@@ -79,6 +81,15 @@ func load_definition(definition: Dictionary, grid: PowerGrid, interaction: Inter
 		else:
 			_latches[l["id"]] = {"id": l["id"], "consumer": l["consumer"], "supplied_ticks": int(n), "grants": l["grants"]}
 			_latch_ticks[l["id"]] = 0
+	# Fixed ladders are contract access interactions, not electrical nodes.
+	for rec: Variant in definition.get("fixed_ladders", []):
+		var ladder: Dictionary = rec if rec is Dictionary else {}
+		var ladder_id: Variant = ladder.get("id")
+		var grant: Variant = ladder.get("grants")
+		if not PowerGrid.is_valid_id(ladder_id) or not PowerGrid.is_valid_id(grant) or _fixed_ladders.has(ladder_id):
+			errs.append(PowerGrid.diag("BAD_MISSION", "fixed ladder needs unique ID and grant flag", []))
+		else:
+			_fixed_ladders[ladder_id] = grant
 	var verify: Variant = PowerGrid.to_int(definition.get("final_verification_ticks"))
 	var ex: Dictionary = definition.get("extraction", {})
 	var countdown: Variant = PowerGrid.to_int(ex.get("countdown_ticks"))
@@ -293,6 +304,23 @@ func is_latched(latch_id: String) -> bool:
 	return _latched.has(latch_id)
 
 
+## The host supplies range and identity. Presentation movement to an authored
+## rooftop landing is separate; this is only the durable authorization receipt.
+func use_ladder(ladder_id: String, in_range: bool) -> Dictionary:
+	if not _fixed_ladders.has(ladder_id):
+		return _refuse("UNKNOWN_LADDER", "unknown ladder %s" % ladder_id, [ladder_id])
+	if not in_range:
+		return _refuse("NOT_IN_RANGE", "move closer to %s" % ladder_id, [ladder_id])
+	if _completed_tick >= 0:
+		return _refuse("ALREADY_COMPLETE", "mission already complete", [])
+	if _ladder_access.has(ladder_id):
+		return {"ok": true, "duplicate": true}
+	_ladder_access[ladder_id] = _now
+	var grant: String = _fixed_ladders[ladder_id]
+	_interaction.set_access(grant, true)
+	return {"ok": true, "events": [{"type": "ladder_access", "id": ladder_id, "grants": grant, "tick": _now}]}
+
+
 func is_complete() -> bool:
 	return _completed_tick >= 0
 
@@ -322,6 +350,8 @@ func _objective_done(cond: Dictionary, st: Dictionary) -> bool:
 		return true
 	if cond.has("latch"):
 		return _latched.has(cond["latch"])
+	if cond.has("ladder"):
+		return _ladder_access.has(cond["ladder"])
 	if cond.has("verified"):
 		return verified()
 	if cond.has("stowed"):
@@ -340,6 +370,8 @@ func canonical_state() -> Dictionary:
 		"countdown_left": _countdown_left, "completed_tick": _completed_tick, "in_zone": _sorted(_in_zone.keys())}
 	if _optional_deadline_ticks >= 0:
 		out["optional_first_supplied"] = _optional_first_supplied.duplicate()
+	if not _fixed_ladders.is_empty():
+		out["ladder_access"] = _ladder_access.duplicate()
 	return out
 
 
@@ -354,6 +386,8 @@ func durable_state() -> Dictionary:
 		"trips": _trips, "recoveries": _recoveries, "completed_tick": _completed_tick, "results": _results.duplicate(true)}
 	if _optional_deadline_ticks >= 0:
 		out["optional_first_supplied"] = _optional_first_supplied.duplicate()
+	if not _fixed_ladders.is_empty():
+		out["ladder_access"] = _ladder_access.duplicate()
 	return out
 
 
@@ -393,6 +427,16 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 					or int(when) < 1 or int(when) > _optional_deadline_ticks:
 				return bad
 			optional_first[id] = int(when)
+	# Validate all ladder keys before any state mutation. Legacy missions omit them.
+	var ladder_access: Dictionary = {}
+	if not _fixed_ladders.is_empty():
+		if not d.get("ladder_access") is Dictionary:
+			return bad
+		for ladder_id: Variant in d["ladder_access"]:
+			var first_tick: Variant = PowerGrid.to_int(d["ladder_access"][ladder_id])
+			if not (ladder_id is String and _fixed_ladders.has(ladder_id)) or first_tick == null or int(first_tick) < 0:
+				return bad
+			ladder_access[ladder_id] = int(first_tick)
 	if (counters["completed_tick"] >= 0) == (d["results"] as Dictionary).is_empty():
 		return bad  # a finished run must carry its frozen results, an unfinished one none
 	for lid: String in latch_ticks:
@@ -404,6 +448,9 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 	_completed_tick = counters["completed_tick"]
 	_results = (d["results"] as Dictionary).duplicate(true)
 	_optional_first_supplied = optional_first
+	_ladder_access = ladder_access
+	for ladder_id: String in _ladder_access:
+		_interaction.set_access(_fixed_ladders[ladder_id], true)
 	_countdown_left = -1
 	_in_zone = {}
 	return []
