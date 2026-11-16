@@ -5,11 +5,16 @@ extends PanelContainer
 const Guide := preload("res://scripts/ui/onboarding_guide.gd")
 const UiText := preload("res://scripts/ui/ui_text.gd")
 const ThemeTokens := preload("res://scripts/ui/theme_tokens.gd")
+const InputGlyph := preload("res://scripts/ui/input_glyph.gd")
 
 var guide: RefCounted = Guide.new()
 var instruction: Label
 var hint: Label
 var hint_button: Button
+var _instruction_glyphs: HFlowContainer
+var _hint_glyph: InputGlyph
+var _hint_row: HBoxContainer
+var _glyph_scale: float = 100.0
 var _tokens: Dictionary = {}
 var _idle_seconds: float = 0.0
 var _hints_enabled: bool = true
@@ -24,15 +29,28 @@ func _init() -> void:
 	instruction = Label.new()
 	instruction.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	layout.add_child(instruction)
+	_instruction_glyphs = HFlowContainer.new()
+	_instruction_glyphs.name = "InstructionGlyphs"
+	_instruction_glyphs.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_instruction_glyphs.add_theme_constant_override("h_separation", ThemeTokens.GAP_PX)
+	layout.add_child(_instruction_glyphs)
 	hint = Label.new()
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	layout.add_child(hint)
+	_hint_row = HBoxContainer.new()
+	_hint_row.name = "HintAction"
+	_hint_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layout.add_child(_hint_row)
+	_hint_glyph = InputGlyph.new()
+	_hint_glyph.name = "HintGlyph"
+	_hint_row.add_child(_hint_glyph)
 	hint_button = Button.new()
 	hint_button.text = UiText.t("guide.more_help")
 	hint_button.focus_mode = Control.FOCUS_NONE  # never steal active world input
 	hint_button.custom_minimum_size.y = ThemeTokens.BUTTON_HEIGHT_PX
+	hint_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hint_button.pressed.connect(show_hint)
-	layout.add_child(hint_button)
+	_hint_row.add_child(hint_button)
 	refresh()
 
 
@@ -75,6 +93,9 @@ func set_ui_scale(percent: int) -> void:
 	var scale: float = ThemeTokens.effective_percent(percent, size)
 	theme = ThemeTokens.build(_tokens, scale)
 	hint_button.custom_minimum_size.y = float(ThemeTokens.px(ThemeTokens.BUTTON_HEIGHT_PX, scale))
+	_glyph_scale = scale
+	_update_instruction()
+	_update_binding()
 
 
 func advance_idle(delta: float) -> void:
@@ -92,16 +113,36 @@ func _update_instruction() -> void:
 	var key: String = str(guide.call("instruction_key"))
 	if key == "":
 		instruction.text = UiText.t("guide.complete")
+		_render_instruction_glyphs()
 		return
 	var labels: Array = []
 	for b: Variant in guide.call("instruction_bindings"):
 		var actions: Dictionary = b as Dictionary
 		labels.append(UiText.binding(str(actions.get(_device, actions.get(UiText.DEVICE_KBM, ""))), _device))
 	instruction.text = UiText.tf(key, labels) if not labels.is_empty() else UiText.t(key)
+	_render_instruction_glyphs()
+
+
+## The hint text stays available to screen readers. Every glyph uses the
+## actual mapped action, never a hard-coded 1, E, A or D-pad bitmap.
+func _render_instruction_glyphs() -> void:
+	for node: Node in _instruction_glyphs.get_children():
+		_instruction_glyphs.remove_child(node)
+		node.queue_free()
+	var bindings: Array = guide.call("instruction_bindings")
+	_instruction_glyphs.visible = not bindings.is_empty()
+	for entry: Variant in bindings:
+		var mapping: Dictionary = entry as Dictionary
+		var action: String = str(mapping.get(_device, mapping.get(UiText.DEVICE_KBM, "")))
+		var glyph: InputGlyph = InputGlyph.new()
+		glyph.name = "InstructionGlyph_" + str(_instruction_glyphs.get_child_count())
+		glyph.configure(action, _device, _glyph_scale, _tokens)
+		_instruction_glyphs.add_child(glyph)
 
 
 func _update_binding() -> void:
-	hint_button.text = "%s (%s)" % [UiText.t("guide.more_help"), UiText.binding("onboarding_hint", _device)]
+	hint_button.text = UiText.t("guide.more_help")
+	_hint_glyph.configure("onboarding_hint", _device, _glyph_scale, _tokens)
 
 
 func show_hint() -> void:
@@ -115,4 +156,5 @@ func refresh() -> void:
 	_update_instruction()
 	hint.text = ""
 	hint_button.visible = key != ""
+	_hint_row.visible = key != ""
 	_update_binding()

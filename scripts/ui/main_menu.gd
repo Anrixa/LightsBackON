@@ -6,6 +6,8 @@ const UiText := preload("res://scripts/ui/ui_text.gd")
 const ThemeTokens := preload("res://scripts/ui/theme_tokens.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const LoadingCard := preload("res://scripts/ui/loading_card.gd")
+const InputPrompt := preload("res://scripts/ui/input_prompt.gd")
+const InputDeviceTracker := preload("res://scripts/ui/input_device_tracker.gd")
 
 const MISSION_PATH: String = "res://scenes/mission/mission_root.tscn"
 var start_button: Button
@@ -21,6 +23,9 @@ var _panel: PanelContainer
 var _heading: Label
 var _margin: MarginContainer
 var _loading_card: ColorRect
+var _controls_legend: HFlowContainer
+var _last_device: String = UiText.DEVICE_KBM
+var _legend_scale: float = -1.0
 
 
 func _ready() -> void:
@@ -81,11 +86,18 @@ func _ready() -> void:
 	description.text = UiText.t("offline.menu.description")
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	layout.add_child(description)
-	var controls: Label = Label.new()
-	controls.text = UiText.t("offline.menu.controls")
-	controls.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	controls.add_theme_color_override("font_color", ThemeTokens.color(tokens, "text_muted"))
-	layout.add_child(controls)
+	# DS13: actual rebindable controls, not a static WASD / E / A / Tab
+	# paragraph that becomes untruthful when InputMap or device changes.
+	var controls_title: Label = Label.new()
+	controls_title.text = UiText.t("offline.menu.controls_title")
+	controls_title.theme_type_variation = "StrongLabel"
+	layout.add_child(controls_title)
+	_controls_legend = HFlowContainer.new()
+	_controls_legend.name = "ControlsGlyphLegend"
+	_controls_legend.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_controls_legend.add_theme_constant_override("h_separation", ThemeTokens.GAP_PX)
+	_controls_legend.add_theme_constant_override("v_separation", ThemeTokens.GAP_PX)
+	layout.add_child(_controls_legend)
 	var warning: Label = Label.new()
 	warning.text = UiText.t("offline.menu.multiplayer_notice")
 	warning.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -156,6 +168,38 @@ func _layout_for_size(viewport_size: Vector2) -> void:
 	var inset: int = mini(44, maxi(14, roundi(panel_width * 0.06)))
 	for side: String in ["left", "right", "top", "bottom"]:
 		_margin.add_theme_constant_override("margin_" + side, inset)
+	if not is_equal_approx(_legend_scale, effective):
+		_render_controls(effective)
+
+
+## Device changes repaint one local menu legend; they never affect bindings,
+## game state, focus owner, profile files or pending checkpoint confirmation.
+func _input(event: InputEvent) -> void:
+	var inferred: String = InputDeviceTracker.infer(event)
+	if inferred == "" or inferred == _last_device:
+		return
+	_last_device = inferred
+	_render_controls(maxf(1.0, _legend_scale))
+
+
+func _render_controls(scale: float) -> void:
+	if _controls_legend == null:
+		return
+	_legend_scale = scale
+	for child: Node in _controls_legend.get_children():
+		_controls_legend.remove_child(child)
+		child.queue_free()
+	for spec: Dictionary in [
+		{"action": "interact", "key": "offline.menu.control.interact"},
+		{"action": "map_meter", "key": "offline.menu.control.tablet"},
+		{"action": "ping", "key": "offline.menu.control.ping"},
+		{"action": "tool_next", "key": "offline.menu.control.tools"},
+		{"action": "drop_item", "key": "offline.menu.control.drop"},
+		{"action": "onboarding_hint", "key": "offline.menu.control.help"}]:
+		var prompt: InputPrompt = InputPrompt.new()
+		prompt.name = "Control_" + str(spec["action"])
+		prompt.configure(str(spec["action"]), UiText.t(str(spec["key"])), _last_device, scale, _tokens, false)
+		_controls_legend.add_child(prompt)
 
 
 ## A checkpoint that cannot be read must not become a deceptively playable but

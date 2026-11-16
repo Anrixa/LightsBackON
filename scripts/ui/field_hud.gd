@@ -11,6 +11,7 @@ const UiText := preload("res://scripts/ui/ui_text.gd")
 const StatusChip := preload("res://scripts/ui/status_chip.gd")
 const IconRaster := preload("res://scripts/ui/icon_raster.gd")
 const Reticle := preload("res://scripts/ui/reticle.gd")
+const InputPrompt := preload("res://scripts/ui/input_prompt.gd")
 
 const OBJECTIVE_WIDTH_PX: int = 420
 const CREW_WIDTH_PX: int = 390
@@ -405,9 +406,14 @@ func _prompt() -> PanelContainer:
 		return card
 	var obj: Label = _label(box, UiText.t(str(p["object_key"])), "StrongLabel", "text_muted")
 	obj.uppercase = true
-	var action: Label = _label(box, UiText.tf("prompt.binding", [UiText.binding(str(p["action"]), device), UiText.t(str(p["verb_key"]))]),
-		"StrongLabel")
-	action.add_theme_font_size_override("font_size", ThemeTokens.px(float(tokens["type_px"]["button"]), scale_percent))
+	# DS13: a drawn key/button/trigger plus a real localized verb replaces
+	# the old bracketed text. The original InputMap is still the sole binding.
+	var action: InputPrompt = InputPrompt.new()
+	action.name = "PromptAction"
+	action.configure(str(p["action"]), UiText.t(str(p["verb_key"])), device, scale_percent, tokens)
+	action.caption.add_theme_font_size_override("font_size",
+		ThemeTokens.px(float(tokens["type_px"]["button"]), scale_percent))
+	box.add_child(action)
 	if p.has("detail_group"):
 		box.add_child(StatusChip.make(tokens, scale_percent, str(p["detail_group"]), str(p["detail_state"]), str(p["detail_text"]), true))
 	elif p.has("detail_text"):
@@ -510,5 +516,8 @@ func _event() -> PanelContainer:
 	hints.add_theme_constant_override("h_separation", ThemeTokens.px(REGION_GAP_PX, scale_percent))
 	box.add_child(hints)
 	for h: Dictionary in [{"action": "map_meter", "key": "hud.hint.tablet"}, {"action": "ping", "key": "hud.hint.ping"}]:
-		_label(hints, UiText.tf("prompt.binding", [UiText.binding(h["action"], device), UiText.t(h["key"])]), "MutedLabel", "", false)
+		var entry: InputPrompt = InputPrompt.new()
+		entry.name = "Hint_" + str(h["action"])
+		entry.configure(str(h["action"]), UiText.t(str(h["key"])), device, scale_percent, tokens, false)
+		hints.add_child(entry)
 	return card

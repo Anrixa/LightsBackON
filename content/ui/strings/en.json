@@ -298,6 +298,14 @@
     "hud.generator.trip_progress": "OVERLOAD: %d / %d TICKS UNTIL TRIP",
     "hud.generator.tripped": "TEMP SUPPLY BREAKER TRIPPED",
     "hud.generator.running": "GENERATOR SUPPLY ONLINE",
-    "hud.generator.standby": "GENERATOR STANDBY"
+    "hud.generator.standby": "GENERATOR STANDBY",
+    "tablet.inspect_action": "Inspect selected panel",
+    "offline.menu.controls_title": "CONTROLS — LIVE BINDINGS",
+    "offline.menu.control.interact": "Interact",
+    "offline.menu.control.tablet": "Network tablet",
+    "offline.menu.control.ping": "Ping",
+    "offline.menu.control.tools": "Cycle tools",
+    "offline.menu.control.drop": "Drop equipment",
+    "offline.menu.control.help": "Hint"
   }
 }

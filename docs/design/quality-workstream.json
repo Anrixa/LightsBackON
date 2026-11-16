@@ -285,7 +285,7 @@
     {
       "id": "DS13",
       "title": "Project-drawn keyboard/mouse and controller glyphs",
-      "status": "NOT_STARTED",
+      "status": "IN_PROGRESS",
       "depends_on": [
         "DS09"
       ],
@@ -295,7 +295,16 @@
       ],
       "evidence_file": "docs/evidence/DS13.md",
       "plan": "docs/design/DS07-design-plan.md",
-      "authority": "ADR-017"
+      "authority": "ADR-017",
+      "code_phase": "ORIGINAL_INPUT_GLYPHS_LIVE_MAPPING_HUD_TABLET_ONBOARDING_MENU_STAGED",
+      "execution_policy": "docs/design/BATCH-EXECUTION-HANDOFF.md",
+      "pending_acceptance": [
+        "Run significant-batch DS13 focused/full Godot/Python suite and exact-head Linux/Windows CI",
+        "Windows release export, headless smoke, QA57 integrity and QA51 lifetime probes",
+        "Physical GPU 720/1080p, 80/100/150% and pseudo-locale glyph screenshots and rendered AA contrast",
+        "Actual keyboard/US and non-US layout remapping, mouse-wheel and controller-only interaction/focus human checks",
+        "F02/F06/V09 independent networking/player study gates remain pending"
+      ]
     },
     {
       "id": "DS14",
