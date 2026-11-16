@@ -147,7 +147,10 @@ func test_DS11_overload_ring_uses_exact_host_ticks_and_never_predicts_trip() -> 
 	var after: Dictionary = _fx.apply(_session.host_state())
 	assert_true(bool(after["tripped"]))
 	assert_false(bool(after["warning"]), "protection event replaces the warning")
-	assert_false(bool((_session.host_state()["grid"]["nodes"]["TEMP"] as Dictionary).get("energized", false)))
+	assert_false(bool((_session.host_state()["grid"]["nodes"]["PUMP"] as Dictionary)["supplied"]),
+		"tripped TEMP may have an incoming energized feed but must not supply the pump")
+	assert_false(bool((_session.host_state()["grid"]["nodes"]["PUB"] as Dictionary)["supplied"]),
+		"the same protective trip must also isolate the temporary pub branch")
 
 
 func test_DS11_trip_display_does_not_mutate_authoritative_grid_or_save_causes() -> void:
