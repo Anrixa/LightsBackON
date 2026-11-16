@@ -11,7 +11,8 @@ const PROGRESS_HEIGHT_PX: int = 10
 
 
 ## heading_px: the title size the caller already uses for its own heading (the menu's 46 px at its effective scale).
-static func build(tokens: Dictionary, scale_percent: float, heading_px: int, with_briefing: bool, with_progress: bool) -> ColorRect:
+static func build(tokens: Dictionary, scale_percent: float, heading_px: int, with_briefing: bool, with_progress: bool,
+		briefing_key: String = "offline.loading.briefing") -> ColorRect:
 	var card: ColorRect = ColorRect.new()
 	card.name = "LoadingCard"
 	card.color = ThemeTokens.color(tokens, "background")
@@ -32,7 +33,7 @@ static func build(tokens: Dictionary, scale_percent: float, heading_px: int, wit
 	title.add_theme_font_size_override("font_size", heading_px)
 	if with_briefing:
 		# The shift briefing names the first job, so the first thing the player reads already points at the west cabinet.
-		_line(column, "LoadingBriefing", UiText.t("offline.loading.briefing"), tokens, "text", "")
+		_line(column, "LoadingBriefing", UiText.t(briefing_key), tokens, "text", "")
 	_line(column, "LoadingDetail", UiText.t("offline.loading.detail"), tokens, "text_muted", "")
 	if with_progress:
 		var bar: ProgressBar = ProgressBar.new()
