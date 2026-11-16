@@ -510,5 +510,59 @@
     "warning_tone_ms": 160,
     "warning_tone_mix_rate": 22050,
     "warning_tone_amplitude_percent": 14
+  },
+  "recovery_payoff": {
+    "_note": "DS12 visual-and-audio only. Restoration status derived from the host's live grid snapshot and existing RestorationPresentation source resolution. No gameplay effects, audio import or new save rules.",
+    "normal_transition_ms": 2100,
+    "reduced_flash_transition_ms": 3800,
+    "sign_delay_percent": 38,
+    "spill_delay_percent": 58,
+    "fan_speed_deg_per_second": 190,
+    "fan_reduce_motion_speed_percent": 0,
+    "fascia_tube_thickness_cm": 4,
+    "fascia_tube_inset_cm": 17,
+    "spill_size_cm": [
+      270,
+      180
+    ],
+    "spill_offset_cm": 90,
+    "spill_brightness_percent": 38,
+    "fan_radius_cm": 18,
+    "fan_blades": 4,
+    "sign_colors": {
+      "APT_W": "#F1B966",
+      "MARKET": "#8ADDD2",
+      "PUB": "#F0C970",
+      "APT_E": "#FFDF9C",
+      "WORKSHOP": "#A9C9DF"
+    },
+    "audio": {
+      "sample_rate": 16000,
+      "loop_ms": 1000,
+      "stinger_ms": 650,
+      "distant_thunder_interval_seconds": 75,
+      "rain_db": -31,
+      "generator_db": -24,
+      "building_db": -32,
+      "music_db_at_full_restoration": -36,
+      "stinger_db": -22,
+      "thunder_db": -33,
+      "reference_generator_cm": [
+        6250,
+        0,
+        1600
+      ]
+    },
+    "results_camera": {
+      "viewpoint_marker": "VAN_EYE",
+      "look_at_cm": [
+        5000,
+        300,
+        4550
+      ],
+      "preview_width_px": 560,
+      "preview_height_px": 230,
+      "fov_deg": 70
+    }
   }
 }
