@@ -229,6 +229,7 @@ func test_DS13_tablet_inspect_ping_close_glyphs_preserve_controller_focus() -> v
 	mission.call("_open_tablet")
 	var tablet: PanelContainer = mission.get("tablet") as PanelContainer
 	assert_true(tablet != null and tablet.visible)
+	tablet.select("JW")  # select an inspectable junction, not a source without a meter panel
 	var close: InputGlyph = tablet.find_child("CloseGlyph", true, false) as InputGlyph
 	var ping: InputGlyph = tablet.find_child("PingGlyph", true, false) as InputGlyph
 	var inspect: InputPrompt = tablet.find_child("InspectGlyphRow", true, false) as InputPrompt
