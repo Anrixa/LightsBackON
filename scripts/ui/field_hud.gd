@@ -70,8 +70,59 @@ func set_device(input_device: String) -> void:
 
 ## view: see hud_presenter.gd build().
 func apply(view: Dictionary) -> void:
+	# Preserve the independent 10 Hz generator projection through ordinary
+	# objective/input redraws. Gameplay HUD context does not own host timers.
+	if _view.has("temporary_supply"):
+		view["temporary_supply"] = _view["temporary_supply"]
 	_view = view
 	_rebuild()
+
+
+## DS11: refresh only the existing status and progress widgets when their
+## visibility is unchanged. A 10 Hz host clock must not rebuild every HUD card.
+func set_generator_tradeoff(temporary: Dictionary) -> void:
+	var previous: Dictionary = _view.get("temporary_supply", {})
+	if previous == temporary:
+		return
+	_view["temporary_supply"] = temporary.duplicate(true)
+	if event_card == null or bool(previous.get("visible", false)) != bool(temporary.get("visible", false)):
+		_rebuild()
+		return
+	var status: Label = event_card.find_child("GeneratorLoadStatus", true, false) as Label
+	if status == null:
+		return
+	status.text = _generator_status(temporary)
+	status.add_theme_color_override("font_color", ThemeTokens.color(tokens,
+		"fault" if bool(temporary.get("warning", false)) or bool(temporary.get("tripped", false)) else "restored"))
+	var trip: ProgressBar = event_card.find_child("GeneratorTripProgress", true, false) as ProgressBar
+	if trip != null:
+		trip.value = float(temporary.get("trip_percent", 0))
+	var detail: Label = event_card.find_child("GeneratorTripLabel", true, false) as Label
+	if detail != null:
+		detail.text = _generator_trip_label(temporary)
+
+
+static func _generator_status(temporary: Dictionary) -> String:
+	var load_pu: int = int(temporary.get("load", 0))
+	var capacity: int = int(temporary.get("capacity", 0))
+	var suffix: String = "hud.generator.standby"
+	if bool(temporary.get("tripped", false)):
+		suffix = "hud.generator.tripped"
+	elif bool(temporary.get("warning", false)):
+		suffix = "world.generator.warning"
+	elif bool(temporary.get("online", false)):
+		suffix = "hud.generator.running"
+	return UiText.tf("hud.generator.readout", [load_pu, capacity]) + "\n" + UiText.t(suffix)
+
+
+static func _generator_trip_label(temporary: Dictionary) -> String:
+	if bool(temporary.get("tripped", false)):
+		return UiText.t("hud.generator.tripped")
+	if not bool(temporary.get("warning", false)):
+		return ""
+	return UiText.tf("hud.generator.trip_progress", [
+		int(temporary.get("trip_ticks", 0)), int(temporary.get("trip_total", 1))])
+
 
 
 ## The host's ten-Hz progress counters are presentation-only. Repaint the
@@ -432,6 +483,25 @@ func _event() -> PanelContainer:
 	var card: PanelContainer = _card()
 	card.name = "Event"
 	var box: VBoxContainer = _vbox(card, 8)
+	var supply: Dictionary = _view.get("temporary_supply", {})
+	if bool(supply.get("visible", false)):
+		# Capacity and time-to-trip come from the host and remain legible
+		# without sound or colour, including at 150% UI scale.
+		var status: Label = _label(box, _generator_status(supply), "StrongLabel",
+			"fault" if bool(supply.get("warning", false)) or bool(supply.get("tripped", false)) else "restored")
+		status.name = "GeneratorLoadStatus"
+		var trip_label: Label = _label(box, _generator_trip_label(supply), "MutedLabel", "text_muted")
+		trip_label.name = "GeneratorTripLabel"
+		var trip: ProgressBar = ProgressBar.new()
+		trip.name = "GeneratorTripProgress"
+		trip.min_value = 0.0
+		trip.max_value = 100.0
+		trip.value = float(supply.get("trip_percent", 0))
+		trip.custom_minimum_size.y = ThemeTokens.px(14.0, scale_percent)
+		trip.show_percentage = false
+		trip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		trip.focus_mode = Control.FOCUS_NONE
+		box.add_child(trip)
 	var ev: Dictionary = _view.get("event", {})
 	if not ev.is_empty():
 		box.add_child(StatusChip.make(tokens, scale_percent, str(ev["group"]), str(ev["state"]), str(ev["text"]), true, "StrongLabel"))
