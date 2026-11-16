@@ -19,6 +19,7 @@ const InputDeviceTracker := preload("res://scripts/ui/input_device_tracker.gd")
 const RestorationPresentation := preload("res://scripts/world/restoration_presentation.gd")
 const FaultEvidencePresentation := preload("res://scripts/world/fault_evidence_presentation.gd")
 const GeneratorTradeoffPresentation := preload("res://scripts/world/generator_tradeoff_presentation.gd")
+const RecoveryPayoffPresentation := preload("res://scripts/world/recovery_payoff_presentation.gd")
 const StreetLook := preload("res://scripts/world/street_look.gd")
 const StreetDressing := preload("res://scripts/world/street_dressing.gd")
 const DistrictBuilder := preload("res://scripts/world/district_builder.gd")
@@ -44,6 +45,7 @@ var _world: Node3D
 var _world_fx: RestorationPresentation
 var _fault_fx: FaultEvidencePresentation
 var _generator_fx: GeneratorTradeoffPresentation
+var _recovery_fx: RecoveryPayoffPresentation
 var _look: Dictionary = {}
 var _store: OfflinePersistence
 var _save_enabled: bool = false
@@ -136,6 +138,8 @@ func _ready() -> void:
 	_fault_fx.setup(_world, player.camera)
 	_generator_fx = GeneratorTradeoffPresentation.new()
 	_generator_fx.setup(_world)
+	_recovery_fx = RecoveryPayoffPresentation.new()
+	_recovery_fx.setup(_world)
 	_make_ui()
 	if not _restored_view.is_empty():
 		_sync_onboarding_progress(true)
@@ -379,6 +383,42 @@ func _make_pause_panel() -> PanelContainer:
 	return panel
 
 
+## DS12: a static real-world viewport rather than a fake reward illustration.
+## Never moves the player/camera, never invents restored states, and works
+## identically with Reduce Camera Motion enabled. Hidden until results open.
+func _make_results_street_preview(parent: VBoxContainer) -> void:
+	if _world == null:
+		return
+	var config: Dictionary = RecoveryPayoffPresentation.load_config()
+	var camera_def: Dictionary = config.get("results_camera", {})
+	if camera_def.is_empty():
+		return
+	var container: SubViewportContainer = SubViewportContainer.new()
+	container.name = "ResultsStreetPreview"
+	container.stretch = true
+	container.custom_minimum_size = Vector2(0.0, 190.0)
+	container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	container.focus_mode = Control.FOCUS_NONE
+	parent.add_child(container)
+	var viewport: SubViewport = SubViewport.new()
+	viewport.name = "ResultsLiveWorld"
+	viewport.size = Vector2i(int(camera_def["preview_width_px"]), int(camera_def["preview_height_px"]))
+	viewport.world_3d = get_world_3d()
+	viewport.render_target_update_mode = SubViewport.UPDATE_WHEN_VISIBLE
+	container.add_child(viewport)
+	var camera: Camera3D = Camera3D.new()
+	camera.name = "StaticStreetCamera"
+	camera.fov = float(camera_def["fov_deg"])
+	viewport.add_child(camera)
+	var origin: Node3D = _world.get_node_or_null(NodePath("Markers/" + str(camera_def["viewpoint_marker"]))) as Node3D
+	if origin != null:
+		camera.global_position = origin.global_position
+	var look: Array = camera_def["look_at_cm"]
+	camera.look_at(Vector3(float(look[0]), float(look[1]), float(look[2])) / 100.0)
+	camera.current = true
+
+
 func _make_completion_panel() -> PanelContainer:
 	var panel: PanelContainer = PanelContainer.new()
 	panel.name = "Results"
@@ -400,6 +440,7 @@ func _make_completion_panel() -> PanelContainer:
 	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(column)
 	_pause_label(column, "offline.complete.title", 32)
+	_make_results_street_preview(column)
 	var result: Label = Label.new()
 	result.name = "Score"
 	result.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -542,6 +583,8 @@ func _process(delta: float) -> void:
 		_world_fx.advance(delta)
 	if _generator_fx != null:
 		_generator_fx.advance(delta)
+	if _recovery_fx != null:
+		_recovery_fx.advance(delta)
 	# Time only transient presentation while playing. A save failure cannot be hidden
 	# by a later accepted action or silently disappear after a timeout.
 	if _status != null and not _feedback_persistent and _feedback_remaining_s > 0.0:
@@ -832,6 +875,8 @@ func _refresh_hud() -> void:
 	var snapshot: Dictionary = session.host_state()
 	if _world_fx != null:
 		_world_fx.apply(snapshot, session.mission.is_latched(OfflineSession.PUMP_LATCH))
+	if _recovery_fx != null:
+		_recovery_fx.apply(snapshot)
 	if _fault_fx != null:
 		var reading: Dictionary = {}
 		if _target.begins_with("PANEL_") and TOOL_LIST[_slot - 1] == "meter":
@@ -942,6 +987,9 @@ func _settings_changed(_values: Dictionary, persist: bool = true) -> void:
 		player.set_reduce_camera_motion(bool(settings.value("reduce_camera_motion")))
 	if _world_fx != null:
 		_world_fx.set_reduce_flashes(bool(settings.value("reduce_flashes")))
+	if _recovery_fx != null:
+		_recovery_fx.set_reduce_flashes(bool(settings.value("reduce_flashes")))
+		_recovery_fx.set_reduce_motion(bool(settings.value("reduce_camera_motion")))
 	if onboarding != null:
 		onboarding.set_ui_scale(int(settings.value("ui_scale_percent")))
 		_layout_onboarding(get_viewport().get_visible_rect().size)
