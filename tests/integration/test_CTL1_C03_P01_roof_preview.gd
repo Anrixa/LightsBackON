@@ -137,7 +137,7 @@ func test_CTL1_C03_P01_C01_scene_and_replay_authority_are_unchanged() -> void:
 	assert_eq(str(scene.get("contract_id")), "C01")
 	assert_eq(session.hud_view(1, "", "meter")["contract_key"], "contract.c01")
 	assert_false(session.host_state()["grid"]["nodes"].has("ROOF_BEACON"))
-	assert_eq(scene.get_node_or_null("District/Markers/LADDER_WEST"), null)
+	assert_false(is_instance_valid(scene.get_node_or_null("District/Markers/LADDER_WEST")))
 	assert_false(is_instance_valid(scene.get("_ladder_view")), "C01 has no live ladder presentation")
 	assert_true(scene.get("_store") != null, "original C01 storage path remains present")
 
