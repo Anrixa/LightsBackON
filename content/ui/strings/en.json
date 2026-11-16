@@ -283,6 +283,21 @@
     "world.meter.source": "SOURCE",
     "world.meter.demand": "LOAD PU",
     "world.meter.capacity": "LIMIT PU",
-    "world.meter.breaker": "BREAKER"
+    "world.meter.breaker": "BREAKER",
+    "world.generator.idle": "STANDBY",
+    "world.generator.running": "GENERATOR ONLINE",
+    "world.generator.warning": "OVERLOAD / TRIP IMMINENT",
+    "world.generator.tripped": "PROTECTION TRIPPED",
+    "world.generator.gauge": "%d / %d PU",
+    "world.generator.pad": "GENERATOR PAD",
+    "world.generator.route_plate": "TEMP GRID  6 PU MAX\\nPUMP 4 PU  OR  PUB 4 PU",
+    "world.generator.pump_socket": "PUMP SOCKET",
+    "world.generator.pub_socket": "PUB SOCKET",
+    "world.generator.dual_refused": "PUB HAS TWO LIVE ROUTES\\nDISCONNECT THE CONFLICT",
+    "hud.generator.readout": "TEMP SUPPLY   %d / %d PU",
+    "hud.generator.trip_progress": "OVERLOAD: %d / %d TICKS UNTIL TRIP",
+    "hud.generator.tripped": "TEMP SUPPLY BREAKER TRIPPED",
+    "hud.generator.running": "GENERATOR SUPPLY ONLINE",
+    "hud.generator.standby": "GENERATOR STANDBY"
   }
 }
