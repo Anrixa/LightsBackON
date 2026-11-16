@@ -258,7 +258,7 @@
     {
       "id": "DS12",
       "title": "Recovery payoff: cascade, signs, project-made audio (pillar 3)",
-      "status": "IN_PROGRESS",
+      "status": "CLOUD_VERIFIED",
       "depends_on": [
         "DS09"
       ],
@@ -269,13 +269,18 @@
       "evidence_file": "docs/evidence/DS12.md",
       "plan": "docs/design/DS07-design-plan.md",
       "authority": "ADR-017",
-      "code_phase": "RESTORATION_NEON_AUDIO_AND_RESULTS_STAGED_UNTESTED",
+      "code_phase": "NEON_SPILL_FANS_ORIGINAL_AUDIO_RESULTS_PREVIEW_MERGED_AND_CI_VERIFIED",
       "execution_policy": "docs/design/BATCH-EXECUTION-HANDOFF.md",
       "pending_acceptance": [
-        "First substantial-batch DS12 focused/full regression execution and exact-head Linux/Windows CI + QA51 + export",
-        "Real Windows 720p/1080p three-state and results previews, 270 HUD contrast probes, exported QA140 P95/memory",
-        "Physical audio spatial balance and accessibility Reduced Flashes/Motion/controller/human approval"
-      ]
+        "Real Windows 720p/1080p world-and-results screenshots in dark/temporary/restored states, 270/270 rendered HUD contrast",
+        "Exported-build QA140 mean/P95 and memory measured on target GPU after adding recovery visual/audio effects",
+        "Physical original-audio audition and Reduce Flashes/Motion controller/human aesthetic and accessibility approval",
+        "F02/F06/V09 Steam network/human gates remain separately unqualified"
+      ],
+      "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43849733456",
+      "verified_resource_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43849733485",
+      "merged_pr": "https://github.com/Anrixa/LightsBackON/pull/150",
+      "merged_main_sha": "36b175ac88bf93e77fc79fa183c202d23b4530db"
     },
     {
       "id": "DS13",
