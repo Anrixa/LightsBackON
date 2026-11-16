@@ -232,7 +232,7 @@
     {
       "id": "DS11",
       "title": "Temporary supply tradeoff readable (pillar 2)",
-      "status": "IN_PROGRESS",
+      "status": "CLOUD_VERIFIED",
       "depends_on": [
         "DS09"
       ],
@@ -243,19 +243,22 @@
       "evidence_file": "docs/evidence/DS11.md",
       "plan": "docs/design/DS07-design-plan.md",
       "authority": "ADR-017",
-      "code_phase": "HOST_DRIVEN_GENERATOR_CABLE_HUD_AND_WARNING_SOURCE_STAGED",
+      "code_phase": "GENERATOR_LOAD_CABLES_TRIP_HUD_MERGED_LINUX_WINDOWS_CI",
       "pending_acceptance": [
-        "Deferred significant-batch DS11 focused/full Godot suite and Linux + Windows exact-head CI",
-        "Windows release EXE/PCK export and headless smoke plus QA51 resource probes",
-        "Actual GPU 720p/1080p visual screenshots of pad/generator/cables/overload/refusal and 270/270 rendered AA contrast",
-        "QA140 target-class P95/memory and controller/human readability/audio acceptance"
+        "Actual Windows GPU 720/1080 screenshots, 270-probe rendered contrast, QA140 exported P95/memory",
+        "Physical generator/audio warning and controller-only play/human approval",
+        "F02/F06/V09 independent networking/human gates remain unqualified"
       ],
-      "execution_policy": "docs/design/BATCH-EXECUTION-HANDOFF.md"
+      "execution_policy": "docs/design/BATCH-EXECUTION-HANDOFF.md",
+      "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43847130383",
+      "verified_resource_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43847130367",
+      "merged_pr": "https://github.com/Anrixa/LightsBackON/pull/149",
+      "merged_main_sha": "68397c40377424729ed8cd4585841da128298c6e"
     },
     {
       "id": "DS12",
       "title": "Recovery payoff: cascade, signs, project-made audio (pillar 3)",
-      "status": "NOT_STARTED",
+      "status": "IN_PROGRESS",
       "depends_on": [
         "DS09"
       ],
@@ -265,7 +268,14 @@
       ],
       "evidence_file": "docs/evidence/DS12.md",
       "plan": "docs/design/DS07-design-plan.md",
-      "authority": "ADR-017"
+      "authority": "ADR-017",
+      "code_phase": "RESTORATION_NEON_AUDIO_AND_RESULTS_STAGED_UNTESTED",
+      "execution_policy": "docs/design/BATCH-EXECUTION-HANDOFF.md",
+      "pending_acceptance": [
+        "First substantial-batch DS12 focused/full regression execution and exact-head Linux/Windows CI + QA51 + export",
+        "Real Windows 720p/1080p three-state and results previews, 270 HUD contrast probes, exported QA140 P95/memory",
+        "Physical audio spatial balance and accessibility Reduced Flashes/Motion/controller/human approval"
+      ]
     },
     {
       "id": "DS13",
