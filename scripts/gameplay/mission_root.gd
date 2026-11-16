@@ -445,10 +445,13 @@ func _make_results_street_preview(parent: VBoxContainer) -> void:
 	camera.fov = float(camera_def["fov_deg"])
 	viewport.add_child(camera)
 	var origin: Node3D = _world.get_node_or_null(NodePath("Markers/" + str(camera_def["viewpoint_marker"]))) as Node3D
-	if origin != null:
-		camera.global_position = origin.global_position
+	var camera_position: Vector3 = origin.global_position if origin != null else Vector3.ZERO
 	var look: Array = camera_def["look_at_cm"]
-	camera.look_at(Vector3(float(look[0]), float(look[1]), float(look[2])) / 100.0)
+	# The Results panel and its viewport have not entered the tree yet.
+	# look_at()/global_position on a detached camera emit engine errors;
+	# compute the identical static transform directly, without a live node.
+	camera.look_at_from_position(camera_position,
+		Vector3(float(look[0]), float(look[1]), float(look[2])) / 100.0)
 	camera.current = true
 
 
