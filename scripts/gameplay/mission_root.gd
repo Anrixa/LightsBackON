@@ -18,6 +18,7 @@ const UiText := preload("res://scripts/ui/ui_text.gd")
 const InputDeviceTracker := preload("res://scripts/ui/input_device_tracker.gd")
 const RestorationPresentation := preload("res://scripts/world/restoration_presentation.gd")
 const FaultEvidencePresentation := preload("res://scripts/world/fault_evidence_presentation.gd")
+const GeneratorTradeoffPresentation := preload("res://scripts/world/generator_tradeoff_presentation.gd")
 const StreetLook := preload("res://scripts/world/street_look.gd")
 const StreetDressing := preload("res://scripts/world/street_dressing.gd")
 const DistrictBuilder := preload("res://scripts/world/district_builder.gd")
@@ -42,6 +43,7 @@ var settings: AccessibilitySettings
 var _world: Node3D
 var _world_fx: RestorationPresentation
 var _fault_fx: FaultEvidencePresentation
+var _generator_fx: GeneratorTradeoffPresentation
 var _look: Dictionary = {}
 var _store: OfflinePersistence
 var _save_enabled: bool = false
@@ -132,6 +134,8 @@ func _ready() -> void:
 	_world_fx.setup(_world, _look["windows"])
 	_fault_fx = FaultEvidencePresentation.new()
 	_fault_fx.setup(_world, player.camera)
+	_generator_fx = GeneratorTradeoffPresentation.new()
+	_generator_fx.setup(_world)
 	_make_ui()
 	if not _restored_view.is_empty():
 		_sync_onboarding_progress(true)
@@ -536,6 +540,8 @@ func _input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
 	if _world_fx != null:
 		_world_fx.advance(delta)
+	if _generator_fx != null:
+		_generator_fx.advance(delta)
 	# Time only transient presentation while playing. A save failure cannot be hidden
 	# by a later accepted action or silently disappear after a timeout.
 	if _status != null and not _feedback_persistent and _feedback_remaining_s > 0.0:
@@ -563,6 +569,8 @@ func _physics_process(delta: float) -> void:
 		# full HUD rebuilding, without mutating the session or rebuilding controls.
 		if hud != null:
 			hud.set_field_shift(ShiftOperations.field_view(session.shift_operations_view()))
+			if _generator_fx != null:
+				hud.set_generator_tradeoff(_generator_fx.apply(session.host_state()))
 	# The tablet stops world interaction, not host time. Keep an in-range
 	# repair lock alive while reading the map; missing heartbeats here used to
 	# release a valid lock after two seconds of tablet use.
@@ -730,6 +738,8 @@ func _on_action_replied(envelope: Dictionary, reply: Dictionary) -> void:
 	if kind == "heartbeat":
 		return
 	if not reply.get("ok", false):
+		if _generator_fx != null:
+			_generator_fx.on_host_refusal(reply)
 		_show_feedback(str(reply.get("message", UiText.t("offline.status.refused"))), true)
 		return
 	# Tool selection is already conveyed by the live loadout, not another toast.
@@ -827,6 +837,8 @@ func _refresh_hud() -> void:
 		if _target.begins_with("PANEL_") and TOOL_LIST[_slot - 1] == "meter":
 			reading = session.meter.readings(_target, session.grid)
 		_fault_fx.apply(snapshot, TOOL_LIST[_slot - 1], _target, reading)
+	if _generator_fx != null:
+		hud.set_generator_tradeoff(_generator_fx.apply(snapshot))
 	if _paused:
 		_refresh_shift_briefing()
 
