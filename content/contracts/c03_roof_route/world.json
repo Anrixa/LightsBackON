@@ -1,0 +1,99 @@
+{
+  "contract_id": "C03",
+  "source_note": "C03-P01 offline-only physical roof preview. Integer centimeter coordinates overlay original Alder Street without altering the canonical C01 world. Foot near the south front of APT_W; landing on existing APT_W 8 m roof. The host still performs its real 3D line-of-sight and distance validation. Preview is unsaved and cannot overwrite C01.",
+  "markers": [
+    {
+      "id": "LADDER_WEST",
+      "kind": "ladder",
+      "pos_cm": [
+        2100,
+        140,
+        4150
+      ]
+    },
+    {
+      "id": "LADDER_WEST_RETURN",
+      "kind": "ladder",
+      "pos_cm": [
+        2100,
+        965,
+        4450
+      ]
+    },
+    {
+      "id": "PANEL_ROOF",
+      "kind": "panel",
+      "pos_cm": [
+        2210,
+        970,
+        4590
+      ]
+    },
+    {
+      "id": "SW_BEACON",
+      "kind": "switch",
+      "pos_cm": [
+        2130,
+        965,
+        4530
+      ]
+    },
+    {
+      "id": "SW_ROOF_BREAKER",
+      "kind": "switch",
+      "pos_cm": [
+        2260,
+        965,
+        4520
+      ]
+    },
+    {
+      "id": "SW_CROSSFEED",
+      "kind": "switch",
+      "pos_cm": [
+        3120,
+        140,
+        2430
+      ]
+    }
+  ],
+  "transitions": [
+    {
+      "id": "LADDER_WEST",
+      "arrival_cm": [
+        2100,
+        914,
+        4430
+      ]
+    },
+    {
+      "id": "LADDER_WEST_RETURN",
+      "arrival_cm": [
+        2100,
+        102,
+        4020
+      ]
+    }
+  ],
+  "ladder_geometry": {
+    "base_cm": [
+      2100,
+      0,
+      4165
+    ],
+    "height_cm": 800,
+    "width_cm": 90,
+    "rail_depth_cm": 18,
+    "rungs": 24
+  },
+  "roof_panel_cm": [
+    2210,
+    870,
+    4650
+  ],
+  "roof_beacon_cm": [
+    2140,
+    850,
+    4540
+  ]
+}
