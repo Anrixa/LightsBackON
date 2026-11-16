@@ -1000,7 +1000,7 @@ func _fill_detail() -> void:
 	ping_button.text = UiText.tf("tablet.ping_branch", [name_text])
 	ping_button.visible = tab == TAB_NETWORK
 	# The glyph and button form one semantic row, hidden together on Objectives.
-	ping_button.get_parent().visible = tab == TAB_NETWORK
+	(ping_button.get_parent() as Control).visible = tab == TAB_NETWORK
 
 
 func _section(title: String, lines: Array) -> void:
