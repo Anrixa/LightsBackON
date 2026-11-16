@@ -28,7 +28,7 @@ func test_CTL1_C03_loads_all_content_and_starts_with_damaged_direct_feeder() -> 
 	assert_false(grid["edges"]["E_ROOF_JE"]["healthy"])
 	assert_true(grid["nodes"]["TIE"]["isolated"])
 	assert_eq(grid["edges"]["E_GRID_ROOF"]["capacity"], 12)
-	assert_eq(Runner.json(C03.path_join("mission.json"))["fixed_ladders"].size(), 1)
+	assert_eq(Runner.json(C03.path_join("mission.json"))["fixed_ladders"].size(), 2)
 	assert_eq(Runner.json(C03.path_join("mission.json"))["optional_services"], ["ROOF_BEACON"])
 	assert_eq(Runner.json(C03.path_join("repairs.json"))["repairs"][0]["access"], "ROOF_REACHED")
 

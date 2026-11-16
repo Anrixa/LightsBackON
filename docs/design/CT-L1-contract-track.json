@@ -33,7 +33,20 @@
         "physical Windows keyboard/controller playthrough and target GPU P95/memory",
         "global rules revision checkpoint continuity, F02/F06 Steam verification, official CT03 D08 gate"
       ],
-      "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43919744681"
+      "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43919744681",
+      "preview_phase": {
+        "id": "CTL1-C03-P01",
+        "title": "Roof Route fixed ladder and unsaved in-game preview",
+        "status": "HEADLESS_VERIFIED",
+        "evidence": "docs/evidence/CTL1-C03-P01.md",
+        "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43927804275",
+        "resource_probe_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43927804494",
+        "pending": [
+          "Windows GUI keyboard/controller rooftop transition and human playtest",
+          "target GPU frame-time/memory/screenshots, contrast and accessibility review",
+          "C03-specific persistence, release-quality scene gate, official CT03 D08 and Steam F02/F06"
+        ]
+      }
     },
     {
       "id": "CTL1-C04",
