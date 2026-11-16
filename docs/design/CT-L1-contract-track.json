@@ -25,7 +25,14 @@
       "id": "CTL1-C03",
       "contract_id": "C03",
       "title": "Roof Route",
-      "status": "NOT_STARTED"
+      "status": "IN_PROGRESS",
+      "source": "content/contracts/c03_roof_route",
+      "evidence": "docs/evidence/CTL1-C03.md",
+      "pending": [
+        "exact-head headless Linux/Windows CI",
+        "physical fixed-ladder travel, collision and playable C03 scene",
+        "controller/GPU/Steam and global rules-revision checkpoint compatibility"
+      ]
     },
     {
       "id": "CTL1-C04",
