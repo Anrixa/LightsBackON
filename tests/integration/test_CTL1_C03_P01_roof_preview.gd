@@ -9,6 +9,7 @@ const Controller := preload("res://scripts/actors/first_person_controller.gd")
 const Ladder := preload("res://scripts/world/c03_fixed_ladder_view.gd")
 const Grid := preload("res://scripts/simulation/power_grid.gd")
 const UiText := preload("res://scripts/ui/ui_text.gd")
+const LoadingCard := preload("res://scripts/ui/loading_card.gd")
 
 var _tree: SceneTree
 var _holder: Node3D
@@ -152,3 +153,18 @@ func test_CTL1_C03_P01_preview_world_contract_and_menu_copy_are_present() -> voi
 	assert_eq(defined["fixed_ladders"].size(), 2)
 	assert_true(UiText.t("offline.menu.c03_preview").contains("NO SAVE"))
 	assert_true(UiText.t("offline.c03.unsaved_notice").contains("not saved"))
+
+func test_CTL1_C03_P01_preview_loading_briefing_is_not_C01_instruction() -> void:
+	var tokens: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://content/ui/tokens.json"))
+	var c01_card: ColorRect = LoadingCard.build(tokens, 100.0, 46, true, true)
+	var c03_card: ColorRect = LoadingCard.build(tokens, 100.0, 46, true, true,
+		"offline.loading.c03_briefing")
+	_holder.add_child(c01_card)
+	_holder.add_child(c03_card)
+	var c01_label: Label = c01_card.find_child("LoadingBriefing", true, false) as Label
+	var c03_label: Label = c03_card.find_child("LoadingBriefing", true, false) as Label
+	assert_true(c01_label != null and c03_label != null)
+	assert_eq(c01_label.text, UiText.t("offline.loading.briefing"))
+	assert_eq(c03_label.text, UiText.t("offline.loading.c03_briefing"))
+	assert_ne(c03_label.text, c01_label.text)
+	assert_true(c03_label.text.contains("ladder"))
