@@ -219,7 +219,8 @@ func begin_shader_warmup() -> void:
 	add_child(_loading_layer)
 	var screen: Vector2 = get_viewport().get_visible_rect().size
 	var effective: float = ThemeTokens.effective_percent(100, screen)
-	var card: ColorRect = LoadingCard.build(_ui_tokens, effective, ThemeTokens.px(46.0, effective), true, true)
+	var card: ColorRect = LoadingCard.build(_ui_tokens, effective, ThemeTokens.px(46.0, effective), true, true,
+		"offline.loading.c03_briefing" if _c03_preview else "offline.loading.briefing")
 	_loading_layer.add_child(card)
 	var lights: Array[Node3D] = []
 	for node: Node in find_children("*", "Light3D", true, false):
