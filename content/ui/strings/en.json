@@ -320,6 +320,11 @@
     "node.c03.beacon": "Rooftop beacon",
     "objective.c03.reach_roof": "Reach the fixed ladder to the rooftop",
     "objective.c03.restore_east": "Restore east services through a safe feeder",
-    "objective.c03.beacon": "Optional: illuminate the roof beacon"
+    "objective.c03.beacon": "Optional: illuminate the roof beacon",
+    "offline.menu.c03_preview": "ROOF ROUTE — DEV PREVIEW (NO SAVE)",
+    "offline.object.roof_ladder": "Fixed roof ladder",
+    "offline.verb.roof_ladder": "Use ladder",
+    "offline.c03.unsaved_notice": "Roof Route development preview — progress is not saved. Find the fixed ladder beside the west apartments.",
+    "offline.c03.landing_blocked": "The ladder landing is obstructed. Move away and try again."
   }
 }
