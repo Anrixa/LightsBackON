@@ -1,6 +1,6 @@
 {
   "contract_id": "C03",
-  "source_note": "LADDER_WEST is host-ranged fixed ladder access. Physical roof transition is a later scene gate. Repaired rooftop bypass supplies required 11 PU east; optional 1 PU beacon at capacity. Verify GRID supply for 100 ticks; extract in 50 ticks.",
+  "source_note": "LADDER_WEST is host-ranged fixed ladder access. Physical roof transition is a later scene gate. Repaired rooftop bypass supplies required 11 PU east; optional 1 PU beacon at capacity. Verify GRID supply for 100 ticks; extract in 50 ticks. A second fixed-ladder endpoint allows a host-validated return from the roof; no new mandatory objective.",
   "grid_source": "GRID",
   "required_consumers": [
     "APT_E",
@@ -16,6 +16,10 @@
   "fixed_ladders": [
     {
       "id": "LADDER_WEST",
+      "grants": "ROOF_REACHED"
+    },
+    {
+      "id": "LADDER_WEST_RETURN",
       "grants": "ROOF_REACHED"
     }
   ],
