@@ -15,6 +15,8 @@ const StatusChip := preload("res://scripts/ui/status_chip.gd")
 const TabletMap := preload("res://scripts/ui/tablet_map.gd")
 const TabletPresenter := preload("res://scripts/ui/tablet_presenter.gd")
 const FocusScroll := preload("res://scripts/ui/focus_scroll.gd")
+const InputGlyph := preload("res://scripts/ui/input_glyph.gd")
+const InputPrompt := preload("res://scripts/ui/input_prompt.gd")
 
 const MAP_INTENTS: Array[String] = ["inspect", "ping"]
 const DETAIL_WIDTH_PX: int = 410  # DS09: 480 -> 410 so five 236 px map columns fit at 1080p
@@ -715,8 +717,17 @@ func _rebuild() -> void:
 	_feedback_label = _label(detail_box, "", "StrongLabel", "action")
 	_feedback_label.name = "ActionFeedback"
 	_feedback_label.visible = false
-	ping_button = _button(detail_box, "", "PrimaryButton")
+	var ping_row: HBoxContainer = HBoxContainer.new()
+	ping_row.name = "PingGlyphRow"
+	ping_row.add_theme_constant_override("separation", ThemeTokens.px(8.0, s))
+	detail_box.add_child(ping_row)
+	var ping_glyph: InputGlyph = InputGlyph.new()
+	ping_glyph.name = "PingGlyph"
+	ping_glyph.configure("ping", device, s, tokens)
+	ping_row.add_child(ping_glyph)
+	ping_button = _button(ping_row, "", "PrimaryButton")
 	ping_button.name = "Ping"
+	ping_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	ping_button.pressed.connect(ping_selected)
 	page.add_child(_footer())
 	_link_focus()
@@ -917,7 +928,15 @@ func _footer() -> Control:
 	zoom_buttons.append(center)
 	for b: Button in zoom_buttons:
 		b.visible = tab == TAB_NETWORK
-	close_button = _button(actions, UiText.tf("prompt.binding", [UiText.binding("map_meter", device), UiText.t("tablet.close")]))
+	var close_row: HBoxContainer = HBoxContainer.new()
+	close_row.name = "CloseGlyphRow"
+	close_row.add_theme_constant_override("separation", ThemeTokens.px(6.0, scale_percent))
+	actions.add_child(close_row)
+	var close_glyph: InputGlyph = InputGlyph.new()
+	close_glyph.name = "CloseGlyph"
+	close_glyph.configure("map_meter", device, scale_percent, tokens)
+	close_row.add_child(close_glyph)
+	close_button = _button(close_row, UiText.t("tablet.close"))
 	close_button.name = "Close"
 	close_button.pressed.connect(close)
 	return column
@@ -973,10 +992,15 @@ func _fill_detail() -> void:
 		_section(UiText.t("tablet.section.access"), [UiText.t(str(v["access_key"]))])
 	if str(v["panel"]) != "":
 		_section(UiText.t("tablet.section.worker"), [v.get("worker_text", UiText.t("tablet.no_worker"))])
-		_label(_detail, UiText.tf("tablet.inspect_hint", ["[%s]" % UiText.binding("ui_accept", device)]), "MutedLabel")
+		var inspect_prompt: InputPrompt = InputPrompt.new()
+		inspect_prompt.name = "InspectGlyphRow"
+		inspect_prompt.configure("ui_accept", UiText.t("tablet.inspect_action"), device, scale_percent, tokens, false)
+		_detail.add_child(inspect_prompt)
 	_label(_detail, UiText.t("tablet.footnote"), "MutedLabel")
-	ping_button.text = UiText.tf("prompt.binding", [UiText.binding("ping", device), UiText.tf("tablet.ping_branch", [name_text])])
+	ping_button.text = UiText.tf("tablet.ping_branch", [name_text])
 	ping_button.visible = tab == TAB_NETWORK
+	# The glyph and button form one semantic row, hidden together on Objectives.
+	ping_button.get_parent().visible = tab == TAB_NETWORK
 
 
 func _section(title: String, lines: Array) -> void:
