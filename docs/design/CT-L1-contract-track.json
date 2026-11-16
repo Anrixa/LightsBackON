@@ -9,13 +9,17 @@
       "id": "CTL1-C02",
       "contract_id": "C02",
       "title": "Dinner Rush",
-      "status": "IN_PROGRESS",
+      "status": "CLOUD_VERIFIED",
       "source": "content/contracts/c02_dinner_rush",
       "evidence": "docs/evidence/CTL1-C02.md",
       "pending": [
-        "full exact-head Linux/Windows CI",
-        "physical/human acceptance and player-selectable mission"
-      ]
+        "physical Windows in-game C02 scene and human/UX/controller acceptance",
+        "target GPU exported P95/memory and content-revision compatibility across releases",
+        "canonical CT03 remains gate-blocked on D08; F02/F06/V09 open"
+      ],
+      "merged_pr": "https://github.com/Anrixa/LightsBackON/pull/156",
+      "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43911687483",
+      "merged_main_sha": "395e60303904f1014bebe254607c8a6f83f6afd5"
     },
     {
       "id": "CTL1-C03",
