@@ -1,0 +1,49 @@
+{
+  "contract_id": "C03",
+  "source_note": "Original Alder optional standby generator; the canonical C03 solution does not deploy it.",
+  "equipment": [
+    {
+      "id": "GEN_PORTABLE",
+      "kind": "generator",
+      "source": "GEN",
+      "breaker": "TEMP",
+      "start_anchor": "VAN_BAY"
+    }
+  ],
+  "anchors": [
+    {
+      "id": "VAN_BAY",
+      "storage": true,
+      "routes": [],
+      "position_cm": [
+        800,
+        0,
+        1300
+      ]
+    },
+    {
+      "id": "STORE_PUMP_HOUSE",
+      "storage": true,
+      "routes": [],
+      "position_cm": [
+        6450,
+        0,
+        1350
+      ]
+    },
+    {
+      "id": "PAD_PUMP",
+      "storage": false,
+      "routes": [
+        "E_TEMP_PUMP",
+        "E_TEMP_PUB"
+      ],
+      "position_cm": [
+        6250,
+        0,
+        1600
+      ]
+    }
+  ],
+  "recovery_anchor": "VAN_BAY"
+}
