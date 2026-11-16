@@ -1,0 +1,262 @@
+{
+  "contract_id": "C03",
+  "source_note": "ADR-017 logic-only Rooftop Route. Direct east feed damaged. West crossfeed adds 11 PU to 9 PU west load and trips 12 PU protection after 15 ticks; repaired rooftop bypass carries 11 PU east plus optional 1 PU beacon at equality. These are authored game PU.",
+  "trip_ticks": 15,
+  "nodes": [
+    {
+      "id": "GRID",
+      "kind": "source",
+      "capacity": 24,
+      "online": true
+    },
+    {
+      "id": "GEN",
+      "kind": "source",
+      "capacity": 6,
+      "online": false
+    },
+    {
+      "id": "JW",
+      "kind": "junction",
+      "isolated": false,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "JE",
+      "kind": "junction",
+      "isolated": false,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "ROOF",
+      "kind": "junction",
+      "isolated": false,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "TEMP",
+      "kind": "junction",
+      "isolated": false,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "TIE",
+      "kind": "junction",
+      "isolated": true,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "APT_W",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "MARKET",
+      "kind": "consumer",
+      "demand": 5,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "PUB",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "APT_E",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "WORKSHOP",
+      "kind": "consumer",
+      "demand": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "PUMP",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "SIGN",
+      "kind": "consumer",
+      "demand": 3,
+      "enabled": false,
+      "healthy": true
+    },
+    {
+      "id": "ROOF_BEACON",
+      "kind": "consumer",
+      "demand": 1,
+      "enabled": false,
+      "healthy": true
+    }
+  ],
+  "edges": [
+    {
+      "id": "E_GRID_JW",
+      "from": "GRID",
+      "to": "JW",
+      "capacity": 12,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_GRID_JE",
+      "from": "GRID",
+      "to": "JE",
+      "capacity": 12,
+      "enabled": true,
+      "healthy": false
+    },
+    {
+      "id": "E_GRID_ROOF",
+      "from": "GRID",
+      "to": "ROOF",
+      "capacity": 12,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_JW_APT_W",
+      "from": "JW",
+      "to": "APT_W",
+      "capacity": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_JW_MARKET",
+      "from": "JW",
+      "to": "MARKET",
+      "capacity": 5,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_JE_PUB",
+      "from": "JE",
+      "to": "PUB",
+      "capacity": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_JE_APT_E",
+      "from": "JE",
+      "to": "APT_E",
+      "capacity": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_JE_WORKSHOP",
+      "from": "JE",
+      "to": "WORKSHOP",
+      "capacity": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_JE_SIGN",
+      "from": "JE",
+      "to": "SIGN",
+      "capacity": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_ROOF_JE",
+      "from": "ROOF",
+      "to": "JE",
+      "capacity": 12,
+      "enabled": true,
+      "healthy": false
+    },
+    {
+      "id": "E_ROOF_BEACON",
+      "from": "ROOF",
+      "to": "ROOF_BEACON",
+      "capacity": 1,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_JW_TIE",
+      "from": "JW",
+      "to": "TIE",
+      "capacity": 12,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_TIE_JE",
+      "from": "TIE",
+      "to": "JE",
+      "capacity": 12,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_GEN_TEMP",
+      "from": "GEN",
+      "to": "TEMP",
+      "capacity": 6,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_TEMP_PUMP",
+      "from": "TEMP",
+      "to": "PUMP",
+      "capacity": 4,
+      "enabled": false,
+      "healthy": true
+    },
+    {
+      "id": "E_TEMP_PUB",
+      "from": "TEMP",
+      "to": "PUB",
+      "capacity": 4,
+      "enabled": false,
+      "healthy": true
+    }
+  ],
+  "protections": [
+    {
+      "id": "BRK_JW",
+      "element": "E_GRID_JW",
+      "breaker": "JW"
+    },
+    {
+      "id": "BRK_JE",
+      "element": "E_GRID_JE",
+      "breaker": "JE"
+    },
+    {
+      "id": "BRK_ROOF",
+      "element": "E_GRID_ROOF",
+      "breaker": "ROOF"
+    },
+    {
+      "id": "BRK_TEMP",
+      "element": "E_GEN_TEMP",
+      "breaker": "TEMP"
+    }
+  ]
+}
