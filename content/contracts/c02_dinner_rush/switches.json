@@ -1,0 +1,21 @@
+{
+  "contract_id": "C02",
+  "source_note": "C02: optional The Lantern sign enables 3 PU venue load; all host-side breaker and service-switch controls remain available. The optional deadline is evaluated by mission_director on authoritative ticks, not this switch.",
+  "switches": [
+    {
+      "id": "SW_SIGN",
+      "target": "SIGN",
+      "field": "enabled"
+    },
+    {
+      "id": "SW_JW_BREAKER",
+      "target": "JW",
+      "field": "tripped"
+    },
+    {
+      "id": "SW_JE_BREAKER",
+      "target": "JE",
+      "field": "tripped"
+    }
+  ]
+}

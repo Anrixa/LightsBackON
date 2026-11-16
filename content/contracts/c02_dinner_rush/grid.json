@@ -1,0 +1,196 @@
+{
+  "contract_id": "C02",
+  "source_note": "C02 Dinner Rush original C02 content derivation (ADR-017 CT-L1; not a completed playtest). West failed fuse and east broken trunk are distinct repair faults. Grid 24 PU, west 12 PU, east 15 PU; the Lantern's 3 PU optional sign raises east from 11 to 14 PU without overloading its 15 PU trunk. Integer PU/ticks. C01 kept byte-identical.",
+  "trip_ticks": 15,
+  "nodes": [
+    {
+      "id": "GRID",
+      "kind": "source",
+      "capacity": 24,
+      "online": true
+    },
+    {
+      "id": "GEN",
+      "kind": "source",
+      "capacity": 6,
+      "online": false
+    },
+    {
+      "id": "JW",
+      "kind": "junction",
+      "isolated": false,
+      "failed": true,
+      "tripped": true
+    },
+    {
+      "id": "JE",
+      "kind": "junction",
+      "isolated": false,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "TEMP",
+      "kind": "junction",
+      "isolated": false,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "APT_W",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "MARKET",
+      "kind": "consumer",
+      "demand": 5,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "PUB",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "APT_E",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "WORKSHOP",
+      "kind": "consumer",
+      "demand": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "PUMP",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "SIGN",
+      "kind": "consumer",
+      "demand": 3,
+      "enabled": false,
+      "healthy": true
+    }
+  ],
+  "edges": [
+    {
+      "id": "E_GRID_JW",
+      "from": "GRID",
+      "to": "JW",
+      "capacity": 12,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_GRID_JE",
+      "from": "GRID",
+      "to": "JE",
+      "capacity": 15,
+      "enabled": true,
+      "healthy": false
+    },
+    {
+      "id": "E_JW_APT_W",
+      "from": "JW",
+      "to": "APT_W",
+      "capacity": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_JW_MARKET",
+      "from": "JW",
+      "to": "MARKET",
+      "capacity": 5,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_JE_PUB",
+      "from": "JE",
+      "to": "PUB",
+      "capacity": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_JE_APT_E",
+      "from": "JE",
+      "to": "APT_E",
+      "capacity": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_JE_WORKSHOP",
+      "from": "JE",
+      "to": "WORKSHOP",
+      "capacity": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_JE_SIGN",
+      "from": "JE",
+      "to": "SIGN",
+      "capacity": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_GEN_TEMP",
+      "from": "GEN",
+      "to": "TEMP",
+      "capacity": 6,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_TEMP_PUMP",
+      "from": "TEMP",
+      "to": "PUMP",
+      "capacity": 4,
+      "enabled": false,
+      "healthy": true
+    },
+    {
+      "id": "E_TEMP_PUB",
+      "from": "TEMP",
+      "to": "PUB",
+      "capacity": 4,
+      "enabled": false,
+      "healthy": true
+    }
+  ],
+  "protections": [
+    {
+      "id": "BRK_JW",
+      "element": "E_GRID_JW",
+      "breaker": "JW"
+    },
+    {
+      "id": "BRK_JE",
+      "element": "E_GRID_JE",
+      "breaker": "JE"
+    },
+    {
+      "id": "BRK_TEMP",
+      "element": "E_GEN_TEMP",
+      "breaker": "TEMP"
+    }
+  ]
+}

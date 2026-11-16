@@ -1,0 +1,60 @@
+{
+  "contract_id": "C02",
+  "source_note": "Two C02 repairs for Alder: west fuse (JW) and east grid-trunk splice (E_GRID_JE). No pump-room drainage access gate in this contract. Isolation, meter-first diagnosis, tools, one replacement part and continuous repair steps use the same proven G04 mechanism as C01.",
+  "supplies": {
+    "FUSE_W": 1,
+    "CABLE_SPLICE": 1
+  },
+  "repairs": [
+    {
+      "id": "R_JW_FUSE",
+      "name_key": "repair.c02.west_fuse",
+      "panel": "PANEL_JW",
+      "isolate": "JW",
+      "fix": {
+        "op": "set",
+        "id": "JW",
+        "field": "failed",
+        "value": false
+      },
+      "component": "FUSE_W",
+      "tools": {
+        "open": "screwdriver",
+        "remove": "puller",
+        "install": "puller",
+        "test": "meter"
+      },
+      "hold_ticks": {
+        "open": 6,
+        "remove": 8,
+        "install": 8,
+        "close": 6
+      }
+    },
+    {
+      "id": "R_JE_TRUNK",
+      "name_key": "repair.c02.east_trunk",
+      "panel": "PANEL_JE",
+      "isolate": "JE",
+      "fix": {
+        "op": "set",
+        "id": "E_GRID_JE",
+        "field": "healthy",
+        "value": true
+      },
+      "component": "CABLE_SPLICE",
+      "tools": {
+        "open": "screwdriver",
+        "remove": "cutter",
+        "install": "crimper",
+        "test": "meter"
+      },
+      "hold_ticks": {
+        "open": 6,
+        "remove": 10,
+        "install": 12,
+        "close": 6
+      }
+    }
+  ]
+}
