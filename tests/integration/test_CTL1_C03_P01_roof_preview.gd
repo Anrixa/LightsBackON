@@ -82,9 +82,12 @@ func test_CTL1_C03_P01_live_ladder_command_moves_player_only_after_host_ack() ->
 	var player: Controller = scene.get("player") as Controller
 	var view: Ladder = scene.get("_ladder_view") as Ladder
 	var start: Vector3 = Vector3(21.0, 1.02, 40.2)
+	# Even a player already on the rooftop cannot work on the cable until
+	# the host has granted a valid ladder access receipt.
+	player.global_position = view.destination("LADDER_WEST")
+	assert_eq(session.command("request_lock", "R_ROOF_SPLICE", {}).get("code"), "NO_ACCESS")
 	player.global_position = start
 	assert_true(view.destination("LADDER_WEST").y > 8.0)
-	assert_eq(session.command("request_lock", "R_ROOF_SPLICE", {}).get("code"), "NO_ACCESS")
 	assert_true(view.can_transfer(player, "LADDER_WEST"), "authored roof clearance is needed")
 	scene.set("_target", "LADDER_WEST")
 	scene.call("_interact")
@@ -135,7 +138,7 @@ func test_CTL1_C03_P01_C01_scene_and_replay_authority_are_unchanged() -> void:
 	assert_eq(session.hud_view(1, "", "meter")["contract_key"], "contract.c01")
 	assert_false(session.host_state()["grid"]["nodes"].has("ROOF_BEACON"))
 	assert_eq(scene.get_node_or_null("District/Markers/LADDER_WEST"), null)
-	assert_eq(scene.get("_ladder_view"), null)
+	assert_false(is_instance_valid(scene.get("_ladder_view")), "C01 has no live ladder presentation")
 	assert_true(scene.get("_store") != null, "original C01 storage path remains present")
 
 
