@@ -10,8 +10,10 @@ const InputPrompt := preload("res://scripts/ui/input_prompt.gd")
 const InputDeviceTracker := preload("res://scripts/ui/input_device_tracker.gd")
 
 const MISSION_PATH: String = "res://scenes/mission/mission_root.tscn"
+const C03_PREVIEW_PATH: String = "res://scenes/mission/c03_roof_preview.tscn"
 var start_button: Button
 var continue_button: Button
+var c03_preview_button: Button
 var quit_button: Button
 var _store: OfflinePersistence
 var _save_available: bool = false
@@ -127,6 +129,15 @@ func _ready() -> void:
 	start_button.custom_minimum_size.y = 56.0
 	start_button.pressed.connect(_request_new_shift)
 	layout.add_child(start_button)
+
+	# Independent, unsaved Roof Route vertical slice. It never replaces the
+	# primary C01 checkpoint, including when that checkpoint is unreadable.
+	c03_preview_button = Button.new()
+	c03_preview_button.name = "C03PreviewButton"
+	c03_preview_button.text = UiText.t("offline.menu.c03_preview")
+	c03_preview_button.custom_minimum_size.y = 56.0
+	c03_preview_button.pressed.connect(_launch_c03_preview)
+	layout.add_child(c03_preview_button)
 
 	var confirmation: ConfirmationDialog = ConfirmationDialog.new()
 	confirmation.name = "ReplaceCheckpointConfirmation"
@@ -262,6 +273,17 @@ func _launch(resume: bool, replacement_confirmed: bool = false) -> void:
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	get_tree().change_scene_to_file(MISSION_PATH)
+
+
+## An unsaved development preview: no C01 replacement confirmation and no
+## write/delete against the existing campaign. The scene itself enforces this.
+func _launch_c03_preview() -> void:
+	if _loading_card != null:
+		return
+	show_loading_card()
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	get_tree().change_scene_to_file(C03_PREVIEW_PATH)
 
 
 ## Full-screen card that stays on screen while the mission scene loads. Blocks input so a second press cannot launch
