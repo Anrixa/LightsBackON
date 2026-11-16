@@ -312,6 +312,14 @@
     "repair.c02.east_trunk": "East service feeder",
     "objective.c02.restore_east": "Restore the east service row",
     "objective.c02.restore_west": "Bring power back to the west homes and market",
-    "objective.c02.open_lantern": "Optional: power The Lantern sign before opening"
+    "objective.c02.open_lantern": "Optional: power The Lantern sign before opening",
+    "contract.c03": "Roof Route",
+    "repair.c03.roof_splice": "Rooftop bypass splice",
+    "node.c03.roof": "Rooftop junction",
+    "node.c03.tie": "West crossfeed",
+    "node.c03.beacon": "Rooftop beacon",
+    "objective.c03.reach_roof": "Reach the fixed ladder to the rooftop",
+    "objective.c03.restore_east": "Restore east services through a safe feeder",
+    "objective.c03.beacon": "Optional: illuminate the roof beacon"
   }
 }
