@@ -132,6 +132,7 @@ func _ready() -> void:
 		_exclude_precompleted_measurements()
 		_apply_restored_view(_restored_view)
 	session.set_tool(TOOL_LIST[_slot - 1])
+	player.set_equipped_tool(TOOL_LIST[_slot - 1])
 	_world_fx = RestorationPresentation.new()
 	_world_fx.setup(_world, _look["windows"])
 	_fault_fx = FaultEvidencePresentation.new()
@@ -720,6 +721,7 @@ func _interact() -> void:
 func _select_slot(number: int) -> void:
 	_slot = wrapi(number - 1, 0, TOOL_LIST.size()) + 1
 	session.set_tool(TOOL_LIST[_slot - 1])
+	player.set_equipped_tool(TOOL_LIST[_slot - 1])
 	_refresh_hud()
 	_save_checkpoint()
 

@@ -8,8 +8,10 @@ signal moved
 const DIMENSIONS_PATH: String = "res://content/world/kit_dimensions.json"
 const TUNING_PATH: String = "res://content/movement.json"
 const SCENE_TUNING_PATH: String = "res://content/offline_solo.json"
+const EquipmentView := preload("res://scripts/actors/first_person_equipment.gd")
 
 var camera: Camera3D
+var equipment_view: EquipmentView
 var enabled: bool = true
 var carrying: bool = false
 var _movement: Dictionary = {}
@@ -45,6 +47,12 @@ func _ready() -> void:
 	_camera_rest_position = camera.position
 	add_child(camera)
 
+	# DS14 is parented to the actual aiming camera, but cannot affect collision,
+	# ray selection or authoritative interaction commands.
+	equipment_view = EquipmentView.new()
+	equipment_view.name = "DS14EquipmentView"
+	camera.add_child(equipment_view)
+
 	collision_layer = 1
 	collision_mask = 1
 	floor_max_angle = deg_to_rad(float(dimensions["floor_max_angle_deg"]))
@@ -70,6 +78,11 @@ func set_reduce_camera_motion(reduced: bool) -> void:
 		_reset_camera_motion()
 
 
+func set_equipped_tool(tool_id: String) -> void:
+	if equipment_view != null:
+		equipment_view.select_tool(tool_id)
+
+
 func camera_motion_offset_y() -> float:
 	return _camera_bob_y
 
@@ -91,6 +104,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if equipment_view != null:
+		equipment_view.set_carrying(carrying)
 	if not enabled:
 		return
 	var pad: Vector2 = Input.get_vector("look_left", "look_right", "look_up", "look_down")
