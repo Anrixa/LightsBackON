@@ -254,7 +254,8 @@ func test_DS13_pseudo_locale_and_higher_scale_keep_glyph_captions_localized() ->
 	var prompt: InputPrompt = InputPrompt.new()
 	_own(prompt)
 	prompt.configure("interact", UiText.t("hud.hint.tablet"), UiText.DEVICE_PAD, 150.0, _tokens)
-	assert_eq(prompt.glyph.glyph_info()["label"], "A")
+	assert_eq(prompt.glyph.glyph_info()["label"], UiText.binding("interact", UiText.DEVICE_PAD),
+		"the pseudo-locale transforms the same live binding used elsewhere")
 	assert_true(prompt.caption.text.contains("~"))
 	assert_true(prompt.glyph.custom_minimum_size.y > 42.0)
 	assert_true(prompt.caption.mouse_filter == Control.MOUSE_FILTER_IGNORE)
