@@ -34,7 +34,7 @@ func test_CTL1_C02_all_contract_definitions_load_and_preserve_authored_alder_ids
 	var mission: Dictionary = Runner.json(C02.path_join("mission.json"))
 	assert_eq(mission["contract_id"], "C02")
 	assert_eq(mission["optional_services"], ["SIGN"])
-	assert_eq(mission["optional_deadline_ticks"], 2400)
+	assert_eq(int(mission["optional_deadline_ticks"]), 2400)
 	assert_eq(mission["access_latches"].size(), 0)
 	assert_eq(Runner.json(C02.path_join("repairs.json"))["repairs"].size(), 2)
 	assert_eq(Runner.json(C01.path_join("mission.json"))["contract_id"], "C01",

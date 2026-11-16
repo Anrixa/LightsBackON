@@ -21,13 +21,6 @@
       "intent": "request_lock",
       "entity": "R_JE_TRUNK",
       "payload": {},
-      "expect": "NO_ACCESS"
-    },
-    {
-      "as": "P1",
-      "intent": "request_lock",
-      "entity": "R_JE_TRUNK",
-      "payload": {},
       "expect": "ok"
     },
     {
