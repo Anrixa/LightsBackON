@@ -25,7 +25,12 @@ func _init() -> void:
 	caption.theme_type_variation = "StrongLabel"
 	caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	caption.focus_mode = Control.FOCUS_NONE
-	caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	caption.autowrap_mode = TextServer.AUTOWRAP_OFF
+	# A flex-row label with auto wrap has an effectively zero intrinsic width:
+	# at 720p/150% it can become a 20-line tower, pushing the prompt below
+	# the safe area and shrinking the tablet map. Keep the caption one line;
+	# outer HFlowContainers wrap complete glyph+verb units instead.
+	caption.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	caption.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	add_child(caption)
 
