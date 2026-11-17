@@ -381,6 +381,12 @@ func _dispatch(player: String, msg: Dictionary) -> Dictionary:
 				# the carrier must stand at the destination too; carrying never teleports an item across the map
 				return _refuse("NOT_IN_RANGE", "move closer to %s" % payload["anchor"], [entity, payload["anchor"]])
 			var res: Dictionary = _equipment.handle(player, intent)
+			if action == "pickup" and res.get("ok", false) and _mission != null:
+				var pickup_events: Array[Dictionary] = _mission.note_equipment_pickup()
+				if not pickup_events.is_empty():
+					var all_events: Array = res.get("events", [])
+					all_events.append_array(pickup_events)
+					res["events"] = all_events
 			return _strip(res)
 	# request_lock, release, heartbeat, repair_step go to the repair interaction service
 	var intent: Dictionary = {"type": kind, "repair": entity, "in_range": in_range}

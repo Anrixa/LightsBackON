@@ -1,6 +1,6 @@
 {
   "contract_id": "C05",
-  "source_note": "CT-L2/C05 provisional Canal Yard content candidate under ADR-017; authored PU, timing, logical anchor and topology values require comparison with the unavailable original C05 contract sheet before content certification. This is headless logic only; no physical Canal Yard scene or playtest. Provisional logical storage and work-pad IDs only; real scene coordinates intentionally omitted until a Canal Yard scene is authored.",
+  "source_note": "Original Development Blueprint v1.0 pp.18-19 C05 Rising Water, source-aligned headless candidate. Canal GRID30 west13 east12 feeders14, GEN8; west LAUNDRETTE5 DINER4 ROW_HOUSES4 and east DEPOT4 COLD_STORE5 PUMP_KIOSK3. Independently flooded west/east tasks require 5 PU and 4 PU pump supply for 120 continuous ticks. Both pumps at once overload GEN 9/8. COLD_STORE time optional is measured from first host-accepted equipment pickup over 1800 ticks. Physical level and old saves remain unqualified.",
   "equipment": [
     {
       "id": "GEN_PORTABLE",
@@ -25,8 +25,8 @@
       "id": "PAD_CANAL_PUMPS",
       "storage": false,
       "routes": [
-        "E_TEMP_PUMP_DOCK",
-        "E_TEMP_PUMP_COLD"
+        "E_TEMP_PUMP_WEST",
+        "E_TEMP_PUMP_EAST"
       ]
     }
   ],

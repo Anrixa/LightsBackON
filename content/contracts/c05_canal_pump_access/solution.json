@@ -1,6 +1,6 @@
 {
   "contract_id": "C05",
-  "source_note": "CT-L2/C05 provisional Canal Yard content candidate under ADR-017; authored PU, timing, logical anchor and topology values require comparison with the unavailable original C05 contract sheet before content certification. This is headless logic only; no physical Canal Yard scene or playtest. One-player host-intent trace proves isolated pump drains followed by two meter-first repairs, optional dock beacon, stable grid supply and extraction. Not actual gameplay timing.",
+  "source_note": "CT-BP/C05 original blueprint rising-water solution, Development Blueprint v1.0 pp.18-19. First host pickup starts the 1800-tick cold-store clock. Stage two non-overlapping GEN8 routes: west pump5 for 120 continuous ticks and east pump4 for 120. Independently repair both broken flooded trunks, restore all six required consumers GRID25/30, verify, stow and extract. Simulated host intent trace, not a timed human playthrough.",
   "players": [
     "P1"
   ],
@@ -11,7 +11,7 @@
     "crimper",
     "meter"
   ],
-  "max_ticks": 550,
+  "max_ticks": 900,
   "pace_ticks_per_command": 1,
   "steps": [
     {
@@ -20,14 +20,14 @@
     {
       "as": "P1",
       "intent": "request_lock",
-      "entity": "R_DOCK_FUSE",
+      "entity": "R_WEST_TRUNK",
       "payload": {},
       "expect": "NO_ACCESS"
     },
     {
       "as": "P1",
       "intent": "request_lock",
-      "entity": "R_COLD_FEED",
+      "entity": "R_EAST_TRUNK",
       "payload": {},
       "expect": "NO_ACCESS"
     },
@@ -51,7 +51,7 @@
       "expect": "ok"
     },
     {
-      "note": "The portable 6 PU generator powers the 4 PU dock pump alone for 80 continuous ticks. Do not connect both pumps."
+      "note": "West pump"
     },
     {
       "as": "P1",
@@ -59,7 +59,7 @@
       "entity": "GEN_PORTABLE",
       "payload": {
         "action": "connect",
-        "route": "E_TEMP_PUMP_DOCK"
+        "route": "E_TEMP_PUMP_WEST"
       },
       "expect": "ok"
     },
@@ -73,7 +73,7 @@
       "expect": "ok"
     },
     {
-      "ticks": 80,
+      "ticks": 120,
       "expect_events": [
         "latch"
       ]
@@ -93,12 +93,12 @@
       "entity": "GEN_PORTABLE",
       "payload": {
         "action": "disconnect",
-        "route": "E_TEMP_PUMP_DOCK"
+        "route": "E_TEMP_PUMP_WEST"
       },
       "expect": "ok"
     },
     {
-      "note": "A separately controlled 4 PU cold-bay pump drains the second room after 100 continuous ticks."
+      "note": "East pump"
     },
     {
       "as": "P1",
@@ -106,7 +106,7 @@
       "entity": "GEN_PORTABLE",
       "payload": {
         "action": "connect",
-        "route": "E_TEMP_PUMP_COLD"
+        "route": "E_TEMP_PUMP_EAST"
       },
       "expect": "ok"
     },
@@ -120,7 +120,7 @@
       "expect": "ok"
     },
     {
-      "ticks": 100,
+      "ticks": 120,
       "expect_events": [
         "latch"
       ]
@@ -140,7 +140,7 @@
       "entity": "GEN_PORTABLE",
       "payload": {
         "action": "disconnect",
-        "route": "E_TEMP_PUMP_COLD"
+        "route": "E_TEMP_PUMP_EAST"
       },
       "expect": "ok"
     },
@@ -164,26 +164,29 @@
       "expect": "ok"
     },
     {
-      "note": "Both distinct host access flags have latched; restore DOCK fuse and damaged COLD feeder."
+      "note": "Both independent drain latches have completed. Restore WEST fuse and EAST flooded trunk through host-validated isolated repairs."
+    },
+    {
+      "note": "Repair sequence"
     },
     {
       "as": "P1",
       "intent": "request_lock",
-      "entity": "R_DOCK_FUSE",
+      "entity": "R_WEST_TRUNK",
       "payload": {},
       "expect": "ok"
     },
     {
       "as": "P1",
       "intent": "inspect",
-      "entity": "PANEL_DOCK",
+      "entity": "PANEL_WEST",
       "payload": {},
       "expect": "ok"
     },
     {
       "as": "P1",
       "intent": "equip",
-      "entity": "R_DOCK_FUSE",
+      "entity": "R_WEST_TRUNK",
       "payload": {
         "tool": ""
       },
@@ -192,7 +195,7 @@
     {
       "as": "P1",
       "intent": "repair_step",
-      "entity": "R_DOCK_FUSE",
+      "entity": "R_WEST_TRUNK",
       "payload": {
         "step": "diagnose"
       },
@@ -201,7 +204,7 @@
     {
       "as": "P1",
       "intent": "equip",
-      "entity": "R_DOCK_FUSE",
+      "entity": "R_WEST_TRUNK",
       "payload": {
         "tool": ""
       },
@@ -210,7 +213,7 @@
     {
       "as": "P1",
       "intent": "repair_step",
-      "entity": "R_DOCK_FUSE",
+      "entity": "R_WEST_TRUNK",
       "payload": {
         "step": "isolate"
       },
@@ -219,7 +222,7 @@
     {
       "as": "P1",
       "intent": "equip",
-      "entity": "R_DOCK_FUSE",
+      "entity": "R_WEST_TRUNK",
       "payload": {
         "tool": "screwdriver"
       },
@@ -228,7 +231,7 @@
     {
       "as": "P1",
       "intent": "repair_step",
-      "entity": "R_DOCK_FUSE",
+      "entity": "R_WEST_TRUNK",
       "payload": {
         "step": "open"
       },
@@ -237,165 +240,7 @@
     {
       "as": "P1",
       "intent": "equip",
-      "entity": "R_DOCK_FUSE",
-      "payload": {
-        "tool": "puller"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_DOCK_FUSE",
-      "payload": {
-        "step": "remove"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_DOCK_FUSE",
-      "payload": {
-        "tool": "puller"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_DOCK_FUSE",
-      "payload": {
-        "step": "install"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_DOCK_FUSE",
-      "payload": {
-        "tool": ""
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_DOCK_FUSE",
-      "payload": {
-        "step": "close"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_DOCK_FUSE",
-      "payload": {
-        "tool": "meter"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_DOCK_FUSE",
-      "payload": {
-        "step": "test"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_DOCK_FUSE",
-      "payload": {
-        "tool": ""
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_DOCK_FUSE",
-      "payload": {
-        "step": "restore"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "request_lock",
-      "entity": "R_COLD_FEED",
-      "payload": {},
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "inspect",
-      "entity": "PANEL_COLD",
-      "payload": {},
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_COLD_FEED",
-      "payload": {
-        "tool": ""
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_COLD_FEED",
-      "payload": {
-        "step": "diagnose"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_COLD_FEED",
-      "payload": {
-        "tool": ""
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_COLD_FEED",
-      "payload": {
-        "step": "isolate"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_COLD_FEED",
-      "payload": {
-        "tool": "screwdriver"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_COLD_FEED",
-      "payload": {
-        "step": "open"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_COLD_FEED",
+      "entity": "R_WEST_TRUNK",
       "payload": {
         "tool": "cutter"
       },
@@ -404,7 +249,7 @@
     {
       "as": "P1",
       "intent": "repair_step",
-      "entity": "R_COLD_FEED",
+      "entity": "R_WEST_TRUNK",
       "payload": {
         "step": "remove"
       },
@@ -413,7 +258,7 @@
     {
       "as": "P1",
       "intent": "equip",
-      "entity": "R_COLD_FEED",
+      "entity": "R_WEST_TRUNK",
       "payload": {
         "tool": "crimper"
       },
@@ -422,7 +267,7 @@
     {
       "as": "P1",
       "intent": "repair_step",
-      "entity": "R_COLD_FEED",
+      "entity": "R_WEST_TRUNK",
       "payload": {
         "step": "install"
       },
@@ -431,7 +276,7 @@
     {
       "as": "P1",
       "intent": "equip",
-      "entity": "R_COLD_FEED",
+      "entity": "R_WEST_TRUNK",
       "payload": {
         "tool": ""
       },
@@ -440,7 +285,7 @@
     {
       "as": "P1",
       "intent": "repair_step",
-      "entity": "R_COLD_FEED",
+      "entity": "R_WEST_TRUNK",
       "payload": {
         "step": "close"
       },
@@ -449,7 +294,7 @@
     {
       "as": "P1",
       "intent": "equip",
-      "entity": "R_COLD_FEED",
+      "entity": "R_WEST_TRUNK",
       "payload": {
         "tool": "meter"
       },
@@ -458,7 +303,7 @@
     {
       "as": "P1",
       "intent": "repair_step",
-      "entity": "R_COLD_FEED",
+      "entity": "R_WEST_TRUNK",
       "payload": {
         "step": "test"
       },
@@ -467,7 +312,7 @@
     {
       "as": "P1",
       "intent": "equip",
-      "entity": "R_COLD_FEED",
+      "entity": "R_WEST_TRUNK",
       "payload": {
         "tool": ""
       },
@@ -476,21 +321,167 @@
     {
       "as": "P1",
       "intent": "repair_step",
-      "entity": "R_COLD_FEED",
+      "entity": "R_WEST_TRUNK",
       "payload": {
         "step": "restore"
       },
       "expect": "ok"
     },
     {
-      "note": "The optional 2 PU dock beacon fits DOCK 10/12 and GRID 21/24. It is never a mandatory restoration."
+      "as": "P1",
+      "intent": "request_lock",
+      "entity": "R_EAST_TRUNK",
+      "payload": {},
+      "expect": "ok"
     },
     {
       "as": "P1",
-      "intent": "toggle_switch",
-      "entity": "SW_BEACON",
+      "intent": "inspect",
+      "entity": "PANEL_EAST",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
       "payload": {
-        "value": true
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "diagnose"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "isolate"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": "screwdriver"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "open"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": "cutter"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "remove"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": "crimper"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "install"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "close"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": "meter"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "test"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "restore"
       },
       "expect": "ok"
     },

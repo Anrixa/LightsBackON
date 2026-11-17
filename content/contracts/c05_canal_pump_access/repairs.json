@@ -1,28 +1,28 @@
 {
   "contract_id": "C05",
-  "source_note": "CT-L2/C05 provisional Canal Yard content candidate under ADR-017; authored PU, timing, logical anchor and topology values require comparison with the unavailable original C05 contract sheet before content certification. This is headless logic only; no physical Canal Yard scene or playtest. Both repair access flags require their own pump-supply latches; a pump supplied from the temporary generator does not count toward final GRID restoration.",
+  "source_note": "C05 Rising Water source-aligned host-authoritative logical definitions, Development Blueprint v1.0 pp.18-19. All real-world geometry, physical sockets and human/controller trials remain HOLD.",
   "supplies": {
-    "FUSE_DOCK": 1,
+    "CABLE_SPLICE_WEST": 1,
     "CABLE_SPLICE": 1
   },
   "repairs": [
     {
-      "id": "R_DOCK_FUSE",
-      "name_key": "repair.c05.dock_fuse",
-      "panel": "PANEL_DOCK",
-      "access": "DOCK_DRAINED",
-      "isolate": "DOCK",
+      "id": "R_WEST_TRUNK",
+      "name_key": "repair.c05.west_trunk",
+      "panel": "PANEL_WEST",
+      "access": "WEST_DRAINED",
+      "isolate": "WEST",
       "fix": {
         "op": "set",
-        "id": "DOCK",
-        "field": "failed",
-        "value": false
+        "id": "E_GRID_WEST",
+        "field": "healthy",
+        "value": true
       },
-      "component": "FUSE_DOCK",
+      "component": "CABLE_SPLICE_WEST",
       "tools": {
         "open": "screwdriver",
-        "remove": "puller",
-        "install": "puller",
+        "remove": "cutter",
+        "install": "crimper",
         "test": "meter"
       },
       "hold_ticks": {
@@ -33,14 +33,14 @@
       }
     },
     {
-      "id": "R_COLD_FEED",
-      "name_key": "repair.c05.cold_feed",
-      "panel": "PANEL_COLD",
-      "access": "COLD_DRAINED",
-      "isolate": "COLD",
+      "id": "R_EAST_TRUNK",
+      "name_key": "repair.c05.east_trunk",
+      "panel": "PANEL_EAST",
+      "access": "EAST_DRAINED",
+      "isolate": "EAST",
       "fix": {
         "op": "set",
-        "id": "E_GRID_COLD",
+        "id": "E_GRID_EAST",
         "field": "healthy",
         "value": true
       },
