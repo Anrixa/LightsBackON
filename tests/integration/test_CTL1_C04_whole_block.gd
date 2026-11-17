@@ -108,7 +108,7 @@ func test_CTL1_C04_bad_optional_spur_definition_fails_closed() -> void:
 	for repair: Dictionary in data["repairs"]:
 		assert_false(ids.has(repair["id"]))
 		ids[repair["id"]] = true
-	assert_eq(data["supplies"]["CABLE_SPLICE"], 2)
+	assert_eq(int(data["supplies"]["CABLE_SPLICE"]), 2)
 	assert_eq((data["repairs"] as Array)[2]["fix"]["id"], "E_SPUR_SIGN")
 	assert_eq((data["repairs"] as Array)[2]["isolate"], "SPUR")
 	var ctx: Dictionary = _context()
