@@ -334,6 +334,7 @@
     "objective.c04.restore_east": "Restore the east services",
     "objective.c04.restore_west": "Restore the west services",
     "objective.c04.restore_sign": "Optional: restore the sign through its direct feed",
-    "node.c04.spur": "Sign spur junction"
+    "node.c04.spur": "Sign spur junction",
+    "node.c04.east_sign": "East sign isolator"
   }
 }

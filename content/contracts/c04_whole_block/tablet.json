@@ -81,6 +81,12 @@
       "col": 5,
       "row": 1,
       "name_key": "node.c04.spur"
+    },
+    {
+      "id": "EAST_SIGN",
+      "col": 5,
+      "row": 2,
+      "name_key": "node.c04.east_sign"
     }
   ]
 }

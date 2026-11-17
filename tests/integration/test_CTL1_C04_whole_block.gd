@@ -36,7 +36,7 @@ func test_CTL1_C04_schema_loads_and_direct_spur_is_independent() -> void:
 	assert_true(state["nodes"]["JW"]["failed"])
 	assert_false(state["edges"]["E_GRID_JE"]["healthy"])
 	assert_eq(state["edges"]["E_GRID_JE"]["capacity"], 12)
-	assert_false(state["edges"]["E_JE_SIGN"]["enabled"])
+	assert_true(state["nodes"]["EAST_SIGN"]["isolated"])
 	assert_false(state["edges"]["E_SPUR_SIGN"]["healthy"])
 	assert_eq(state["edges"]["E_GRID_SPUR"]["capacity"], 3)
 	assert_eq(Runner.json(C04.path_join("repairs.json"))["repairs"].size(), 3)
@@ -66,7 +66,7 @@ func test_CTL1_C04_host_solution_restores_five_plus_optional_without_trip() -> v
 func test_CTL1_C04_east_sign_wrong_route_overloads_after_fifteen_ticks() -> void:
 	var ctx: Dictionary = _context()
 	_until(ctx, "R_JW_FUSE")
-	assert_true(Runner.send(ctx, "P1", "toggle_switch", "SW_EAST_SIGN", {"value": true}).get("ok", false))
+	assert_true(Runner.send(ctx, "P1", "toggle_switch", "SW_EAST_SIGN", {"value": false}).get("ok", false))
 	assert_true(Runner.send(ctx, "P1", "toggle_switch", "SW_SIGN", {"value": true}).get("ok", false))
 	Runner.ticks(ctx, 14)
 	assert_false((ctx["grid"] as Grid).canonical_state()["nodes"]["JE"]["tripped"])
@@ -81,7 +81,7 @@ func test_CTL1_C04_dual_route_rejected_atomically() -> void:
 	assert_true(Runner.send(ctx, "P1", "toggle_switch", "SW_SIGN", {"value": true}).get("ok", false))
 	var grid: Grid = ctx["grid"] as Grid
 	var before: String = Grid.serialize(grid.canonical_state())
-	var refused: Dictionary = Runner.send(ctx, "P1", "toggle_switch", "SW_EAST_SIGN", {"value": true})
+	var refused: Dictionary = Runner.send(ctx, "P1", "toggle_switch", "SW_EAST_SIGN", {"value": false})
 	assert_false(refused.get("ok", false))
 	assert_eq(Grid.serialize(grid.canonical_state()), before)
 

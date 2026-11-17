@@ -6,8 +6,8 @@
 
 - Five mandatory Alder services: west 9 PU and east 11 PU, total 20 PU on the 24 PU GRID.
 - West fuse begins failed/tripped; east 12 PU feeder begins broken. Host-authorized meter-first repairs restore each.
-- The Lantern sign is an **optional 3 PU** load. The east feeder is already at 11/12 PU. Enabling its existing sign branch gives 14/12 PU and trips the JE protection after 15 ticks.
-- An independent 3 PU `GRID → SPUR → SIGN` feed provides a safe route. The separate sign splice is damaged, needs isolated repair, and the sign switch starts off. The east sign branch starts disabled to avoid two simultaneous routes.
+- The Lantern sign is an **optional 3 PU** load. The east feeder is already at 11/12 PU. Enabling its sign branch, after opening the EAST_SIGN isolator, gives 14/12 PU and trips the JE protection after 15 ticks.
+- An independent 3 PU `GRID → SPUR → SIGN` feed provides a safe route. The separate sign splice is damaged, needs isolated repair, and the sign switch starts off. The east sign branch runs through the separate EAST_SIGN junction, initially isolated to avoid two simultaneous routes. Its host-controlled isolator must stay closed to use the direct feed safely.
 - Safe resolved loads: west 9 PU + east 11 PU + sign 3 PU = **23/24 PU** at GRID; east 11/12; spur 3/3. Activating both sign routes must be refused **without state mutation**, even if source limits would not trip.
 - Optional work may be skipped. Five required GRID-fed services still complete after 100 uninterrupted host ticks; extraction takes 50 ticks. Single-player solution; no two-person dependency. Generator stays optional and stowed.
 - The existing host repair locks, supply rules, equipment, meter evidence, protection trip logic, and save schema are reused without modifying core code or C01–C03 rules.

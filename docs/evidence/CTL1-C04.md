@@ -8,7 +8,7 @@
 
 ## Implemented
 
-Two required fault repairs; independent 3 PU optional direct sign spur; disabled east-sign crossfeed; host-validated 15 tick overload and dual-supply refusal; verified mission completion and optional 3-star reward; standalone localization and tablet content. C01–C03 contract files are unchanged.
+Two required fault repairs; independent 3 PU optional direct sign spur; isolated east-sign crossfeed; host-validated 15 tick overload and dual-supply refusal; verified mission completion and optional 3-star reward; standalone localization and tablet content. C01–C03 contract files are unchanged.
 
 ## Verification checklist
 

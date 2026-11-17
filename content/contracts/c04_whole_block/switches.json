@@ -1,6 +1,6 @@
 {
   "contract_id": "C04",
-  "source_note": "Host-operated switches select the optional sign's feed. The direct sign spur is safe at 3 PU; the east branch at 11/12 PU cannot carry the sign too. An active second route is refused before mutation.",
+  "source_note": "Host-operated junction isolator SW_EAST_SIGN defaults closed to east sign routing (EAST_SIGN isolated=true). Opening that isolator allows unsafe 14/12 PU via JE. Direct 3 PU spur is the safe choice; simultaneous sign routes are refused before mutation.",
   "switches": [
     {
       "id": "SW_SIGN",
@@ -9,8 +9,8 @@
     },
     {
       "id": "SW_EAST_SIGN",
-      "target": "E_JE_SIGN",
-      "field": "enabled"
+      "target": "EAST_SIGN",
+      "field": "isolated"
     },
     {
       "id": "SW_JW_BREAKER",

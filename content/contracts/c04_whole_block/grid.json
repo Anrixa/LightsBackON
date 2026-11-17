@@ -1,6 +1,6 @@
 {
   "contract_id": "C04",
-  "source_note": "C04 Whole Block (ADR-017 logic-only): the west fuse and east trunk interrupt five 20 PU services. A 3 PU sign over the 12 PU east feeder would trip; an independently repaired GRID-to-SPUR-to-SIGN path supplies the optional sign. Required services draw 20 PU; sign raises GRID demand to 23/24 PU. PU are abstract.",
+  "source_note": "C04 Whole Block (ADR-017 logic-only): the west fuse and east trunk interrupt five 20 PU services. A 3 PU sign over the 12 PU east feeder via the isolated EAST_SIGN junction would trip; an independently repaired GRID-to-SPUR-to-SIGN path supplies the optional sign. Required services draw 20 PU; sign raises GRID demand to 23/24 PU. PU are abstract.",
   "trip_ticks": 15,
   "nodes": [
     {
@@ -33,6 +33,13 @@
       "id": "TEMP",
       "kind": "junction",
       "isolated": false,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "EAST_SIGN",
+      "kind": "junction",
+      "isolated": true,
       "failed": false,
       "tripped": false
     },
@@ -153,9 +160,17 @@
     {
       "id": "E_JE_SIGN",
       "from": "JE",
+      "to": "EAST_SIGN",
+      "capacity": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_EASTSIGN_SIGN",
+      "from": "EAST_SIGN",
       "to": "SIGN",
       "capacity": 3,
-      "enabled": false,
+      "enabled": true,
       "healthy": true
     },
     {
