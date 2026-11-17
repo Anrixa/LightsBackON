@@ -86,6 +86,10 @@ var _results: Dictionary = {}  # frozen at completion: later commands cannot cha
 var _players: Dictionary = {}  # connected player id -> true
 var _in_zone: Dictionary = {}  # player id -> true
 var _now: int = 0
+## C09: mission-relative, host-tick wind timetable. Absent on earlier contracts.
+## A blocked roof entry is always checked before any cached ladder receipt.
+var _wind_gate: Dictionary = {}
+var _wind_elapsed: int = 0
 
 
 ## definition: content/contracts/<c>/mission.json. Returns diagnostics; empty means loaded.
@@ -161,6 +165,28 @@ func load_definition(definition: Dictionary, grid: PowerGrid, interaction: Inter
 				_fixed_ladders[ladder_id] = grant
 				if required_latch != "":
 					_ladder_requires[ladder_id] = required_latch
+	# Authored route IDs are host interactions, not power-grid nodes or client clocks.
+	var wind_raw: Variant = definition.get("wind_window", null)
+	if wind_raw != null:
+		var w: Dictionary = wind_raw if wind_raw is Dictionary else {}
+		var entry: Variant = w.get("roof_entry")
+		var ret: Variant = w.get("roof_return")
+		var ground: Variant = w.get("ground_route")
+		var warning: Variant = PowerGrid.to_int(w.get("warning_ticks"))
+		var closed_from: Variant = PowerGrid.to_int(w.get("closed_from_ticks"))
+		var closed_through: Variant = PowerGrid.to_int(w.get("closed_through_ticks"))
+		var ground_extra: Variant = PowerGrid.to_int(w.get("ground_extra_ticks"))
+		if not (w.size() == 7 and entry is String and ret is String and ground is String and
+				_fixed_ladders.has(entry) and _fixed_ladders.has(ret) and _fixed_ladders.has(ground) and
+				entry != ret and entry != ground and ret != ground and
+				warning != null and closed_from != null and closed_through != null and ground_extra != null and
+				int(warning) >= 1 and int(warning) < int(closed_from) and
+				int(closed_from) <= int(closed_through) and int(ground_extra) >= 0):
+			errs.append(PowerGrid.diag("BAD_MISSION", "wind window requires distinct roof/return/ground routes and ordered host ticks", []))
+		else:
+			_wind_gate = {"roof_entry": entry, "roof_return": ret, "ground_route": ground,
+				"warning_ticks": int(warning), "closed_from_ticks": int(closed_from),
+				"closed_through_ticks": int(closed_through), "ground_extra_ticks": int(ground_extra)}
 	var verify: Variant = PowerGrid.to_int(definition.get("final_verification_ticks"))
 	var ex: Dictionary = definition.get("extraction", {})
 	var countdown: Variant = PowerGrid.to_int(ex.get("countdown_ticks"))
@@ -369,6 +395,16 @@ func tick(now: int) -> Array[Dictionary]:
 	if _completed_tick >= 0:
 		return events
 	observe_supply_state()
+	if not _wind_gate.is_empty():
+		_wind_elapsed += 1
+		if _wind_elapsed == int(_wind_gate["warning_ticks"]):
+			events.append({"type": "wind_warning", "tick": now,
+				"roof_entry": _wind_gate["roof_entry"], "ground_route": _wind_gate["ground_route"]})
+		if _wind_elapsed == int(_wind_gate["closed_from_ticks"]):
+			events.append({"type": "wind_roof_closed", "tick": now,
+				"safe_return": _wind_gate["roof_return"], "ground_route": _wind_gate["ground_route"]})
+		if _wind_elapsed == int(_wind_gate["closed_through_ticks"]) + 1:
+			events.append({"type": "wind_roof_reopened", "tick": now, "roof_entry": _wind_gate["roof_entry"]})
 	var st: Dictionary = _grid.canonical_state()
 	for lid: String in _sorted(_latches.keys()):
 		if _latched.has(lid):
@@ -622,6 +658,10 @@ func use_ladder(ladder_id: String, in_range: bool) -> Dictionary:
 		return _refuse("NOT_IN_RANGE", "move closer to %s" % ladder_id, [ladder_id])
 	if _completed_tick >= 0:
 		return _refuse("ALREADY_COMPLETE", "mission already complete", [])
+	# The timed closure applies to ENTRY ONLY. A person already on the roof
+	# may always use the authored return endpoint; the ground detour also stays open.
+	if not _wind_gate.is_empty() and ladder_id == _wind_gate["roof_entry"] and _wind_roof_closed():
+		return _refuse("WIND_CLOSED", "roof entry closed by warned gust; ground route remains open", [ladder_id])
 	if _ladder_requires.has(ladder_id) and not _latched.has(_ladder_requires[ladder_id]):
 		return _refuse("ACCESS_NOT_READY", "power the ladder access light before climbing", [ladder_id])
 	if _ladder_access.has(ladder_id):
@@ -630,6 +670,10 @@ func use_ladder(ladder_id: String, in_range: bool) -> Dictionary:
 	var grant: String = _fixed_ladders[ladder_id]
 	_interaction.set_access(grant, true)
 	return {"ok": true, "events": [{"type": "ladder_access", "id": ladder_id, "grants": grant, "tick": _now}]}
+
+func _wind_roof_closed() -> bool:
+	return not _wind_gate.is_empty() and _wind_elapsed >= int(_wind_gate["closed_from_ticks"]) and \
+		_wind_elapsed <= int(_wind_gate["closed_through_ticks"])
 
 
 func is_complete() -> bool:
@@ -711,6 +755,11 @@ func canonical_state() -> Dictionary:
 		out["optional_continuous_supply"] = {"ok": _continuous_ok}
 	if not _fixed_ladders.is_empty():
 		out["ladder_access"] = _ladder_access.duplicate()
+	if not _wind_gate.is_empty():
+		out["wind_window"] = {"elapsed_ticks": _wind_elapsed, "warned": _wind_elapsed >= int(_wind_gate["warning_ticks"]),
+			"roof_closed": _wind_roof_closed(), "roof_entry": _wind_gate["roof_entry"],
+			"safe_return": _wind_gate["roof_return"], "ground_route": _wind_gate["ground_route"],
+			"ground_extra_ticks": _wind_gate["ground_extra_ticks"]}
 	return out
 
 
@@ -740,6 +789,8 @@ func durable_state() -> Dictionary:
 		out["optional_continuous_supply"] = {"ok": _continuous_ok}
 	if not _fixed_ladders.is_empty():
 		out["ladder_access"] = _ladder_access.duplicate()
+	if not _wind_gate.is_empty():
+		out["wind_window"] = {"elapsed_ticks": _wind_elapsed}
 	return out
 
 
@@ -897,6 +948,17 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 			if not (ladder_id is String and _fixed_ladders.has(ladder_id)) or first_tick == null or int(first_tick) < 0:
 				return bad
 			ladder_access[ladder_id] = int(first_tick)
+	# No live wall clock can be trusted on restore: preserve the mission-relative
+	# elapsed host ticks, and do not mutate any fields on malformed records.
+	var wind_elapsed: int = 0
+	if not _wind_gate.is_empty():
+		var wind_saved: Variant = d.get("wind_window")
+		if not (wind_saved is Dictionary and (wind_saved as Dictionary).size() == 1):
+			return bad
+		var elapsed: Variant = PowerGrid.to_int(wind_saved.get("elapsed_ticks"))
+		if elapsed == null or int(elapsed) < 0:
+			return bad
+		wind_elapsed = int(elapsed)
 	if (counters["completed_tick"] >= 0) == (d["results"] as Dictionary).is_empty():
 		return bad  # a finished run must carry its frozen results, an unfinished one none
 	for lid: String in latch_ticks:
@@ -925,6 +987,7 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 	_evidence_reset_attempted = reset_attempted
 	_continuous_ok = continuous_ok
 	_ladder_access = ladder_access
+	_wind_elapsed = wind_elapsed
 	for ladder_id: String in _ladder_access:
 		_interaction.set_access(_fixed_ladders[ladder_id], true)
 	_countdown_left = -1
