@@ -1,6 +1,6 @@
 {
   "contract_id": "C05",
-  "source_note": "Original Development Blueprint v1.0 pp.18-19 C05 Rising Water, source-aligned headless candidate. Canal GRID30 west13 east12 feeders14, GEN8; west LAUNDRETTE5 DINER4 ROW_HOUSES4 and east DEPOT4 COLD_STORE5 PUMP_KIOSK3. Independently flooded west/east tasks require 5 PU and 4 PU pump supply for 120 continuous ticks. Both pumps at once overload GEN 9/8. COLD_STORE time optional is measured from first host-accepted equipment pickup over 1800 ticks. Physical level and old saves remain unqualified.",
+  "source_note": "Original Development Blueprint v1.0 pp.18-19 C05 Rising Water, source-aligned headless candidate. Canal GRID30 west13 east12 feeders14, GEN8; both feeder trunks broken behind separately flooded rooms; west LAUNDRETTE5 DINER4 ROW_HOUSES4 and east DEPOT4 COLD_STORE5 PUMP_KIOSK3. Independently flooded west/east tasks require 5 PU and 4 PU pump supply for 120 continuous ticks. Both pumps at once overload GEN 9/8. COLD_STORE time optional is measured from first host-accepted equipment pickup over 1800 ticks. Physical level and old saves remain unqualified.",
   "trip_ticks": 15,
   "nodes": [
     {
@@ -19,8 +19,8 @@
       "id": "WEST",
       "kind": "junction",
       "isolated": false,
-      "failed": true,
-      "tripped": true
+      "failed": false,
+      "tripped": false
     },
     {
       "id": "EAST",
@@ -100,7 +100,7 @@
       "to": "WEST",
       "capacity": 14,
       "enabled": true,
-      "healthy": true
+      "healthy": false
     },
     {
       "id": "E_GRID_EAST",
