@@ -171,7 +171,7 @@ func _build_switch_stations(markers: Node3D) -> void:
 		root.add_child(station)
 		_box(station, "SwitchPlate", Vector3(0.0, 0.12, 0.02),
 			Vector3(0.58, 0.36, 0.08), casing)
-		_switch_indicators[id] = _label(station, "SwitchState", "%s\\nUNKNOWN" %
+		_switch_indicators[id] = _label(station, "SwitchState", "%s\nUNKNOWN" %
 			id.trim_prefix("SW_").replace("_", " "), Vector3(0.0, 0.18, -0.05))
 
 
@@ -188,7 +188,7 @@ static func _switch_state(snapshot: Dictionary, source: Dictionary) -> String:
 		component = nodes[target]
 	elif edges.get(target) is Dictionary:
 		component = edges[target]
-	if not component.has(field) or not component[field] is bool:
+	if not component.has(field) or not (component[field] is bool):
 		return "UNKNOWN"
 	var value: bool = bool(component[field])
 	match field:

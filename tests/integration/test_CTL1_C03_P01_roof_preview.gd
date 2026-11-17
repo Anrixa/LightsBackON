@@ -179,10 +179,16 @@ func test_CTL1_C03_P02_every_host_switch_has_world_marker_and_visible_plate() ->
 		assert_true(scene.get_node_or_null("District/Markers/" + id) is Marker3D, id)
 		assert_true(view.get_node_or_null("C03SwitchStations/" + id + "/SwitchPlate") is MeshInstance3D, id)
 		assert_true(view.get_node_or_null("C03SwitchStations/" + id + "/SwitchState") is Label3D, id)
-		assert_eq(str(session.action_for(id, "meter").get("kind", "")), "toggle_switch", id)
+		var action: Dictionary = session.action_for(id, "meter")
+		assert_eq(str(action.get("kind", "")), "toggle_switch", id)
+		assert_true((action.get("payload", {}) as Dictionary).get("value") is bool, id)
 		assert_true(session.radius_for(id) > 0.0, id)
 	assert_false(bool(scene.get("_save_enabled")))
 	assert_eq(scene.get("_store"), null)
+	assert_eq(session.action_for("SW_ROOF_FEED", "meter")["payload"]["value"], true,
+		"disabled edge switch must propose the host-authorized enabling intent")
+	assert_eq(session.action_for("SW_JW_BREAKER", "meter")["payload"]["value"], false,
+		"tripped node switch must propose the host-authorized reset intent")
 
 
 func test_CTL1_C03_P02_switch_states_are_host_observations_not_supply_claims() -> void:
@@ -204,7 +210,8 @@ func test_CTL1_C03_P02_switch_states_are_host_observations_not_supply_claims() -
 	assert_eq(Grid.serialize(session.host_state()), before, "presentation must not mutate the host")
 	view.apply_host({"grid": {"nodes": {}, "edges": {}}})
 	assert_true(feed.text.ends_with("UNKNOWN"), "missing host data must not imply active power")
-	assert_false((view.get_node("C03SwitchStations/SW_ROOF_FEED/SwitchPlate") as MeshInstance3D).material_override.emission_enabled)
+	var plate: MeshInstance3D = view.get_node("C03SwitchStations/SW_ROOF_FEED/SwitchPlate") as MeshInstance3D
+	assert_false((plate.material_override as StandardMaterial3D).emission_enabled)
 
 
 func test_CTL1_C03_P02_missing_or_duplicate_switch_marker_fails_closed() -> void:

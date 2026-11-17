@@ -297,9 +297,22 @@ func action_for(target: String, tool: String) -> Dictionary:
 	if target.begins_with("SW_"):
 		for sw: Dictionary in _content["switches"]["switches"]:
 			if str(sw["id"]) == target:
-				var node: Dictionary = grid.canonical_state()["nodes"][str(sw["target"])]
+				# A host-authorized switch may target a node or an edge.
+				# Read the live canonical state without fabricating an edge as a node.
+				var state: Dictionary = grid.canonical_state()
+				var nodes: Dictionary = state.get("nodes", {})
+				var edges: Dictionary = state.get("edges", {})
+				var target_id: String = str(sw["target"])
+				var field: String = str(sw["field"])
+				var component: Dictionary = {}
+				if nodes.get(target_id) is Dictionary:
+					component = nodes[target_id]
+				elif edges.get(target_id) is Dictionary:
+					component = edges[target_id]
+				if not component.has(field) or not (component[field] is bool):
+					return {}
 				return {"kind": "toggle_switch", "entity": target,
-					"payload": {"value": not bool(node[str(sw["field"])])}}
+					"payload": {"value": not bool(component[field])}}
 	return {}
 
 
