@@ -43,7 +43,7 @@ func test_CTL1_C03_P01_explicit_preview_does_not_initialize_C01_save_writer() ->
 	assert_eq(scene.get("_store"), null, "preview never touches the C01 save coordinator")
 	assert_true(session.host_state()["grid"]["nodes"].has("ROOF_BEACON"))
 	assert_eq(session.hud_view(1, "", "meter")["contract_key"], "contract.c03")
-	assert_eq(str(session.mission.objectives()[0]["text_key"]), "objective.c03.reach_roof")
+	assert_eq(str(session.mission.objectives()[0]["text_key"]), "objective.c03.power_ladder")
 	assert_false((scene.get("onboarding") as Control).visible)
 	assert_true(scene.get_node_or_null("District/C03RoofRoute") is Ladder)
 
