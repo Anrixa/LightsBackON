@@ -258,164 +258,6 @@
       "expect": "ok"
     },
     {
-      "as": "P1",
-      "intent": "request_lock",
-      "entity": "R_EAST_TRUNK",
-      "payload": {},
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "inspect",
-      "entity": "PANEL_EAST",
-      "payload": {},
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_EAST_TRUNK",
-      "payload": {
-        "tool": ""
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_EAST_TRUNK",
-      "payload": {
-        "step": "diagnose"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_EAST_TRUNK",
-      "payload": {
-        "tool": ""
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_EAST_TRUNK",
-      "payload": {
-        "step": "isolate"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_EAST_TRUNK",
-      "payload": {
-        "tool": "screwdriver"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_EAST_TRUNK",
-      "payload": {
-        "step": "open"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_EAST_TRUNK",
-      "payload": {
-        "tool": "cutter"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_EAST_TRUNK",
-      "payload": {
-        "step": "remove"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_EAST_TRUNK",
-      "payload": {
-        "tool": "crimper"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_EAST_TRUNK",
-      "payload": {
-        "step": "install"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_EAST_TRUNK",
-      "payload": {
-        "tool": ""
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_EAST_TRUNK",
-      "payload": {
-        "step": "close"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_EAST_TRUNK",
-      "payload": {
-        "tool": "meter"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_EAST_TRUNK",
-      "payload": {
-        "step": "test"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_EAST_TRUNK",
-      "payload": {
-        "tool": ""
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_EAST_TRUNK",
-      "payload": {
-        "step": "restore"
-      },
-      "expect": "ok"
-    },
-    {
       "note": "Install direct GRID→BEACON 4 PU spur; WEST13 + BEACON3 through west would overload 14."
     },
     {
@@ -571,6 +413,164 @@
       "as": "P1",
       "intent": "repair_step",
       "entity": "R_BEACON_SPUR",
+      "payload": {
+        "step": "restore"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "request_lock",
+      "entity": "R_EAST_TRUNK",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "inspect",
+      "entity": "PANEL_EAST",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "diagnose"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "isolate"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": "screwdriver"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "open"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": "cutter"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "remove"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": "crimper"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "install"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "close"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": "meter"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "test"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
       "payload": {
         "step": "restore"
       },

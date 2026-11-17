@@ -94,6 +94,11 @@ var _interruption_ticks: int = 0
 var _interruption_failed: bool = false
 var _interruption_pending: bool = false
 var _interruption_last_valid: bool = false
+## C12-only host-authored finale event sequence. Presentation events do not
+## lock input, change electrical state or certify the physical level.
+var _finale: Dictionary = {}
+var _finale_started: bool = false
+var _finale_elapsed: int = 0
 ## Optional host-observed meter finding; absent from legacy contracts and saves.
 var _meter_evidence: Dictionary = {}
 var _evidence_observed: bool = false
@@ -178,6 +183,24 @@ func load_definition(definition: Dictionary, grid: PowerGrid, interaction: Inter
 				"timed optional latch needs a rewarded latch, valid deadline and mission clock", []))
 		else:
 			_timed_latch_option = {"latch": lid, "deadline_ticks": int(limit)}
+	# Verification-triggered ending: exactly 20 authoritative 10 Hz ticks,
+	# two safe replay/remaining-work actions, and a localized radio subtitle.
+	# Other contracts retain their original state and result dictionary shape.
+	var finale_raw: Variant = definition.get("finale", null)
+	if finale_raw != null:
+		var finale: Dictionary = finale_raw if finale_raw is Dictionary else {}
+		var stagger: Variant = PowerGrid.to_int(finale.get("stagger_ticks"))
+		var actions: Variant = finale.get("results_actions")
+		var key: Variant = finale.get("radio_subtitle_key")
+		if not (finale.size() == 4 and finale.get("trigger") == "first_verified"
+				and stagger != null and int(stagger) == 20
+				and key is String and str(key).begins_with("radio.") and str(key).length() > 6
+				and actions is Array and actions == ["replay", "remaining_optional_tasks"]):
+			errs.append(PowerGrid.diag("BAD_MISSION",
+				"verification finale requires 20 ticks, localized subtitle and replay/remaining tasks", []))
+		else:
+			_finale = {"stagger_ticks": int(stagger),
+				"radio_subtitle_key": key, "results_actions": actions.duplicate()}
 	# Fixed ladders are contract access interactions, not electrical nodes.
 	for rec: Variant in definition.get("fixed_ladders", []):
 		var ladder: Dictionary = rec if rec is Dictionary else {}
@@ -548,10 +571,26 @@ func tick(now: int) -> Array[Dictionary]:
 				_interruption_ticks = 0
 		_interruption_pending = false
 		_interruption_last_valid = supplied
+	# The zero/ten/twenty restoration cues are host-timed and emitted once,
+	# even if verification subsequently drops or a saved host is resumed.
+	if _finale_started and _finale_elapsed < int(_finale["stagger_ticks"]):
+		_finale_elapsed += 1
+		if _finale_elapsed == 10 or _finale_elapsed == 20:
+			events.append({"type": "finale_lights_wave", "stage": 1 if _finale_elapsed == 10 else 2,
+				"elapsed_ticks": _finale_elapsed, "tick": now})
+		if _finale_elapsed == 20:
+			events.append({"type": "finale_lights_completed", "tick": now})
 	var was_verified: bool = verified()
 	_verify_ticks = mini(_verify_ticks + 1, _verify_needed) if _all_required_on_grid(st) else 0
 	if verified() and not was_verified:
 		events.append({"type": "verified", "tick": now})
+		if not _finale.is_empty() and not _finale_started:
+			_finale_started = true
+			_finale_elapsed = 0
+			events.append({"type": "finale_lights_wave", "stage": 0,
+				"elapsed_ticks": 0, "tick": now})
+			events.append({"type": "finale_radio_subtitle",
+				"text_key": _finale["radio_subtitle_key"], "tick": now})
 	elif was_verified and not verified():
 		events.append({"type": "verification_lost", "tick": now})
 	if _countdown_left >= 0:
@@ -681,9 +720,12 @@ func _build_results() -> Dictionary:
 	var optional_total: int = _optional.size() + (1 if not _meter_evidence.is_empty() else 0) + (1 if not _continuous_optional.is_empty() else 0) + _opening_venues.size() + _optional_latch_rewards.size() + (1 if not _pickup_option.is_empty() else 0) + (1 if not _outage_option.is_empty() else 0) + (1 if not _interruption_option.is_empty() else 0)
 	var preventable: int = maxi(0, _trips - _trip_allowance)
 	var stars: int = 1 + (1 if optional_restored.size() == optional_total else 0) + (1 if preventable == 0 else 0)
-	return {"required_restored": restored, "required_total": _required.size(), "optional_services": optional_restored,
+	var report: Dictionary = {"required_restored": restored, "required_total": _required.size(), "optional_services": optional_restored,
 		"optional_total": optional_total, "trips": _trips, "preventable_trips": preventable, "crew_recoveries": _recoveries,
 		"ticks": _completed_tick, "equipment_collected": _equipment.all_stowed(), "stars": stars}
+	if not _finale.is_empty():
+		report["next_actions"] = (_finale["results_actions"] as Array).duplicate()
+	return report
 
 
 # ---------- extraction ----------
@@ -899,6 +941,12 @@ func canonical_state() -> Dictionary:
 		out["max_consecutive_outage"] = {"elapsed_ticks": _interruption_ticks, "missed": _interruption_failed,
 			"pending_unpowered": _interruption_pending, "powered": _valid_interruption_supply(_grid.canonical_state()),
 			"remaining_ticks": maxi(0, int(_interruption_option["max_outage_ticks"]) + 1 - _interruption_ticks)}
+	if not _finale.is_empty():
+		out["finale"] = {"started": _finale_started, "elapsed_ticks": _finale_elapsed,
+			"complete": _finale_started and _finale_elapsed == int(_finale["stagger_ticks"]),
+			"radio_subtitle_key": _finale["radio_subtitle_key"], "input_locked": false}
+	if not _finale.is_empty():
+		out["finale"] = {"started": _finale_started, "elapsed_ticks": _finale_elapsed}
 	if not _continuous_optional.is_empty():
 		out["optional_continuous_supply"] = {"ok": _continuous_ok}
 	if not _fixed_ladders.is_empty():
@@ -1097,6 +1145,22 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 		restored_interruption_pending = interruption_saved["pending_unpowered"]
 		if restored_interruption_failed != (restored_interruption_ticks == max_allowed + 1):
 			return bad
+	# C12 finale progress is conditional; do not mutate live state until
+	# the full receipt has been validated with all other checkpoint sections.
+	var restored_finale_started: bool = false
+	var restored_finale_elapsed: int = 0
+	if not _finale.is_empty():
+		var finale_saved: Variant = d.get("finale")
+		if not (finale_saved is Dictionary and (finale_saved as Dictionary).size() == 2
+				and finale_saved.get("started") is bool):
+			return bad
+		var elapsed_raw: Variant = PowerGrid.to_int(finale_saved.get("elapsed_ticks"))
+		if elapsed_raw == null or int(elapsed_raw) < 0 or int(elapsed_raw) > int(_finale["stagger_ticks"]):
+			return bad
+		restored_finale_started = finale_saved["started"]
+		restored_finale_elapsed = int(elapsed_raw)
+		if not restored_finale_started and restored_finale_elapsed != 0:
+			return bad
 	# Evidence state is saved only by contracts that declare this objective.
 	# Verify the complete shape before mutating mission data (fail closed).
 	var observed: bool = false
@@ -1190,6 +1254,8 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 	_interruption_failed = restored_interruption_failed
 	_interruption_pending = restored_interruption_pending
 	_interruption_last_valid = _valid_interruption_supply(_grid.canonical_state())
+	_finale_started = restored_finale_started
+	_finale_elapsed = restored_finale_elapsed
 	_evidence_observed = observed
 	_evidence_reset_attempted = reset_attempted
 	_continuous_ok = continuous_ok

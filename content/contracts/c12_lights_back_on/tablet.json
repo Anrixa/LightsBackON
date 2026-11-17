@@ -90,7 +90,7 @@
     },
     {
       "id": "DRAIN_CONTROL",
-      "col": 0,
+      "col": 2,
       "row": 3,
       "name_key": "node.c12.drain_control"
     }
