@@ -62,7 +62,7 @@ func test_CT_BP_C05_original_six_services_and_power_ratings() -> void:
 	assert_false(st["edges"]["E_GRID_EAST"]["healthy"])
 	assert_eq(mission["required_consumers"].size(), 6)
 	assert_eq(mission["optional_services"].size(), 0)
-	assert_eq(mission["optional_pickup_deadline"]["deadline_ticks"], 1800)
+	assert_eq(int(mission["optional_pickup_deadline"]["deadline_ticks"]), 1800)
 	assert_eq(mission["optional_pickup_deadline"]["start_trigger"], "first_equipment_pickup")
 	assert_eq(Runner.send(ctx, "P1", "request_lock", "R_WEST_TRUNK", {}).get("code"), "NO_ACCESS")
 	assert_eq(Runner.send(ctx, "P1", "request_lock", "R_EAST_TRUNK", {}).get("code"), "NO_ACCESS")
