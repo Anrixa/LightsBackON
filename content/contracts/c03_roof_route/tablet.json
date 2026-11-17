@@ -17,6 +17,12 @@
       "name_key": "node.c03.roof"
     },
     {
+      "id": "LADDER_LIGHT",
+      "col": 0,
+      "row": 1,
+      "name_key": "node.c03.ladder_light"
+    },
+    {
       "id": "JW",
       "col": 1,
       "row": 1,

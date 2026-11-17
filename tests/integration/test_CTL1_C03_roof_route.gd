@@ -201,3 +201,38 @@ func test_CTBP_C03_original_C01_C02_mission_saves_keep_their_field_shapes() -> v
 		assert_false(mission.durable_state().has("optional_latch_rewards"))
 		assert_false(mission.durable_state().has("ladder_requires"))
 		assert_eq(mission.restore_state(mission.durable_state()), [] as Array[Dictionary])
+
+func test_CTBP_C03_generator_work_light_requires_exact_hundred_uninterrupted_ticks() -> void:
+	var ctx: Dictionary = _context()
+	_ready_ladder(ctx)
+	var mission: Mission = ctx["mission"] as Mission
+	assert_true(Runner.send(ctx, "P1", "place_item", "GEN_PORTABLE", {"action": "pickup"}).get("ok", false))
+	assert_true(Runner.send(ctx, "P1", "place_item", "GEN_PORTABLE",
+		{"action": "place", "anchor": "PAD_PUMP"}).get("ok", false))
+	assert_true(Runner.send(ctx, "P1", "place_item", "GEN_PORTABLE",
+		{"action": "connect", "route": "E_TEMP_ROOF_LIGHT"}).get("ok", false))
+	assert_true(Runner.send(ctx, "P1", "place_item", "GEN_PORTABLE", {"action": "start"}).get("ok", false))
+	assert_true(Runner.send(ctx, "P1", "toggle_switch", "SW_BEACON", {"value": true}).get("ok", false))
+	Runner.ticks(ctx, 99)
+	assert_false(mission.is_latched("LATCH_ROOF_WORK_LIGHT"))
+	assert_eq(int(mission.canonical_state()["latch_ticks"]["LATCH_ROOF_WORK_LIGHT"]), 99)
+	assert_true(Runner.send(ctx, "P1", "toggle_switch", "SW_BEACON", {"value": false}).get("ok", false))
+	assert_eq(int(mission.canonical_state()["latch_ticks"]["LATCH_ROOF_WORK_LIGHT"]), 0)
+	assert_true(Runner.send(ctx, "P1", "toggle_switch", "SW_BEACON", {"value": true}).get("ok", false))
+	Runner.ticks(ctx, 99)
+	assert_false(mission.is_latched("LATCH_ROOF_WORK_LIGHT"))
+	Runner.ticks(ctx, 1)
+	assert_true(mission.is_latched("LATCH_ROOF_WORK_LIGHT"))
+	assert_eq(int(mission.canonical_state()["latch_ticks"]["LATCH_ROOF_WORK_LIGHT"]), 100)
+
+
+func test_CTBP_C03_new_objective_labels_resolve_without_placeholder_keys() -> void:
+	var strings: Dictionary = Runner.json("res://content/ui/strings/en.json")["strings"]
+	for key: String in ["objective.c03.power_ladder", "objective.c03.roof_work_light", "node.c03.ladder_light"]:
+		assert_true(strings.has(key), key)
+		assert_false(str(strings.get(key, "")).is_empty())
+	var positions: Dictionary = {}
+	for item: Dictionary in Runner.json(C03.path_join("tablet.json"))["nodes"]:
+		assert_false(positions.has(item["id"]), "duplicate tablet node")
+		positions[item["id"]] = true
+	assert_true(positions.has("LADDER_LIGHT"))
