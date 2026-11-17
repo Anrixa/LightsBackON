@@ -287,11 +287,29 @@ func _walk_connected_stations(probe: DistrictProbe, session: Offline,
 
 
 func test_CTL1_C03_P03_actual_capsule_walks_ground_and_roof_corridors() -> void:
-	var scene: Node3D = _preview()
-	var session: Offline = scene.get("session") as Offline
-	var ladder: Ladder = scene.get("_ladder_view") as Ladder
+	# Do not mount another full C03 scene on top of the physics probe: duplicate
+	# colliders would invalidate body-walk evidence. The standalone host only
+	# supplies the selected contract's authored marker positions.
+	var session: Offline = Offline.new()
+	var errors: Array[Dictionary] = session.setup(
+		func(_player: String, _target: String) -> bool: return true,
+		func(_player: String) -> Vector3i: return Vector3i.ZERO,
+		Offline.C03_CONTRACT)
+	assert_eq(errors, [] as Array[Dictionary])
+	if not errors.is_empty():
+		return
 	var world: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
 		"res://content/world/alder_street.json"))
+	var overlay: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
+		Offline.C03_CONTRACT.path_join("world.json")))
+	var roof_arrival: Vector3 = Vector3.INF
+	for transition: Dictionary in overlay["transitions"]:
+		if str(transition["id"]) == "LADDER_WEST":
+			var cm: Array = transition["arrival_cm"]
+			roof_arrival = Vector3(float(cm[0]), float(cm[1]), float(cm[2])) / 100.0
+	assert_ne(roof_arrival, Vector3.INF, "authored C03 west ladder arrival")
+	if roof_arrival == Vector3.INF:
+		return
 	var dimensions: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
 		"res://content/world/kit_dimensions.json"))
 	var geometry: String = str(world["scene"])
@@ -311,7 +329,7 @@ func test_CTL1_C03_P03_actual_capsule_walks_ground_and_roof_corridors() -> void:
 	# transitions that join these distinct walking surfaces.
 	var roof: DistrictProbe = DistrictProbe.new(geometry, dimensions, world["envelope_cm"])
 	roof.build_grid(12.0)
-	_walk_connected_stations(roof, session, ladder.destination("LADDER_WEST"),
+	_walk_connected_stations(roof, session, roof_arrival,
 		8.0, ["PANEL_ROOF", "SW_ROOF_FEED", "SW_ROOF_BREAKER", "SW_BEACON",
 			"LADDER_WEST_RETURN"])
 	roof.free_scene()
