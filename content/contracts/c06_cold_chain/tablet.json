@@ -1,6 +1,6 @@
 {
   "contract_id": "C06",
-  "source_note": "C06 Cold-Chain Window: original CT-L2 Canal Yard headless logic authoring under ADR-017. The primary blueprint C06 sheet was not available for verification; all C06 PU, 280-tick grace period and title are provisional design choices requiring original-sheet reconciliation. Not a physically playable district. Logical map positions only; no physical pump-room coordinates until Canal Yard is authored.",
+  "source_note": "Original Development Blueprint v1.0 pp.18,20 C06 Cold Chain, source-aligned headless candidate only. Canal GRID30 west/east feeders14, GEN8, required loads25 PU. West feeder healthy, east trunk broken behind 4 PU pump access for 120 ticks. Exclusive GRID/GEN cold-store5 routes; concurrent pump4 + cold store5 overload GEN8. Optional cumulative cold-store unsupplied time strictly below 1200 host ticks; pause on valid supply, never reset. Physical scene, historic saves and real Steam remain unqualified.",
   "columns": 5,
   "rows": 4,
   "nodes": [
@@ -11,28 +11,28 @@
       "name_key": "node.c06.grid"
     },
     {
-      "id": "DOCK",
+      "id": "WEST",
       "col": 1,
       "row": 1,
-      "name_key": "node.c06.dock"
+      "name_key": "node.c06.west"
     },
     {
-      "id": "COLD",
+      "id": "EAST",
       "col": 4,
       "row": 1,
-      "name_key": "node.c06.cold"
+      "name_key": "node.c06.east"
     },
     {
-      "id": "DOCK_OFFICE",
+      "id": "DINER",
       "col": 0,
       "row": 2,
-      "name_key": "node.c06.dock_office"
+      "name_key": "node.c06.diner"
     },
     {
-      "id": "CRANE",
+      "id": "ROW_HOUSES",
       "col": 1,
       "row": 2,
-      "name_key": "node.c06.crane"
+      "name_key": "node.c06.row_houses"
     },
     {
       "id": "COLD_STORE",
@@ -41,16 +41,16 @@
       "name_key": "node.c06.cold_store"
     },
     {
-      "id": "YARD_LIGHTS",
+      "id": "PUMP_KIOSK",
       "col": 3,
       "row": 2,
-      "name_key": "node.c06.yard_lights"
+      "name_key": "node.c06.pump_kiosk"
     },
     {
-      "id": "WORKSHOP",
+      "id": "DEPOT",
       "col": 4,
       "row": 2,
-      "name_key": "node.c06.workshop"
+      "name_key": "node.c06.depot"
     },
     {
       "id": "GEN",
@@ -65,16 +65,16 @@
       "name_key": "node.c06.temp"
     },
     {
-      "id": "PUMP_DOCK",
-      "col": 2,
-      "row": 3,
-      "name_key": "node.c06.pump_dock"
-    },
-    {
-      "id": "PUMP_COLD",
+      "id": "PUMP_EAST",
       "col": 3,
       "row": 3,
-      "name_key": "node.c06.pump_cold"
+      "name_key": "node.c06.pump_east"
+    },
+    {
+      "id": "LAUNDRETTE",
+      "col": 4,
+      "row": 3,
+      "name_key": "node.c06.laundrette"
     }
   ]
 }

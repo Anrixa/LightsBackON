@@ -44,3 +44,12 @@ Detailed acceptance criteria and negative tests are machine-tracked in [CT-BLUEP
 ## Gate decision
 
 CT-L2 **headless source-logic development is complete for C05–C08** when PR #164 is exact-head CI verified and merged, while C05/C06 original-sheet certification remains **HOLD** and full CT-L2 production/physical completion remains **HOLD**. The next corrective development milestone should start with C02 and proceed through C06, each independently reviewable; never promote the provisional C02–C06 despite historical cloud pass reports. No Steam account or publishing is required for these corrective engineering steps.
+
+## Corrective source-alignment update — 17 November 2026 (append-only)
+
+This addendum updates **source-only** corrective status without revising or erasing the historical CT-L2/C08 receipts above.
+
+- C02–C04: earlier individual source-aligned corrective PRs #165–#167, with original physical/production acceptance still HOLD.
+- C05 Rising Water: [PR #168](https://github.com/Anrixa/LightsBackON/pull/168), merged main `5544eaed2c163420346b6d817d9f29b6a065d44f`, [merged-main dual OS CI #44047679775](https://github.com/Anrixa/LightsBackON/actions/runs/44047679775) **SUCCESS**. Source-aligned **headless candidate**, not physical certification.
+- C06 Cold Chain: [PR #169](https://github.com/Anrixa/LightsBackON/pull/169), code-head `5c4ede08a928a790bbd9642d013177046ee73829`, [Linux/Windows CI #44123072967](https://github.com/Anrixa/LightsBackON/actions/runs/44123072967) **SUCCESS** with 662 tests/0 failures/49,080 assertions on each OS, all eight solutions solved, Python parity matched, Windows export/headless checks passed. A final documentation-head CI, merge and merge-main recheck remain pending.
+- Existing physical district scenes, player movement and socket reachability, human/controller playthrough, target-GPU P95/memory, real historical save compatibility, Steam F02/F06 and canonical backlog CT04/CT05 remain **HOLD**.

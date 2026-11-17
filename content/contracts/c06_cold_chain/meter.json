@@ -1,6 +1,6 @@
 {
   "contract_id": "C06",
-  "source_note": "C06 Cold-Chain Window: original CT-L2 Canal Yard headless logic authoring under ADR-017. The primary blueprint C06 sheet was not available for verification; all C06 PU, 280-tick grace period and title are provisional design choices requiring original-sheet reconciliation. Not a physically playable district. Cold-store demand is unknown by diagnosis until real meter inspection. Cold-store optional objective never changes the access latches.",
+  "source_note": "Original Development Blueprint v1.0 pp.18,20 C06 Cold Chain, source-aligned headless candidate only. Canal GRID30 west/east feeders14, GEN8, required loads25 PU. West feeder healthy, east trunk broken behind 4 PU pump access for 120 ticks. Exclusive GRID/GEN cold-store5 routes; concurrent pump4 + cold store5 overload GEN8. Optional cumulative cold-store unsupplied time strictly below 1200 host ticks; pause on valid supply, never reset. Physical scene, historic saves and real Steam remain unqualified.",
   "panels": [
     {
       "id": "PANEL_GRID",
@@ -11,19 +11,17 @@
       "target": "GEN"
     },
     {
-      "id": "PANEL_DOCK",
-      "target": "DOCK"
+      "id": "PANEL_WEST",
+      "target": "WEST"
     },
     {
-      "id": "PANEL_COLD",
-      "target": "COLD"
+      "id": "PANEL_EAST",
+      "target": "EAST"
     },
     {
       "id": "PANEL_TEMP",
       "target": "TEMP"
     }
   ],
-  "initial_breaker_reasons": {
-    "DOCK": "fault"
-  }
+  "initial_breaker_reasons": {}
 }

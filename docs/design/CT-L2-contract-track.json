@@ -8,42 +8,45 @@
     {
       "id": "CTL2-C05",
       "contract_id": "C05",
-      "title": "Canal Yard — Pump Access (provisional design name)",
-      "status": "CLOUD_VERIFIED",
+      "title": "Rising Water",
+      "status": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
       "source": "content/contracts/c05_canal_pump_access",
       "evidence": "docs/evidence/CTL2-C05.md",
       "pending": [
-        "Original C05 blueprint PDF contract sheet could not be read; provisional name, topology, loads, latches and durations require reconciliation before content certification",
-        "Real Canal Yard authored scene, geometry, pump access, Windows physical controller/keyboard/human playthrough and target GPU P95/memory",
-        "Contract-scoped rules_revision/save compatibility without migrating or deleting old saves",
-        "Canonical CT04 remains NOT_STARTED behind CT01/CT03; Steam F02/F06 and V09/D08 gates remain open",
-        "Original blueprint now recovered; corrective C05/C06 source reconciliation is required before canonical content approval"
+        "Physical Canal Yard pumps/sockets and human/controller/GPU validation",
+        "Historical saves, Steam F02/F06 and official CT04/CT05 gates remain unqualified"
       ],
       "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43992204512",
       "verified_source_head": "939c01ffa4ebff72939cbf0d16475073129d66ed",
       "pull_request": "https://github.com/Anrixa/LightsBackON/pull/161",
-      "blueprint_fidelity": "HOLD_CONFIRMED_MISMATCH",
-      "blueprint_reconciliation": "Blueprint pp.18–19: C05 Rising Water requires GRID30/14-per-feeder/GEN8, west13/east12, two broken trunks, pumps 5 and 4 PU for 120 ticks, and optional cold-store deadline 180 sec after first pickup; provisional C05 content has different loads/timers/topology."
+      "blueprint_fidelity": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
+      "blueprint_reconciliation": "The original provisional C05 PR #161 mismatched the blueprint; CT-BP-C05 PR #168 corrected it with successful merged-main dual-OS CI. Original provisional receipts are historical only.",
+      "corrective_evidence": "docs/evidence/CT-BP-C05.md",
+      "corrective_pull_request": "https://github.com/Anrixa/LightsBackON/pull/168",
+      "corrective_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44047679775",
+      "corrective_source_head": "5544eaed2c163420346b6d817d9f29b6a065d44f"
     },
     {
       "id": "CTL2-C06",
       "contract_id": "C06",
-      "title": "Cold-Chain Window (provisional design name)",
-      "status": "CLOUD_VERIFIED",
+      "title": "Cold Chain",
+      "status": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
       "source": "content/contracts/c06_cold_chain",
       "evidence": "docs/evidence/CTL2-C06.md",
       "pending": [
-        "Original blueprint C06 contract sheet needs comparison, including title, 280-tick optional grace, consumer demand, pump latches and kit",
-        "C06 physical Canal Yard scene with host ranged repairs and cold-chain status UI, exported-GPU P95/memory and human/controller checks",
-        "Global rules_revision compatibility with older saved sessions (keep saves intact; no migration)",
-        "Official CT04 blocked behind CT01/CT03; F02/F06 real Steam network checks pending",
-        "Original blueprint now recovered; corrective C05/C06 source reconciliation is required before canonical content approval"
+        "Final PR-head Linux+Windows CI and main merge revalidation",
+        "Physical Canal Yard generator/pump/dual source sockets, controller/human and target GPU",
+        "Real historical saves and Steam F02/F06, official CT04/CT05 remain HOLD"
       ],
       "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43993660385",
       "source_head": "5c704a8fac80041f7c1e320e3511454d8777bdbe",
       "pull_request": "https://github.com/Anrixa/LightsBackON/pull/162",
-      "blueprint_fidelity": "HOLD_CONFIRMED_MISMATCH",
-      "blueprint_reconciliation": "Blueprint pp.18,20: C06 Cold Chain requires west initially healthy, east broken, one 4 PU pump for 120 ticks, exclusive cold-store generator/grid routes, and cumulative unsupplied time under 120 sec; provisional C06 uses a different first-supply deadline/topology."
+      "blueprint_fidelity": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
+      "blueprint_reconciliation": "Original C06 provisional source from PR #162 was mismatched; CT-BP-C06 PR #169 source-aligned headless correction now has dual-OS CI PASS. Historical provisional evidence remains an accurate record of its own behavior, not current fidelity.",
+      "corrective_evidence": "docs/evidence/CT-BP-C06.md",
+      "corrective_pull_request": "https://github.com/Anrixa/LightsBackON/pull/169",
+      "corrective_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44123072967",
+      "corrective_source_head": "5c4ede08a928a790bbd9642d013177046ee73829"
     },
     {
       "id": "CTL2-C07",

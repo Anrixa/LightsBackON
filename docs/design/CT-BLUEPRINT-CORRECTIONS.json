@@ -100,7 +100,7 @@
     },
     {
       "id": "C05",
-      "status": "SOURCE_IMPLEMENTED_CI_PENDING",
+      "status": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
       "source": "content/contracts/c05_canal_pump_access",
       "requires": [
         "Canal baseline GRID30 west13 east12 feeders14 GEN8; two broken flooded trunks",
@@ -118,17 +118,22 @@
       "branch": "task/CT-BP-C05-rising-water-fidelity",
       "evidence": "docs/evidence/CT-BP-C05.md",
       "known_solution": "content/contracts/c05_canal_pump_access/solution.json",
-      "fidelity": "SOURCE_IMPLEMENTED_CI_PENDING",
+      "fidelity": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
       "full_original_blueprint_certification": "HOLD_PHYSICAL_LEVEL_AND_HUMAN_ACCEPTANCE",
       "pending": [
-        "Exact final PR-head Linux/Windows full CI, all solutions and Python reference parity, Windows export and post-merge main CI",
-        "Physical Canal Yard mission scene, two 120-tick flood pumps, sockets and gameplay UI",
-        "Human/controller/target-class GPU, older release C05 checkpoints and real Steam F02/F06 remains unverified"
-      ]
+        "Physical Canal Yard 2 flood pumps and restoration socket/presentation implementation",
+        "Human/controller/target GPU and historical save continuity",
+        "Steam real-network F02/F06, official CT04/CT05 and production acceptance"
+      ],
+      "source_head": "5544eaed2c163420346b6d817d9f29b6a065d44f",
+      "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44047679775",
+      "pull_request": "https://github.com/Anrixa/LightsBackON/pull/168",
+      "merged_main_sha": "5544eaed2c163420346b6d817d9f29b6a065d44f",
+      "post_merge_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44047679775"
     },
     {
       "id": "C06",
-      "status": "NOT_STARTED",
+      "status": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
       "source": "content/contracts/c06_cold_chain",
       "requires": [
         "Canal baseline GRID30 west initially healthy east trunk broken",
@@ -142,7 +147,21 @@
         "one pump, break-before-make and generator overload",
         "save/reload counter continuity",
         "full trace, missed bonus"
-      ]
+      ],
+      "implementation_phase": "CT-BP-C06",
+      "branch": "task/CT-BP-C06-cold-chain-cumulative-outage",
+      "evidence": "docs/evidence/CT-BP-C06.md",
+      "known_solution": "content/contracts/c06_cold_chain/solution.json",
+      "fidelity": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
+      "full_original_blueprint_certification": "HOLD_PHYSICAL_LEVEL_AND_HUMAN_ACCEPTANCE",
+      "pending": [
+        "Final documentation PR-head Linux/Windows CI and merged-main revalidation",
+        "Physical Canal Yard sockets, controller/human walkthrough and target GPU performance",
+        "Old shipped C06 save compatibility and Steam F02/F06 two-network qualification"
+      ],
+      "source_head": "5c4ede08a928a790bbd9642d013177046ee73829",
+      "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44123072967",
+      "pull_request": "https://github.com/Anrixa/LightsBackON/pull/169"
     }
   ]
 }

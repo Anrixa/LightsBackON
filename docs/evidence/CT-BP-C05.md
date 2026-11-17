@@ -24,3 +24,8 @@
 ## Resume notes
 
 Continue on this branch until the final exact-head CI is green, then merge and record the merged-main receipt. The next separate corrective phase is CT-BP/C06 with cumulative, non-resetting COLD_STORE outage timer. Do not assume C05 preview art or prior historical saves are production compatible.
+
+## Post-merge source-only qualification — 17 November 2026 (addendum)
+
+The earlier PENDING text above described the *pre-merge* evidence revision and is retained as historical status.
+[CT-BP/C05 corrective PR #168](https://github.com/Anrixa/LightsBackON/pull/168) was merged as main `5544eaed2c163420346b6d817d9f29b6a065d44f`; [CI #44047679775](https://github.com/Anrixa/LightsBackON/actions/runs/44047679775) succeeded on merged main. Source-aligned headless candidate gate is PASS; physical, human, historical save and production gates remain HOLD.

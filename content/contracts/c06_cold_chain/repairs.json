@@ -1,46 +1,19 @@
 {
   "contract_id": "C06",
-  "source_note": "C06 Cold-Chain Window: original CT-L2 Canal Yard headless logic authoring under ADR-017. The primary blueprint C06 sheet was not available for verification; all C06 PU, 280-tick grace period and title are provisional design choices requiring original-sheet reconciliation. Not a physically playable district. Original meter-first, independently flood-gated dock and cold feeder repairs are retained; no extra repair state machine or inventory changes.",
+  "source_note": "Original Development Blueprint v1.0 pp.18,20 C06 Cold Chain, source-aligned headless candidate only. Canal GRID30 west/east feeders14, GEN8, required loads25 PU. West feeder healthy, east trunk broken behind 4 PU pump access for 120 ticks. Exclusive GRID/GEN cold-store5 routes; concurrent pump4 + cold store5 overload GEN8. Optional cumulative cold-store unsupplied time strictly below 1200 host ticks; pause on valid supply, never reset. Physical scene, historic saves and real Steam remain unqualified.",
   "supplies": {
-    "FUSE_DOCK": 1,
     "CABLE_SPLICE": 1
   },
   "repairs": [
     {
-      "id": "R_DOCK_FUSE",
-      "name_key": "repair.c06.dock_fuse",
-      "panel": "PANEL_DOCK",
-      "access": "DOCK_DRAINED",
-      "isolate": "DOCK",
+      "id": "R_EAST_TRUNK",
+      "name_key": "repair.c06.east_trunk",
+      "panel": "PANEL_EAST",
+      "access": "EAST_DRAINED",
+      "isolate": "EAST",
       "fix": {
         "op": "set",
-        "id": "DOCK",
-        "field": "failed",
-        "value": false
-      },
-      "component": "FUSE_DOCK",
-      "tools": {
-        "open": "screwdriver",
-        "remove": "puller",
-        "install": "puller",
-        "test": "meter"
-      },
-      "hold_ticks": {
-        "open": 6,
-        "remove": 8,
-        "install": 8,
-        "close": 6
-      }
-    },
-    {
-      "id": "R_COLD_FEED",
-      "name_key": "repair.c06.cold_feed",
-      "panel": "PANEL_COLD",
-      "access": "COLD_DRAINED",
-      "isolate": "COLD",
-      "fix": {
-        "op": "set",
-        "id": "E_GRID_COLD",
+        "id": "E_GRID_EAST",
         "field": "healthy",
         "value": true
       },
