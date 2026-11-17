@@ -49,16 +49,18 @@
       "id": "CTL2-C07",
       "contract_id": "C07",
       "title": "Wrong Label",
-      "status": "IN_PROGRESS",
+      "status": "CLOUD_VERIFIED",
       "source": "content/contracts/c07_wrong_label",
       "evidence": "docs/evidence/CTL2-C07.md",
       "blueprint_fidelity": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
       "pending": [
-        "CI Linux+Windows full solution and negative gates",
-        "Physical Canal Yard with stale 14 PU label and real meter reading, host-ranged repair and human/controller playthrough",
-        "Saved protected module capacity and evidence bonus across actual game checkpoint/restart and cross-version rules_revision compatibility",
-        "Official backlog CT05 dependency CT04, Steam F02/F06, real multiplayer and GPU P95/memory"
-      ]
+        "Physical Canal Yard scene: stale panel label 14 PU, real inspected meter capacity 10 PU and 12 PU demand, equipment, reachability, controller/human UX",
+        "Target GPU P95/memory, save continuity across actual exported sessions and source rules_revision; preserve existing saves",
+        "Steam F02/F06 real multiplayer and canonical CT05 dependency on CT04; do not claim release qualification"
+      ],
+      "source_head": "f9f7b5ffa89e08ef5e5df4535318097f4a3084db",
+      "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43996169752",
+      "pull_request": "https://github.com/Anrixa/LightsBackON/pull/163"
     },
     {
       "id": "CTL2-C08",
