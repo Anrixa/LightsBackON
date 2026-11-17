@@ -1,0 +1,100 @@
+{
+  "contract_id": "C11",
+  "source_note": "Original Development Blueprint v1.0 pp.18,20–21 C11 Borrowed Power. Hill GRID28, WEST/EAST14, GEN6. WEST13 healthy; EAST12 broken trunk. GEN telecom4 and garage-control4 cannot coexist (8/6). Shed greenhouse3 to get WEST10, borrow WEST-to-telecom4 at 14/14; isolated break-before-make routes. GEN garage control4 for 100 uninterrupted host ticks grants east access. Restore east12 then greenhouse3; telecom optional must never lose valid supply for more than 50 consecutive host ticks. Source/headless candidate only; physical, saves, Steam and production HOLD.",
+  "grid_source": "GRID",
+  "required_consumers": [
+    "COMMUNITY_HALL",
+    "BAKERY",
+    "GREENHOUSE",
+    "FLATS",
+    "TELECOM_HUT",
+    "SERVICE_GARAGE"
+  ],
+  "excluded_loads": [],
+  "access_latches": [
+    {
+      "id": "LATCH_GARAGE_CONTROL",
+      "consumer": "GARAGE_CONTROL",
+      "source": "GEN",
+      "supplied_ticks": 100,
+      "grants": "EAST_CONTROL_READY"
+    }
+  ],
+  "optional_latch_rewards": [],
+  "final_verification_ticks": 100,
+  "extraction": {
+    "zone": "ZONE_VAN",
+    "countdown_ticks": 50
+  },
+  "objectives": [
+    {
+      "id": "OBJ_TEMP",
+      "text_key": "objective.c11.temp_telecom",
+      "done_when": {
+        "latch": "LATCH_GARAGE_CONTROL"
+      }
+    },
+    {
+      "id": "OBJ_EAST",
+      "text_key": "objective.c11.restore_east",
+      "done_when": {
+        "supplied_from_grid": [
+          "FLATS",
+          "TELECOM_HUT",
+          "SERVICE_GARAGE"
+        ]
+      }
+    },
+    {
+      "id": "OBJ_WEST",
+      "text_key": "objective.c11.restore_west",
+      "done_when": {
+        "supplied_from_grid": [
+          "COMMUNITY_HALL",
+          "BAKERY",
+          "GREENHOUSE"
+        ]
+      }
+    },
+    {
+      "id": "OBJ_TELECOM",
+      "text_key": "objective.c11.continuity",
+      "done_when": {
+        "max_consecutive_outage": "TELECOM_CONTINUITY"
+      }
+    },
+    {
+      "id": "OBJ_VERIFY",
+      "text_key": "objective.c01.verify_supply",
+      "done_when": {
+        "verified": true
+      }
+    },
+    {
+      "id": "OBJ_STOW",
+      "text_key": "objective.c01.stow_equipment",
+      "done_when": {
+        "stowed": true
+      }
+    },
+    {
+      "id": "OBJ_EXTRACT",
+      "text_key": "objective.c01.extract",
+      "done_when": {
+        "completed": true
+      }
+    }
+  ],
+  "max_visible_objectives": 3,
+  "optional_services": [],
+  "tutorial_trip_allowance": 0,
+  "optional_max_consecutive_outage": {
+    "id": "TELECOM_CONTINUITY",
+    "consumer": "TELECOM_HUT",
+    "max_outage_ticks": 50,
+    "permitted_sources": [
+      "GRID",
+      "GEN"
+    ]
+  }
+}

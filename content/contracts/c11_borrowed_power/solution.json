@@ -1,0 +1,379 @@
+{
+  "contract_id": "C11",
+  "source_note": "Original Development Blueprint v1.0 pp.18,20–21 C11 Borrowed Power. Hill GRID28, WEST/EAST14, GEN6. WEST13 healthy; EAST12 broken trunk. GEN telecom4 and garage-control4 cannot coexist (8/6). Shed greenhouse3 to get WEST10, borrow WEST-to-telecom4 at 14/14; isolated break-before-make routes. GEN garage control4 for 100 uninterrupted host ticks grants east access. Restore east12 then greenhouse3; telecom optional must never lose valid supply for more than 50 consecutive host ticks. Source/headless candidate only; physical, saves, Steam and production HOLD.",
+  "players": [
+    "P1"
+  ],
+  "tools": [
+    "screwdriver",
+    "puller",
+    "cutter",
+    "crimper",
+    "meter"
+  ],
+  "max_ticks": 800,
+  "pace_ticks_per_command": 1,
+  "steps": [
+    {
+      "note": "Bring telecom online with GEN4 first; west13/14 and east trunk broken. Never connect telecom4 and garage-control4 simultaneously to GEN6."
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "pickup"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "place",
+        "anchor": "PAD_HILL_CONTROL"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "connect",
+        "route": "E_TEMP_TELECOM"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "start"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "toggle_switch",
+      "entity": "SW_GREENHOUSE",
+      "payload": {
+        "value": false
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "stop"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "disconnect",
+        "route": "E_TEMP_TELECOM"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "toggle_switch",
+      "entity": "SW_WEST_TELECOM",
+      "payload": {
+        "value": true
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "connect",
+        "route": "E_TEMP_GARAGE"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "start"
+      },
+      "expect": "ok"
+    },
+    {
+      "ticks": 100,
+      "expect_events": [
+        "latch"
+      ]
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "stop"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "disconnect",
+        "route": "E_TEMP_GARAGE"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "pickup"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "place",
+        "anchor": "VAN_BAY"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "toggle_switch",
+      "entity": "SW_EAST_TELECOM",
+      "payload": {
+        "value": false
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "request_lock",
+      "entity": "R_EAST_TRUNK",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "inspect",
+      "entity": "PANEL_EAST",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "diagnose"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "isolate"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": "screwdriver"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "open"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": "cutter"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "remove"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": "crimper"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "install"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "close"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": "meter"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "test"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "restore"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "toggle_switch",
+      "entity": "SW_WEST_TELECOM",
+      "payload": {
+        "value": false
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "toggle_switch",
+      "entity": "SW_EAST_TELECOM",
+      "payload": {
+        "value": true
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "toggle_switch",
+      "entity": "SW_GREENHOUSE",
+      "payload": {
+        "value": true
+      },
+      "expect": "ok"
+    },
+    {
+      "ticks": 100,
+      "expect_events": [
+        "verified"
+      ]
+    },
+    {
+      "zone": "ZONE_VAN",
+      "as": "P1",
+      "inside": true
+    },
+    {
+      "as": "P1",
+      "intent": "request_extract",
+      "entity": "ZONE_VAN",
+      "payload": {
+        "action": "start"
+      },
+      "expect": "ok"
+    },
+    {
+      "ticks": 50,
+      "expect_events": [
+        "mission_complete"
+      ]
+    }
+  ]
+}

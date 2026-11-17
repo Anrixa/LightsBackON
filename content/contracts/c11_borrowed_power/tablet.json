@@ -1,0 +1,80 @@
+{
+  "contract_id": "C11",
+  "source_note": "Original Development Blueprint v1.0 pp.18,20–21 C11 Borrowed Power. Hill GRID28, WEST/EAST14, GEN6. WEST13 healthy; EAST12 broken trunk. GEN telecom4 and garage-control4 cannot coexist (8/6). Shed greenhouse3 to get WEST10, borrow WEST-to-telecom4 at 14/14; isolated break-before-make routes. GEN garage control4 for 100 uninterrupted host ticks grants east access. Restore east12 then greenhouse3; telecom optional must never lose valid supply for more than 50 consecutive host ticks. Source/headless candidate only; physical, saves, Steam and production HOLD.",
+  "columns": 6,
+  "rows": 4,
+  "nodes": [
+    {
+      "id": "GRID",
+      "col": 3,
+      "row": 0,
+      "name_key": "node.c11.grid"
+    },
+    {
+      "id": "GEN",
+      "col": 0,
+      "row": 3,
+      "name_key": "node.c11.gen"
+    },
+    {
+      "id": "WEST",
+      "col": 1,
+      "row": 1,
+      "name_key": "node.c11.west"
+    },
+    {
+      "id": "EAST",
+      "col": 5,
+      "row": 1,
+      "name_key": "node.c11.east"
+    },
+    {
+      "id": "TEMP",
+      "col": 1,
+      "row": 3,
+      "name_key": "node.c11.temp"
+    },
+    {
+      "id": "COMMUNITY_HALL",
+      "col": 0,
+      "row": 2,
+      "name_key": "node.c11.community_hall"
+    },
+    {
+      "id": "BAKERY",
+      "col": 1,
+      "row": 2,
+      "name_key": "node.c11.bakery"
+    },
+    {
+      "id": "GREENHOUSE",
+      "col": 2,
+      "row": 2,
+      "name_key": "node.c11.greenhouse"
+    },
+    {
+      "id": "FLATS",
+      "col": 3,
+      "row": 2,
+      "name_key": "node.c11.flats"
+    },
+    {
+      "id": "TELECOM_HUT",
+      "col": 4,
+      "row": 2,
+      "name_key": "node.c11.telecom_hut"
+    },
+    {
+      "id": "SERVICE_GARAGE",
+      "col": 5,
+      "row": 2,
+      "name_key": "node.c11.service_garage"
+    },
+    {
+      "id": "GARAGE_CONTROL",
+      "col": 2,
+      "row": 3,
+      "name_key": "node.c11.garage_control"
+    }
+  ]
+}
