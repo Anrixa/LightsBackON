@@ -34,7 +34,6 @@
       "source": "content/contracts/c06_cold_chain",
       "evidence": "docs/evidence/CTL2-C06.md",
       "pending": [
-        "Final PR-head Linux+Windows CI and main merge revalidation",
         "Physical Canal Yard generator/pump/dual source sockets, controller/human and target GPU",
         "Real historical saves and Steam F02/F06, official CT04/CT05 remain HOLD"
       ],
@@ -46,7 +45,11 @@
       "corrective_evidence": "docs/evidence/CT-BP-C06.md",
       "corrective_pull_request": "https://github.com/Anrixa/LightsBackON/pull/169",
       "corrective_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44123072967",
-      "corrective_source_head": "5c4ede08a928a790bbd9642d013177046ee73829"
+      "corrective_source_head": "5c4ede08a928a790bbd9642d013177046ee73829",
+      "corrective_final_pr_head": "f077ff307d237a38f691e7f85c8a79e5bcab3585",
+      "corrective_final_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44124117210",
+      "corrective_merged_main_sha": "6400b71691c69f6b8f571916554957ad48d7b43b",
+      "corrective_post_merge_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44124773627"
     },
     {
       "id": "CTL2-C07",

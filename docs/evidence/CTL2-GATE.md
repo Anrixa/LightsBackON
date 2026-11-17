@@ -53,3 +53,20 @@ This addendum updates **source-only** corrective status without revising or eras
 - C05 Rising Water: [PR #168](https://github.com/Anrixa/LightsBackON/pull/168), merged main `5544eaed2c163420346b6d817d9f29b6a065d44f`, [merged-main dual OS CI #44047679775](https://github.com/Anrixa/LightsBackON/actions/runs/44047679775) **SUCCESS**. Source-aligned **headless candidate**, not physical certification.
 - C06 Cold Chain: [PR #169](https://github.com/Anrixa/LightsBackON/pull/169), code-head `5c4ede08a928a790bbd9642d013177046ee73829`, [Linux/Windows CI #44123072967](https://github.com/Anrixa/LightsBackON/actions/runs/44123072967) **SUCCESS** with 662 tests/0 failures/49,080 assertions on each OS, all eight solutions solved, Python parity matched, Windows export/headless checks passed. A final documentation-head CI, merge and merge-main recheck remain pending.
 - Existing physical district scenes, player movement and socket reachability, human/controller playthrough, target-GPU P95/memory, real historical save compatibility, Steam F02/F06 and canonical backlog CT04/CT05 remain **HOLD**.
+
+
+## CT-BP source-closeout correction — 18 November 2026
+
+The original **historical** C05/C06 and earlier C02–C04 discrepancy observations in this document are preserved above. This new section supersedes only the pending **source-correction** status, not the physical and production HOLD gates.
+
+| Contract | Corrective PR | Final-head Linux/Windows CI | Merged main | Merged-main Linux/Windows CI |
+| --- | --- | --- | --- | --- |
+| C02 | [#165](https://github.com/Anrixa/LightsBackON/pull/165) | [PASS #44003856923](https://github.com/Anrixa/LightsBackON/actions/runs/44003856923) | `300703ef494d` | [PASS #44004321714](https://github.com/Anrixa/LightsBackON/actions/runs/44004321714) |
+| C03 | [#166](https://github.com/Anrixa/LightsBackON/pull/166) | [PASS #44035197037](https://github.com/Anrixa/LightsBackON/actions/runs/44035197037) | `7b1f39d4e5be` | [PASS #44035670547](https://github.com/Anrixa/LightsBackON/actions/runs/44035670547) |
+| C04 | [#167](https://github.com/Anrixa/LightsBackON/pull/167) | [PASS #44041957106](https://github.com/Anrixa/LightsBackON/actions/runs/44041957106) | `4d7fcd355a45` | [PASS #44042394225](https://github.com/Anrixa/LightsBackON/actions/runs/44042394225) |
+| C05 | [#168](https://github.com/Anrixa/LightsBackON/pull/168) | [PASS #44047118657](https://github.com/Anrixa/LightsBackON/actions/runs/44047118657) | `5544eaed2c16` | [PASS #44047679775](https://github.com/Anrixa/LightsBackON/actions/runs/44047679775) |
+| C06 | [#169](https://github.com/Anrixa/LightsBackON/pull/169) | [PASS #44124117210](https://github.com/Anrixa/LightsBackON/actions/runs/44124117210) | `6400b71691c6` | [PASS #44124773627](https://github.com/Anrixa/LightsBackON/actions/runs/44124773627) |
+
+**Closeout:** C02–C06 original-blueprint **source logic** are all `SOURCE_ALIGNED_HEADLESS_CANDIDATE`, supported by corrected host solution traces, negative tests and Linux/Windows CI. This is NOT original-blueprint physical certification. The canonical CT03/CT04/CT05 backlog status is not promoted. Production, human/controller, GPU performance, historical-save policy and two-network Steam F02/F06 are still HOLD.
+
+For a machine-readable gate and drift guard, see `docs/design/CT-BP-SOURCE-GATE.json`, `tools/check_ct_blueprint_gate.py`, and `docs/evidence/CT-BP-GATE.md`. Next allowed parallel design-first content track: **CT-L3/C09–C12, Hill Road**, starting with original-sheet C09 specification and host-only implementation in a separate PR; official CT06 stays dependent on CT02/CT05 and D08-related gates.

@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "gate_id": "CT-BP-GATE",
+  "authority": "Development Blueprint v1.0 pp.18-20, PR #165-#169, verified GitHub Actions",
+  "observed_utc": "2026-11-17",
+  "scope": "C02-C06 original-blueprint corrective source logic; independent of physical release",
+  "level": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
+  "evidence": "docs/evidence/CT-BP-GATE.md",
+  "source_validation": "Static blueprint invariants and receipt consistency; Godot host-state truth stays in existing GDScript regressions and solution traces",
+  "ci_attestation": "GitHub PR-head and merged-main dual-OS success verified externally; this offline manifest is a recorded receipt, not live CI API proof",
+  "canonical_backlog_unchanged": true,
+  "full_blueprint_release_certification": "HOLD_PHYSICAL_LEVEL_HUMAN_GPU_SAVE_STEAM",
+  "contracts": [
+    {
+      "id": "C02",
+      "phase": "CT-BP-C02",
+      "status": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
+      "pr": "https://github.com/Anrixa/LightsBackON/pull/165",
+      "pr_final_head": "aab09babb174b339a2ceafb12c7e1bd1519c7941",
+      "pr_final_ci": "https://github.com/Anrixa/LightsBackON/actions/runs/44003856923",
+      "merged_main_sha": "300703ef494d19ee045efa5bcae459d5673d8e58",
+      "post_merge_ci": "https://github.com/Anrixa/LightsBackON/actions/runs/44004321714",
+      "remaining": [
+        "Physical authored district and controller/human walkthrough",
+        "Windows target-GPU performance and accessibility captures",
+        "Released historical save compatibility decision",
+        "Steam two-network F02/F06 and official CT backlog gates"
+      ]
+    },
+    {
+      "id": "C03",
+      "phase": "CT-BP-C03",
+      "status": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
+      "pr": "https://github.com/Anrixa/LightsBackON/pull/166",
+      "pr_final_head": "e8d630239f14b95d4acc7ee504984287946e7fc7",
+      "pr_final_ci": "https://github.com/Anrixa/LightsBackON/actions/runs/44035197037",
+      "merged_main_sha": "7b1f39d4e5beb82a20dd66a5d3350a4d364a2d5e",
+      "post_merge_ci": "https://github.com/Anrixa/LightsBackON/actions/runs/44035670547",
+      "remaining": [
+        "Physical authored district and controller/human walkthrough",
+        "Windows target-GPU performance and accessibility captures",
+        "Released historical save compatibility decision",
+        "Steam two-network F02/F06 and official CT backlog gates"
+      ]
+    },
+    {
+      "id": "C04",
+      "phase": "CT-BP-C04",
+      "status": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
+      "pr": "https://github.com/Anrixa/LightsBackON/pull/167",
+      "pr_final_head": "76083f56af4a893c797525507d09e3292510c09c",
+      "pr_final_ci": "https://github.com/Anrixa/LightsBackON/actions/runs/44041957106",
+      "merged_main_sha": "4d7fcd355a45cffa5c97201bc1a9a6984d5b21d8",
+      "post_merge_ci": "https://github.com/Anrixa/LightsBackON/actions/runs/44042394225",
+      "remaining": [
+        "Physical authored district and controller/human walkthrough",
+        "Windows target-GPU performance and accessibility captures",
+        "Released historical save compatibility decision",
+        "Steam two-network F02/F06 and official CT backlog gates"
+      ]
+    },
+    {
+      "id": "C05",
+      "phase": "CT-BP-C05",
+      "status": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
+      "pr": "https://github.com/Anrixa/LightsBackON/pull/168",
+      "pr_final_head": "06e24f9bf99191658af613eee4d04c4a8c785268",
+      "pr_final_ci": "https://github.com/Anrixa/LightsBackON/actions/runs/44047118657",
+      "merged_main_sha": "5544eaed2c163420346b6d817d9f29b6a065d44f",
+      "post_merge_ci": "https://github.com/Anrixa/LightsBackON/actions/runs/44047679775",
+      "remaining": [
+        "Physical authored district and controller/human walkthrough",
+        "Windows target-GPU performance and accessibility captures",
+        "Released historical save compatibility decision",
+        "Steam two-network F02/F06 and official CT backlog gates"
+      ]
+    },
+    {
+      "id": "C06",
+      "phase": "CT-BP-C06",
+      "status": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
+      "pr": "https://github.com/Anrixa/LightsBackON/pull/169",
+      "pr_final_head": "f077ff307d237a38f691e7f85c8a79e5bcab3585",
+      "pr_final_ci": "https://github.com/Anrixa/LightsBackON/actions/runs/44124117210",
+      "merged_main_sha": "6400b71691c69f6b8f571916554957ad48d7b43b",
+      "post_merge_ci": "https://github.com/Anrixa/LightsBackON/actions/runs/44124773627",
+      "remaining": [
+        "Physical authored district and controller/human walkthrough",
+        "Windows target-GPU performance and accessibility captures",
+        "Released historical save compatibility decision",
+        "Steam two-network F02/F06 and official CT backlog gates"
+      ]
+    }
+  ]
+}

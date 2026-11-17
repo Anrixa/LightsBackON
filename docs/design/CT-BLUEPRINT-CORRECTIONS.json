@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "authority": "Development Blueprint v1.0 pp.18–20; CT-L1/CT-L2 fidelity audit 17 Nov 2026",
-  "promotion_policy": "Existing host-logic CLOUD_VERIFIED execution evidence is retained; source-fidelity HOLD_CONFIRMED_MISMATCH until separate corrective PR, exact-head Linux/Windows CI, solution trace and physical acceptance. No deletes/migrations.",
+  "promotion_policy": "C02-C06 historical provisional mismatches were corrected by separately merged source-only PRs with exact final-head and merged-main Linux/Windows CI. All five are SOURCE_ALIGNED_HEADLESS_CANDIDATE; physical scene, human/controller, target GPU, real saved-session continuity, Steam two-network and official CT03/CT04/CT05 gates remain HOLD. No data migration or deletion.",
   "contracts": [
     {
       "id": "C02",
@@ -30,11 +30,12 @@
       "full_original_blueprint_certification": "HOLD_PHYSICAL_LEVEL_AND_HUMAN_ACCEPTANCE",
       "pending": [
         "C02 authored physical street sockets, on-screen deadline countdown, keyboard/controller/human playthrough, target GPU performance",
-        "Original C02 deployed-checkpoint compatibility policy: no automatic destructive migration or deletion",
-        "Post-merge C02 main validation was green on 2026-11-17; C02 original physical certification remains held"
+        "Original C02 deployed-checkpoint compatibility policy: no automatic destructive migration or deletion"
       ],
       "merged_main_sha": "300703ef494d19ee045efa5bcae459d5673d8e58",
-      "post_merge_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44004321714"
+      "post_merge_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44004321714",
+      "final_pr_head": "aab09babb174b339a2ceafb12c7e1bd1519c7941",
+      "final_pr_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44003856923"
     },
     {
       "id": "C03",
@@ -62,10 +63,13 @@
       "pull_request": "https://github.com/Anrixa/LightsBackON/pull/166",
       "full_original_blueprint_certification": "HOLD_PHYSICAL_LEVEL_AND_HUMAN_ACCEPTANCE",
       "pending": [
-        "Final documentation PR head dual-OS CI and merge/main revalidation",
         "Physical C03 preview switch and generator socket affordances, controlled 3D player walkthrough, HUD/hint visibility and controller/human tests",
         "Target-class GPU exported performance, old C03 release checkpoint compatibility, real Steam two-network tests, canonical CT03 backlog gate"
-      ]
+      ],
+      "final_pr_head": "e8d630239f14b95d4acc7ee504984287946e7fc7",
+      "final_pr_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44035197037",
+      "merged_main_sha": "7b1f39d4e5beb82a20dd66a5d3350a4d364a2d5e",
+      "post_merge_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44035670547"
     },
     {
       "id": "C04",
@@ -89,14 +93,17 @@
       "known_solution": "content/contracts/c04_whole_block/solution.json",
       "full_original_blueprint_certification": "HOLD_PHYSICAL_LEVEL_AND_HUMAN_ACCEPTANCE",
       "pending": [
-        "Final documentation HEAD Linux/Windows exact-head CI, merge commit, and merged-main CI",
         "Physical C04 sign cable and socket, mission scene, HUD, controller/human, exported target GPU performance",
         "Historical release save compatibility, Steam F02/F06 two real networks, official CT03/D08 and production acceptance"
       ],
       "fidelity": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
       "source_head": "96a30e1cd26e299551b9ec05a0db96eb9599ea5e",
       "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44041360152",
-      "pull_request": "https://github.com/Anrixa/LightsBackON/pull/167"
+      "pull_request": "https://github.com/Anrixa/LightsBackON/pull/167",
+      "final_pr_head": "76083f56af4a893c797525507d09e3292510c09c",
+      "final_pr_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44041957106",
+      "merged_main_sha": "4d7fcd355a45cffa5c97201bc1a9a6984d5b21d8",
+      "post_merge_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44042394225"
     },
     {
       "id": "C05",
@@ -129,7 +136,9 @@
       "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44047679775",
       "pull_request": "https://github.com/Anrixa/LightsBackON/pull/168",
       "merged_main_sha": "5544eaed2c163420346b6d817d9f29b6a065d44f",
-      "post_merge_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44047679775"
+      "post_merge_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44047679775",
+      "final_pr_head": "06e24f9bf99191658af613eee4d04c4a8c785268",
+      "final_pr_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44047118657"
     },
     {
       "id": "C06",
@@ -155,13 +164,23 @@
       "fidelity": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
       "full_original_blueprint_certification": "HOLD_PHYSICAL_LEVEL_AND_HUMAN_ACCEPTANCE",
       "pending": [
-        "Final documentation PR-head Linux/Windows CI and merged-main revalidation",
         "Physical Canal Yard sockets, controller/human walkthrough and target GPU performance",
         "Old shipped C06 save compatibility and Steam F02/F06 two-network qualification"
       ],
       "source_head": "5c4ede08a928a790bbd9642d013177046ee73829",
       "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44123072967",
-      "pull_request": "https://github.com/Anrixa/LightsBackON/pull/169"
+      "pull_request": "https://github.com/Anrixa/LightsBackON/pull/169",
+      "final_pr_head": "f077ff307d237a38f691e7f85c8a79e5bcab3585",
+      "final_pr_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44124117210",
+      "merged_main_sha": "6400b71691c69f6b8f571916554957ad48d7b43b",
+      "post_merge_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44124773627"
     }
-  ]
+  ],
+  "consolidated_gate": {
+    "id": "CT-BP-GATE",
+    "manifest": "docs/design/CT-BP-SOURCE-GATE.json",
+    "evidence": "docs/evidence/CT-BP-GATE.md",
+    "status": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
+    "release_certification": "HOLD"
+  }
 }
