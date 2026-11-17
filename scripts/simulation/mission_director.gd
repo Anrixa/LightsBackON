@@ -646,9 +646,6 @@ func canonical_state() -> Dictionary:
 			"progress": _opening_ticks.duplicate(), "latched": _opening_latched.duplicate(), "failed": _opening_failed}
 	if not _pickup_option.is_empty():
 		out["pickup_deadline"] = {"started": _pickup_started, "elapsed": _pickup_elapsed,
-			"on_time": _pickup_on_time, "missed": _pickup_missed}
-	if not _pickup_option.is_empty():
-		out["pickup_deadline"] = {"started": _pickup_started, "elapsed": _pickup_elapsed,
 			"on_time": _pickup_on_time, "missed": _pickup_missed,
 			"remaining_ticks": maxi(0, int(_pickup_option["deadline_ticks"]) - _pickup_elapsed)}
 	if not _meter_evidence.is_empty():
@@ -674,6 +671,9 @@ func durable_state() -> Dictionary:
 	if not _opening_venues.is_empty():
 		out["opening_venues"] = {"started": _opening_started, "elapsed": _opening_elapsed,
 			"progress": _opening_ticks.duplicate(), "latched": _opening_latched.duplicate(), "failed": _opening_failed}
+	if not _pickup_option.is_empty():
+		out["pickup_deadline"] = {"started": _pickup_started, "elapsed": _pickup_elapsed,
+			"on_time": _pickup_on_time, "missed": _pickup_missed}
 	if not _meter_evidence.is_empty():
 		out["optional_meter_evidence"] = {"observed": _evidence_observed, "reset_attempted": _evidence_reset_attempted}
 	if not _continuous_optional.is_empty():
