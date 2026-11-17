@@ -100,7 +100,7 @@
     },
     {
       "id": "C05",
-      "status": "NOT_STARTED",
+      "status": "SOURCE_IMPLEMENTED_CI_PENDING",
       "source": "content/contracts/c05_canal_pump_access",
       "requires": [
         "Canal baseline GRID30 west13 east12 feeders14 GEN8; two broken flooded trunks",
@@ -113,6 +113,17 @@
         "overload and latch reset",
         "briefing/pickup timer, late optional",
         "save/reload/full trace"
+      ],
+      "implementation_phase": "CT-BP-C05",
+      "branch": "task/CT-BP-C05-rising-water-fidelity",
+      "evidence": "docs/evidence/CT-BP-C05.md",
+      "known_solution": "content/contracts/c05_canal_pump_access/solution.json",
+      "fidelity": "SOURCE_IMPLEMENTED_CI_PENDING",
+      "full_original_blueprint_certification": "HOLD_PHYSICAL_LEVEL_AND_HUMAN_ACCEPTANCE",
+      "pending": [
+        "Exact final PR-head Linux/Windows full CI, all solutions and Python reference parity, Windows export and post-merge main CI",
+        "Physical Canal Yard mission scene, two 120-tick flood pumps, sockets and gameplay UI",
+        "Human/controller/target-class GPU, older release C05 checkpoints and real Steam F02/F06 remains unverified"
       ]
     },
     {
