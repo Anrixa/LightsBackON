@@ -224,3 +224,94 @@ func test_CTL1_C03_P03_station_staged_host_route_reaches_extraction() -> void:
 		session.tick_once()
 	assert_true(session.completed(), "C03 must reach the real host extraction finale")
 	assert_false(bool(scene.get("_save_enabled")), "C03 remains unsaved development preview")
+
+
+## The existing V01 movement probe walks an actual CharacterBody3D through
+## a 50 cm collision grid with gravity and move_and_slide. Run it on both
+## C03's inherited ground and isolated 8 m roof. This verifies physical
+## corridors, not actual player input or controller camera manipulation.
+const DistrictProbe := preload("res://tests/support/district_probe.gd")
+
+
+func _closest_connected_cell(probe: DistrictProbe, parent: PackedInt32Array,
+		point: Vector3, floor_m: float) -> int:
+	var center: int = probe.cell_of(point)
+	var ci: int = center % probe.nx
+	var cj: int = center / probe.nx
+	var best: int = -1
+	var distance: float = INF
+	for dj: int in range(-4, 5):
+		for di: int in range(-4, 5):
+			var x: int = ci + di
+			var z: int = cj + dj
+			if x < 0 or z < 0 or x >= probe.nx or z >= probe.nz:
+				continue
+			var idx: int = x + z * probe.nx
+			if parent[idx] < 0:
+				continue
+			var feet: Vector3 = probe.feet(idx)
+			if absf(feet.y - floor_m) > 0.25:
+				continue
+			var horizontal: float = Vector2(feet.x - point.x, feet.z - point.z).length()
+			if horizontal < distance and horizontal <= 2.0:
+				best = idx
+				distance = horizontal
+	return best
+
+
+func _walk_connected_stations(probe: DistrictProbe, session: Offline,
+		start: Vector3, floor_m: float, stations: Array[String]) -> void:
+	var current: int = probe.cell_of(start)
+	assert_true(probe.standable(current), "actual walkable start: " + str(start))
+	if not probe.standable(current):
+		return
+	var movement: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
+		"res://content/movement.json"))
+	var speed: float = float(movement["walk_mm_s"]) / 1000.0
+	for id: String in stations:
+		var reach: PackedInt32Array = probe.search(current)
+		var goal: int = _closest_connected_cell(probe, reach,
+			session.entity_position(id), floor_m)
+		assert_true(goal >= 0, "collision-connected corridor to " + id)
+		if goal < 0:
+			return
+		var waypoints: Array[Vector3] = probe.path_to(reach, goal)
+		assert_false(waypoints.is_empty(), "no walkable path to " + id)
+		if waypoints.is_empty():
+			return
+		var arrival: Vector3 = probe.walk(waypoints, speed)
+		assert_true(arrival.distance_to(probe.feet(goal)) <= 0.3,
+			"body must physically walk to %s; end=%s blocker=%s" % [
+				id, str(arrival), probe.last_blocker])
+		current = goal
+
+
+func test_CTL1_C03_P03_actual_capsule_walks_ground_and_roof_corridors() -> void:
+	var scene: Node3D = _preview()
+	var session: Offline = scene.get("session") as Offline
+	var ladder: Ladder = scene.get("_ladder_view") as Ladder
+	var world: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
+		"res://content/world/alder_street.json"))
+	var dimensions: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
+		"res://content/world/kit_dimensions.json"))
+	var geometry: String = str(world["scene"])
+
+	# Lower world: the same original Alder Street collision that C03 inherits.
+	# The ordered stations reflect the twice-used ladder and GEN pad route.
+	var ground: DistrictProbe = DistrictProbe.new(geometry, dimensions, world["envelope_cm"])
+	ground.build_grid()
+	_walk_connected_stations(ground, session, session.entity_position("SPAWN_1"),
+		0.0, ["PANEL_JW", "SW_JW_BREAKER", "SW_ACCESS_LIGHT", "SW_CROSSFEED",
+			"LADDER_WEST", "VAN_BAY", "PAD_PUMP", "LADDER_WEST",
+			"PAD_PUMP", "VAN_BAY"])
+	ground.free_scene()
+
+	# Roof world: take the supporting APT_W 8 m top, never a ground-floor
+	# phantom route through the building. P01/P03 host tests own the ladder
+	# transitions that join these distinct walking surfaces.
+	var roof: DistrictProbe = DistrictProbe.new(geometry, dimensions, world["envelope_cm"])
+	roof.build_grid(12.0)
+	_walk_connected_stations(roof, session, ladder.destination("LADDER_WEST"),
+		8.0, ["PANEL_ROOF", "SW_ROOF_FEED", "SW_ROOF_BREAKER", "SW_BEACON",
+			"LADDER_WEST_RETURN"])
+	roof.free_scene()
