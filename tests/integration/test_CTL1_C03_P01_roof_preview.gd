@@ -77,30 +77,24 @@ func test_CTL1_C03_P01_actual_host_position_refuses_a_distant_ladder_request() -
 	assert_false(session.mission.canonical_state()["ladder_access"].has("LADDER_WEST"))
 
 
-func test_CTL1_C03_P01_live_ladder_command_moves_player_only_after_host_ack() -> void:
+func test_CTL1_C03_P01_ladder_preview_refuses_transition_before_west_light_latch() -> void:
 	var scene: Node3D = _preview()
 	var session: Offline = scene.get("session") as Offline
 	var player: Controller = scene.get("player") as Controller
 	var view: Ladder = scene.get("_ladder_view") as Ladder
 	var start: Vector3 = Vector3(21.0, 1.02, 40.2)
-	# Even a player already on the rooftop cannot work on the cable until
-	# the host has granted a valid ladder access receipt.
 	player.global_position = view.destination("LADDER_WEST")
 	assert_eq(session.command("request_lock", "R_ROOF_SPLICE", {}).get("code"), "NO_ACCESS")
 	player.global_position = start
 	assert_true(view.destination("LADDER_WEST").y > 8.0)
-	assert_true(view.can_transfer(player, "LADDER_WEST"), "authored roof clearance is needed")
+	assert_true(view.can_transfer(player, "LADDER_WEST"))
+	var before: Vector3 = player.global_position
+	assert_eq(session.command("use_ladder", "LADDER_WEST", {}).get("code"), "ACCESS_NOT_READY")
 	scene.set("_target", "LADDER_WEST")
 	scene.call("_interact")
-	assert_true(session.mission.canonical_state()["ladder_access"].has("LADDER_WEST"))
-	assert_true(player.global_position.y > 8.5, "a real player body reaches the authored roof landing")
-	assert_eq(player.global_position, view.destination("LADDER_WEST"))
-	assert_true(view.can_transfer(player, "LADDER_WEST_RETURN"))
-	scene.set("_target", "LADDER_WEST_RETURN")
-	scene.call("_interact")
-	assert_true(player.global_position.y < 2.0)
-	assert_eq(player.global_position, view.destination("LADDER_WEST_RETURN"))
-
+	assert_false(session.mission.canonical_state()["ladder_access"].has("LADDER_WEST"))
+	assert_eq(player.global_position, before,
+		"scene must never teleport before host approves the new west-light gate")
 
 func test_CTL1_C03_P01_invalid_destination_cannot_teleport_even_with_host_fixture() -> void:
 	var scene: Node3D = _preview()

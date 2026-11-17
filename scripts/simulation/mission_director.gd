@@ -650,15 +650,23 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 	var latch_ticks: Dictionary = {}
 	for lid: Variant in d["latch_ticks"]:
 		var v: Variant = PowerGrid.to_int(d["latch_ticks"][lid])
-		if not _latches.has(lid) or v == null or int(v) < 0:
+		if not _latches.has(lid) or v == null or int(v) < 0 or int(v) > int(_latches[lid]["supplied_ticks"]):
 			return bad
 		latch_ticks[lid] = int(v)
+	# All current contract latch counters are required; an omitted record cannot
+	# silently erase an access requirement after loading an incompatible checkpoint.
+	if latch_ticks.size() != _latches.size():
+		return bad
 	var latched: Dictionary = {}
 	for lid: Variant in d["latched"]:
 		var v: Variant = PowerGrid.to_int(d["latched"][lid])
-		if not _latches.has(lid) or v == null:
+		if not _latches.has(lid) or v == null or int(v) < 0 or \
+				int(latch_ticks.get(lid, -1)) != int(_latches[lid]["supplied_ticks"]):
 			return bad
 		latched[lid] = int(v)
+	for lid: String in latch_ticks:
+		if int(latch_ticks[lid]) == int(_latches[lid]["supplied_ticks"]) and not latched.has(lid):
+			return bad
 	# C01 legacy checkpoint dictionaries remain unchanged. Deadline contracts
 	# require validated persisted first-supply ticks, or reject without mutation.
 	var optional_first: Dictionary = {}
