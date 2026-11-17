@@ -13,3 +13,7 @@
 **Required gates:** exact final PR-head CI Linux+Windows, C01–C12 solution replay, content validator, cross-language reference, Windows EXE/PCK QA57 and independent merged-main dual-OS CI. Any failing test requires correction and re-run before merge.
 
 **HOLD:** physically authored Hill Road level, staged light placement and animation, actual accessible radio presentation, real controller/human gameplay, target GPU measurements, historical deployed checkpoint restore, Steam F02/F06 and canonical CT02/CT05/CT06/release.
+
+## First exact-head CI diagnosis (retained, not a pass)
+
+First PR-head run [#44154807880](https://github.com/Anrixa/LightsBackON/actions/runs/44154807880), source `8d5fa820cc252694877a7bad9bc77f8f579b1a74`: Linux **FAIL**: 710 tests passed, 2 tests failed; C01–C12 solution traces SOLVED (C12 353 ticks, 70 steps). Root cause: C12 conditional `finale` receipt inserted twice into `canonical_state` and omitted from `durable_state` (a checkpoint and HUD projection regression); also C12 tests counted normal pacing ticks twice at precise 119/120 and 0/10/20 boundaries. Corrected the actual projection and made tests count initial consumed ticks explicitly. Updated source must pass fresh exact-head Linux/Windows CI before any merge.

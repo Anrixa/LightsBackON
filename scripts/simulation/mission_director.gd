@@ -945,8 +945,6 @@ func canonical_state() -> Dictionary:
 		out["finale"] = {"started": _finale_started, "elapsed_ticks": _finale_elapsed,
 			"complete": _finale_started and _finale_elapsed == int(_finale["stagger_ticks"]),
 			"radio_subtitle_key": _finale["radio_subtitle_key"], "input_locked": false}
-	if not _finale.is_empty():
-		out["finale"] = {"started": _finale_started, "elapsed_ticks": _finale_elapsed}
 	if not _continuous_optional.is_empty():
 		out["optional_continuous_supply"] = {"ok": _continuous_ok}
 	if not _fixed_ladders.is_empty():
@@ -988,6 +986,8 @@ func durable_state() -> Dictionary:
 	if not _interruption_option.is_empty():
 		out["max_consecutive_outage"] = {"elapsed_ticks": _interruption_ticks, "missed": _interruption_failed,
 			"pending_unpowered": _interruption_pending}
+	if not _finale.is_empty():
+		out["finale"] = {"started": _finale_started, "elapsed_ticks": _finale_elapsed}
 	if not _continuous_optional.is_empty():
 		out["optional_continuous_supply"] = {"ok": _continuous_ok}
 	if not _fixed_ladders.is_empty():

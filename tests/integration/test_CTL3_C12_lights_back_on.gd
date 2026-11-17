@@ -121,7 +121,9 @@ func test_CTL3_C12_drain_control_requires_120_continuous_generator_ticks() -> vo
 				break
 	assert_eq(Runner.run(ctx, steps, 1), [] as Array[String])
 	var m: Mission = ctx["mission"] as Mission
-	Runner.ticks(ctx, 119)
+	# The solution runner advances the host after the start intent.
+	# Count until 119 total live supply ticks; do not double-count pacing.
+	Runner.ticks(ctx, 119 - int(m.canonical_state()["latch_ticks"]["LATCH_DRAIN"]))
 	assert_false(m.is_latched("LATCH_DRAIN"))
 	assert_true(Runner.send(ctx, "P1", "place_item", "GEN_PORTABLE", {"action":"stop"}).get("ok", false))
 	assert_true(Runner.send(ctx, "P1", "place_item", "GEN_PORTABLE", {"action":"start"}).get("ok", false))
@@ -191,10 +193,11 @@ func test_CTL3_C12_finale_wave_is_exactly_20_ticks_without_input_lock() -> void:
 	assert_eq(Runner.run(ctx, prefix, 1), [] as Array[String])
 	var m: Mission = ctx["mission"] as Mission
 	assert_true(m.verified())
-	assert_eq(m.canonical_state()["finale"]["elapsed_ticks"], 0)
+	var elapsed: int = int(m.canonical_state()["finale"]["elapsed_ticks"])
+	assert_true(elapsed >= 0 and elapsed < 10)
 	assert_false(m.canonical_state()["finale"]["input_locked"])
 	assert_true(Runner.send(ctx, "P1", "inspect", "PANEL_WEST", {}).get("ok", false))
-	Runner.ticks(ctx, 10)
+	Runner.ticks(ctx, 10 - elapsed)
 	assert_eq(m.canonical_state()["finale"]["elapsed_ticks"], 10)
 	assert_false(m.canonical_state()["finale"]["complete"])
 	Runner.ticks(ctx, 10)
@@ -228,8 +231,10 @@ func test_CTL3_C12_finale_save_restore_and_forgery_refusal() -> void:
 		if step.get("ticks") == 100:
 			break
 	assert_eq(Runner.run(ctx, prefix, 1), [] as Array[String])
-	Runner.ticks(ctx, 7)
 	var m: Mission = ctx["mission"] as Mission
+	var elapsed: int = int(m.canonical_state()["finale"]["elapsed_ticks"])
+	assert_true(elapsed >= 0 and elapsed < 7)
+	Runner.ticks(ctx, 7 - elapsed)
 	var original: Dictionary = m.durable_state()
 	assert_eq(original["finale"], {"started":true,"elapsed_ticks":7})
 	for bad: Dictionary in [
