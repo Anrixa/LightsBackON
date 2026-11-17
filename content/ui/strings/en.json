@@ -357,6 +357,26 @@
     "node.c05.temp": "Temporary supply",
     "node.c05.pump_dock": "Dock drain pump",
     "node.c05.pump_cold": "Cold-yard drain pump",
-    "node.c05.beacon": "Dock beacon"
+    "node.c05.beacon": "Dock beacon",
+    "contract.c06": "Cold-Chain Window",
+    "repair.c06.dock_fuse": "Dock feeder fuse",
+    "repair.c06.cold_feed": "Refrigeration-yard feed cable",
+    "objective.c06.drain_dock": "Drain the dock electrical room",
+    "objective.c06.drain_cold": "Drain the refrigeration service corridor",
+    "objective.c06.restore_dock": "Restore dock office and crane",
+    "objective.c06.restore_cold": "Restore yard lighting and workshop",
+    "objective.c06.cold_chain": "Optional: start the cold store before its grace window closes",
+    "node.c06.grid": "Main grid",
+    "node.c06.dock": "Dock feeder",
+    "node.c06.cold": "Cold-yard feeder",
+    "node.c06.dock_office": "Dock office",
+    "node.c06.crane": "Canal crane",
+    "node.c06.cold_store": "Cold store",
+    "node.c06.yard_lights": "Yard lights",
+    "node.c06.workshop": "Canal workshop",
+    "node.c06.gen": "Portable generator",
+    "node.c06.temp": "Temporary supply",
+    "node.c06.pump_dock": "Dock drain pump",
+    "node.c06.pump_cold": "Cold-yard drain pump"
   }
 }

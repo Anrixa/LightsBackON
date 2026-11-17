@@ -25,8 +25,16 @@
     {
       "id": "CTL2-C06",
       "contract_id": "C06",
-      "title": "Canal Yard C06",
-      "status": "NOT_STARTED"
+      "title": "Cold-Chain Window (provisional design name)",
+      "status": "IN_PROGRESS",
+      "source": "content/contracts/c06_cold_chain",
+      "evidence": "docs/evidence/CTL2-C06.md",
+      "pending": [
+        "Exact-head GitHub Linux and Windows CI with C01-C06 solution replays and boundary tests",
+        "Original blueprint C06 contract sheet, title, grace timer and gameplay-value reconciliation",
+        "Physical Canal Yard C06 scene, controller/human and GPU P95/memory, UI deadline presentation",
+        "Official CT04 remains dependency-blocked, and Steam F02/F06 plus rules_revision save compatibility remain unqualified"
+      ]
     },
     {
       "id": "CTL2-C07",

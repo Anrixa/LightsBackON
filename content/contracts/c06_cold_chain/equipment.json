@@ -1,0 +1,34 @@
+{
+  "contract_id": "C06",
+  "source_note": "C06 Cold-Chain Window: original CT-L2 Canal Yard headless logic authoring under ADR-017. The primary blueprint C06 sheet was not available for verification; all C06 PU, 280-tick grace period and title are provisional design choices requiring original-sheet reconciliation. Not a physically playable district. Same safe stowed generator and pump routes as C05. No real 3D coordinates claimed.",
+  "equipment": [
+    {
+      "id": "GEN_PORTABLE",
+      "kind": "generator",
+      "source": "GEN",
+      "breaker": "TEMP",
+      "start_anchor": "VAN_BAY"
+    }
+  ],
+  "anchors": [
+    {
+      "id": "VAN_BAY",
+      "storage": true,
+      "routes": []
+    },
+    {
+      "id": "STORE_CANAL",
+      "storage": true,
+      "routes": []
+    },
+    {
+      "id": "PAD_CANAL_PUMPS",
+      "storage": false,
+      "routes": [
+        "E_TEMP_PUMP_DOCK",
+        "E_TEMP_PUMP_COLD"
+      ]
+    }
+  ],
+  "recovery_anchor": "VAN_BAY"
+}
