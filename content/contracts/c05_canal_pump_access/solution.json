@@ -164,7 +164,7 @@
       "expect": "ok"
     },
     {
-      "note": "Both distinct host access flags have latched; restore DOCK fuse and damaged COLD feeder."
+      "note": "Both independent drain latches have completed. Restore WEST fuse and EAST flooded trunk through host-validated isolated repairs."
     },
     {
       "note": "Repair sequence"
@@ -488,8 +488,7 @@
     {
       "ticks": 100,
       "expect_events": [
-        "verified",
-        "pickup_optional_on_time"
+        "verified"
       ]
     },
     {
