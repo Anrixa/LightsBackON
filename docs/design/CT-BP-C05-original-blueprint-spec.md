@@ -5,7 +5,7 @@
 ## Required puzzle
 
 - Canal Yard GRID is **30 PU**, WEST and EAST feeder capacities **14 PU** each. Permanent required west-side services: LAUNDRETTE 5, DINER 4, ROW_HOUSES 4 = **13 PU**. East-side: DEPOT 4, COLD_STORE 5, PUMP_KIOSK 3 = **12 PU**. Full supply **25/30 PU**.
-- WEST is failed/tripped and the EAST trunk is damaged. Separate flooded access gates cannot be repaired until the correct pump earns its own host-owned access latch.
+- Both GRID→WEST and GRID→EAST feeder trunks start **damaged**; their downstream junctions are not falsely marked as fuse failures. Each flooded room has its own edge-repair, isolated host-authorized panel and a separate cable-splice supply. Separate flooded access gates cannot be repaired until the correct pump earns its own host-owned access latch.
 - GEN is **8 PU**. WEST pump uses **5 PU**, EAST pump **4 PU**. Each requires **120 uninterrupted 10 Hz host ticks**. Either sequence is valid. Running both draws 9/8 and trips the temporary branch after 15 continuous overloaded ticks.
 - Generator route and all repairs are host intents with meter-first isolation. Both pump access grants are durable and independent. Final verification is 100 GRID-supply ticks, then equipment stow and a 50-tick cancellable extraction.
 
