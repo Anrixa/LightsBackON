@@ -1,0 +1,16 @@
+{
+  "contract_id": "C07",
+  "source_note": "Development Blueprint v1.0, p.18 Canal Yard baseline and p.20 C07 Wrong Label; recovered from canonical repository PDF. PU are abstract, not real electrical fuse ratings. This is host-authoritative headless contract logic, not physical scene acceptance. First valid, in-range SW_JE_BREAKER=false command is a reset attempt even when the real host grid refuses it; meter evidence must occur beforehand. Shed/load switches demonstrate why 10 PU cannot serve all 12 required east PU.",
+  "switches": [
+    {
+      "id": "SW_JE_BREAKER",
+      "target": "JE",
+      "field": "tripped"
+    },
+    {
+      "id": "SW_COLD_STORE",
+      "target": "COLD_STORE",
+      "field": "enabled"
+    }
+  ]
+}

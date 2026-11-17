@@ -1,0 +1,30 @@
+{
+  "contract_id": "C07",
+  "source_note": "Development Blueprint v1.0, p.18 Canal Yard baseline and p.20 C07 Wrong Label; recovered from canonical repository PDF. PU are abstract, not real electrical fuse ratings. This is host-authoritative headless contract logic, not physical scene acceptance. PANEL_JE has a stale physical label reading 14 PU but the host meter must report the installed E_GRID_JE 10 PU capacity and 12 PU branch demand. Initial JE trip reason is not fabricated; measured evidence is required.",
+  "panels": [
+    {
+      "id": "PANEL_GRID",
+      "target": "GRID"
+    },
+    {
+      "id": "PANEL_JW",
+      "target": "JW"
+    },
+    {
+      "id": "PANEL_JE",
+      "target": "JE"
+    },
+    {
+      "id": "PANEL_GEN",
+      "target": "GEN"
+    },
+    {
+      "id": "PANEL_TEMP",
+      "target": "TEMP"
+    }
+  ],
+  "initial_breaker_reasons": {},
+  "stale_panel_label_pu": {
+    "PANEL_JE": 14
+  }
+}

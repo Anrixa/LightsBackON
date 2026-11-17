@@ -1,0 +1,33 @@
+{
+  "contract_id": "C07",
+  "source_note": "Development Blueprint v1.0, p.18 Canal Yard baseline and p.20 C07 Wrong Label; recovered from canonical repository PDF. PU are abstract, not real electrical fuse ratings. This is host-authoritative headless contract logic, not physical scene acceptance. Only the contract-supplied 14 PU module may replace the JE feeder's installed 10 PU module; installation requires an isolated JE, repair lock, meter-first diagnosis, correct tools, and available part. No general editable capacity field.",
+  "supplies": {
+    "MODULE_14PU": 1
+  },
+  "repairs": [
+    {
+      "id": "R_JE_MODULE",
+      "name_key": "repair.c07.module",
+      "panel": "PANEL_JE",
+      "isolate": "JE",
+      "fix": {
+        "op": "replace_module",
+        "id": "E_GRID_JE",
+        "capacity": 14
+      },
+      "component": "MODULE_14PU",
+      "tools": {
+        "open": "screwdriver",
+        "remove": "puller",
+        "install": "crimper",
+        "test": "meter"
+      },
+      "hold_ticks": {
+        "open": 6,
+        "remove": 8,
+        "install": 10,
+        "close": 6
+      }
+    }
+  ]
+}

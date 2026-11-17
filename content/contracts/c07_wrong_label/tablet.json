@@ -1,0 +1,74 @@
+{
+  "contract_id": "C07",
+  "source_note": "Logical Canal Yard network only; stale panel label is in meter.json and must not override host meter readings. No physical world-map certification.",
+  "columns": 5,
+  "rows": 4,
+  "nodes": [
+    {
+      "id": "GRID",
+      "col": 2,
+      "row": 0,
+      "name_key": "node.c07.grid"
+    },
+    {
+      "id": "JW",
+      "col": 1,
+      "row": 1,
+      "name_key": "node.c07.jw"
+    },
+    {
+      "id": "JE",
+      "col": 3,
+      "row": 1,
+      "name_key": "node.c07.je"
+    },
+    {
+      "id": "LAUNDRETTE",
+      "col": 0,
+      "row": 2,
+      "name_key": "node.c07.laundrette"
+    },
+    {
+      "id": "DINER",
+      "col": 1,
+      "row": 2,
+      "name_key": "node.c07.diner"
+    },
+    {
+      "id": "ROW_HOUSES",
+      "col": 2,
+      "row": 2,
+      "name_key": "node.c07.row_houses"
+    },
+    {
+      "id": "DEPOT",
+      "col": 3,
+      "row": 2,
+      "name_key": "node.c07.depot"
+    },
+    {
+      "id": "COLD_STORE",
+      "col": 4,
+      "row": 2,
+      "name_key": "node.c07.cold_store"
+    },
+    {
+      "id": "GEN",
+      "col": 0,
+      "row": 3,
+      "name_key": "node.c07.gen"
+    },
+    {
+      "id": "TEMP",
+      "col": 1,
+      "row": 3,
+      "name_key": "node.c07.temp"
+    },
+    {
+      "id": "PUMP_KIOSK",
+      "col": 4,
+      "row": 3,
+      "name_key": "node.c07.pump_kiosk"
+    }
+  ]
+}
