@@ -246,7 +246,8 @@ func test_CT_BP_C05_malformed_pickup_deadline_content_is_rejected() -> void:
 		{}, {"consumer": "COLD_STORE", "deadline_ticks": 0, "start_trigger": "first_equipment_pickup"},
 		{"consumer": "PUMP_WEST", "deadline_ticks": 1800, "start_trigger": "first_equipment_pickup"},
 		{"consumer": "COLD_STORE", "deadline_ticks": 1800, "start_trigger": "client_button"},
-		{"consumer": "NOT_A_NODE", "deadline_ticks": 1800, "start_trigger": "first_equipment_pickup"}
+		{"consumer": "NOT_A_NODE", "deadline_ticks": 1800, "start_trigger": "first_equipment_pickup"},
+		{"consumer": "COLD_STORE", "deadline_ticks": 1800, "start_trigger": "first_equipment_pickup", "requires_latch": "FAKE_LATCH"}
 	]:
 		var ctx: Dictionary = Runner.build(C05, sol["players"], sol["tools"], {"optional_pickup_deadline": invalid})
 		assert_false((ctx["errors"] as Array).is_empty(), str(invalid))
