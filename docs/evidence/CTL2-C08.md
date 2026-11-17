@@ -43,6 +43,10 @@ The Windows CI build uses a synthetic PR merge SHA `a06e3ea829e95bae467233a46d82
 
 All code-level Linux/Windows gates above were observed PASS on implementation SHA. The **final** PR-head CI (after this evidence update) remains required for merge. QA51 lifetime probes apply to scene/resource changes; this C08 work adds headless contract data and mission/host rules without new scene nodes or runtime resource lifecycle ownership. Do not substitute this CI for physical hardware or human acceptance.
 
+## CT-L2 consolidated gate report
+
+See [CTL2-GATE.md](CTL2-GATE.md) for the C05–C08 gate, original C02–C06 fidelity holds, and authoritative pass/fail boundaries.
+
 ## Certification limits and corrective track
 
 C02–C06 retain `HOLD_CONFIRMED_MISMATCH`; the recorded defects in `docs/evidence/CTL2-BLUEPRINT-RECONCILIATION.md` are independently tracked for corrective implementation (not waived by C08's success). C07 and C08 source-aligned headless implementations still require physical level/controller/UX validation. Official CT05 remains NOT_STARTED behind CT04; F02/F06 Steam two-network tests and V09/D08 human acceptance remain unqualified. No existing saves have been migrated or deleted.
