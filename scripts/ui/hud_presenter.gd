@@ -30,6 +30,8 @@ static func build(state: Dictionary, objectives: Array[Dictionary], ctx: Diction
 		view["cumulative_outage"] = (mission_state["cumulative_outage"] as Dictionary).duplicate(true)
 	if mission_state.has("max_consecutive_outage"):
 		view["max_consecutive_outage"] = (mission_state["max_consecutive_outage"] as Dictionary).duplicate(true)
+	if mission_state.has("finale"):
+		view["finale"] = (mission_state["finale"] as Dictionary).duplicate(true)
 	if mission_state.has("timed_latch_bonus"):
 		view["timed_latch_bonus"] = (mission_state["timed_latch_bonus"] as Dictionary).duplicate(true)
 	return view

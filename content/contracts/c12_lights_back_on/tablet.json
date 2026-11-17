@@ -1,0 +1,98 @@
+{
+  "contract_id": "C12",
+  "source_note": "Original Development Blueprint v1.0 pp.18,20–21 C12 Lights Back On, source-aligned headless candidate. Hill GRID28, west/east14, GEN6; WEST protection failed, EAST trunk broken. Portable GEN4 drain/control for 120 continuous ticks unlocks east repair. Required west13 + east12 = 25 PU, optional BEACON3 only via isolated installed direct GRID→BEACON_SPUR4; not through overloaded WEST16/14. Beacon 100 continuous GRID ticks, no hard deadline. On verification host emits 2-second staggered restoration event receipts and radio subtitle with input active. Physical finale, human, GPU, older saves, Steam and release HOLD.",
+  "columns": 6,
+  "rows": 4,
+  "nodes": [
+    {
+      "id": "GRID",
+      "col": 3,
+      "row": 0,
+      "name_key": "node.c12.grid"
+    },
+    {
+      "id": "GEN",
+      "col": 0,
+      "row": 3,
+      "name_key": "node.c12.gen"
+    },
+    {
+      "id": "WEST",
+      "col": 1,
+      "row": 1,
+      "name_key": "node.c12.west"
+    },
+    {
+      "id": "EAST",
+      "col": 5,
+      "row": 1,
+      "name_key": "node.c12.east"
+    },
+    {
+      "id": "BEACON_SPUR",
+      "col": 4,
+      "row": 0,
+      "name_key": "node.c12.stage_spur"
+    },
+    {
+      "id": "WEST_BEACON",
+      "col": 2,
+      "row": 1,
+      "name_key": "node.c12.west_stage"
+    },
+    {
+      "id": "TEMP",
+      "col": 1,
+      "row": 3,
+      "name_key": "node.c12.temp"
+    },
+    {
+      "id": "COMMUNITY_HALL",
+      "col": 0,
+      "row": 2,
+      "name_key": "node.c12.community_hall"
+    },
+    {
+      "id": "BAKERY",
+      "col": 1,
+      "row": 2,
+      "name_key": "node.c12.bakery"
+    },
+    {
+      "id": "GREENHOUSE",
+      "col": 2,
+      "row": 2,
+      "name_key": "node.c12.greenhouse"
+    },
+    {
+      "id": "FLATS",
+      "col": 3,
+      "row": 2,
+      "name_key": "node.c12.flats"
+    },
+    {
+      "id": "TELECOM_HUT",
+      "col": 4,
+      "row": 2,
+      "name_key": "node.c12.telecom_hut"
+    },
+    {
+      "id": "SERVICE_GARAGE",
+      "col": 5,
+      "row": 2,
+      "name_key": "node.c12.service_garage"
+    },
+    {
+      "id": "BEACON",
+      "col": 3,
+      "row": 3,
+      "name_key": "node.c12.beacon"
+    },
+    {
+      "id": "DRAIN_CONTROL",
+      "col": 2,
+      "row": 3,
+      "name_key": "node.c12.drain_control"
+    }
+  ]
+}
