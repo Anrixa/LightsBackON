@@ -69,6 +69,11 @@ var _pickup_started: bool = false
 var _pickup_elapsed: int = 0
 var _pickup_on_time: bool = false
 var _pickup_missed: bool = false
+## C06 optional: cumulative outage across all host ticks; latching a miss cannot undo it.
+var _outage_option: Dictionary = {}
+var _outage_ticks: int = 0
+var _outage_failed: bool = false
+var _outage_unsupplied: bool = false
 ## Optional host-observed meter finding; absent from legacy contracts and saves.
 var _meter_evidence: Dictionary = {}
 var _evidence_observed: bool = false
@@ -236,6 +241,28 @@ func load_definition(definition: Dictionary, grid: PowerGrid, interaction: Inter
 				"pickup deadline needs a required consumer, valid access latch, positive ticks and host pickup trigger", []))
 		else:
 			_pickup_option = {"consumer": consumer, "deadline_ticks": int(deadline), "requires_latch": required_latch}
+	var outage_raw: Variant = definition.get("optional_cumulative_outage", null)
+	if outage_raw != null:
+		var opt: Dictionary = outage_raw if outage_raw is Dictionary else {}
+		var limit: Variant = PowerGrid.to_int(opt.get("deadline_ticks"))
+		var consumer: Variant = opt.get("consumer")
+		var sources_raw: Variant = opt.get("permitted_sources")
+		var allowed: Array[String] = []
+		if sources_raw is Array:
+			for src_id: Variant in sources_raw:
+				if not (src_id is String and nodes.has(src_id) and nodes[src_id]["kind"] == PowerGrid.KIND_SOURCE) or allowed.has(src_id):
+					errs.append(PowerGrid.diag("BAD_MISSION", "outage sources must be distinct source nodes", []))
+				else:
+					allowed.append(src_id)
+		if not (opt.size() == 4 and PowerGrid.is_valid_id(opt.get("id")) and
+				consumer is String and _required.has(consumer) and limit != null and int(limit) >= 1 and
+				sources_raw is Array and allowed.size() == (sources_raw as Array).size() and allowed.size() == 2 and
+				allowed.has(_grid_source) and _optional.is_empty() and _pickup_option.is_empty() and
+				_opening_venues.is_empty() and _continuous_optional.is_empty()):
+			errs.append(PowerGrid.diag("BAD_MISSION", "cumulative outage needs a required consumer, two sources and positive tick limit", []))
+		else:
+			_outage_option = {"id": opt["id"], "consumer": consumer, "deadline_ticks": int(limit), "permitted_sources": allowed}
+			_outage_unsupplied = not _valid_outage_supply(grid.canonical_state())
 	var evidence_raw: Variant = definition.get("optional_meter_evidence", null)
 	if evidence_raw != null:
 		var evidence: Dictionary = evidence_raw if evidence_raw is Dictionary else {}
@@ -382,6 +409,13 @@ func tick(now: int) -> Array[Dictionary]:
 		elif _pickup_elapsed > int(_pickup_option["deadline_ticks"]):
 			_pickup_missed = true
 			events.append({"type": "pickup_deadline_missed", "id": _pickup_option["consumer"], "tick": now})
+	if not _outage_option.is_empty():
+		if not _outage_failed and (_outage_unsupplied or not _valid_outage_supply(st)):
+			_outage_ticks = mini(_outage_ticks + 1, int(_outage_option["deadline_ticks"]))
+			if _outage_ticks >= int(_outage_option["deadline_ticks"]):
+				_outage_failed = true
+				events.append({"type": "cumulative_outage_bonus_missed", "id": _outage_option["id"], "tick": now})
+		_outage_unsupplied = false
 	var was_verified: bool = verified()
 	_verify_ticks = mini(_verify_ticks + 1, _verify_needed) if _all_required_on_grid(st) else 0
 	if verified() and not was_verified:
@@ -433,6 +467,8 @@ func observe_supply_state() -> void:
 	if not _continuous_optional.is_empty() and _continuous_ok:
 		if not _on_grid(_continuous_optional["consumer"], st):
 			_continuous_ok = false
+	if not _outage_option.is_empty() and not _outage_failed and not _valid_outage_supply(st):
+		_outage_unsupplied = true
 
 
 ## Host-only evidence: a real inspected panel must show the 10 PU component
@@ -490,10 +526,12 @@ func _build_results() -> Dictionary:
 			optional_restored.append(venue)
 	if not _pickup_option.is_empty() and _pickup_on_time:
 		optional_restored.append(_pickup_option["consumer"])
+	if not _outage_option.is_empty() and not _outage_failed and _valid_outage_supply(st):
+		optional_restored.append(_outage_option["id"])
 	for reward_id: String in _optional_latch_rewards:
 		if _latched.has(reward_id):
 			optional_restored.append(_latches[reward_id]["consumer"])
-	var optional_total: int = _optional.size() + (1 if not _meter_evidence.is_empty() else 0) + (1 if not _continuous_optional.is_empty() else 0) + _opening_venues.size() + _optional_latch_rewards.size() + (1 if not _pickup_option.is_empty() else 0)
+	var optional_total: int = _optional.size() + (1 if not _meter_evidence.is_empty() else 0) + (1 if not _continuous_optional.is_empty() else 0) + _opening_venues.size() + _optional_latch_rewards.size() + (1 if not _pickup_option.is_empty() else 0) + (1 if not _outage_option.is_empty() else 0)
 	var preventable: int = maxi(0, _trips - _trip_allowance)
 	var stars: int = 1 + (1 if optional_restored.size() == optional_total else 0) + (1 if preventable == 0 else 0)
 	return {"required_restored": restored, "required_total": _required.size(), "optional_services": optional_restored,
@@ -618,6 +656,9 @@ func _objective_done(cond: Dictionary, st: Dictionary) -> bool:
 		return _ladder_access.has(cond["ladder"])
 	if cond.has("opening_venue"):
 		return _opening_venues.has(cond["opening_venue"]) and _opening_latched.has(cond["opening_venue"])
+	if cond.has("cumulative_outage"):
+		return not _outage_option.is_empty() and cond["cumulative_outage"] == _outage_option["id"] and \
+			_completed_tick >= 0 and not _outage_failed
 	if cond.has("pickup_deadline"):
 		return not _pickup_option.is_empty() and cond["pickup_deadline"] == _pickup_option["consumer"] and _pickup_on_time
 	if cond.has("continuous_supply"):
@@ -652,6 +693,11 @@ func canonical_state() -> Dictionary:
 			"remaining_ticks": maxi(0, int(_pickup_option["deadline_ticks"]) - _pickup_elapsed)}
 	if not _meter_evidence.is_empty():
 		out["optional_meter_evidence"] = {"observed": _evidence_observed, "reset_attempted": _evidence_reset_attempted}
+	if not _outage_option.is_empty():
+		out["cumulative_outage"] = {"elapsed_ticks": _outage_ticks, "missed": _outage_failed,
+			"pending_unpowered": _outage_unsupplied,
+			"remaining_ticks": maxi(0, int(_outage_option["deadline_ticks"]) - _outage_ticks),
+			"powered": _valid_outage_supply(_grid.canonical_state())}
 	if not _continuous_optional.is_empty():
 		out["optional_continuous_supply"] = {"ok": _continuous_ok}
 	if not _fixed_ladders.is_empty():
@@ -678,6 +724,9 @@ func durable_state() -> Dictionary:
 			"on_time": _pickup_on_time, "missed": _pickup_missed}
 	if not _meter_evidence.is_empty():
 		out["optional_meter_evidence"] = {"observed": _evidence_observed, "reset_attempted": _evidence_reset_attempted}
+	if not _outage_option.is_empty():
+		out["cumulative_outage"] = {"elapsed_ticks": _outage_ticks, "missed": _outage_failed,
+			"pending_unpowered": _outage_unsupplied}
 	if not _continuous_optional.is_empty():
 		out["optional_continuous_supply"] = {"ok": _continuous_ok}
 	if not _fixed_ladders.is_empty():
@@ -796,6 +845,22 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 			return bad
 		if pickup_missed != (pickup_elapsed == int(_pickup_option["deadline_ticks"]) + 1):
 			return bad
+	var outage_ticks: int = 0
+	var outage_failed: bool = false
+	var outage_pending: bool = false
+	if not _outage_option.is_empty():
+		var outage_record: Variant = d.get("cumulative_outage")
+		if not (outage_record is Dictionary and (outage_record as Dictionary).size() == 3 and
+				outage_record.get("missed") is bool and outage_record.get("pending_unpowered") is bool):
+			return bad
+		var elapsed: Variant = PowerGrid.to_int(outage_record.get("elapsed_ticks"))
+		if elapsed == null or int(elapsed) < 0 or int(elapsed) > int(_outage_option["deadline_ticks"]):
+			return bad
+		outage_ticks = int(elapsed)
+		outage_failed = outage_record["missed"]
+		outage_pending = outage_record["pending_unpowered"]
+		if outage_failed != (outage_ticks == int(_outage_option["deadline_ticks"])):
+			return bad
 	# Evidence state is saved only by contracts that declare this objective.
 	# Verify the complete shape before mutating mission data (fail closed).
 	var observed: bool = false
@@ -843,6 +908,9 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 	_pickup_elapsed = pickup_elapsed
 	_pickup_on_time = pickup_on_time
 	_pickup_missed = pickup_missed
+	_outage_ticks = outage_ticks
+	_outage_failed = outage_failed
+	_outage_unsupplied = outage_pending
 	_evidence_observed = observed
 	_evidence_reset_attempted = reset_attempted
 	_continuous_ok = continuous_ok
@@ -904,6 +972,16 @@ func _root_of(nid: String, st: Dictionary) -> String:
 			return ""
 		node = up
 	return ""
+
+## The source must be host-authorized, exclusive and non-overloaded. Client visuals are not evidence.
+func _valid_outage_supply(st: Dictionary) -> bool:
+	if _outage_option.is_empty():
+		return false
+	var consumer: String = _outage_option["consumer"]
+	if not st["nodes"][consumer]["supplied"]:
+		return false
+	var root: String = _root_of(consumer, st)
+	return (_outage_option["permitted_sources"] as Array).has(root) and not st["nodes"][root]["overloaded"]
 
 
 static func _refuse(code: String, message: String, ids: Array) -> Dictionary:
