@@ -9,8 +9,8 @@
     {
       "id": "CTL3-C09",
       "contract_id": "C09",
-      "status": "IN_PROGRESS",
-      "stage": "SOURCE_IMPLEMENTED_PENDING_EXACT_HEAD_CI",
+      "status": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
+      "stage": "SOURCE_CI_VERIFIED_FINAL_DOCUMENTATION_HEAD_PENDING",
       "prerequisites": [
         "Extract original contract sheet without guessing PU/timing",
         "Write machine-verified authoring test, negative cases and host solution replay",
@@ -22,10 +22,18 @@
       "source": "content/contracts/c09_wind_warning",
       "evidence": "docs/evidence/CTL3-C09.md",
       "pending": [
-        "Exact head Linux/Windows CI, C01-C09 trace and reference checks",
-        "Physical Hill Road 3D routes, safe-return movement, HUD warning, actual ~20s travel and controller/human/GPU",
-        "Real historical saves, Steam F02/F06 and official backlog CT06"
-      ]
+        "Exact documentation PR-head Linux/Windows CI and independent merged-main revalidation",
+        "Real Hill Road 3D scene, physical roof safe-return movement, wind warning HUD, ground route pacing and human/controller/GPU",
+        "Old-release save compatibility, Steam F02/F06 and official CT06 dependency gates"
+      ],
+      "source_ci_commit": "e0f7336b368463f817a1265fe0ffec4c30ec46ae",
+      "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44136706464",
+      "tests_each_os": {
+        "passed": 673,
+        "failed": 0,
+        "assertions": 50107
+      },
+      "solution_replay": "SOLVED C09: 197 ticks, 54 steps"
     },
     {
       "id": "CTL3-C10",

@@ -21,3 +21,21 @@
 ## Resume notes
 
 If CI is red, inspect the job log, correct actual source/test defects, then re-run exact final head. After merged-main verification, begin separate **CT-L3/C10 — Community Night** PR with original-sheet specification in `docs/design/CTL3-C10-C12-blueprint-spec.md`. C11 and C12 follow independently.
+
+
+## Observed code-head CI — 17 November 2026 (UTC)
+
+Implementation source `e0f7336b368463f817a1265fe0ffec4c30ec46ae`, [GitHub Actions #44136706464](https://github.com/Anrixa/LightsBackON/actions/runs/44136706464):
+
+| Check | Linux | Windows |
+| --- | --- | --- |
+| Godot tests | **673 passed, 0 failed, 50,107 assertions** | **673 passed, 0 failed, 50,107 assertions** |
+| Content validator | 93 JSON files, 0 errors | 93 JSON files, 0 errors |
+| C01–C09 host replay | all SOLVED | all SOLVED |
+| C09 solution | **197 ticks, 54 steps** | **197 ticks, 54 steps** |
+| Python/Godot reference | MATCH 32 cases, 246 hashes, 10 rejects | MATCH same |
+| Windows release export and QA57 | N/A | **PASS** EXE/PCK, headless exported smoke, script UID and source pin |
+
+All 11 C09 tests passed on both platforms. This verifies **source/headless** contract behavior, not an actual roof or ground route scene, target GPU, checkpoint restore from a prior released version, or human navigation.
+
+**Important:** This evidence/tracker addendum changes the PR head. The final documentation SHA must itself pass Linux/Windows CI before merge. Afterwards verify merged-main dual-OS CI separately. Never treat a pending run as a pass.
