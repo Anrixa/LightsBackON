@@ -54,8 +54,8 @@ func test_CTL3_C11_original_hill_topology_and_50_tick_optional() -> void:
 	assert_eq(int(st["edges"]["E_WEST_TELECOM"]["capacity"]), 4)
 	assert_false(st["edges"]["E_WEST_TELECOM"]["enabled"])
 	var mission: Dictionary = Runner.json(C11.path_join("mission.json"))
-	assert_eq(mission["optional_max_consecutive_outage"]["max_outage_ticks"], 50)
-	assert_eq(mission["access_latches"][0]["supplied_ticks"], 100)
+	assert_eq(int(mission["optional_max_consecutive_outage"]["max_outage_ticks"]), 50)
+	assert_eq(int(mission["access_latches"][0]["supplied_ticks"]), 100)
 	assert_eq(mission["required_consumers"].size(), 6)
 
 

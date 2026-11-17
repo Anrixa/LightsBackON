@@ -21,10 +21,6 @@
     {
       "id": "PANEL_TEMP",
       "target": "TEMP"
-    },
-    {
-      "id": "PANEL_GARAGE_CONTROL",
-      "target": "GARAGE_CONTROL"
     }
   ],
   "initial_breaker_reasons": {}
