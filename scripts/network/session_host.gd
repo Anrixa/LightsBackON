@@ -256,7 +256,9 @@ func receive(peer_id: int, bytes: PackedByteArray) -> Dictionary:
 	_last_seq[peer_id] = seq
 	var before: String = state_hash()
 	var reply: Dictionary = _dispatch(_members[peer_id], msg)
-	if reply.get("ok", false) and state_hash() != before:
+	# A refused reset can still consume a C07 evidence-before-reset bonus;
+	# the host revision must reflect any authorized mission fact change.
+	if state_hash() != before:
 		revision += 1
 	reply["seq"] = seq
 	reply["revision"] = revision
@@ -332,6 +334,8 @@ func _dispatch(player: String, msg: Dictionary) -> Dictionary:
 			if not payload.get("value") is bool:
 				return _refuse("MALFORMED", "toggle_switch needs a bool value", [entity])
 			var sw: Dictionary = _switches[entity]
+			if _mission != null:
+				_mission.note_breaker_reset_attempt(sw["target"], sw["field"], payload["value"])
 			var res: Dictionary = _grid.apply({"op": "set", "id": sw["target"], "field": sw["field"], "value": payload["value"]})
 			if not res["ok"]:
 				var ids: Array = (res["ids"] as Array).duplicate()
@@ -346,7 +350,10 @@ func _dispatch(player: String, msg: Dictionary) -> Dictionary:
 				return _refuse("UNKNOWN_ENTITY", "no meter panel %s" % entity, [])
 			if not in_range:
 				return _refuse("NOT_IN_RANGE", "move closer to %s" % entity, [entity])
-			return _meter.inspect(entity, _grid)
+			var sample: Dictionary = _meter.inspect(entity, _grid)
+			if sample.get("ok", false) and _mission != null:
+				_mission.note_meter_inspection(entity, _meter.readings(entity, _grid))
+			return sample
 		"equip":
 			return _interaction.handle(player, {"type": "equip", "tool": payload.get("tool", "")})
 		"place_item":
