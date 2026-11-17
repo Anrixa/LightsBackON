@@ -9,6 +9,8 @@ var _arrivals: Dictionary = {}  # authored ladder endpoint id -> destination in 
 var _beacon: MeshInstance3D
 var _beacon_off: Material
 var _beacon_on: Material
+var _switch_sources: Dictionary = {}  # authorized switch id -> host target/field
+var _switch_indicators: Dictionary = {}  # switch id -> strictly observational Label3D
 
 
 static func _point(cm: Array) -> Vector3:
@@ -40,7 +42,7 @@ func _box(parent: Node3D, name: String, pos: Vector3, size_m: Vector3,
 	return visual
 
 
-func _label(parent: Node3D, name: String, message: String, pos: Vector3) -> void:
+func _label(parent: Node3D, name: String, message: String, pos: Vector3) -> Label3D:
 	var label: Label3D = Label3D.new()
 	label.name = name
 	label.text = message
@@ -50,36 +52,66 @@ func _label(parent: Node3D, name: String, message: String, pos: Vector3) -> void
 	label.position = pos
 	label.rotation.y = PI
 	parent.add_child(label)
+	return label
 
 
 ## Markers exist only in the C03 preview scene. Other Alder contract marker
 ## coordinates and the authored world scene stay byte-identical.
-func setup(world: Node3D, definition: Dictionary) -> bool:
-	if definition.get("contract_id") != "C03":
+func setup(world: Node3D, definition: Dictionary, switch_definition: Dictionary) -> bool:
+	if definition.get("contract_id") != "C03" or switch_definition.get("contract_id") != "C03":
 		return false
 	var markers: Node3D = world.get_node_or_null("Markers") as Node3D
 	if markers == null:
 		return false
-	_arrivals.clear()
+	# Validate all physical targets before modifying the world. A missing control
+	# must prevent preview startup, not produce an unwinnable interaction.
+	var known: Dictionary = {}
+	for existing: Node in markers.get_children():
+		known[str(existing.name)] = true
+	var added: Dictionary = {}
 	for rec: Dictionary in definition.get("markers", []):
 		var id: String = str(rec.get("id", ""))
-		var point: Array = rec.get("pos_cm", [])
-		if id == "" or point.size() != 3 or markers.has_node(id):
+		var coords: Array = rec.get("pos_cm", [])
+		if id.is_empty() or coords.size() != 3 or known.has(id) or added.has(id):
 			return false
-		var marker: Marker3D = Marker3D.new()
-		marker.name = id
-		marker.position = _point(point)
-		markers.add_child(marker)
+		added[id] = true
+	var arrivals: Dictionary = {}
 	for rec: Dictionary in definition.get("transitions", []):
 		var id: String = str(rec.get("id", ""))
 		var coords: Array = rec.get("arrival_cm", [])
-		if id == "" or coords.size() != 3 or not markers.has_node(id) or _arrivals.has(id):
+		if id.is_empty() or coords.size() != 3 or arrivals.has(id):
 			return false
-		_arrivals[id] = _point(coords)
+		if not known.has(id) and not added.has(id):
+			return false
+		arrivals[id] = _point(coords)
+	var switch_sources: Dictionary = {}
+	var switches: Array = switch_definition.get("switches", [])
+	if switches.is_empty():
+		return false
+	for rec: Dictionary in switches:
+		var id: String = str(rec.get("id", ""))
+		var target: String = str(rec.get("target", ""))
+		var field: String = str(rec.get("field", ""))
+		if not id.begins_with("SW_") or target.is_empty() or switch_sources.has(id):
+			return false
+		if not ["enabled", "tripped", "isolated"].has(field):
+			return false
+		if not known.has(id) and not added.has(id):
+			return false
+		switch_sources[id] = {"target": target, "field": field}
+	_arrivals = arrivals
+	_switch_sources = switch_sources
+	_switch_indicators.clear()
+	for rec: Dictionary in definition.get("markers", []):
+		var marker: Marker3D = Marker3D.new()
+		marker.name = str(rec["id"])
+		marker.position = _point(rec["pos_cm"])
+		marker.set_meta("kind", str(rec.get("kind", "")))
+		markers.add_child(marker)
 	_build_ladder(definition.get("ladder_geometry", {}))
 	_build_roof_props(definition)
+	_build_switch_stations(markers)
 	return true
-
 
 func _build_ladder(definition: Dictionary) -> void:
 	var base: Vector3 = _point(definition.get("base_cm", [2100, 0, 4165]))
@@ -121,6 +153,52 @@ func _build_roof_props(definition: Dictionary) -> void:
 		Vector3(0.43, 0.43, 0.43), _beacon_off)
 	_label(self, "RoofBeaconLabel", UiText.t("node.c03.beacon"),
 		beacon + Vector3(0.0, 1.10, -0.45))
+
+
+## Every C03 host-authorized switch has a visible, non-colliding station at
+## its authored interaction marker. These meshes do not implement input or
+## electrical state; the existing host validates all actual commands.
+func _build_switch_stations(markers: Node3D) -> void:
+	var root: Node3D = Node3D.new()
+	root.name = "C03SwitchStations"
+	add_child(root)
+	var casing: Material = _paint(Color("#536B79"))
+	for id: String in _switch_sources:
+		var marker: Node3D = markers.get_node(id) as Node3D
+		var station: Node3D = Node3D.new()
+		station.name = id
+		station.position = marker.position
+		root.add_child(station)
+		_box(station, "SwitchPlate", Vector3(0.0, 0.12, 0.02),
+			Vector3(0.58, 0.36, 0.08), casing)
+		_switch_indicators[id] = _label(station, "SwitchState", "%s\nUNKNOWN" %
+			id.trim_prefix("SW_").replace("_", " "), Vector3(0.0, 0.18, -0.05))
+
+
+## A switch's position (enabled/tripped/isolated) is NOT a statement that its
+## downstream loads are powered. Missing/invalid host fields remain UNKNOWN.
+static func _switch_state(snapshot: Dictionary, source: Dictionary) -> String:
+	var grid: Dictionary = snapshot.get("grid", {})
+	var nodes: Dictionary = grid.get("nodes", {})
+	var edges: Dictionary = grid.get("edges", {})
+	var target: String = str(source["target"])
+	var field: String = str(source["field"])
+	var component: Dictionary = {}
+	if nodes.get(target) is Dictionary:
+		component = nodes[target]
+	elif edges.get(target) is Dictionary:
+		component = edges[target]
+	if not component.has(field) or not (component[field] is bool):
+		return "UNKNOWN"
+	var value: bool = bool(component[field])
+	match field:
+		"enabled":
+			return "ENABLED" if value else "DISABLED"
+		"tripped":
+			return "TRIPPED" if value else "RESET"
+		"isolated":
+			return "ISOLATED" if value else "CONNECTED"
+	return "UNKNOWN"
 
 
 func destination(endpoint: String) -> Vector3:
@@ -165,3 +243,7 @@ func apply_host(snapshot: Dictionary) -> void:
 	var nodes: Dictionary = grid.get("nodes", {})
 	var powered: bool = nodes.has("ROOF_BEACON") and bool(nodes["ROOF_BEACON"].get("supplied", false))
 	_beacon.material_override = _beacon_on if powered else _beacon_off
+	for id: String in _switch_sources:
+		var label: Label3D = _switch_indicators[id] as Label3D
+		label.text = "%s\n%s" % [id.trim_prefix("SW_").replace("_", " "),
+			_switch_state(snapshot, _switch_sources[id])]

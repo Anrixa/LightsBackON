@@ -162,3 +162,116 @@ func test_CTL1_C03_P01_preview_loading_briefing_is_not_C01_instruction() -> void
 	assert_eq(c03_label.text, UiText.t("offline.loading.c03_briefing"))
 	assert_ne(c03_label.text, c01_label.text)
 	assert_true(c03_label.text.contains("ladder"))
+
+
+
+## P02: the physical switch stations are geometry only, but every actual C03
+## host switch must be aimable from a real authored world marker.
+func test_CTL1_C03_P02_every_host_switch_has_world_marker_and_visible_plate() -> void:
+	var scene: Node3D = _preview()
+	var session: Offline = scene.get("session") as Offline
+	var view: Ladder = scene.get("_ladder_view") as Ladder
+	var controls: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
+		Offline.C03_CONTRACT.path_join("switches.json")))
+	assert_eq(controls["switches"].size(), 6)
+	for rec: Dictionary in controls["switches"]:
+		var id: String = str(rec["id"])
+		assert_true(scene.get_node_or_null("District/Markers/" + id) is Marker3D, id)
+		assert_true(view.get_node_or_null("C03SwitchStations/" + id + "/SwitchPlate") is MeshInstance3D, id)
+		assert_true(view.get_node_or_null("C03SwitchStations/" + id + "/SwitchState") is Label3D, id)
+		var action: Dictionary = session.action_for(id, "meter")
+		assert_eq(str(action.get("kind", "")), "toggle_switch", id)
+		assert_true((action.get("payload", {}) as Dictionary).get("value") is bool, id)
+		assert_true(session.radius_for(id) > 0.0, id)
+	assert_false(bool(scene.get("_save_enabled")))
+	assert_eq(scene.get("_store"), null)
+	assert_eq(session.action_for("SW_ROOF_FEED", "meter")["payload"]["value"], true,
+		"disabled edge switch must propose the host-authorized enabling intent")
+	assert_eq(session.action_for("SW_JW_BREAKER", "meter")["payload"]["value"], false,
+		"tripped node switch must propose the host-authorized reset intent")
+
+
+func test_CTL1_C03_P02_switch_states_are_host_observations_not_supply_claims() -> void:
+	var scene: Node3D = _preview()
+	var session: Offline = scene.get("session") as Offline
+	var view: Ladder = scene.get("_ladder_view") as Ladder
+	view.apply_host(session.host_state())
+	var feed: Label3D = view.get_node("C03SwitchStations/SW_ROOF_FEED/SwitchState") as Label3D
+	var breaker: Label3D = view.get_node("C03SwitchStations/SW_JW_BREAKER/SwitchState") as Label3D
+	var crossfeed: Label3D = view.get_node("C03SwitchStations/SW_CROSSFEED/SwitchState") as Label3D
+	assert_true(feed.text.ends_with("DISABLED"))
+	assert_true(breaker.text.ends_with("TRIPPED"))
+	assert_true(crossfeed.text.ends_with("ISOLATED"))
+	var before: String = Grid.serialize(session.host_state())
+	var simulated: Dictionary = session.host_state()
+	simulated["grid"]["edges"]["E_GRID_ROOF"]["enabled"] = true
+	view.apply_host(simulated)
+	assert_true(feed.text.ends_with("ENABLED"))
+	assert_eq(Grid.serialize(session.host_state()), before, "presentation must not mutate the host")
+	view.apply_host({"grid": {"nodes": {}, "edges": {}}})
+	assert_true(feed.text.ends_with("UNKNOWN"), "missing host data must not imply active power")
+	var plate: MeshInstance3D = view.get_node("C03SwitchStations/SW_ROOF_FEED/SwitchPlate") as MeshInstance3D
+	assert_false((plate.material_override as StandardMaterial3D).emission_enabled)
+
+
+func test_CTL1_C03_P02_missing_or_duplicate_switch_marker_fails_closed() -> void:
+	var source: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
+		Offline.C03_CONTRACT.path_join("world.json")))
+	var controls: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
+		Offline.C03_CONTRACT.path_join("switches.json")))
+	var world: Node3D = Node3D.new()
+	_holder.add_child(world)
+	var markers: Node3D = Node3D.new()
+	markers.name = "Markers"
+	world.add_child(markers)
+	var existing: Marker3D = Marker3D.new()
+	existing.name = "SW_JW_BREAKER"
+	markers.add_child(existing)
+	var missing: Dictionary = source.duplicate(true)
+	var filtered: Array = []
+	for rec: Dictionary in missing["markers"]:
+		if str(rec["id"]) != "SW_ROOF_FEED":
+			filtered.append(rec)
+	missing["markers"] = filtered
+	var invalid_view: Ladder = Ladder.new()
+	world.add_child(invalid_view)
+	assert_false(invalid_view.setup(world, missing, controls))
+	assert_false(invalid_view.has_node("C03SwitchStations"))
+	assert_false(markers.has_node("SW_ACCESS_LIGHT"), "failed setup must not partially add markers")
+	var duplicate_controls: Dictionary = controls.duplicate(true)
+	duplicate_controls["switches"].append(duplicate_controls["switches"][0].duplicate(true))
+	assert_false(invalid_view.setup(world, source, duplicate_controls))
+	assert_false(markers.has_node("SW_ACCESS_LIGHT"))
+
+
+func test_CTL1_C03_P02_generator_preview_uses_roof_light_not_C01_pump_route() -> void:
+	var c03: Offline = Offline.new()
+	var errors: Array[Dictionary] = c03.setup(
+		func(_player: String, _target: String) -> bool: return true,
+		func(_player: String) -> Vector3i: return Vector3i(800, 100, 1300),
+		Offline.C03_CONTRACT)
+	assert_eq(errors, [] as Array[Dictionary])
+	assert_eq(c03.action_for("GEN_PORTABLE", "meter")["payload"]["action"], "pickup")
+	assert_true(c03.interact("GEN_PORTABLE", "meter")["ok"])
+	assert_true(c03.interact("PAD_PUMP", "meter")["ok"])
+	var connect: Dictionary = c03.action_for("GEN_PORTABLE", "meter")
+	assert_eq(connect["payload"]["action"], "connect")
+	assert_eq(connect["payload"]["route"], "E_TEMP_ROOF_LIGHT")
+	assert_true(c03.interact("GEN_PORTABLE", "meter")["ok"])
+	var edges: Dictionary = c03.grid.canonical_state()["edges"]
+	assert_true(bool(edges["E_TEMP_ROOF_LIGHT"]["enabled"]))
+	assert_false(bool(edges["E_TEMP_PUMP"]["enabled"]))
+	assert_eq(c03.action_for("GEN_PORTABLE", "meter")["payload"]["action"], "start")
+	assert_true(c03.interact("GEN_PORTABLE", "meter")["ok"])
+	assert_eq(c03.action_for("GEN_PORTABLE", "meter")["payload"]["action"], "stop")
+	assert_true(c03.command("toggle_switch", "SW_BEACON", {"value": true})["ok"])
+	for _tick: int in 100:
+		c03.tick_once()
+	assert_true(c03.mission.is_latched("LATCH_ROOF_WORK_LIGHT"),
+		"optional roof work light earns its latch from the actual GEN source")
+	assert_true(c03.interact("GEN_PORTABLE", "meter")["ok"])
+	var disconnect: Dictionary = c03.action_for("GEN_PORTABLE", "meter")
+	assert_eq(disconnect["payload"]["action"], "disconnect")
+	assert_eq(disconnect["payload"]["route"], "E_TEMP_ROOF_LIGHT")
+	assert_true(c03.interact("GEN_PORTABLE", "meter")["ok"])
+	assert_eq(c03.action_for("GEN_PORTABLE", "meter")["payload"]["action"], "pickup")
