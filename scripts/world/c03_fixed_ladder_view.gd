@@ -221,7 +221,19 @@ func can_transfer(player: CharacterBody3D, endpoint: String) -> bool:
 	query.exclude = [player.get_rid()] as Array[RID]
 	query.margin = 0.01
 	var space: PhysicsDirectSpaceState3D = player.get_world_3d().direct_space_state
-	return space.intersect_shape(query, 1).is_empty()
+	if not space.intersect_shape(query, 1).is_empty():
+		return false
+	# A collision-free teleport into empty air is not a valid ladder landing.
+	# Require a real walkable surface within the small authored landing offset.
+	var capsule: CapsuleShape3D = collision.shape as CapsuleShape3D
+	if capsule == null:
+		return false
+	var foot: Vector3 = arrival - Vector3.UP * (capsule.height * 0.5 - 0.10)
+	var support_query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
+		foot, foot - Vector3.UP * 0.65, player.collision_mask,
+		[player.get_rid()] as Array[RID])
+	var floor_hit: Dictionary = space.intersect_ray(support_query)
+	return not floor_hit.is_empty() and (floor_hit["normal"] as Vector3).dot(Vector3.UP) >= 0.7
 
 
 ## Called only from a successful host use_ladder reply, never the key press.

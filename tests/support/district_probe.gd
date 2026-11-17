@@ -82,13 +82,15 @@ func box_overlaps(center: Vector3, size: Vector3) -> Array[String]:
 	return out
 
 
-func build_grid() -> void:
+## Default scans the walkable ground. Higher starting rays permit isolated
+## rooftop traversal probes without changing the ordinary ground-grid callers.
+func build_grid(from_y: float = RAY_TOP_M) -> void:
 	floor_h = PackedFloat32Array()
 	floor_h.resize(nx * nz)
 	for j: int in nz:
 		for i: int in nx:
 			var c: Vector3 = cell_center(i + j * nx)
-			var h: float = floor_at(c.x, c.z)
+			var h: float = floor_at(c.x, c.z, from_y)
 			if not is_nan(h) and not capsule_fits(Vector3(c.x, h, c.z)):
 				h = NAN
 			floor_h[i + j * nx] = h
