@@ -5,6 +5,7 @@ extends "res://tests/test_case.gd"
 const Runner := preload("res://tests/support/solution_runner.gd")
 const Grid := preload("res://scripts/simulation/power_grid.gd")
 const Mission := preload("res://scripts/simulation/mission_director.gd")
+const Equipment := preload("res://scripts/interaction/equipment_service.gd")
 const C04: String = "res://content/contracts/c04_whole_block"
 const C01: String = "res://content/contracts/c01_alder_street"
 const C02: String = "res://content/contracts/c02_dinner_rush"
@@ -218,6 +219,7 @@ func test_CTBP_C04_installed_sign_cable_is_not_portable_equipment() -> void:
 	Runner.ticks(ctx, 100)
 	var mission: Mission = ctx["mission"] as Mission
 	assert_true(mission.verified())
+	assert_true((ctx["equipment"] as Equipment).all_stowed())
 	assert_false(mission.is_complete())  # Extraction still needs the ordinary van-zone request.
 
 
@@ -241,3 +243,17 @@ func test_CTBP_C04_unsafe_east_sign_route_cannot_earn_continuity_bonus() -> void
 	Runner.ticks(ctx, 100)
 	assert_true((ctx["grid"] as Grid).canonical_state()["nodes"]["JE"]["tripped"])
 	assert_false((ctx["mission"] as Mission).is_latched("LATCH_SIGN_SUPPLY"))
+
+
+func test_CTBP_C04_upstream_breaker_drop_resets_continuity_before_tick() -> void:
+	var ctx: Dictionary = _ready_sign()
+	var mission: Mission = ctx["mission"] as Mission
+	Runner.ticks(ctx, 72)
+	assert_eq(int(mission.canonical_state()["latch_ticks"]["LATCH_SIGN_SUPPLY"]), 72)
+	assert_true(Runner.send(ctx, "P1", "toggle_switch", "SW_SPUR_BREAKER", {"value": true}).get("ok", false))
+	assert_eq(int(mission.canonical_state()["latch_ticks"]["LATCH_SIGN_SUPPLY"]), 0)
+	assert_true(Runner.send(ctx, "P1", "toggle_switch", "SW_SPUR_BREAKER", {"value": false}).get("ok", false))
+	Runner.ticks(ctx, 99)
+	assert_false(mission.is_latched("LATCH_SIGN_SUPPLY"))
+	Runner.ticks(ctx, 1)
+	assert_true(mission.is_latched("LATCH_SIGN_SUPPLY"))
