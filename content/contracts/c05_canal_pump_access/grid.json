@@ -1,29 +1,29 @@
 {
   "contract_id": "C05",
-  "source_note": "CT-L2/C05 provisional Canal Yard content candidate under ADR-017; authored PU, timing, logical anchor and topology values require comparison with the unavailable original C05 contract sheet before content certification. This is headless logic only; no physical Canal Yard scene or playtest. Required grid loads = 8 PU dock + 11 PU cold yard. Optional 2 PU beacon makes 21/24. TEMP generator 6 PU cannot supply two 4 PU pumps concurrently: wrong route trips after 15 consecutive 10 Hz ticks.",
+  "source_note": "Original Development Blueprint v1.0 pp.18-19 C05 Rising Water, source-aligned headless candidate. Canal GRID30 west13 east12 feeders14, GEN8; west LAUNDRETTE5 DINER4 ROW_HOUSES4 and east DEPOT4 COLD_STORE5 PUMP_KIOSK3. Independently flooded west/east tasks require 5 PU and 4 PU pump supply for 120 continuous ticks. Both pumps at once overload GEN 9/8. COLD_STORE time optional is measured from first host-accepted equipment pickup over 1800 ticks. Physical level and old saves remain unqualified.",
   "trip_ticks": 15,
   "nodes": [
     {
       "id": "GRID",
       "kind": "source",
-      "capacity": 24,
+      "capacity": 30,
       "online": true
     },
     {
       "id": "GEN",
       "kind": "source",
-      "capacity": 6,
+      "capacity": 8,
       "online": false
     },
     {
-      "id": "DOCK",
+      "id": "WEST",
       "kind": "junction",
       "isolated": false,
       "failed": true,
       "tripped": true
     },
     {
-      "id": "COLD",
+      "id": "EAST",
       "kind": "junction",
       "isolated": false,
       "failed": false,
@@ -37,14 +37,14 @@
       "tripped": false
     },
     {
-      "id": "DOCK_OFFICE",
+      "id": "DINER",
       "kind": "consumer",
       "demand": 4,
       "enabled": true,
       "healthy": true
     },
     {
-      "id": "CRANE",
+      "id": "ROW_HOUSES",
       "kind": "consumer",
       "demand": 4,
       "enabled": true,
@@ -58,103 +58,103 @@
       "healthy": true
     },
     {
-      "id": "YARD_LIGHTS",
+      "id": "PUMP_KIOSK",
       "kind": "consumer",
       "demand": 3,
       "enabled": true,
       "healthy": true
     },
     {
-      "id": "WORKSHOP",
-      "kind": "consumer",
-      "demand": 3,
-      "enabled": true,
-      "healthy": true
-    },
-    {
-      "id": "PUMP_DOCK",
+      "id": "DEPOT",
       "kind": "consumer",
       "demand": 4,
       "enabled": true,
       "healthy": true
     },
     {
-      "id": "PUMP_COLD",
+      "id": "PUMP_WEST",
+      "kind": "consumer",
+      "demand": 5,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "PUMP_EAST",
       "kind": "consumer",
       "demand": 4,
       "enabled": true,
       "healthy": true
     },
     {
-      "id": "BEACON",
+      "id": "LAUNDRETTE",
       "kind": "consumer",
-      "demand": 2,
-      "enabled": false,
+      "demand": 5,
+      "enabled": true,
       "healthy": true
     }
   ],
   "edges": [
     {
-      "id": "E_GRID_DOCK",
+      "id": "E_GRID_WEST",
       "from": "GRID",
-      "to": "DOCK",
-      "capacity": 12,
+      "to": "WEST",
+      "capacity": 14,
       "enabled": true,
       "healthy": true
     },
     {
-      "id": "E_GRID_COLD",
+      "id": "E_GRID_EAST",
       "from": "GRID",
-      "to": "COLD",
-      "capacity": 12,
+      "to": "EAST",
+      "capacity": 14,
       "enabled": true,
       "healthy": false
     },
     {
-      "id": "E_DOCK_OFFICE",
-      "from": "DOCK",
-      "to": "DOCK_OFFICE",
+      "id": "E_WEST_DINER",
+      "from": "WEST",
+      "to": "DINER",
       "capacity": 4,
       "enabled": true,
       "healthy": true
     },
     {
-      "id": "E_DOCK_CRANE",
-      "from": "DOCK",
-      "to": "CRANE",
+      "id": "E_WEST_ROW_HOUSES",
+      "from": "WEST",
+      "to": "ROW_HOUSES",
       "capacity": 4,
       "enabled": true,
       "healthy": true
     },
     {
-      "id": "E_DOCK_BEACON",
-      "from": "DOCK",
-      "to": "BEACON",
-      "capacity": 2,
+      "id": "E_WEST_LAUNDRETTE",
+      "from": "WEST",
+      "to": "LAUNDRETTE",
+      "capacity": 5,
       "enabled": true,
       "healthy": true
     },
     {
-      "id": "E_COLD_STORE",
-      "from": "COLD",
+      "id": "E_EAST_COLD_STORE",
+      "from": "EAST",
       "to": "COLD_STORE",
       "capacity": 5,
       "enabled": true,
       "healthy": true
     },
     {
-      "id": "E_COLD_LIGHTS",
-      "from": "COLD",
-      "to": "YARD_LIGHTS",
+      "id": "E_EAST_PUMP_KIOSK",
+      "from": "EAST",
+      "to": "PUMP_KIOSK",
       "capacity": 3,
       "enabled": true,
       "healthy": true
     },
     {
-      "id": "E_COLD_WORKSHOP",
-      "from": "COLD",
-      "to": "WORKSHOP",
-      "capacity": 3,
+      "id": "E_EAST_DEPOT",
+      "from": "EAST",
+      "to": "DEPOT",
+      "capacity": 4,
       "enabled": true,
       "healthy": true
     },
@@ -162,22 +162,22 @@
       "id": "E_GEN_TEMP",
       "from": "GEN",
       "to": "TEMP",
-      "capacity": 6,
+      "capacity": 8,
       "enabled": true,
       "healthy": true
     },
     {
-      "id": "E_TEMP_PUMP_DOCK",
+      "id": "E_TEMP_PUMP_WEST",
       "from": "TEMP",
-      "to": "PUMP_DOCK",
-      "capacity": 4,
+      "to": "PUMP_WEST",
+      "capacity": 5,
       "enabled": false,
       "healthy": true
     },
     {
-      "id": "E_TEMP_PUMP_COLD",
+      "id": "E_TEMP_PUMP_EAST",
       "from": "TEMP",
-      "to": "PUMP_COLD",
+      "to": "PUMP_EAST",
       "capacity": 4,
       "enabled": false,
       "healthy": true
@@ -185,14 +185,14 @@
   ],
   "protections": [
     {
-      "id": "BRK_DOCK",
-      "element": "E_GRID_DOCK",
-      "breaker": "DOCK"
+      "id": "BRK_WEST",
+      "element": "E_GRID_WEST",
+      "breaker": "WEST"
     },
     {
-      "id": "BRK_COLD",
-      "element": "E_GRID_COLD",
-      "breaker": "COLD"
+      "id": "BRK_EAST",
+      "element": "E_GRID_EAST",
+      "breaker": "EAST"
     },
     {
       "id": "BRK_TEMP",
