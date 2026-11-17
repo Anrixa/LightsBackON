@@ -1,0 +1,204 @@
+{
+  "contract_id": "C11",
+  "source_note": "Original Development Blueprint v1.0 pp.18,20–21 C11 Borrowed Power. Hill GRID28, WEST/EAST14, GEN6. WEST13 healthy; EAST12 broken trunk. GEN telecom4 and garage-control4 cannot coexist (8/6). Shed greenhouse3 to get WEST10, borrow WEST-to-telecom4 at 14/14; isolated break-before-make routes. GEN garage control4 for 100 uninterrupted host ticks grants east access. Restore east12 then greenhouse3; telecom optional must never lose valid supply for more than 50 consecutive host ticks. Source/headless candidate only; physical, saves, Steam and production HOLD.",
+  "trip_ticks": 15,
+  "nodes": [
+    {
+      "id": "GRID",
+      "kind": "source",
+      "capacity": 28,
+      "online": true
+    },
+    {
+      "id": "GEN",
+      "kind": "source",
+      "capacity": 6,
+      "online": false
+    },
+    {
+      "id": "WEST",
+      "kind": "junction",
+      "isolated": false,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "EAST",
+      "kind": "junction",
+      "isolated": false,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "TEMP",
+      "kind": "junction",
+      "isolated": false,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "COMMUNITY_HALL",
+      "kind": "consumer",
+      "demand": 6,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "BAKERY",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "GREENHOUSE",
+      "kind": "consumer",
+      "demand": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "FLATS",
+      "kind": "consumer",
+      "demand": 5,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "TELECOM_HUT",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "SERVICE_GARAGE",
+      "kind": "consumer",
+      "demand": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "GARAGE_CONTROL",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    }
+  ],
+  "edges": [
+    {
+      "id": "E_GRID_WEST",
+      "from": "GRID",
+      "to": "WEST",
+      "capacity": 14,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_GRID_EAST",
+      "from": "GRID",
+      "to": "EAST",
+      "capacity": 14,
+      "enabled": true,
+      "healthy": false
+    },
+    {
+      "id": "E_WEST_HALL",
+      "from": "WEST",
+      "to": "COMMUNITY_HALL",
+      "capacity": 6,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_WEST_BAKERY",
+      "from": "WEST",
+      "to": "BAKERY",
+      "capacity": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_WEST_GREENHOUSE",
+      "from": "WEST",
+      "to": "GREENHOUSE",
+      "capacity": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_EAST_FLATS",
+      "from": "EAST",
+      "to": "FLATS",
+      "capacity": 5,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_EAST_TELECOM",
+      "from": "EAST",
+      "to": "TELECOM_HUT",
+      "capacity": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_EAST_GARAGE",
+      "from": "EAST",
+      "to": "SERVICE_GARAGE",
+      "capacity": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_GEN_TEMP",
+      "from": "GEN",
+      "to": "TEMP",
+      "capacity": 6,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_WEST_TELECOM",
+      "from": "WEST",
+      "to": "TELECOM_HUT",
+      "capacity": 4,
+      "enabled": false,
+      "healthy": true
+    },
+    {
+      "id": "E_TEMP_TELECOM",
+      "from": "TEMP",
+      "to": "TELECOM_HUT",
+      "capacity": 4,
+      "enabled": false,
+      "healthy": true
+    },
+    {
+      "id": "E_TEMP_GARAGE",
+      "from": "TEMP",
+      "to": "GARAGE_CONTROL",
+      "capacity": 4,
+      "enabled": false,
+      "healthy": true
+    }
+  ],
+  "protections": [
+    {
+      "id": "BRK_WEST",
+      "element": "E_GRID_WEST",
+      "breaker": "WEST"
+    },
+    {
+      "id": "BRK_EAST",
+      "element": "E_GRID_EAST",
+      "breaker": "EAST"
+    },
+    {
+      "id": "BRK_TEMP",
+      "element": "E_GEN_TEMP",
+      "breaker": "TEMP"
+    }
+  ]
+}

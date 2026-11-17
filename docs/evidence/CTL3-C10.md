@@ -7,7 +7,7 @@
 ## Authored source
 - Hill Road GRID28, WEST/EAST 14 each, GEN6, six required services25 PU. WEST fuse initially failed/tripped, EAST healthy.
 - STAGE3 is optional and must never overload WEST feeder (13+3=16 > 14). A separately isolated and installed GRID→STAGE_SPUR feeder4 carries the 3 PU bonus, bringing grid supply to exactly 28/28.
-- The host-only `optional_timed_latch` starts at first mission simulation tick, requires STAGE supplied from GRID for 100 consecutive ticks and **latch completion by tick 2400** (40-second event clock). Completing at tick 2400 qualifies, 2401 does not. Bonus failure does not block repairs, final 100-tick grid verification, extraction or the other two stars.
+- The host-only `optional_timed_latch` starts at first mission simulation tick, requires STAGE supplied from GRID for 100 consecutive ticks and **latch completion by tick 2400** (240-second event clock). Completing at tick 2400 qualifies, 2401 does not. Bonus failure does not block repairs, final 100-tick grid verification, extraction or the other two stars.
 - Strict conditional saved timer fields; older contracts C01–C09 preserve their previous durable shapes. Headless equipment remains stowed; no automatic data migration/deletion.
 - A host-intent solution trace, source tests and negative overload/dual-source routes are part of the pending validation.
 
