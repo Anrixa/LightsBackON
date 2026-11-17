@@ -214,17 +214,28 @@ func test_CT_BP_C05_missed_optional_deadline_never_blocks_main_completion() -> v
 
 func test_CT_BP_C05_optional_bonus_accepts_tick_1800_but_not_tick_1801() -> void:
 	var steps: Array = _trace()["steps"]
+	var lock_index: int = -1
 	var restore_index: int = -1
 	for i: int in steps.size():
 		var item: Dictionary = steps[i]
-		if item.get("intent", "") == "repair_step" and item.get("entity", "") == "R_EAST_TRUNK" \
-				and (item.get("payload", {}) as Dictionary).get("step", "") == "restore":
+		if item.get("entity", "") != "R_EAST_TRUNK":
+			continue
+		if item.get("intent", "") == "request_lock" and lock_index < 0:
+			lock_index = i
+		if item.get("intent", "") == "repair_step" and (item.get("payload", {}) as Dictionary).get("step", "") == "restore":
 			restore_index = i
 			break
-	assert_true(restore_index > 0)
-	if restore_index <= 0:
+	assert_true(lock_index > 0 and restore_index > lock_index)
+	if lock_index < 0 or restore_index <= lock_index:
 		return
-	var prefix: Array = steps.slice(0, restore_index)
+	var prefix: Array = steps.slice(0, lock_index)
+	var repair_prefix: Array = steps.slice(lock_index, restore_index)
+	var action_ticks: int = 0
+	for item: Dictionary in repair_prefix:
+		if item.has("ticks"):
+			action_ticks += int(item["ticks"])
+		elif item.has("intent"):
+			action_ticks += 1
 	for late: bool in [false, true]:
 		var ctx: Dictionary = _context()
 		assert_eq(Runner.run(ctx, prefix, 1), [] as Array[String])
@@ -232,12 +243,12 @@ func test_CT_BP_C05_optional_bonus_accepts_tick_1800_but_not_tick_1801() -> void
 		var clock: Dictionary = m.canonical_state()["pickup_deadline"]
 		assert_true(clock["started"])
 		assert_false(clock["on_time"])
-		assert_true(int(clock["elapsed"]) < 1800)
-		var ticks_before_restore: int = 1800 - int(clock["elapsed"]) - (0 if late else 1)
-		Runner.ticks(ctx, ticks_before_restore)
-		if late:
-			Runner.ticks(ctx, 1)
-			assert_true(m.canonical_state()["pickup_deadline"]["missed"])
+		assert_true(int(clock["elapsed"]) + action_ticks < 1800)
+		# Wait BEFORE acquiring the east repair lock: otherwise the host would
+		# correctly expire that lock while we advance over a thousand ticks.
+		var pause: int = 1800 - int(clock["elapsed"]) - action_ticks - 1 + (1 if late else 0)
+		Runner.ticks(ctx, pause)
+		assert_eq(Runner.run(ctx, repair_prefix, 1), [] as Array[String])
 		var reply: Dictionary = Runner.send(ctx, "P1", "repair_step", "R_EAST_TRUNK", {"step": "restore"})
 		assert_true(reply.get("ok", false))
 		Runner.ticks(ctx, 1)
@@ -249,7 +260,6 @@ func test_CT_BP_C05_optional_bonus_accepts_tick_1800_but_not_tick_1801() -> void
 			assert_eq(observed["elapsed"], 1800)
 			assert_true(observed["on_time"])
 			assert_false(observed["missed"])
-
 
 func test_CT_BP_C05_durable_clock_and_two_latches_reject_forgery() -> void:
 	var ctx: Dictionary = _context()
