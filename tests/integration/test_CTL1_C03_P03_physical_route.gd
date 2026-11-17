@@ -158,6 +158,16 @@ func test_CTL1_C03_P03_station_staged_host_route_reaches_extraction() -> void:
 	var session: Offline = scene.get("session") as Offline
 	var player: Controller = scene.get("player") as Controller
 	var ladder: Ladder = scene.get("_ladder_view") as Ladder
+	# Trace every gameplay-relevant host reply in failing CI, not just the final
+	# assertion. No state is fabricated or directly edited by this observer.
+	session.action_replied.connect(func(envelope: Dictionary, reply: Dictionary) -> void:
+		var kind: String = str(envelope.get("type", ""))
+		if ["use_ladder", "place_item", "toggle_switch", "request_extract"].has(kind):
+			print("C03_P03_HOST kind=%s entity=%s payload=%s ok=%s code=%s duplicate=%s" %
+				[kind, str(envelope.get("entity", "")), str(envelope.get("payload", {})),
+				str(reply.get("ok", false)), str(reply.get("code", "")),
+				str(reply.get("duplicate", false))])
+	)
 
 	# Initial west fuse is repaired through the real scene-bound host range callback.
 	_stand(scene, Vector3(29.6, 0.9, 25.9))
@@ -177,7 +187,8 @@ func test_CTL1_C03_P03_station_staged_host_route_reaches_extraction() -> void:
 	_aim(scene, "SW_ROOF_FEED")
 	scene.call("_interact")
 	assert_true(bool(session.grid.canonical_state()["edges"]["E_GRID_ROOF"]["enabled"]))
-	assert_false(bool(session.grid.canonical_state()["edges"]["E_GRID_JE"]["enabled"]))
+	assert_false(bool(session.grid.canonical_state()["edges"]["E_GRID_JE"]["healthy"]),
+		"source contract leaves the broken direct-east feeder enabled but unhealthy")
 	_aim(scene, "LADDER_WEST_RETURN")
 	scene.call("_interact")
 	assert_eq(player.global_position, ladder.destination("LADDER_WEST_RETURN"))
@@ -192,13 +203,18 @@ func test_CTL1_C03_P03_station_staged_host_route_reaches_extraction() -> void:
 	_aim(scene, "GEN_PORTABLE")
 	scene.call("_interact")  # connect
 	scene.call("_interact")  # start
-	assert_true(bool(session.grid.canonical_state()["nodes"]["GEN"]["online"]))
+	print("C03_P03_GEN_STATE %s" % str(session.equipment.canonical_state()))
+	print("C03_P03_GEN_GRID %s" % str(session.grid.canonical_state()["nodes"]["GEN"]))
+	assert_true(bool(session.grid.canonical_state()["nodes"]["GEN"]["online"]),
+		"generator must be online after explicit preview start")
 	assert_true(bool(session.grid.canonical_state()["edges"]["E_TEMP_ROOF_LIGHT"]["enabled"]))
 	assert_false(bool(session.grid.canonical_state()["edges"]["E_TEMP_PUMP"]["enabled"]))
 
 	_stand(scene, Vector3(21.0, 0.9, 40.2))
 	_aim(scene, "LADDER_WEST")
 	scene.call("_interact")
+	print("C03_P03_SECOND_ASCENT pos=%s target=%s state=%s" % [str(player.global_position),
+		str(scene.get("_target")), str(session.mission.canonical_state().get("ladder_access", {}))])
 	assert_eq(player.global_position, ladder.destination("LADDER_WEST"))
 	_aim(scene, "SW_BEACON")
 	scene.call("_interact")
