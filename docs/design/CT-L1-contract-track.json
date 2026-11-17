@@ -79,11 +79,14 @@
         "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44034573394",
         "pull_request": "https://github.com/Anrixa/LightsBackON/pull/166",
         "pending": [
-          "Final PR head CI, merge commit and post-merge main CI",
           "C03 physical scene/socket/switch and gamepad/human evidence",
           "Target GPU performance and existing deployed C03 checkpoint compatibility review",
           "Steam F02/F06, canonical CT03 D08 gate and physical original blueprint approval"
-        ]
+        ],
+        "final_pr_head": "e8d630239f14b95d4acc7ee504984287946e7fc7",
+        "final_pr_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44035197037",
+        "merged_main_sha": "7b1f39d4e5beb82a20dd66a5d3350a4d364a2d5e",
+        "post_merge_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44035670547"
       }
     },
     {
@@ -102,8 +105,22 @@
       "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43990072603",
       "source_head": "1a9cfde193f5d024d080907e6296b61372fc74ea",
       "pull_request": "https://github.com/Anrixa/LightsBackON/pull/160",
-      "blueprint_fidelity": "HOLD_CONFIRMED_MISMATCH",
-      "blueprint_reconciliation": "Blueprint p.19 requires a GRID-to-SIGN spur rated 4 PU and optional sign supply for 10 continuous seconds; current C04 E_GRID_SPUR is rated 3 PU and uses immediate optional-on-GRID scoring."
+      "blueprint_fidelity": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
+      "blueprint_reconciliation": "Historical provisional sign-spur mismatch corrected in CT-BP/C04 PR #167; 4 PU spur and 100-tick GRID sign latch verified by final-head and merged-main dual-OS CI. Physical/release certification remains HOLD.",
+      "corrective_phase": {
+        "id": "CT-BP-C04",
+        "status": "CLOUD_VERIFIED_HEADLESS_SOURCE_CANDIDATE",
+        "evidence": "docs/evidence/CT-BP-C04.md",
+        "pull_request": "https://github.com/Anrixa/LightsBackON/pull/167",
+        "final_pr_head": "76083f56af4a893c797525507d09e3292510c09c",
+        "final_pr_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44041957106",
+        "merged_main_sha": "4d7fcd355a45cffa5c97201bc1a9a6984d5b21d8",
+        "post_merge_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44042394225",
+        "pending": [
+          "Physical C04 sign-cable scene, controller/human playthrough, target GPU and real deployed save compatibility",
+          "Steam F02/F06 and canonical CT03/D08 acceptance"
+        ]
+      }
     }
   ]
 }
