@@ -1,0 +1,35 @@
+{
+  "contract_id": "C08",
+  "source_note": "Original Development Blueprint v1.0 pp.18,20: C08 Split Supply. A 18 PU -> west 13/14; B 16 PU offline -> east 12/14; A-to-JE 14 PU tie disabled. Shed 5+4 west loads to supply diner 4+east 12 from A; depot latch 100 continuous ticks; repair B; open A tie before close B feeder. Optional uninterrupted diner, host-authoritative headless only.",
+  "supplies": {
+    "B_RELAY": 1
+  },
+  "repairs": [
+    {
+      "id": "R_B_SOURCE",
+      "name_key": "repair.c08.b",
+      "panel": "PANEL_B",
+      "isolate": "JE",
+      "access": "B_CABINET_ACCESS",
+      "fix": {
+        "op": "set",
+        "id": "B",
+        "field": "online",
+        "value": true
+      },
+      "component": "B_RELAY",
+      "tools": {
+        "open": "screwdriver",
+        "remove": "puller",
+        "install": "crimper",
+        "test": "meter"
+      },
+      "hold_ticks": {
+        "open": 6,
+        "remove": 8,
+        "install": 10,
+        "close": 6
+      }
+    }
+  ]
+}

@@ -67,9 +67,18 @@ func configure(limits: Dictionary, protocol_version: int, content_revision: Stri
 		var s: Dictionary = rec if rec is Dictionary else {}
 		var target: Variant = s.get("target")
 		var field: Variant = s.get("field")
-		var nodes: Dictionary = grid.canonical_state()["nodes"]
-		if not PowerGrid.is_valid_id(s.get("id")) or not (target is String and nodes.has(target)) \
-				or not (field is String and (PowerGrid.SETTABLE[nodes[target]["kind"]] as Array).has(field)):
+		var grid_state: Dictionary = grid.canonical_state()
+		var nodes: Dictionary = grid_state["nodes"]
+		var edges: Dictionary = grid_state["edges"]
+		# Switches may control an authored node or edge. Only its predefined
+		# boolean SETTABLE fields are exposed to a host-validated intent.
+		var kind: String = ""
+		if target is String and nodes.has(target):
+			kind = nodes[target]["kind"]
+		elif target is String and edges.has(target):
+			kind = PowerGrid.KIND_EDGE
+		var allowed: bool = field is String and kind != "" and (PowerGrid.SETTABLE[kind] as Array).has(field)
+		if not PowerGrid.is_valid_id(s.get("id")) or not allowed:
 			errs.append(PowerGrid.diag("BAD_SWITCH", "switch %s needs an ID and a settable grid field" % str(s.get("id")), []))
 		else:
 			_switches[s["id"]] = {"target": target, "field": field}
@@ -256,6 +265,8 @@ func receive(peer_id: int, bytes: PackedByteArray) -> Dictionary:
 	_last_seq[peer_id] = seq
 	var before: String = state_hash()
 	var reply: Dictionary = _dispatch(_members[peer_id], msg)
+	if _mission != null:
+		_mission.observe_supply_state()
 	# A refused reset can still consume a C07 evidence-before-reset bonus;
 	# the host revision must reflect any authorized mission fact change.
 	if state_hash() != before:

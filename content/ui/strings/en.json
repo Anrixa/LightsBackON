@@ -395,6 +395,22 @@
     "node.c07.row_houses": "Row Houses",
     "node.c07.depot": "Canal Depot",
     "node.c07.cold_store": "Cold Store",
-    "node.c07.pump_kiosk": "Pump Kiosk"
+    "node.c07.pump_kiosk": "Pump Kiosk",
+    "contract.c08": "Split Supply",
+    "repair.c08.b": "Restore source B from its east depot cabinet",
+    "objective.c08.shed": "Shed two west services and hold depot supply for 10 seconds",
+    "objective.c08.b": "Repair B and transfer east supply without overlapping ties",
+    "objective.c08.west": "Restore all west services on A, east services on B",
+    "objective.c08.diner": "Optional: keep the diner powered without interruption",
+    "node.c08.a": "Source A (18 PU)",
+    "node.c08.b": "Source B (16 PU)",
+    "node.c08.jw": "West junction",
+    "node.c08.je": "East junction",
+    "node.c08.laundrette": "Laundrette",
+    "node.c08.diner": "Diner",
+    "node.c08.row_houses": "Row houses",
+    "node.c08.depot": "Depot",
+    "node.c08.cold_store": "Cold store",
+    "node.c08.pump_kiosk": "Pump kiosk"
   }
 }

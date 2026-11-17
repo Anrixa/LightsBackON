@@ -26,6 +26,7 @@ var _grid: PowerGrid
 var _interaction: Interaction
 var _equipment: Equipment
 var _grid_source: String = ""
+var _grid_sources: Array[String] = []  # contract-approved permanent sources; legacy uses one
 var _required: Array[String] = []
 var _excluded: Array[String] = []
 var _latches: Dictionary = {}  # latch id -> {"id", "consumer", "supplied_ticks", "grants"}
@@ -46,6 +47,8 @@ var _optional: Array[String] = []
 ## -1 retains C01's original "on grid at completion" behaviour byte-for-byte.
 var _optional_deadline_ticks: int = -1
 var _optional_first_supplied: Dictionary = {}  # optional ID -> first authoritative supplied tick, if within cutoff
+var _continuous_optional: Dictionary = {}  # conditional uninterrupted-service bonus
+var _continuous_ok: bool = true
 ## Optional host-observed meter finding; absent from legacy contracts and saves.
 var _meter_evidence: Dictionary = {}
 var _evidence_observed: bool = false
@@ -71,6 +74,23 @@ func load_definition(definition: Dictionary, grid: PowerGrid, interaction: Inter
 		errs.append(PowerGrid.diag("BAD_MISSION", "grid_source must be a grid source", []))
 	else:
 		_grid_source = src
+	# C08 permits two named permanent sources. Single-source contracts retain their old behavior.
+	_grid_sources = []
+	if not _grid_source.is_empty():
+		_grid_sources.append(_grid_source)
+	if definition.has("grid_sources"):
+		var names: Variant = definition["grid_sources"]
+		if not names is Array or (names as Array).is_empty():
+			errs.append(PowerGrid.diag("BAD_MISSION", "grid_sources must be a nonempty array", []))
+		else:
+			_grid_sources = []
+			for name: Variant in names:
+				if not (name is String and nodes.has(name) and nodes[name]["kind"] == PowerGrid.KIND_SOURCE) or _grid_sources.has(name):
+					errs.append(PowerGrid.diag("BAD_MISSION", "grid_sources must name distinct existing sources", []))
+				else:
+					_grid_sources.append(name)
+			if not _grid_sources.has(_grid_source):
+				errs.append(PowerGrid.diag("BAD_MISSION", "grid_source must belong to grid_sources", []))
 	_required = _consumer_list(definition.get("required_consumers", []), nodes, "required_consumers", errs)
 	_excluded = _consumer_list(definition.get("excluded_loads", []), nodes, "excluded_loads", errs)
 	for c: String in _excluded:
@@ -115,6 +135,17 @@ func load_definition(definition: Dictionary, grid: PowerGrid, interaction: Inter
 				"optional_deadline_ticks requires >=1 and an optional service", []))
 		else:
 			_optional_deadline_ticks = int(deadline)
+	# Uninterrupted service is monitored on every accepted host intent AND grid tick;
+	# single-source legacy checkpoint shapes are deliberately unchanged.
+	var uninterrupted: Variant = definition.get("optional_continuous_supply", null)
+	if uninterrupted != null:
+		var opt: Dictionary = uninterrupted if uninterrupted is Dictionary else {}
+		if not (PowerGrid.is_valid_id(opt.get("id")) and opt.get("consumer") is String
+				and _required.has(opt.get("consumer")) and _optional.is_empty()):
+			errs.append(PowerGrid.diag("BAD_MISSION", "optional_continuous_supply needs an ID and required consumer", []))
+		else:
+			_continuous_optional = {"id": opt["id"], "consumer": opt["consumer"]}
+			_continuous_ok = _on_grid(opt["consumer"], grid.canonical_state())
 	var evidence_raw: Variant = definition.get("optional_meter_evidence", null)
 	if evidence_raw != null:
 		var evidence: Dictionary = evidence_raw if evidence_raw is Dictionary else {}
@@ -188,12 +219,14 @@ func tick(now: int) -> Array[Dictionary]:
 	var events: Array[Dictionary] = []
 	if _completed_tick >= 0:
 		return events
+	observe_supply_state()
 	var st: Dictionary = _grid.canonical_state()
 	for lid: String in _sorted(_latches.keys()):
 		if _latched.has(lid):
 			continue
 		var l: Dictionary = _latches[lid]
-		_latch_ticks[lid] = int(_latch_ticks[lid]) + 1 if st["nodes"][l["consumer"]]["supplied"] else 0
+		var valid_supply: bool = _on_grid(l["consumer"], st) if _grid_sources.size() > 1 else st["nodes"][l["consumer"]]["supplied"]
+		_latch_ticks[lid] = int(_latch_ticks[lid]) + 1 if valid_supply else 0
 		if int(_latch_ticks[lid]) >= int(l["supplied_ticks"]):
 			_latched[lid] = now
 			_interaction.set_access(l["grants"], true)
@@ -234,6 +267,25 @@ func note_events(events: Array[Dictionary]) -> void:
 			_trips += 1
 		elif e.get("type") == "player_recovered":
 			_recoveries += 1
+
+
+## Host-side supply observation after each processed command prevents same-tick
+## off/on toggles from concealing a DINER interruption from the optional scorer.
+func observe_supply_state() -> void:
+	if _completed_tick >= 0:
+		return
+	var st: Dictionary = _grid.canonical_state()
+	# A C08 depot interruption cannot be hidden by two valid switch commands
+	# that both arrive between 10 Hz ticks. Legacy latch behavior is unchanged.
+	if _grid_sources.size() > 1:
+		for lid: String in _sorted(_latches.keys()):
+			if _latched.has(lid):
+				continue
+			if not _on_grid(_latches[lid]["consumer"], st):
+				_latch_ticks[lid] = 0
+	if not _continuous_optional.is_empty() and _continuous_ok:
+		if not _on_grid(_continuous_optional["consumer"], st):
+			_continuous_ok = false
 
 
 ## Host-only evidence: a real inspected panel must show the 10 PU component
@@ -284,7 +336,9 @@ func _build_results() -> Dictionary:
 			optional_restored.append(c)
 	if not _meter_evidence.is_empty() and _evidence_observed:
 		optional_restored.append(_meter_evidence["id"])
-	var optional_total: int = _optional.size() + (1 if not _meter_evidence.is_empty() else 0)
+	if not _continuous_optional.is_empty() and _continuous_ok and _on_grid(_continuous_optional["consumer"], st):
+		optional_restored.append(_continuous_optional["id"])
+	var optional_total: int = _optional.size() + (1 if not _meter_evidence.is_empty() else 0) + (1 if not _continuous_optional.is_empty() else 0)
 	var preventable: int = maxi(0, _trips - _trip_allowance)
 	var stars: int = 1 + (1 if optional_restored.size() == optional_total else 0) + (1 if preventable == 0 else 0)
 	return {"required_restored": restored, "required_total": _required.size(), "optional_services": optional_restored,
@@ -405,6 +459,9 @@ func _objective_done(cond: Dictionary, st: Dictionary) -> bool:
 		return _latched.has(cond["latch"])
 	if cond.has("ladder"):
 		return _ladder_access.has(cond["ladder"])
+	if cond.has("continuous_supply"):
+		return not _continuous_optional.is_empty() and cond["continuous_supply"] == _continuous_optional["id"] \
+			and _completed_tick >= 0 and _continuous_ok and _on_grid(_continuous_optional["consumer"], st)
 	if cond.has("meter_evidence"):
 		return not _meter_evidence.is_empty() and cond["meter_evidence"] == _meter_evidence["id"] and _evidence_observed
 	if cond.has("verified"):
@@ -427,6 +484,8 @@ func canonical_state() -> Dictionary:
 		out["optional_first_supplied"] = _optional_first_supplied.duplicate()
 	if not _meter_evidence.is_empty():
 		out["optional_meter_evidence"] = {"observed": _evidence_observed, "reset_attempted": _evidence_reset_attempted}
+	if not _continuous_optional.is_empty():
+		out["optional_continuous_supply"] = {"ok": _continuous_ok}
 	if not _fixed_ladders.is_empty():
 		out["ladder_access"] = _ladder_access.duplicate()
 	return out
@@ -445,6 +504,8 @@ func durable_state() -> Dictionary:
 		out["optional_first_supplied"] = _optional_first_supplied.duplicate()
 	if not _meter_evidence.is_empty():
 		out["optional_meter_evidence"] = {"observed": _evidence_observed, "reset_attempted": _evidence_reset_attempted}
+	if not _continuous_optional.is_empty():
+		out["optional_continuous_supply"] = {"ok": _continuous_ok}
 	if not _fixed_ladders.is_empty():
 		out["ladder_access"] = _ladder_access.duplicate()
 	return out
@@ -497,6 +558,12 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 			return bad
 		observed = record["observed"]
 		reset_attempted = record["reset_attempted"]
+	var continuous_ok: bool = true
+	if not _continuous_optional.is_empty():
+		var rec: Variant = d.get("optional_continuous_supply")
+		if not (rec is Dictionary and (rec as Dictionary).size() == 1 and rec.get("ok") is bool):
+			return bad
+		continuous_ok = rec["ok"]
 	# Validate all ladder keys before any state mutation. Legacy missions omit them.
 	var ladder_access: Dictionary = {}
 	if not _fixed_ladders.is_empty():
@@ -520,6 +587,7 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 	_optional_first_supplied = optional_first
 	_evidence_observed = observed
 	_evidence_reset_attempted = reset_attempted
+	_continuous_ok = continuous_ok
 	_ladder_access = ladder_access
 	for ladder_id: String in _ladder_access:
 		_interaction.set_access(_fixed_ladders[ladder_id], true)
@@ -541,7 +609,12 @@ func _all_required_on_grid(st: Dictionary) -> bool:
 func _on_grid(consumer: String, st: Dictionary) -> bool:
 	if not st["nodes"][consumer]["supplied"]:
 		return false
-	return _root_of(consumer, st) == _grid_source
+	var root: String = _root_of(consumer, st)
+	if not _grid_sources.has(root):
+		return false
+	# A multi-source contract cannot treat an over-capacity source as valid
+	# supply for access, verification or a continuity reward.
+	return _grid_sources.size() == 1 or not st["nodes"][root]["overloaded"]
 
 
 ## Walks live incoming edges up to the source. The energized graph is a tree (dual supply is refused), so there is

@@ -1,0 +1,13 @@
+{
+  "contract_id": "C08",
+  "source_note": "Split Supply uses two permanent supplies and no portable source. Empty equipment array is intentional; existing equipment service still validates the storage anchor.",
+  "equipment": [],
+  "anchors": [
+    {
+      "id": "VAN_BAY",
+      "storage": true,
+      "routes": []
+    }
+  ],
+  "recovery_anchor": "VAN_BAY"
+}

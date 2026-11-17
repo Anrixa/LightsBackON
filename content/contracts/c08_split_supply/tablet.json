@@ -1,0 +1,68 @@
+{
+  "contract_id": "C08",
+  "source_note": "Logical two-source topology, not measured physical Canal Yard geometry.",
+  "columns": 6,
+  "rows": 4,
+  "nodes": [
+    {
+      "id": "A",
+      "col": 1,
+      "row": 0,
+      "name_key": "node.c08.a"
+    },
+    {
+      "id": "B",
+      "col": 4,
+      "row": 0,
+      "name_key": "node.c08.b"
+    },
+    {
+      "id": "JW",
+      "col": 1,
+      "row": 1,
+      "name_key": "node.c08.jw"
+    },
+    {
+      "id": "JE",
+      "col": 4,
+      "row": 1,
+      "name_key": "node.c08.je"
+    },
+    {
+      "id": "LAUNDRETTE",
+      "col": 0,
+      "row": 2,
+      "name_key": "node.c08.laundrette"
+    },
+    {
+      "id": "DINER",
+      "col": 1,
+      "row": 2,
+      "name_key": "node.c08.diner"
+    },
+    {
+      "id": "ROW_HOUSES",
+      "col": 2,
+      "row": 2,
+      "name_key": "node.c08.row_houses"
+    },
+    {
+      "id": "DEPOT",
+      "col": 3,
+      "row": 2,
+      "name_key": "node.c08.depot"
+    },
+    {
+      "id": "COLD_STORE",
+      "col": 4,
+      "row": 2,
+      "name_key": "node.c08.cold_store"
+    },
+    {
+      "id": "PUMP_KIOSK",
+      "col": 5,
+      "row": 2,
+      "name_key": "node.c08.pump_kiosk"
+    }
+  ]
+}

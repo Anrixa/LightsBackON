@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "authority": "Development Blueprint v1.0 pp.18–20; CT-L1/CT-L2 fidelity audit 17 Nov 2026",
+  "promotion_policy": "Existing host-logic CLOUD_VERIFIED execution evidence is retained; source-fidelity HOLD_CONFIRMED_MISMATCH until separate corrective PR, exact-head Linux/Windows CI, solution trace and physical acceptance. No deletes/migrations.",
+  "contracts": [
+    {
+      "id": "C02",
+      "status": "NOT_STARTED",
+      "source": "content/contracts/c02_dinner_rush",
+      "requires": [
+        "Two initial broken branches; required grid load 20 PU",
+        "Generator6 supplies MARKET5 or PUB4, never 9 PU both; exclusive grid/temp routes",
+        "MARKET and PUB each 100 continuous supplied ticks before 1800-tick briefing-relative deadline",
+        "No pump gate; optional failure never blocks core completion"
+      ],
+      "tests": [
+        "both opening latches and 1800 boundary",
+        "safe generator route switch and no dual supply",
+        "missed bonus still completes",
+        "save/reload, full trace, earlier contracts"
+      ]
+    },
+    {
+      "id": "C03",
+      "status": "NOT_STARTED",
+      "source": "content/contracts/c03_roof_route",
+      "requires": [
+        "West fuse failure; inaccessible broken east trunk",
+        "West-fed ladder access light must latch 50 continuous ticks",
+        "Disabled alternate GRID-to-JE roof feeder capacity 12, installed cable; normal east trunk remains off",
+        "Separate optional 2 PU generator roof work light latches after 100 continuous ticks"
+      ],
+      "tests": [
+        "west latch and solo ladder transition",
+        "roof cable/access/dual-route refusal",
+        "100-tick bonus and missed bonus",
+        "save/reload, full trace"
+      ]
+    },
+    {
+      "id": "C04",
+      "status": "NOT_STARTED",
+      "source": "content/contracts/c04_whole_block",
+      "requires": [
+        "West fuse failed, east trunk broken, no pump gate",
+        "Direct GRID-to-SIGN spur capacity4 installed while isolated",
+        "JE-to-SIGN and GRID-to-SIGN mutually exclusive",
+        "SIGN3 powered 100 continuous ticks latches optional, source23/24 and east11/12"
+      ],
+      "tests": [
+        "capacity4 exact and simultaneous route refusal",
+        "100 tick optional latch and supply loss/reset",
+        "installed cable exempt from stow",
+        "save/reload, full trace"
+      ]
+    },
+    {
+      "id": "C05",
+      "status": "NOT_STARTED",
+      "source": "content/contracts/c05_canal_pump_access",
+      "requires": [
+        "Canal baseline GRID30 west13 east12 feeders14 GEN8; two broken flooded trunks",
+        "West access pump5 and east access pump4 cannot run together on GEN8",
+        "Each pump requires 120 continuous ticks; either pump order must work",
+        "Cold store restored within 1800 ticks of first equipment pickup, deadline HUD and no hard fail"
+      ],
+      "tests": [
+        "both pump orders",
+        "overload and latch reset",
+        "briefing/pickup timer, late optional",
+        "save/reload/full trace"
+      ]
+    },
+    {
+      "id": "C06",
+      "status": "NOT_STARTED",
+      "source": "content/contracts/c06_cold_chain",
+      "requires": [
+        "Canal baseline GRID30 west initially healthy east trunk broken",
+        "One auxiliary pump4 latches east access at 120 continuous ticks",
+        "GEN8 cannot power pump4 and COLD_STORE5 together; mutually exclusive cold-store grid/temp paths",
+        "Cumulative cold-store unpowered ticks <1200, pause while supplied but NEVER reset",
+        "Core still completable after optional loss"
+      ],
+      "tests": [
+        "1200 cumulative threshold and precise off/on pauses",
+        "one pump, break-before-make and generator overload",
+        "save/reload counter continuity",
+        "full trace, missed bonus"
+      ]
+    }
+  ]
+}

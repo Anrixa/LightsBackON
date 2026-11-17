@@ -65,8 +65,21 @@
     {
       "id": "CTL2-C08",
       "contract_id": "C08",
-      "title": "Canal Yard C08",
-      "status": "NOT_STARTED"
+      "title": "Split Supply",
+      "status": "CLOUD_VERIFIED",
+      "source": "content/contracts/c08_split_supply",
+      "evidence": "docs/evidence/CTL2-C08.md",
+      "blueprint_fidelity": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
+      "pending": [
+        "Physical Canal Yard source cabinets, poles and authored, ranged ties with controller/human playability",
+        "Exported target-GPU P95/memory, real source-scoped offline checkpoint continuity across actual builds; no migration",
+        "Original blueprint alignment is headless/source-only; not physical game/release certification",
+        "Official CT05 remains blocked behind CT04; Steam F02/F06 two-real-network and V09/D08 human gates remain open",
+        "Exact-final-PR-head and post-merge main CI are required; never merge a failing or unverified tip"
+      ],
+      "source_head": "7af2e943a06017d7f50df93cd7981b7129d577ef",
+      "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43999774167",
+      "pull_request": "https://github.com/Anrixa/LightsBackON/pull/164"
     }
   ]
 }
