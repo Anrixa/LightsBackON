@@ -1,5 +1,7 @@
 # CT-L1/C02 — Dinner Rush, logic/data phase
 
+> **Historical implementation receipt, not current source fidelity.** The C02 content described below was superseded in [CT-BP-C02](CT-BP-C02.md) via PR #165 (Linux/Windows source logic CI #44003254561). Original data and old receipts are retained for provenance. Physical/release qualification remains HOLD.
+
 - Date: 17 November 2026; starting `main` `f0be6688ff0bd7744098eed215e17053c2474876`.
 - Branch: `task/CTL1-C02-dinner-rush-logic`.
 - Status: **CLOUD_VERIFIED for content logic only.** Merged through [PR #156](https://github.com/Anrixa/LightsBackON/pull/156) into `main` at `395e60303904f1014bebe254607c8a6f83f6afd5` after Linux/Windows full CI passed. C02 is not selectable/playable or officially CT03-qualified.

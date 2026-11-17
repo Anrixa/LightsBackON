@@ -1,5 +1,7 @@
 # CT-L1 / C02 — Dinner Rush: authored Alder contract
 
+> **Historical source only — superseded for C02 original-blueprint fidelity.** This document describes the provisional PR #156 design, including the incorrect SIGN/240s optional. The corrected C02 host contract is [CT-BP-C02](../design/CT-BP-C02-original-blueprint-spec.md), with the current test receipt in [CT-BP-C02 evidence](../evidence/CT-BP-C02.md), PR #165 and CI #44003254561. Original physical/release qualification remains unverified.
+
 Date: 17 November 2026. Governed by ADR-017 decision 3 and the DS07 parallel content track. **This is logic/data qualification only**, not backlog CT03 promotion or a claimed playable C02 mission.
 
 ## Distinct C02 player experience
