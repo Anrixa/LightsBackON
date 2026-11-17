@@ -9,15 +9,18 @@
       "id": "CTL2-C05",
       "contract_id": "C05",
       "title": "Canal Yard — Pump Access (provisional design name)",
-      "status": "IN_PROGRESS",
+      "status": "CLOUD_VERIFIED",
       "source": "content/contracts/c05_canal_pump_access",
       "evidence": "docs/evidence/CTL2-C05.md",
       "pending": [
-        "Linux/Windows exact-head solution/negative CI",
-        "Blueprint C05 contract-sheet source retrieval and mechanics/naming comparison",
-        "Real Canal Yard scene, controller/human and GPU qualification",
-        "Official CT04 dependencies CT01/CT03; Steam F02/F06; rules-revision save compatibility"
-      ]
+        "Original C05 blueprint PDF contract sheet could not be read; provisional name, topology, loads, latches and durations require reconciliation before content certification",
+        "Real Canal Yard authored scene, geometry, pump access, Windows physical controller/keyboard/human playthrough and target GPU P95/memory",
+        "Contract-scoped rules_revision/save compatibility without migrating or deleting old saves",
+        "Canonical CT04 remains NOT_STARTED behind CT01/CT03; Steam F02/F06 and V09/D08 gates remain open"
+      ],
+      "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43992204512",
+      "verified_source_head": "939c01ffa4ebff72939cbf0d16475073129d66ed",
+      "pull_request": "https://github.com/Anrixa/LightsBackON/pull/161"
     },
     {
       "id": "CTL2-C06",
