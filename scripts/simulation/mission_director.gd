@@ -272,10 +272,20 @@ func note_events(events: Array[Dictionary]) -> void:
 ## Host-side supply observation after each processed command prevents same-tick
 ## off/on toggles from concealing a DINER interruption from the optional scorer.
 func observe_supply_state() -> void:
-	if _continuous_optional.is_empty() or not _continuous_ok or _completed_tick >= 0:
+	if _completed_tick >= 0:
 		return
-	if not _on_grid(_continuous_optional["consumer"], _grid.canonical_state()):
-		_continuous_ok = false
+	var st: Dictionary = _grid.canonical_state()
+	# A C08 depot interruption cannot be hidden by two valid switch commands
+	# that both arrive between 10 Hz ticks. Legacy latch behavior is unchanged.
+	if _grid_sources.size() > 1:
+		for lid: String in _sorted(_latches.keys()):
+			if _latched.has(lid):
+				continue
+			if not _on_grid(_latches[lid]["consumer"], st):
+				_latch_ticks[lid] = 0
+	if not _continuous_optional.is_empty() and _continuous_ok:
+		if not _on_grid(_continuous_optional["consumer"], st):
+			_continuous_ok = false
 
 
 ## Host-only evidence: a real inspected panel must show the 10 PU component

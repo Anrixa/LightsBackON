@@ -18,6 +18,10 @@ The optional `DINER_UNINTERRUPTED` bonus is monitored after **each processed hos
 
 No new real-physics electrical claims, client-side power authority, speculative physical Canal Yard positions, portable source or scene-certified interaction targets were added.
 
+## First hosted test iteration (failed, corrected before certification)
+- [PR #164 CI #43999444015](https://github.com/Anrixa/LightsBackON/actions/runs/43999444015): Linux reported **625 passed, 10 failed, 45,801 assertions**. The common root cause was `SessionHost.configure` validating switches only against nodes; both authored C08 tie switches target edges, so they were rejected as BAD_SWITCH and the downstream trace/tests failed. Existing C01–C07 solution replays remained SOLVED, Python parity MATCH.
+- Correction: permit authored edge targets only for existing whitelisted PowerGrid.SETTABLE boolean fields, still rejecting capacity mutation and invalid/missing IDs. Added a same-tick depot glitch reset for continuous cabinet access and two more regressions. This is NOT a passing CI receipt.
+
 ## Tests authored (execution pending)
 
 `tests/integration/test_CTL2_C08_split_supply.gd` checks baseline/source/feeder/demand, exact 3-star known solution, timed access latch, interrupted timer reset, source-overload abuse, atomic dual-supply refusal, one-tick break-before-make transition, same-tick DINER interruption bonus loss, durable save validation and tampering rejection, bad source and optional definitions, two-player host replay and legacy C01–C07 save shapes.

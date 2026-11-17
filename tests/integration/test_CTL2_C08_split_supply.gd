@@ -242,6 +242,38 @@ func test_CTL2_C08_two_player_host_replay_keeps_personal_authority_and_requires_
 	assert_eq((ctx["mission"] as Mission).results()["stars"], 3)
 
 
+
+func test_CTL2_C08_same_tick_depot_glitch_resets_continuous_access_time() -> void:
+	var ctx: Dictionary = _context()
+	_shed_and_tie(ctx)
+	Runner.ticks(ctx, 60)
+	# Both commands are accepted in the same tick; the host must still
+	# invalidate the first 60 ticks of cabinet access continuity.
+	assert_true(Runner.send(ctx, "P1", "toggle_switch", "SW_A_JE_TIE", {"value": false}).get("ok", false))
+	assert_true(Runner.send(ctx, "P1", "toggle_switch", "SW_A_JE_TIE", {"value": true}).get("ok", false))
+	Runner.ticks(ctx, 40)
+	assert_false((ctx["mission"] as Mission).is_latched("LATCH_DEPOT_ACCESS"))
+	Runner.ticks(ctx, 60)
+	assert_true((ctx["mission"] as Mission).is_latched("LATCH_DEPOT_ACCESS"))
+	assert_true((ctx["mission"] as Mission).canonical_state()["optional_continuous_supply"]["ok"])
+
+
+func test_CTL2_C08_host_switches_reject_non_settable_edge_capacity_edits() -> void:
+	var ctx: Dictionary = _context()
+	var grid: Grid = ctx["grid"] as Grid
+	var before: String = Grid.serialize(grid.canonical_state())
+	assert_eq(grid.apply({"op": "set", "id": "E_A_JE_TIE", "field": "capacity", "value": 100})["code"],
+		"FIELD_NOT_SETTABLE")
+	assert_eq(Grid.serialize(grid.canonical_state()), before)
+	var bad: Dictionary = Runner.json(C08.path_join("switches.json"))
+	bad["switches"].append({"id": "SW_BAD_CAPACITY", "target": "E_A_JE_TIE", "field": "capacity"})
+	var Host := preload("res://scripts/network/session_host.gd")
+	var candidate: Variant = Host.new()
+	var errs: Array[Dictionary] = candidate.configure(Runner.json("res://content/network.json"), 1, "REV_SOLUTION",
+		"S_SOLUTION", ctx["grid"], ctx["meter"], ctx["interaction"], ctx["equipment"], bad,
+		func(_p: String, _e: String) -> bool: return true)
+	assert_false(errs.is_empty())
+
 func test_CTL2_C08_all_earlier_contract_save_shapes_unchanged() -> void:
 	for path: String in EARLIER:
 		var trace: Dictionary = Runner.json(path.path_join("solution.json"))
