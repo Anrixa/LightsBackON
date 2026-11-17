@@ -100,7 +100,7 @@
     },
     {
       "id": "C05",
-      "status": "SOURCE_IMPLEMENTED_CI_PENDING",
+      "status": "SOURCE_CI_VERIFIED_PHYSICAL_HOLD",
       "source": "content/contracts/c05_canal_pump_access",
       "requires": [
         "Canal baseline GRID30 west13 east12 feeders14 GEN8; two broken flooded trunks",
@@ -118,13 +118,21 @@
       "branch": "task/CT-BP-C05-rising-water-fidelity",
       "evidence": "docs/evidence/CT-BP-C05.md",
       "known_solution": "content/contracts/c05_canal_pump_access/solution.json",
-      "fidelity": "SOURCE_IMPLEMENTED_CI_PENDING",
+      "fidelity": "SOURCE_CI_VERIFIED_PHYSICAL_HOLD",
       "full_original_blueprint_certification": "HOLD_PHYSICAL_LEVEL_AND_HUMAN_ACCEPTANCE",
       "pending": [
-        "Exact final PR-head Linux/Windows full CI, all solutions and Python reference parity, Windows export and post-merge main CI",
-        "Physical Canal Yard mission scene, two 120-tick flood pumps, sockets and gameplay UI",
-        "Human/controller/target-class GPU, older release C05 checkpoints and real Steam F02/F06 remains unverified"
-      ]
+        "Physical Canal Yard mission scene, flood pumps/socket placement, water response, access rooms, and playable HUD",
+        "Human/controller/target GPU, real two-network Steam F02/F06 and full production acceptance",
+        "Older released C05 save migration compatibility; prior save bytes preserved and no migration attempted"
+      ],
+      "independent_head_sha": "06e24f9bf99191658af613eee4d04c4a8c785268",
+      "independent_ci_run": 44047118657,
+      "independent_resource_isolation_run": 44047118751,
+      "merged_pull_request": 168,
+      "merge_sha": "5544eaed2c163420346b6d817d9f29b6a065d44f",
+      "postmerge_ci_run": 44047679775,
+      "postmerge_push_run": 44047680266,
+      "source_test_results": "660 PASS, 0 FAIL, 48388 assertions per OS on PR head and merged main; C01-C08 replay, 32-case/246-command reference parity"
     },
     {
       "id": "C06",
