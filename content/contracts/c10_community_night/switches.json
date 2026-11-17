@@ -16,6 +16,11 @@
       "id": "SW_WEST_STAGE",
       "target": "WEST_STAGE",
       "field": "isolated"
+    },
+    {
+      "id": "SW_STAGE",
+      "target": "STAGE",
+      "field": "enabled"
     }
   ]
 }
