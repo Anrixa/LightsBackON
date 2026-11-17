@@ -49,6 +49,17 @@ var _optional_deadline_ticks: int = -1
 var _optional_first_supplied: Dictionary = {}  # optional ID -> first authoritative supplied tick, if within cutoff
 var _continuous_optional: Dictionary = {}  # conditional uninterrupted-service bonus
 var _continuous_ok: bool = true
+## Original C02 optional opening-time venue latches (not a mission completion gate).
+## Elapsed clock is durable/relative, never inferred from resumed host absolute ticks.
+var _opening_venues: Array[String] = []
+var _opening_sources: Array[String] = []
+var _opening_needed: int = 0
+var _opening_deadline: int = 0
+var _opening_started: bool = false
+var _opening_elapsed: int = 0
+var _opening_ticks: Dictionary = {}
+var _opening_latched: Dictionary = {}  # consumer -> relative host elapsed tick
+var _opening_failed: bool = false
 ## Optional host-observed meter finding; absent from legacy contracts and saves.
 var _meter_evidence: Dictionary = {}
 var _evidence_observed: bool = false
@@ -135,6 +146,37 @@ func load_definition(definition: Dictionary, grid: PowerGrid, interaction: Inter
 				"optional_deadline_ticks requires >=1 and an optional service", []))
 		else:
 			_optional_deadline_ticks = int(deadline)
+	# Unlike the legacy first-on-grid optional, C02 requires sustained supply
+	# from either a valid grid route or a safe portable GEN route for BOTH venues.
+	var opening_raw: Variant = definition.get("opening_venues", null)
+	if opening_raw != null:
+		var opening: Dictionary = opening_raw if opening_raw is Dictionary else {}
+		var needed: Variant = PowerGrid.to_int(opening.get("supplied_ticks"))
+		var limit: Variant = PowerGrid.to_int(opening.get("deadline_ticks"))
+		var sources: Variant = opening.get("permitted_sources")
+		var venue_list: Variant = opening.get("consumers")
+		if not (venue_list is Array and sources is Array and
+				needed != null and limit != null and int(needed) >= 1 and int(limit) >= int(needed) and
+				opening.get("start_trigger") == "briefing_dismissed_all_loaded" and _optional.is_empty()):
+			errs.append(PowerGrid.diag("BAD_MISSION", "opening_venues requires venues, source list, ticks and briefing trigger", []))
+		else:
+			_opening_venues = _consumer_list(venue_list, nodes, "opening_venues.consumers", errs)
+			_opening_sources = []
+			for source: Variant in sources:
+				if not (source is String and nodes.has(source) and nodes[source]["kind"] == PowerGrid.KIND_SOURCE) or _opening_sources.has(source):
+					errs.append(PowerGrid.diag("BAD_MISSION", "opening source must be a distinct source node", []))
+				else:
+					_opening_sources.append(source)
+			if _opening_venues.size() != (venue_list as Array).size() or _opening_venues.size() < 2 or
+					_opening_venues.size() != (venue_list as Array).duplicate().size() or _opening_sources.size() != (sources as Array).size() or
+					not _opening_sources.has(_grid_source):
+				errs.append(PowerGrid.diag("BAD_MISSION", "opening venues need distinct consumers and valid supply sources", []))
+			for c: String in _opening_venues:
+				if not _required.has(c):
+					errs.append(PowerGrid.diag("BAD_MISSION", "opening venue must be required for main completion", [c]))
+				_opening_ticks[c] = 0
+			_opening_needed = int(needed)
+			_opening_deadline = int(limit)
 	# Uninterrupted service is monitored on every accepted host intent AND grid tick;
 	# single-source legacy checkpoint shapes are deliberately unchanged.
 	var uninterrupted: Variant = definition.get("optional_continuous_supply", null)
@@ -211,6 +253,28 @@ func set_in_zone(player: String, zone: String, inside: bool) -> Array[Dictionary
 	return _cancel("player_left_zone")
 
 
+## Called only from the host after the briefing is dismissed AND all admitted
+## peers have acknowledged their loading snapshot. Never restarted on a duplicate.
+func begin_after_briefing() -> Dictionary:
+	if _opening_venues.is_empty():
+		return {"ok": true, "not_required": true}
+	if _completed_tick >= 0:
+		return _refuse("ALREADY_COMPLETE", "the mission is complete", [])
+	if _opening_started:
+		return {"ok": true, "duplicate": true}
+	_opening_started = true
+	return {"ok": true, "opening_deadline_ticks": _opening_deadline}
+
+
+## A qualifying venue can be on GRID or GEN, but not on an overloaded
+## source. The host power model owns all supply and dual-route decisions.
+func _opening_supplied(consumer: String, st: Dictionary) -> bool:
+	if not st["nodes"][consumer]["supplied"]:
+		return false
+	var source: String = _root_of(consumer, st)
+	return _opening_sources.has(source) and not st["nodes"][source]["overloaded"]
+
+
 # ---------- host tick ----------
 
 ## Call once per grid tick, after the grid has stepped. Returns this tick's mission events.
@@ -231,6 +295,21 @@ func tick(now: int) -> Array[Dictionary]:
 			_latched[lid] = now
 			_interaction.set_access(l["grants"], true)
 			events.append({"type": "latch", "id": lid, "grants": l["grants"], "tick": now})
+	# The opening clock is independent of absolute host ticks and cannot advance
+	# during briefing/loading; it is therefore safe across offline save/reload.
+	if _opening_started:
+		_opening_elapsed += 1
+		if _opening_elapsed <= _opening_deadline:
+			for venue: String in _opening_venues:
+				if _opening_latched.has(venue):
+					continue
+				_opening_ticks[venue] = int(_opening_ticks[venue]) + 1 if _opening_supplied(venue, st) else 0
+				if int(_opening_ticks[venue]) >= _opening_needed:
+					_opening_latched[venue] = _opening_elapsed
+					events.append({"type": "venue_opening_latched", "id": venue, "tick": now, "elapsed": _opening_elapsed})
+		elif not _opening_failed and _opening_latched.size() < _opening_venues.size():
+			_opening_failed = true
+			events.append({"type": "opening_deadline_missed", "tick": now, "deadline_ticks": _opening_deadline})
 	# An optional opening deadline affects a bonus only, never repair/access,
 	# extraction, required supply, or a host's grid state.
 	if _optional_deadline_ticks >= 0 and now <= _optional_deadline_ticks:
@@ -283,6 +362,12 @@ func observe_supply_state() -> void:
 				continue
 			if not _on_grid(_latches[lid]["consumer"], st):
 				_latch_ticks[lid] = 0
+	# A loss and restoration within one 10 Hz tick must reset an unfinished
+	# venue's consecutive-tick count; the bonus is not a first-power latch.
+	if _opening_started:
+		for venue: String in _opening_venues:
+			if not _opening_latched.has(venue) and not _opening_supplied(venue, st):
+				_opening_ticks[venue] = 0
 	if not _continuous_optional.is_empty() and _continuous_ok:
 		if not _on_grid(_continuous_optional["consumer"], st):
 			_continuous_ok = false
@@ -338,7 +423,10 @@ func _build_results() -> Dictionary:
 		optional_restored.append(_meter_evidence["id"])
 	if not _continuous_optional.is_empty() and _continuous_ok and _on_grid(_continuous_optional["consumer"], st):
 		optional_restored.append(_continuous_optional["id"])
-	var optional_total: int = _optional.size() + (1 if not _meter_evidence.is_empty() else 0) + (1 if not _continuous_optional.is_empty() else 0)
+	for venue: String in _opening_venues:
+		if _opening_latched.has(venue):
+			optional_restored.append(venue)
+	var optional_total: int = _optional.size() + (1 if not _meter_evidence.is_empty() else 0) + (1 if not _continuous_optional.is_empty() else 0) + _opening_venues.size()
 	var preventable: int = maxi(0, _trips - _trip_allowance)
 	var stars: int = 1 + (1 if optional_restored.size() == optional_total else 0) + (1 if preventable == 0 else 0)
 	return {"required_restored": restored, "required_total": _required.size(), "optional_services": optional_restored,
@@ -459,6 +547,8 @@ func _objective_done(cond: Dictionary, st: Dictionary) -> bool:
 		return _latched.has(cond["latch"])
 	if cond.has("ladder"):
 		return _ladder_access.has(cond["ladder"])
+	if cond.has("opening_venue"):
+		return _opening_venues.has(cond["opening_venue"]) and _opening_latched.has(cond["opening_venue"])
 	if cond.has("continuous_supply"):
 		return not _continuous_optional.is_empty() and cond["continuous_supply"] == _continuous_optional["id"] \
 			and _completed_tick >= 0 and _continuous_ok and _on_grid(_continuous_optional["consumer"], st)
@@ -482,6 +572,9 @@ func canonical_state() -> Dictionary:
 		"countdown_left": _countdown_left, "completed_tick": _completed_tick, "in_zone": _sorted(_in_zone.keys())}
 	if _optional_deadline_ticks >= 0:
 		out["optional_first_supplied"] = _optional_first_supplied.duplicate()
+	if not _opening_venues.is_empty():
+		out["opening_venues"] = {"started": _opening_started, "elapsed": _opening_elapsed,
+			"progress": _opening_ticks.duplicate(), "latched": _opening_latched.duplicate(), "failed": _opening_failed}
 	if not _meter_evidence.is_empty():
 		out["optional_meter_evidence"] = {"observed": _evidence_observed, "reset_attempted": _evidence_reset_attempted}
 	if not _continuous_optional.is_empty():
@@ -502,6 +595,9 @@ func durable_state() -> Dictionary:
 		"trips": _trips, "recoveries": _recoveries, "completed_tick": _completed_tick, "results": _results.duplicate(true)}
 	if _optional_deadline_ticks >= 0:
 		out["optional_first_supplied"] = _optional_first_supplied.duplicate()
+	if not _opening_venues.is_empty():
+		out["opening_venues"] = {"started": _opening_started, "elapsed": _opening_elapsed,
+			"progress": _opening_ticks.duplicate(), "latched": _opening_latched.duplicate(), "failed": _opening_failed}
 	if not _meter_evidence.is_empty():
 		out["optional_meter_evidence"] = {"observed": _evidence_observed, "reset_attempted": _evidence_reset_attempted}
 	if not _continuous_optional.is_empty():
@@ -547,6 +643,48 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 					or int(when) < 1 or int(when) > _optional_deadline_ticks:
 				return bad
 			optional_first[id] = int(when)
+	# This conditional shape is present only for contracts authoring opening venues.
+	# Validate every field and any venue progress BEFORE mutating older state.
+	var opening_started: bool = false
+	var opening_elapsed: int = 0
+	var opening_progress: Dictionary = {}
+	var opening_latched: Dictionary = {}
+	var opening_failed: bool = false
+	if not _opening_venues.is_empty():
+		var record: Variant = d.get("opening_venues")
+		if not (record is Dictionary and (record as Dictionary).size() == 5
+				and record.get("started") is bool and record.get("progress") is Dictionary
+				and record.get("latched") is Dictionary and record.get("failed") is bool):
+			return bad
+		var elapsed: Variant = PowerGrid.to_int(record.get("elapsed"))
+		if elapsed == null or int(elapsed) < 0:
+			return bad
+		opening_started = record["started"]
+		opening_elapsed = int(elapsed)
+		opening_failed = record["failed"]
+		if not opening_started and opening_elapsed != 0:
+			return bad
+		var progress: Dictionary = record["progress"]
+		if progress.size() != _opening_venues.size():
+			return bad
+		for c: Variant in progress:
+			var ticks: Variant = PowerGrid.to_int(progress[c])
+			if not (c is String and _opening_venues.has(c)) or ticks == null or
+					int(ticks) < 0 or int(ticks) > _opening_needed:
+				return bad
+			opening_progress[c] = int(ticks)
+		for c: Variant in record["latched"]:
+			var at: Variant = PowerGrid.to_int(record["latched"][c])
+			if not (c is String and _opening_venues.has(c)) or at == null or
+					int(at) < _opening_needed or int(at) > _opening_deadline or int(at) > opening_elapsed or
+					int(opening_progress.get(c, 0)) != _opening_needed:
+				return bad
+			opening_latched[c] = int(at)
+		for c: String in _opening_venues:
+			if not opening_latched.has(c) and int(opening_progress.get(c, 0)) == _opening_needed:
+				return bad
+		if opening_failed and (opening_elapsed <= _opening_deadline or opening_latched.size() == _opening_venues.size()):
+			return bad
 	# Evidence state is saved only by contracts that declare this objective.
 	# Verify the complete shape before mutating mission data (fail closed).
 	var observed: bool = false
@@ -585,6 +723,11 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 	_completed_tick = counters["completed_tick"]
 	_results = (d["results"] as Dictionary).duplicate(true)
 	_optional_first_supplied = optional_first
+	_opening_started = opening_started
+	_opening_elapsed = opening_elapsed
+	_opening_ticks = opening_progress
+	_opening_latched = opening_latched
+	_opening_failed = opening_failed
 	_evidence_observed = observed
 	_evidence_reset_attempted = reset_attempted
 	_continuous_ok = continuous_ok
