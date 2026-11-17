@@ -26,3 +26,7 @@ Physical Hill scene, human/controller, target GPU, historical released save rest
 ## First CI diagnosis — 17 November 2026 (UTC)
 
 [GitHub Actions #44150472928](https://github.com/Anrixa/LightsBackON/actions/runs/44150472928), source `06e10fa3e2a85471dea617c093238f05e0d1ee3c`: Linux **FAILED** (695 passed, 4 failed). The invalid `PANEL_GARAGE_CONTROL` targeted a consumer, while meter panels require a source/junction; meter initialization refused the full panel map, so the linked east repair could not register. The 4 failing tests were downstream of that invalid content and two JSON numeric type comparisons. This is retained as a real failure receipt, not overwritten by a later success. Corrected by removing only that invalid consumer panel (the real `PANEL_EAST` remains) and normalizing the test JSON numeric assertions. Re-run exact changed head on both OS before promotion.
+
+## Verified final-head and independent merged-main source CI — 17 November 2026 (UTC)
+
+C11: [174](https://github.com/Anrixa/LightsBackON/pull/174) final source [CI #44151282829](https://github.com/Anrixa/LightsBackON/actions/runs/44151282829) SUCCESS Linux+Windows; merged-main `b29a68c0b5255b71febb2520353c836aeb51d622` [CI #44152056131](https://github.com/Anrixa/LightsBackON/actions/runs/44152056131) SUCCESS Linux+Windows. Source/headless only; original physical/Hill controller/GPU/old saves/Steam/release HOLD. Historical pending notes above are retained as original checkpoints.

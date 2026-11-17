@@ -1,6 +1,6 @@
 # CT-L3/C10–C12 — original Hill Road source specifications and engineering queue
 
-Source: original Development Blueprint v1.0 pages 18, 20–21 (27 October 2026). These are **verified design constraints**, not implemented/CI-qualified missions.
+Source: original Development Blueprint v1.0 pages 18, 20–21 (27 October 2026). These are **verified design constraints**. C09–C12 source/headless contracts are merged; this is not physical-level, human/controller, real-GPU, old-save or Steam release certification.
 
 Shared baseline: `GRID28`, feeder `14/14`, `GEN6`; west required hall6 + bakery4 + greenhouse3 = 13 PU; east required flats5 + telecom hut4 + service garage3 = 12 PU. Final required load 25 PU.
 

@@ -39,3 +39,7 @@ Implementation source `e0f7336b368463f817a1265fe0ffec4c30ec46ae`, [GitHub Action
 All 11 C09 tests passed on both platforms. This verifies **source/headless** contract behavior, not an actual roof or ground route scene, target GPU, checkpoint restore from a prior released version, or human navigation.
 
 **Important:** This evidence/tracker addendum changes the PR head. The final documentation SHA must itself pass Linux/Windows CI before merge. Afterwards verify merged-main dual-OS CI separately. Never treat a pending run as a pass.
+
+## Verified final-head and independent merged-main source CI — 17 November 2026 (UTC)
+
+C09: [171](https://github.com/Anrixa/LightsBackON/pull/171) final source [CI #44137702068](https://github.com/Anrixa/LightsBackON/actions/runs/44137702068) SUCCESS Linux+Windows; merged-main `13223b7472a9720a8e2630a497ee02452fb407e0` [CI #44138557595](https://github.com/Anrixa/LightsBackON/actions/runs/44138557595) SUCCESS Linux+Windows. Source/headless only; original physical/Hill controller/GPU/old saves/Steam/release HOLD. Historical pending notes above are retained as original checkpoints.

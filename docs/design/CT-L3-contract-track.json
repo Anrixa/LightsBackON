@@ -4,7 +4,7 @@
   "authority": "docs/design/DS07-design-plan.md and ADR-017; original blueprint pp.20-21",
   "parent_backlog": "CT06",
   "parent_backlog_status": "NOT_STARTED",
-  "note": "Planning scaffold only, not a claim that Hill Road content, authoring or CI exists. No blueprint constants inferred.",
+  "note": "C09–C12 original-blueprint source contracts merged; exact PR-head Linux/Windows and independent merged-main CI receipts are tracked. Source/headless candidate only. Physical/Hill scenes, controller/human/GPU, old-release saves, Steam and production remain HOLD.",
   "episodes": [
     {
       "id": "CTL3-C09",
@@ -35,13 +35,15 @@
       "solution_replay": "SOLVED C09: 197 ticks, 54 steps",
       "merged_main_sha": "13223b7472a9720a8e2630a497ee02452fb407e0",
       "merged_main_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44138557595",
-      "corrective_pr": "https://github.com/Anrixa/LightsBackON/pull/171"
+      "corrective_pr": "https://github.com/Anrixa/LightsBackON/pull/171",
+      "final_pr_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44137702068",
+      "final_pr_sha": "434fc8ec505c8bebd463255bd5f490d2037908e2"
     },
     {
       "id": "CTL3-C10",
       "contract_id": "C10",
       "status": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
-      "stage": "CODE_HEAD_LINUX_WINDOWS_VERIFIED_FINAL_DOCUMENTATION_HEAD_PENDING",
+      "stage": "MERGED_MAIN_CI_VERIFIED_SOURCE_ONLY",
       "prerequisites": [
         "Extract original contract sheet without guessing PU/timing",
         "Write machine-verified authoring test, negative cases and host solution replay",
@@ -53,9 +55,8 @@
       "source": "content/contracts/c10_community_night",
       "evidence": "docs/evidence/CTL3-C10.md",
       "pending": [
-        "Exact PR-head Linux/Windows CI and C01-C10 replay",
-        "Windows QA57 export and merged-main CI",
-        "Actual Hill Road physical stage cabling, event playback/HUD, controller/human/GPU, old saves and Steam F02/F06"
+        "Hill Road physical stage cabling, 240-second event visual/HUD and human/controller/GPU qualification",
+        "Historical shipped-save restore, real two-network Steam F02/F06 and canonical CT02/CT05/CT06 remain HOLD"
       ],
       "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44140713810",
       "verified_code_head": "eb8dcb01f75040269c252a7cfe09a8bf0accb9c7",
@@ -66,33 +67,74 @@
         "failed": 0,
         "assertions": 50809
       },
-      "solution_replay": "SOLVED C10: 187 ticks, 43 steps"
+      "solution_replay": "SOLVED C10: 187 ticks, 43 steps",
+      "final_pr_head": "9a63ab887840f83069b05b6132eecd7e6c8a4966",
+      "final_pr_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44141631975",
+      "merged_main_sha": "7eda69f1b80863d5f82a0cab928d526251b051b1",
+      "merged_main_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44142259928"
     },
     {
       "id": "CTL3-C11",
       "contract_id": "C11",
-      "status": "NOT_STARTED",
-      "stage": "PLANNED_AFTER_PREVIOUS_CONTRACT",
+      "status": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
+      "stage": "MERGED_MAIN_CI_VERIFIED_SOURCE_ONLY",
       "prerequisites": [
         "Extract original contract sheet without guessing PU/timing",
         "Write machine-verified authoring test, negative cases and host solution replay",
         "Separate exact-head Linux/Windows CI and merged-main validation"
       ],
       "acceptance_ceiling": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
-      "physical_release_status": "HOLD"
+      "physical_release_status": "HOLD",
+      "branch": "task/CTL3-C11-borrowed-power",
+      "source": "content/contracts/c11_borrowed_power",
+      "evidence": "docs/evidence/CTL3-C11.md",
+      "pull_request": "https://github.com/Anrixa/LightsBackON/pull/174",
+      "final_pr_head": "d24cbc4f8dfdc0052f37364457a014a1aadd6e83",
+      "final_pr_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44151282829",
+      "merged_main_sha": "b29a68c0b5255b71febb2520353c836aeb51d622",
+      "merged_main_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44152056131",
+      "tests_each_os": {
+        "passed": 699,
+        "failed": 0,
+        "assertions": 51744
+      },
+      "solution_replay": "SOLVED C11: 287 host ticks, 42 steps",
+      "pending": [
+        "Hill 3D power hookups, controller/human and real GPU",
+        "Historical shipped-save, real Steam F02/F06 and official CT02/CT05/CT06 remain HOLD"
+      ]
     },
     {
       "id": "CTL3-C12",
       "contract_id": "C12",
-      "status": "NOT_STARTED",
-      "stage": "PLANNED_AFTER_PREVIOUS_CONTRACT",
+      "status": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
+      "stage": "MERGED_MAIN_CI_PENDING_SOURCE_ONLY",
       "prerequisites": [
         "Extract original contract sheet without guessing PU/timing",
         "Write machine-verified authoring test, negative cases and host solution replay",
         "Separate exact-head Linux/Windows CI and merged-main validation"
       ],
       "acceptance_ceiling": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
-      "physical_release_status": "HOLD"
+      "physical_release_status": "HOLD",
+      "branch": "task/CTL3-C12-lights-back-on",
+      "source": "content/contracts/c12_lights_back_on",
+      "evidence": "docs/evidence/CTL3-C12.md",
+      "pull_request": "https://github.com/Anrixa/LightsBackON/pull/175",
+      "final_pr_head": "4cc5374bd79b58e59529147873641b8cce29e886",
+      "final_pr_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44155478774",
+      "merged_main_sha": "9e141bffab6e5525661c9c3c18688cae64b38ca8",
+      "merged_main_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44156570604",
+      "tests_each_os": {
+        "passed": 712,
+        "failed": 0,
+        "assertions": 52386
+      },
+      "solution_replay": "SOLVED C12: 353 host ticks, 70 steps",
+      "pending": [
+        "Hill 3D staged lighting, radio sound/subtitle and accessible input interaction",
+        "Human/controller and target GPU, historical released saves, real two-network Steam F02/F06",
+        "Canonical CT02/CT05/CT06 and production remain HOLD"
+      ]
     }
   ]
 }
