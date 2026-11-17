@@ -1,0 +1,62 @@
+{
+  "contract_id": "C05",
+  "source_note": "CT-L2/C05 provisional Canal Yard content candidate under ADR-017; authored PU, timing, logical anchor and topology values require comparison with the unavailable original C05 contract sheet before content certification. This is headless logic only; no physical Canal Yard scene or playtest. Both repair access flags require their own pump-supply latches; a pump supplied from the temporary generator does not count toward final GRID restoration.",
+  "supplies": {
+    "FUSE_DOCK": 1,
+    "CABLE_SPLICE": 1
+  },
+  "repairs": [
+    {
+      "id": "R_DOCK_FUSE",
+      "name_key": "repair.c05.dock_fuse",
+      "panel": "PANEL_DOCK",
+      "access": "DOCK_DRAINED",
+      "isolate": "DOCK",
+      "fix": {
+        "op": "set",
+        "id": "DOCK",
+        "field": "failed",
+        "value": false
+      },
+      "component": "FUSE_DOCK",
+      "tools": {
+        "open": "screwdriver",
+        "remove": "puller",
+        "install": "puller",
+        "test": "meter"
+      },
+      "hold_ticks": {
+        "open": 6,
+        "remove": 8,
+        "install": 8,
+        "close": 6
+      }
+    },
+    {
+      "id": "R_COLD_FEED",
+      "name_key": "repair.c05.cold_feed",
+      "panel": "PANEL_COLD",
+      "access": "COLD_DRAINED",
+      "isolate": "COLD",
+      "fix": {
+        "op": "set",
+        "id": "E_GRID_COLD",
+        "field": "healthy",
+        "value": true
+      },
+      "component": "CABLE_SPLICE",
+      "tools": {
+        "open": "screwdriver",
+        "remove": "cutter",
+        "install": "crimper",
+        "test": "meter"
+      },
+      "hold_ticks": {
+        "open": 6,
+        "remove": 10,
+        "install": 12,
+        "close": 6
+      }
+    }
+  ]
+}

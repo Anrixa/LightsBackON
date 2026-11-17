@@ -1,0 +1,203 @@
+{
+  "contract_id": "C05",
+  "source_note": "CT-L2/C05 provisional Canal Yard content candidate under ADR-017; authored PU, timing, logical anchor and topology values require comparison with the unavailable original C05 contract sheet before content certification. This is headless logic only; no physical Canal Yard scene or playtest. Required grid loads = 8 PU dock + 11 PU cold yard. Optional 2 PU beacon makes 21/24. TEMP generator 6 PU cannot supply two 4 PU pumps concurrently: wrong route trips after 15 consecutive 10 Hz ticks.",
+  "trip_ticks": 15,
+  "nodes": [
+    {
+      "id": "GRID",
+      "kind": "source",
+      "capacity": 24,
+      "online": true
+    },
+    {
+      "id": "GEN",
+      "kind": "source",
+      "capacity": 6,
+      "online": false
+    },
+    {
+      "id": "DOCK",
+      "kind": "junction",
+      "isolated": false,
+      "failed": true,
+      "tripped": true
+    },
+    {
+      "id": "COLD",
+      "kind": "junction",
+      "isolated": false,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "TEMP",
+      "kind": "junction",
+      "isolated": false,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "DOCK_OFFICE",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "CRANE",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "COLD_STORE",
+      "kind": "consumer",
+      "demand": 5,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "YARD_LIGHTS",
+      "kind": "consumer",
+      "demand": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "WORKSHOP",
+      "kind": "consumer",
+      "demand": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "PUMP_DOCK",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "PUMP_COLD",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "BEACON",
+      "kind": "consumer",
+      "demand": 2,
+      "enabled": false,
+      "healthy": true
+    }
+  ],
+  "edges": [
+    {
+      "id": "E_GRID_DOCK",
+      "from": "GRID",
+      "to": "DOCK",
+      "capacity": 12,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_GRID_COLD",
+      "from": "GRID",
+      "to": "COLD",
+      "capacity": 12,
+      "enabled": true,
+      "healthy": false
+    },
+    {
+      "id": "E_DOCK_OFFICE",
+      "from": "DOCK",
+      "to": "DOCK_OFFICE",
+      "capacity": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_DOCK_CRANE",
+      "from": "DOCK",
+      "to": "CRANE",
+      "capacity": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_DOCK_BEACON",
+      "from": "DOCK",
+      "to": "BEACON",
+      "capacity": 2,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_COLD_STORE",
+      "from": "COLD",
+      "to": "COLD_STORE",
+      "capacity": 5,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_COLD_LIGHTS",
+      "from": "COLD",
+      "to": "YARD_LIGHTS",
+      "capacity": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_COLD_WORKSHOP",
+      "from": "COLD",
+      "to": "WORKSHOP",
+      "capacity": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_GEN_TEMP",
+      "from": "GEN",
+      "to": "TEMP",
+      "capacity": 6,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_TEMP_PUMP_DOCK",
+      "from": "TEMP",
+      "to": "PUMP_DOCK",
+      "capacity": 4,
+      "enabled": false,
+      "healthy": true
+    },
+    {
+      "id": "E_TEMP_PUMP_COLD",
+      "from": "TEMP",
+      "to": "PUMP_COLD",
+      "capacity": 4,
+      "enabled": false,
+      "healthy": true
+    }
+  ],
+  "protections": [
+    {
+      "id": "BRK_DOCK",
+      "element": "E_GRID_DOCK",
+      "breaker": "DOCK"
+    },
+    {
+      "id": "BRK_COLD",
+      "element": "E_GRID_COLD",
+      "breaker": "COLD"
+    },
+    {
+      "id": "BRK_TEMP",
+      "element": "E_GEN_TEMP",
+      "breaker": "TEMP"
+    }
+  ]
+}

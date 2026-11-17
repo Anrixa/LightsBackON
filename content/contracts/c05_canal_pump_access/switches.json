@@ -1,0 +1,21 @@
+{
+  "contract_id": "C05",
+  "source_note": "The only optional load is the dock beacon, 2 PU on the 12 PU feeder. DOCK/COLD are host-operated junction breaker controls; generator TEMP reset is an equipment command.",
+  "switches": [
+    {
+      "id": "SW_BEACON",
+      "target": "BEACON",
+      "field": "enabled"
+    },
+    {
+      "id": "SW_DOCK_BREAKER",
+      "target": "DOCK",
+      "field": "tripped"
+    },
+    {
+      "id": "SW_COLD_BREAKER",
+      "target": "COLD",
+      "field": "tripped"
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "contract_id": "C05",
+  "source_note": "Headless logical 5x4 network tablet, not physical Canal Yard coordinates or scene acceptance.",
+  "columns": 5,
+  "rows": 4,
+  "nodes": [
+    {
+      "id": "GRID",
+      "col": 2,
+      "row": 0,
+      "name_key": "node.c05.grid"
+    },
+    {
+      "id": "DOCK",
+      "col": 1,
+      "row": 1,
+      "name_key": "node.c05.dock"
+    },
+    {
+      "id": "COLD",
+      "col": 4,
+      "row": 1,
+      "name_key": "node.c05.cold"
+    },
+    {
+      "id": "DOCK_OFFICE",
+      "col": 0,
+      "row": 2,
+      "name_key": "node.c05.dock_office"
+    },
+    {
+      "id": "CRANE",
+      "col": 1,
+      "row": 2,
+      "name_key": "node.c05.crane"
+    },
+    {
+      "id": "COLD_STORE",
+      "col": 2,
+      "row": 2,
+      "name_key": "node.c05.cold_store"
+    },
+    {
+      "id": "YARD_LIGHTS",
+      "col": 3,
+      "row": 2,
+      "name_key": "node.c05.yard_lights"
+    },
+    {
+      "id": "WORKSHOP",
+      "col": 4,
+      "row": 2,
+      "name_key": "node.c05.workshop"
+    },
+    {
+      "id": "GEN",
+      "col": 0,
+      "row": 3,
+      "name_key": "node.c05.gen"
+    },
+    {
+      "id": "TEMP",
+      "col": 1,
+      "row": 3,
+      "name_key": "node.c05.temp"
+    },
+    {
+      "id": "PUMP_DOCK",
+      "col": 2,
+      "row": 3,
+      "name_key": "node.c05.pump_dock"
+    },
+    {
+      "id": "PUMP_COLD",
+      "col": 3,
+      "row": 3,
+      "name_key": "node.c05.pump_cold"
+    },
+    {
+      "id": "BEACON",
+      "col": 4,
+      "row": 3,
+      "name_key": "node.c05.beacon"
+    }
+  ]
+}

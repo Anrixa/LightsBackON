@@ -1,0 +1,104 @@
+{
+  "contract_id": "C05",
+  "source_note": "CT-L2/C05 provisional Canal Yard content candidate under ADR-017; authored PU, timing, logical anchor and topology values require comparison with the unavailable original C05 contract sheet before content certification. This is headless logic only; no physical Canal Yard scene or playtest. Two independent continuous temporary-supply drains grant separate access; neither can be bypassed by the other. Pumps are not mandatory grid consumers. The 2 PU beacon is optional and cannot block extraction.",
+  "grid_source": "GRID",
+  "required_consumers": [
+    "DOCK_OFFICE",
+    "CRANE",
+    "COLD_STORE",
+    "YARD_LIGHTS",
+    "WORKSHOP"
+  ],
+  "excluded_loads": [],
+  "access_latches": [
+    {
+      "id": "LATCH_DOCK_DRAIN",
+      "consumer": "PUMP_DOCK",
+      "supplied_ticks": 80,
+      "grants": "DOCK_DRAINED"
+    },
+    {
+      "id": "LATCH_COLD_DRAIN",
+      "consumer": "PUMP_COLD",
+      "supplied_ticks": 100,
+      "grants": "COLD_DRAINED"
+    }
+  ],
+  "final_verification_ticks": 100,
+  "extraction": {
+    "zone": "ZONE_VAN",
+    "countdown_ticks": 50
+  },
+  "objectives": [
+    {
+      "id": "OBJ_DOCK_DRAIN",
+      "text_key": "objective.c05.drain_dock",
+      "done_when": {
+        "latch": "LATCH_DOCK_DRAIN"
+      }
+    },
+    {
+      "id": "OBJ_COLD_DRAIN",
+      "text_key": "objective.c05.drain_cold",
+      "done_when": {
+        "latch": "LATCH_COLD_DRAIN"
+      }
+    },
+    {
+      "id": "OBJ_DOCK_REPAIR",
+      "text_key": "objective.c05.restore_dock",
+      "done_when": {
+        "supplied_from_grid": [
+          "DOCK_OFFICE",
+          "CRANE"
+        ]
+      }
+    },
+    {
+      "id": "OBJ_COLD_REPAIR",
+      "text_key": "objective.c05.restore_cold",
+      "done_when": {
+        "supplied_from_grid": [
+          "COLD_STORE",
+          "YARD_LIGHTS",
+          "WORKSHOP"
+        ]
+      }
+    },
+    {
+      "id": "OBJ_BEACON",
+      "text_key": "objective.c05.beacon",
+      "done_when": {
+        "supplied_from_grid": [
+          "BEACON"
+        ]
+      }
+    },
+    {
+      "id": "OBJ_VERIFY",
+      "text_key": "objective.c01.verify_supply",
+      "done_when": {
+        "verified": true
+      }
+    },
+    {
+      "id": "OBJ_STOW",
+      "text_key": "objective.c01.stow_equipment",
+      "done_when": {
+        "stowed": true
+      }
+    },
+    {
+      "id": "OBJ_EXTRACT",
+      "text_key": "objective.c01.extract",
+      "done_when": {
+        "completed": true
+      }
+    }
+  ],
+  "max_visible_objectives": 3,
+  "optional_services": [
+    "BEACON"
+  ],
+  "tutorial_trip_allowance": 0
+}
