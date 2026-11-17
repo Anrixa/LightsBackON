@@ -87,6 +87,13 @@ var _outage_ticks: int = 0
 var _outage_failed: bool = false
 var _outage_unsupplied: bool = false
 var _outage_last_valid: bool = false  # transition-only same-tick interruption detector
+## C11 only: a telecom outage is optional and fails after 50 consecutive
+## unsupplied host ticks. Its clock never trusts client-reported time or routes.
+var _interruption_option: Dictionary = {}
+var _interruption_ticks: int = 0
+var _interruption_failed: bool = false
+var _interruption_pending: bool = false
+var _interruption_last_valid: bool = false
 ## Optional host-observed meter finding; absent from legacy contracts and saves.
 var _meter_evidence: Dictionary = {}
 var _evidence_observed: bool = false
@@ -312,6 +319,35 @@ func load_definition(definition: Dictionary, grid: PowerGrid, interaction: Inter
 			_outage_option = {"id": opt["id"], "consumer": consumer, "deadline_ticks": int(limit), "permitted_sources": allowed}
 			_outage_unsupplied = false
 			_outage_last_valid = _valid_outage_supply(grid.canonical_state())
+
+	# Optional maximum uninterrupted telecom dark period, authored exclusively
+	# by C11. Distinct permitted sources are authoritative graph source IDs.
+	var interruption_raw: Variant = definition.get("optional_max_consecutive_outage", null)
+	if interruption_raw != null:
+		var interruption: Dictionary = interruption_raw if interruption_raw is Dictionary else {}
+		var max_ticks: Variant = PowerGrid.to_int(interruption.get("max_outage_ticks"))
+		var target: Variant = interruption.get("consumer")
+		var sources_raw: Variant = interruption.get("permitted_sources")
+		var accepted: Array[String] = []
+		if sources_raw is Array:
+			for candidate: Variant in sources_raw:
+				if not (candidate is String and nodes.has(candidate) and
+						nodes[candidate]["kind"] == PowerGrid.KIND_SOURCE) or accepted.has(candidate):
+					errs.append(PowerGrid.diag("BAD_MISSION", "continuity sources must be distinct valid sources", []))
+				else:
+					accepted.append(candidate)
+		if not (interruption.size() == 4 and PowerGrid.is_valid_id(interruption.get("id"))
+				and target is String and _required.has(target) and max_ticks != null
+				and int(max_ticks) >= 1 and sources_raw is Array and accepted.size() == 2
+				and accepted.size() == (sources_raw as Array).size()
+				and accepted.has(_grid_source) and _outage_option.is_empty()
+				and _continuous_optional.is_empty() and _optional.is_empty()):
+			errs.append(PowerGrid.diag("BAD_MISSION",
+				"max consecutive outage needs a required consumer, two sources and positive tick limit", []))
+		else:
+			_interruption_option = {"id": interruption["id"], "consumer": target,
+				"max_outage_ticks": int(max_ticks), "permitted_sources": accepted}
+			_interruption_last_valid = _valid_interruption_supply(grid.canonical_state())
 	var evidence_raw: Variant = definition.get("optional_meter_evidence", null)
 	if evidence_raw != null:
 		var evidence: Dictionary = evidence_raw if evidence_raw is Dictionary else {}
@@ -494,6 +530,24 @@ func tick(now: int) -> Array[Dictionary]:
 				events.append({"type": "cumulative_outage_bonus_missed", "id": _outage_option["id"], "tick": now})
 		_outage_unsupplied = false
 		_outage_last_valid = _valid_outage_supply(st)
+
+	# Increment at most once per authoritative 10 Hz tick. Brief off/on
+	# transitions are recorded by observe_supply_state() between host intents.
+	# Missing the optional bonus must never block repairs or extraction.
+	if not _interruption_option.is_empty():
+		var supplied: bool = _valid_interruption_supply(st)
+		if not _interruption_failed:
+			if _interruption_pending or not supplied:
+				_interruption_ticks = mini(_interruption_ticks + 1,
+					int(_interruption_option["max_outage_ticks"]) + 1)
+				if _interruption_ticks > int(_interruption_option["max_outage_ticks"]):
+					_interruption_failed = true
+					events.append({"type": "max_consecutive_outage_missed",
+						"id": _interruption_option["id"], "tick": now})
+			else:
+				_interruption_ticks = 0
+		_interruption_pending = false
+		_interruption_last_valid = supplied
 	var was_verified: bool = verified()
 	_verify_ticks = mini(_verify_ticks + 1, _verify_needed) if _all_required_on_grid(st) else 0
 	if verified() and not was_verified:
@@ -554,6 +608,12 @@ func observe_supply_state() -> void:
 			_outage_unsupplied = true
 		_outage_last_valid = outage_supplied
 
+	if not _interruption_option.is_empty():
+		var telecom_supplied: bool = _valid_interruption_supply(st)
+		if _interruption_last_valid and not telecom_supplied:
+			_interruption_pending = true
+		_interruption_last_valid = telecom_supplied
+
 
 ## Host-only evidence: a real inspected panel must show the 10 PU component
 ## capacity and branch demand above that capacity before the first reset attempt.
@@ -612,11 +672,13 @@ func _build_results() -> Dictionary:
 		optional_restored.append(_pickup_option["consumer"])
 	if not _outage_option.is_empty() and not _outage_failed and _valid_outage_supply(st):
 		optional_restored.append(_outage_option["id"])
+	if not _interruption_option.is_empty() and not _interruption_failed and _valid_interruption_supply(st):
+		optional_restored.append(_interruption_option["id"])
 	for reward_id: String in _optional_latch_rewards:
 		if _latched.has(reward_id) and (_timed_latch_option.is_empty()
 				or reward_id != _timed_latch_option["latch"] or _timed_latch_on_time):
 			optional_restored.append(_latches[reward_id]["consumer"])
-	var optional_total: int = _optional.size() + (1 if not _meter_evidence.is_empty() else 0) + (1 if not _continuous_optional.is_empty() else 0) + _opening_venues.size() + _optional_latch_rewards.size() + (1 if not _pickup_option.is_empty() else 0) + (1 if not _outage_option.is_empty() else 0)
+	var optional_total: int = _optional.size() + (1 if not _meter_evidence.is_empty() else 0) + (1 if not _continuous_optional.is_empty() else 0) + _opening_venues.size() + _optional_latch_rewards.size() + (1 if not _pickup_option.is_empty() else 0) + (1 if not _outage_option.is_empty() else 0) + (1 if not _interruption_option.is_empty() else 0)
 	var preventable: int = maxi(0, _trips - _trip_allowance)
 	var stars: int = 1 + (1 if optional_restored.size() == optional_total else 0) + (1 if preventable == 0 else 0)
 	return {"required_restored": restored, "required_total": _required.size(), "optional_services": optional_restored,
@@ -786,6 +848,9 @@ func _objective_done(cond: Dictionary, st: Dictionary) -> bool:
 	if cond.has("cumulative_outage"):
 		return not _outage_option.is_empty() and cond["cumulative_outage"] == _outage_option["id"] and \
 			_completed_tick >= 0 and not _outage_failed
+	if cond.has("max_consecutive_outage"):
+		return not _interruption_option.is_empty() and cond["max_consecutive_outage"] == _interruption_option["id"] and \
+			_completed_tick >= 0 and not _interruption_failed
 	if cond.has("pickup_deadline"):
 		return not _pickup_option.is_empty() and cond["pickup_deadline"] == _pickup_option["consumer"] and _pickup_on_time
 	if cond.has("continuous_supply"):
@@ -829,6 +894,11 @@ func canonical_state() -> Dictionary:
 			"pending_unpowered": _outage_unsupplied,
 			"remaining_ticks": maxi(0, int(_outage_option["deadline_ticks"]) - _outage_ticks),
 			"powered": _valid_outage_supply(_grid.canonical_state())}
+
+	if not _interruption_option.is_empty():
+		out["max_consecutive_outage"] = {"elapsed_ticks": _interruption_ticks, "missed": _interruption_failed,
+			"pending_unpowered": _interruption_pending, "powered": _valid_interruption_supply(_grid.canonical_state()),
+			"remaining_ticks": maxi(0, int(_interruption_option["max_outage_ticks"]) + 1 - _interruption_ticks)}
 	if not _continuous_optional.is_empty():
 		out["optional_continuous_supply"] = {"ok": _continuous_ok}
 	if not _fixed_ladders.is_empty():
@@ -866,6 +936,10 @@ func durable_state() -> Dictionary:
 	if not _outage_option.is_empty():
 		out["cumulative_outage"] = {"elapsed_ticks": _outage_ticks, "missed": _outage_failed,
 			"pending_unpowered": _outage_unsupplied}
+
+	if not _interruption_option.is_empty():
+		out["max_consecutive_outage"] = {"elapsed_ticks": _interruption_ticks, "missed": _interruption_failed,
+			"pending_unpowered": _interruption_pending}
 	if not _continuous_optional.is_empty():
 		out["optional_continuous_supply"] = {"ok": _continuous_ok}
 	if not _fixed_ladders.is_empty():
@@ -1002,6 +1076,27 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 		outage_pending = outage_record["pending_unpowered"]
 		if outage_failed != (outage_ticks == int(_outage_option["deadline_ticks"])):
 			return bad
+
+	# Conditional C11 receipt: verify all types and exact shape before changing
+	# any live state. Earlier contract saves do not acquire this key.
+	var restored_interruption_ticks: int = 0
+	var restored_interruption_failed: bool = false
+	var restored_interruption_pending: bool = false
+	if not _interruption_option.is_empty():
+		var interruption_saved: Variant = d.get("max_consecutive_outage")
+		if not (interruption_saved is Dictionary and (interruption_saved as Dictionary).size() == 3
+				and interruption_saved.get("missed") is bool
+				and interruption_saved.get("pending_unpowered") is bool):
+			return bad
+		var ticks_raw: Variant = PowerGrid.to_int(interruption_saved.get("elapsed_ticks"))
+		var max_allowed: int = int(_interruption_option["max_outage_ticks"])
+		if ticks_raw == null or int(ticks_raw) < 0 or int(ticks_raw) > max_allowed + 1:
+			return bad
+		restored_interruption_ticks = int(ticks_raw)
+		restored_interruption_failed = interruption_saved["missed"]
+		restored_interruption_pending = interruption_saved["pending_unpowered"]
+		if restored_interruption_failed != (restored_interruption_ticks == max_allowed + 1):
+			return bad
 	# Evidence state is saved only by contracts that declare this objective.
 	# Verify the complete shape before mutating mission data (fail closed).
 	var observed: bool = false
@@ -1091,6 +1186,10 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 	_outage_failed = outage_failed
 	_outage_unsupplied = outage_pending
 	_outage_last_valid = _valid_outage_supply(_grid.canonical_state())
+	_interruption_ticks = restored_interruption_ticks
+	_interruption_failed = restored_interruption_failed
+	_interruption_pending = restored_interruption_pending
+	_interruption_last_valid = _valid_interruption_supply(_grid.canonical_state())
 	_evidence_observed = observed
 	_evidence_reset_attempted = reset_attempted
 	_continuous_ok = continuous_ok
@@ -1160,6 +1259,18 @@ func _root_of(nid: String, st: Dictionary) -> String:
 			return ""
 		node = up
 	return ""
+
+## Authoritative continuity is valid on either of the two declared sources,
+## only while the consumer is actually powered and its source is not overloaded.
+func _valid_interruption_supply(st: Dictionary) -> bool:
+	if _interruption_option.is_empty():
+		return false
+	var consumer: String = _interruption_option["consumer"]
+	if not st["nodes"][consumer]["supplied"]:
+		return false
+	var root: String = _root_of(consumer, st)
+	return (_interruption_option["permitted_sources"] as Array).has(root) and not st["nodes"][root]["overloaded"]
+
 
 ## The source must be host-authorized, exclusive and non-overloaded. Client visuals are not evidence.
 func _valid_outage_supply(st: Dictionary) -> bool:

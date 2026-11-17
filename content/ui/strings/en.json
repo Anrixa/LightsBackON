@@ -490,6 +490,26 @@
     "node.c10.stage": "Community event stage",
     "hud.stage_deadline.remaining": "Event stage: %d seconds left to meet the optional deadline",
     "hud.stage_deadline.achieved": "Event stage bonus achieved before the event",
-    "hud.stage_deadline.missed": "Event stage bonus missed; finish restoring the district"
+    "hud.stage_deadline.missed": "Event stage bonus missed; finish restoring the district",
+    "contract.c11": "Borrowed Power",
+    "repair.c11.east_trunk": "Repair the damaged Hill Road east supply trunk",
+    "objective.c11.temp_telecom": "Borrow west feeder power for telecom, then run garage control for ten seconds",
+    "objective.c11.restore_east": "Repair the east trunk and return telecom, flats and garage to grid power",
+    "objective.c11.restore_west": "Restore greenhouse and all west services",
+    "objective.c11.continuity": "Optional: never leave telecom unpowered for over five consecutive seconds",
+    "hud.telecom_continuity.remaining": "Telecom continuity: %d ticks until the optional outage limit",
+    "hud.telecom_continuity.missed": "Telecom continuity bonus missed; complete mandatory restoration",
+    "node.c11.garage_control": "Garage access control",
+    "node.c11.grid": "Hill Road grid",
+    "node.c11.gen": "Portable generator",
+    "node.c11.west": "West feeder",
+    "node.c11.east": "East feeder",
+    "node.c11.temp": "Temporary connection",
+    "node.c11.community_hall": "Community hall",
+    "node.c11.bakery": "Bakery",
+    "node.c11.greenhouse": "Greenhouse",
+    "node.c11.flats": "Hill flats",
+    "node.c11.telecom_hut": "Telecom hut",
+    "node.c11.service_garage": "Service garage"
   }
 }
