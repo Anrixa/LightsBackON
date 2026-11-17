@@ -22,7 +22,7 @@ Original: same Canal baseline (25 PU required), west healthy, east trunk broken,
 
 The recovered PDF pp.18–19 also reveals original specification differences in previously cloud-verified **C02–C04**. Their Linux/Windows simulation results remain valid for their existing authored implementations, **not** evidence that they match the original contract sheets:
 
-- **C02 Dinner Rush:** Blueprint requires both MARKET and PUB to receive 10 continuous seconds of valid supply before 180 s. Existing `content/contracts/c02_dinner_rush/mission.json` has optional `SIGN` only and `optional_deadline_ticks=2400` (240 s).
+- **C02 Dinner Rush:** Blueprint requires both MARKET and PUB to receive 10 continuous seconds of valid supply before 180 s. Existing `content/contracts/c02_dinner_rush/mission.json` has optional `SIGN` only and `optional_deadline_ticks=2400` (240 s). **Historical finding resolved at source-logic level in CT-BP/C02 PR #165** (new 100-tick MARKET/PUB opening records and 1800-tick host clock; CI #44003254561 Linux/Windows PASS). This historical comparison remains intact; physical scene and human qualification still HOLD.
 - **C03 Roof Route:** Blueprint requires a west-fed access-light latch of 5 s before ladder access and an optional 2 PU roof work light for 10 continuous seconds. Existing `content/contracts/c03_roof_route/mission.json` has no `access_latches` and describes an optional 1 PU roof beacon.
 - **C04 The Whole Block:** Blueprint calls for the direct GRID-to-SIGN spur to be rated 4 PU with a 10-second supply objective. Existing `content/contracts/c04_whole_block/grid.json` defines `E_GRID_SPUR.capacity=3`; there is no original 10-second optional latch.
 

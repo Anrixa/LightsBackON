@@ -1,6 +1,6 @@
 {
   "contract_id": "C02",
-  "source_note": "C02 Dinner Rush: two-fault west/east supply, optional Lantern venue sign powered on GRID by opening-time tick 2400 (4 minutes at 10 Hz) for optional star, but opening deadline never blocks mandatory completion. A late sign can be restored but cannot earn the on-time star. All five original services must remain grid-supplied for 100 continuous ticks; extraction 50 ticks. Timing is authored design awaiting player study.",
+  "source_note": "Development Blueprint v1.0 p.19 C02 Dinner Rush. Required GRID20PU (west9 east11); both west fuse and east trunk broken; GEN6 can temporarily supply MARKET5 or PUB4 (not both). Venue-opening optional: each market/pub holds 100 consecutive 10Hz valid-supply ticks within 1800 ticks after briefing-dismissal/crew-ready; optional miss does not block restoration. Host-authoritative headless source candidate, no 3D scene certification.",
   "grid_source": "GRID",
   "required_consumers": [
     "APT_E",
@@ -17,6 +17,20 @@
     "countdown_ticks": 50
   },
   "objectives": [
+    {
+      "id": "OBJ_MARKET_OPENING",
+      "text_key": "objective.c02.market_opening",
+      "done_when": {
+        "opening_venue": "MARKET"
+      }
+    },
+    {
+      "id": "OBJ_PUB_OPENING",
+      "text_key": "objective.c02.pub_opening",
+      "done_when": {
+        "opening_venue": "PUB"
+      }
+    },
     {
       "id": "OBJ_EAST",
       "text_key": "objective.c02.restore_east",
@@ -35,15 +49,6 @@
         "supplied_from_grid": [
           "APT_W",
           "MARKET"
-        ]
-      }
-    },
-    {
-      "id": "OBJ_VENUE",
-      "text_key": "objective.c02.open_lantern",
-      "done_when": {
-        "supplied_from_grid": [
-          "SIGN"
         ]
       }
     },
@@ -70,9 +75,19 @@
     }
   ],
   "max_visible_objectives": 3,
-  "optional_services": [
-    "SIGN"
-  ],
+  "optional_services": [],
   "tutorial_trip_allowance": 0,
-  "optional_deadline_ticks": 2400
+  "opening_venues": {
+    "consumers": [
+      "MARKET",
+      "PUB"
+    ],
+    "supplied_ticks": 100,
+    "deadline_ticks": 1800,
+    "start_trigger": "briefing_dismissed_all_loaded",
+    "permitted_sources": [
+      "GRID",
+      "GEN"
+    ]
+  }
 }

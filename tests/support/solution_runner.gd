@@ -23,7 +23,7 @@ static func json(path: String) -> Dictionary:
 ## Returns a context: {"host", "grid", "meter", "interaction", "equipment", "mission", "peers": {player: peer},
 ## "seq": {peer: int}, "now": int, "events": Array, "errors": Array}.
 ## mission_override: fields replacing those in mission.json (tests of content variants).
-static func build(contract_dir: String, players: Array, tools: Array, mission_override: Dictionary = {}) -> Dictionary:
+static func build(contract_dir: String, players: Array, tools: Array, mission_override: Dictionary = {}, auto_begin_briefing: bool = true) -> Dictionary:
 	var ctx: Dictionary = {"errors": [] as Array[Dictionary]}
 	var grid: PowerGrid = PowerGrid.new()
 	(ctx["errors"] as Array).append_array(grid.load_definition(json(contract_dir.path_join("grid.json"))))
@@ -54,6 +54,12 @@ static func build(contract_dir: String, players: Array, tools: Array, mission_ov
 		host.confirm_synced(peer, host.revision)  # solo/in-process: the "client" already sees the host state
 		peers[str(p)] = peer
 		peer += 1
+	# Explicit headless stand-in for UI briefing dismissal, after ALL peers loaded.
+	# Real gameplay must call SessionHost.begin_after_briefing() at that lifecycle point.
+	if auto_begin_briefing and mission_def.has("opening_venues"):
+		var started: Dictionary = host.begin_after_briefing()
+		if not started.get("ok", false):
+			(ctx["errors"] as Array).append(PowerGrid.diag("BRIEFING_NOT_READY", str(started), []))
 	ctx.merge({"host": host, "grid": grid, "meter": meter, "interaction": inter, "equipment": eq, "mission": mission, "comms": comms,
 		"peers": peers, "seq": {}, "now": 0, "events": [] as Array[Dictionary]})
 	return ctx

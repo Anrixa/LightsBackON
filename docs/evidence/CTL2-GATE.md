@@ -17,13 +17,13 @@
 
 The original primary blueprint was recovered and read on 17 November 2026. It also proves C02–C04 original-sheet mismatches; their earlier cloud headless tests **do not** certify fidelity:
 
-- C02: MARKET and PUB, individually supplied continuously for 10 seconds before the briefing-relative 180-second deadline; exclusive portable generator routes.
+- C02: **corrected in CT-BP/C02 PR #165** (Linux/Windows [CI #44003254561](https://github.com/Anrixa/LightsBackON/actions/runs/44003254561)): MARKET and PUB separately latched at 100 continuous supplied ticks by briefing-relative 180s, with exclusive GEN6 routes. **Source-aligned headless candidate only; physical certification HOLD**.
 - C03: 5-second west-fed access-light latch for fixed ladder and separate optional 2 PU roof work light for 10 seconds.
 - C04: a 4 PU GRID-to-SIGN spur and 10-second optional sign latch, exclusive of the JE-to-SIGN route.
 - C05: original Canal GRID30 / 14-PU west/east / GEN8 / loads13+12; 5 and 4 PU pump access for 120 ticks each and 180-second deadline measured from first equipment pickup.
 - C06: original Canal topology, one 4 PU pump for 120 ticks, cold-store5, exclusive GEN/grid supply, and cumulative unsupplied cold-store time strictly less than 120 seconds.
 
-Detailed acceptance criteria and negative tests are machine-tracked in [CT-BLUEPRINT-CORRECTIONS.json](../design/CT-BLUEPRINT-CORRECTIONS.json), all **NOT_STARTED**. No rewrites or promotions of historical provisional content occurred within C08. Each corrective contract must receive a separate code PR, observed host trace, falsification tests and exact-head CI before even source-aligned status is considered.
+Detailed acceptance criteria and negative tests are machine-tracked in [CT-BLUEPRINT-CORRECTIONS.json](../design/CT-BLUEPRINT-CORRECTIONS.json), C02 **SOURCE_ALIGNED_HEADLESS_CANDIDATE** and C03–C06 **NOT_STARTED**. No rewrites or promotions of historical provisional content occurred within C08. Each corrective contract must receive a separate code PR, observed host trace, falsification tests and exact-head CI before even source-aligned status is considered.
 
 ## Host and platform test receipts
 

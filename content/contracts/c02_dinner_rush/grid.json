@@ -1,6 +1,6 @@
 {
   "contract_id": "C02",
-  "source_note": "C02 Dinner Rush original C02 content derivation (ADR-017 CT-L1; not a completed playtest). West failed fuse and east broken trunk are distinct repair faults. Grid 24 PU, west 12 PU, east 15 PU; the Lantern's 3 PU optional sign raises east from 11 to 14 PU without overloading its 15 PU trunk. Integer PU/ticks. C01 kept byte-identical.",
+  "source_note": "Development Blueprint v1.0 p.19 C02 Dinner Rush. Required GRID20PU (west9 east11); both west fuse and east trunk broken; GEN6 can temporarily supply MARKET5 or PUB4 (not both). Venue-opening optional: each market/pub holds 100 consecutive 10Hz valid-supply ticks within 1800 ticks after briefing-dismissal/crew-ready; optional miss does not block restoration. Host-authoritative headless source candidate, no 3D scene certification.",
   "trip_ticks": 15,
   "nodes": [
     {
@@ -99,7 +99,7 @@
       "id": "E_GRID_JE",
       "from": "GRID",
       "to": "JE",
-      "capacity": 15,
+      "capacity": 12,
       "enabled": true,
       "healthy": false
     },
@@ -172,6 +172,14 @@
       "from": "TEMP",
       "to": "PUB",
       "capacity": 4,
+      "enabled": false,
+      "healthy": true
+    },
+    {
+      "id": "E_TEMP_MARKET",
+      "from": "TEMP",
+      "to": "MARKET",
+      "capacity": 5,
       "enabled": false,
       "healthy": true
     }

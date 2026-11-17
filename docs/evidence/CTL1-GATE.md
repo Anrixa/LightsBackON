@@ -7,12 +7,14 @@
 
 | Contract | Evidence | Observed solution | Scope ceiling |
 | --- | --- | --- | --- |
-| C02 Dinner Rush | [CTL1-C02](CTL1-C02.md), PR #156, CI #43911687483 | 188 ticks, 44 steps in latest C04 CI | CLOUD_VERIFIED logic; physical scene absent |
+| C02 Dinner Rush | [Original CTL1-C02](CTL1-C02.md), [CT-BP-C02 correction](CT-BP-C02.md), PR #165, [CI #44003254561](https://github.com/Anrixa/LightsBackON/actions/runs/44003254561) | Corrected SOLVED 395 ticks / 54 steps, 646/646 Linux+Windows tests | **SOURCE_ALIGNED_HEADLESS_CANDIDATE**; physical scene/HUD/human and release HOLD |
 | C03 Roof Route | [CTL1-C03](CTL1-C03.md), PR #158, CI #43919744681 | 172 ticks, 27 steps in latest C04 CI | CLOUD_VERIFIED logic |
 | C03 physical preview | [CTL1-C03-P01](CTL1-C03-P01.md), PR #159, CI #43928639759 | Fixed ladder transition headless | HEADLESS_VERIFIED, explicitly unsaved |
 | C04 The Whole Block | [CTL1-C04](CTL1-C04.md), PR #160, [CI #43990072603](https://github.com/Anrixa/LightsBackON/actions/runs/43990072603) | 206 ticks, 65 steps | CLOUD_VERIFIED logic; physical scene absent |
 
 The final C04 source verification had 593 Godot tests, 43,909 assertions and zero failures on **each** Linux and Windows runner, reference parity and exported Windows headless smoke; this is not multiplayer, performance or a player playthrough.
+
+The C02 SIGN/2400-tick provisional design remains documented only as a historical record; corrected MARKET and PUB each require 100 continuous supply ticks by the 1800-tick opening deadline. C03/C04 original-sheet fidelity mismatches remain HOLD.
 
 ## Unclosed qualification gates
 

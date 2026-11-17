@@ -394,6 +394,23 @@ func _dispatch(player: String, msg: Dictionary) -> Dictionary:
 	return _strip(res)
 
 
+## Host-only lifecycle gate, not an untrusted client intent. Called once the
+## briefing overlay is dismissed and every joined peer confirmed its snapshot.
+func begin_after_briefing() -> Dictionary:
+	if _mission == null:
+		return _refuse("NO_MISSION", "no mission to start", [])
+	if _members.is_empty():
+		return _refuse("NO_PLAYERS", "briefing waits for an admitted crew", [])
+	for peer: int in _members:
+		if not _synced.has(peer):
+			return _refuse("NOT_SYNCED", "briefing waits for every player to load", [])
+	var before: String = state_hash()
+	var reply: Dictionary = _mission.begin_after_briefing()
+	if state_hash() != before:
+		revision += 1
+	return reply
+
+
 ## Hash of every authoritative state this host owns (ADR-003 canonical bytes); clients compare it (G07).
 func state_hash() -> String:
 	return PowerGrid.serialize(authoritative_state()).sha256_text()

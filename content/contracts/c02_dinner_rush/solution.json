@@ -1,6 +1,6 @@
 {
   "contract_id": "C02",
-  "source_note": "C02 Dinner Rush host-intent solution trace: restore east before the fictional opening deadline, explicitly switch on The Lantern sign (optional 3 PU; east load 14/15), repair west, verify all five required GRID services for 100 ticks, and extract. No generator deployment or water drain. Design trace, not human completion evidence.",
+  "source_note": "Development Blueprint v1.0 p.19 C02 Dinner Rush. Required GRID20PU (west9 east11); both west fuse and east trunk broken; GEN6 can temporarily supply MARKET5 or PUB4 (not both). Venue-opening optional: each market/pub holds 100 consecutive 10Hz valid-supply ticks within 1800 ticks after briefing-dismissal/crew-ready; optional miss does not block restoration. Host-authoritative headless source candidate, no 3D scene certification.",
   "players": [
     "P1"
   ],
@@ -11,183 +11,58 @@
     "crimper",
     "meter"
   ],
-  "max_ticks": 3000,
+  "max_ticks": 2000,
+  "pace_ticks_per_command": 1,
   "steps": [
     {
-      "note": "East junction first. Repair the broken feeder before the Lantern's opening deadline."
+      "note": "Host has dismissed briefing and finished all player loading: the 1800-tick opening clock begins now. Both branches are dark. Move GEN to the authored venue sockets."
     },
     {
       "as": "P1",
-      "intent": "request_lock",
-      "entity": "R_JE_TRUNK",
-      "payload": {},
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "inspect",
-      "entity": "PANEL_JE",
-      "payload": {},
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_JE_TRUNK",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
       "payload": {
-        "tool": ""
+        "action": "pickup"
       },
       "expect": "ok"
     },
     {
       "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_JE_TRUNK",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
       "payload": {
-        "step": "diagnose"
+        "action": "place",
+        "anchor": "PAD_VENUES"
       },
       "expect": "ok"
     },
     {
       "as": "P1",
-      "intent": "equip",
-      "entity": "R_JE_TRUNK",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
       "payload": {
-        "tool": ""
+        "action": "connect",
+        "route": "E_TEMP_PUB"
       },
       "expect": "ok"
     },
     {
       "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_JE_TRUNK",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
       "payload": {
-        "step": "isolate"
+        "action": "start"
       },
       "expect": "ok"
     },
     {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_JE_TRUNK",
-      "payload": {
-        "tool": "screwdriver"
-      },
-      "expect": "ok"
+      "ticks": 100,
+      "expect_events": [
+        "venue_opening_latched"
+      ]
     },
     {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_JE_TRUNK",
-      "payload": {
-        "step": "open"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_JE_TRUNK",
-      "payload": {
-        "tool": "cutter"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_JE_TRUNK",
-      "payload": {
-        "step": "remove"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_JE_TRUNK",
-      "payload": {
-        "tool": "crimper"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_JE_TRUNK",
-      "payload": {
-        "step": "install"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_JE_TRUNK",
-      "payload": {
-        "tool": ""
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_JE_TRUNK",
-      "payload": {
-        "step": "close"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_JE_TRUNK",
-      "payload": {
-        "tool": "meter"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_JE_TRUNK",
-      "payload": {
-        "step": "test"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_JE_TRUNK",
-      "payload": {
-        "tool": ""
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_JE_TRUNK",
-      "payload": {
-        "step": "restore"
-      },
-      "expect": "ok"
-    },
-    {
-      "note": "The Lantern sign is a separately switched optional venue service, not a mandatory condition."
-    },
-    {
-      "as": "P1",
-      "intent": "toggle_switch",
-      "entity": "SW_SIGN",
-      "payload": {
-        "value": true
-      },
-      "expect": "ok"
-    },
-    {
-      "note": "West fuse is the second independent fault. All five required services need grid supply."
+      "note": "PUB4 holds 100 consecutive ticks on GEN6. Keep PUB temporarily supplied while restoring west APT_W4 + MARKET5."
     },
     {
       "as": "P1",
@@ -350,6 +225,214 @@
     {
       "ticks": 100,
       "expect_events": [
+        "venue_opening_latched"
+      ]
+    },
+    {
+      "note": "PUB temporary route must be isolated before east normal feeder restoration. Break before make; optional opening latches remain durable."
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "stop"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "disconnect",
+        "route": "E_TEMP_PUB"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "pickup"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "place",
+        "anchor": "VAN_BAY"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "request_lock",
+      "entity": "R_JE_TRUNK",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "inspect",
+      "entity": "PANEL_JE",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "step": "diagnose"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "step": "isolate"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "tool": "screwdriver"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "step": "open"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "tool": "cutter"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "step": "remove"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "tool": "crimper"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "step": "install"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "step": "close"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "tool": "meter"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "step": "test"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "step": "restore"
+      },
+      "expect": "ok"
+    },
+    {
+      "note": "Required supply now 9 west + 11 east = GRID20/24, east11/12; SIGN is not the C02 optional."
+    },
+    {
+      "ticks": 100,
+      "expect_events": [
         "verified"
       ]
     },
@@ -373,6 +456,5 @@
         "mission_complete"
       ]
     }
-  ],
-  "pace_ticks_per_command": 1
+  ]
 }
