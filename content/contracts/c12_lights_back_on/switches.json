@@ -1,0 +1,31 @@
+{
+  "contract_id": "C12",
+  "source_note": "Original Development Blueprint v1.0 pp.18,20–21 C12 Lights Back On, source-aligned headless candidate. Hill GRID28, west/east14, GEN6; WEST protection failed, EAST trunk broken. Portable GEN4 drain/control for 120 continuous ticks unlocks east repair. Required west13 + east12 = 25 PU, optional BEACON3 only via isolated installed direct GRID→BEACON_SPUR4; not through overloaded WEST16/14. Beacon 100 continuous GRID ticks, no hard deadline. On verification host emits 2-second staggered restoration event receipts and radio subtitle with input active. Physical finale, human, GPU, older saves, Steam and release HOLD.",
+  "switches": [
+    {
+      "id": "SW_WEST_BREAKER",
+      "target": "WEST",
+      "field": "tripped"
+    },
+    {
+      "id": "SW_BEACON_BREAKER",
+      "target": "BEACON_SPUR",
+      "field": "tripped"
+    },
+    {
+      "id": "SW_WEST_BEACON",
+      "target": "WEST_BEACON",
+      "field": "isolated"
+    },
+    {
+      "id": "SW_BEACON",
+      "target": "BEACON",
+      "field": "enabled"
+    },
+    {
+      "id": "SW_EAST_BREAKER",
+      "target": "EAST",
+      "field": "tripped"
+    }
+  ]
+}

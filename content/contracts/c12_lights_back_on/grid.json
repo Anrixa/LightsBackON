@@ -1,0 +1,246 @@
+{
+  "contract_id": "C12",
+  "source_note": "Original Development Blueprint v1.0 pp.18,20–21 C12 Lights Back On, source-aligned headless candidate. Hill GRID28, west/east14, GEN6; WEST protection failed, EAST trunk broken. Portable GEN4 drain/control for 120 continuous ticks unlocks east repair. Required west13 + east12 = 25 PU, optional BEACON3 only via isolated installed direct GRID→BEACON_SPUR4; not through overloaded WEST16/14. Beacon 100 continuous GRID ticks, no hard deadline. On verification host emits 2-second staggered restoration event receipts and radio subtitle with input active. Physical finale, human, GPU, older saves, Steam and release HOLD.",
+  "trip_ticks": 15,
+  "nodes": [
+    {
+      "id": "GRID",
+      "kind": "source",
+      "capacity": 28,
+      "online": true
+    },
+    {
+      "id": "GEN",
+      "kind": "source",
+      "capacity": 6,
+      "online": false
+    },
+    {
+      "id": "WEST",
+      "kind": "junction",
+      "isolated": false,
+      "failed": true,
+      "tripped": true
+    },
+    {
+      "id": "EAST",
+      "kind": "junction",
+      "isolated": false,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "BEACON_SPUR",
+      "kind": "junction",
+      "isolated": false,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "WEST_BEACON",
+      "kind": "junction",
+      "isolated": true,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "TEMP",
+      "kind": "junction",
+      "isolated": false,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "COMMUNITY_HALL",
+      "kind": "consumer",
+      "demand": 6,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "BAKERY",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "GREENHOUSE",
+      "kind": "consumer",
+      "demand": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "FLATS",
+      "kind": "consumer",
+      "demand": 5,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "TELECOM_HUT",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "SERVICE_GARAGE",
+      "kind": "consumer",
+      "demand": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "BEACON",
+      "kind": "consumer",
+      "demand": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "DRAIN_CONTROL",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    }
+  ],
+  "edges": [
+    {
+      "id": "E_GRID_WEST",
+      "from": "GRID",
+      "to": "WEST",
+      "capacity": 14,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_GRID_EAST",
+      "from": "GRID",
+      "to": "EAST",
+      "capacity": 14,
+      "enabled": true,
+      "healthy": false
+    },
+    {
+      "id": "E_WEST_HALL",
+      "from": "WEST",
+      "to": "COMMUNITY_HALL",
+      "capacity": 6,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_WEST_BAKERY",
+      "from": "WEST",
+      "to": "BAKERY",
+      "capacity": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_WEST_GREENHOUSE",
+      "from": "WEST",
+      "to": "GREENHOUSE",
+      "capacity": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_EAST_FLATS",
+      "from": "EAST",
+      "to": "FLATS",
+      "capacity": 5,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_EAST_TELECOM",
+      "from": "EAST",
+      "to": "TELECOM_HUT",
+      "capacity": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_EAST_GARAGE",
+      "from": "EAST",
+      "to": "SERVICE_GARAGE",
+      "capacity": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_WEST_BEACON",
+      "from": "WEST",
+      "to": "WEST_BEACON",
+      "capacity": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_WEST_BEACON_LOAD",
+      "from": "WEST_BEACON",
+      "to": "BEACON",
+      "capacity": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_GRID_BEACON",
+      "from": "GRID",
+      "to": "BEACON_SPUR",
+      "capacity": 4,
+      "enabled": false,
+      "healthy": true
+    },
+    {
+      "id": "E_BEACON_SPUR_BEACON",
+      "from": "BEACON_SPUR",
+      "to": "BEACON",
+      "capacity": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_GEN_TEMP",
+      "from": "GEN",
+      "to": "TEMP",
+      "capacity": 6,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_TEMP_CONTROL",
+      "from": "TEMP",
+      "to": "DRAIN_CONTROL",
+      "capacity": 4,
+      "enabled": false,
+      "healthy": true
+    }
+  ],
+  "protections": [
+    {
+      "id": "BRK_WEST",
+      "element": "E_GRID_WEST",
+      "breaker": "WEST"
+    },
+    {
+      "id": "BRK_EAST",
+      "element": "E_GRID_EAST",
+      "breaker": "EAST"
+    },
+    {
+      "id": "BRK_BEACON_SPUR",
+      "element": "E_GRID_BEACON",
+      "breaker": "BEACON_SPUR"
+    },
+    {
+      "id": "BRK_TEMP",
+      "element": "E_GEN_TEMP",
+      "breaker": "TEMP"
+    }
+  ]
+}

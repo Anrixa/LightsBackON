@@ -1,0 +1,109 @@
+{
+  "contract_id": "C12",
+  "source_note": "Original Development Blueprint v1.0 pp.18,20–21 C12 Lights Back On, source-aligned headless candidate. Hill GRID28, west/east14, GEN6; WEST protection failed, EAST trunk broken. Portable GEN4 drain/control for 120 continuous ticks unlocks east repair. Required west13 + east12 = 25 PU, optional BEACON3 only via isolated installed direct GRID→BEACON_SPUR4; not through overloaded WEST16/14. Beacon 100 continuous GRID ticks, no hard deadline. On verification host emits 2-second staggered restoration event receipts and radio subtitle with input active. Physical finale, human, GPU, older saves, Steam and release HOLD.",
+  "grid_source": "GRID",
+  "required_consumers": [
+    "COMMUNITY_HALL",
+    "BAKERY",
+    "GREENHOUSE",
+    "FLATS",
+    "TELECOM_HUT",
+    "SERVICE_GARAGE"
+  ],
+  "excluded_loads": [],
+  "access_latches": [
+    {
+      "id": "LATCH_DRAIN",
+      "consumer": "DRAIN_CONTROL",
+      "source": "GEN",
+      "supplied_ticks": 120,
+      "grants": "EAST_DRAINED"
+    },
+    {
+      "id": "LATCH_BEACON",
+      "consumer": "BEACON",
+      "source": "GRID",
+      "supplied_ticks": 100,
+      "grants": "BEACON_READY"
+    }
+  ],
+  "optional_latch_rewards": [
+    "LATCH_BEACON"
+  ],
+  "final_verification_ticks": 100,
+  "extraction": {
+    "zone": "ZONE_VAN",
+    "countdown_ticks": 50
+  },
+  "objectives": [
+    {
+      "id": "OBJ_DRAIN",
+      "text_key": "objective.c12.drain",
+      "done_when": {
+        "latch": "LATCH_DRAIN"
+      }
+    },
+    {
+      "id": "OBJ_WEST",
+      "text_key": "objective.c12.west",
+      "done_when": {
+        "supplied_from_grid": [
+          "COMMUNITY_HALL",
+          "BAKERY",
+          "GREENHOUSE"
+        ]
+      }
+    },
+    {
+      "id": "OBJ_EAST",
+      "text_key": "objective.c12.east",
+      "done_when": {
+        "supplied_from_grid": [
+          "FLATS",
+          "TELECOM_HUT",
+          "SERVICE_GARAGE"
+        ]
+      }
+    },
+    {
+      "id": "OBJ_BEACON",
+      "text_key": "objective.c12.beacon",
+      "done_when": {
+        "latch": "LATCH_BEACON"
+      }
+    },
+    {
+      "id": "OBJ_VERIFY",
+      "text_key": "objective.c01.verify_supply",
+      "done_when": {
+        "verified": true
+      }
+    },
+    {
+      "id": "OBJ_STOW",
+      "text_key": "objective.c01.stow_equipment",
+      "done_when": {
+        "stowed": true
+      }
+    },
+    {
+      "id": "OBJ_EXTRACT",
+      "text_key": "objective.c01.extract",
+      "done_when": {
+        "completed": true
+      }
+    }
+  ],
+  "max_visible_objectives": 3,
+  "optional_services": [],
+  "tutorial_trip_allowance": 0,
+  "finale": {
+    "trigger": "first_verified",
+    "stagger_ticks": 20,
+    "radio_subtitle_key": "radio.c12.restored",
+    "results_actions": [
+      "replay",
+      "remaining_optional_tasks"
+    ]
+  }
+}

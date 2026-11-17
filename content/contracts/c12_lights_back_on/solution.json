@@ -1,0 +1,616 @@
+{
+  "contract_id": "C12",
+  "source_note": "Original Development Blueprint v1.0 pp.18,20–21 C12 Lights Back On, source-aligned headless candidate. Hill GRID28, west/east14, GEN6; WEST protection failed, EAST trunk broken. Portable GEN4 drain/control for 120 continuous ticks unlocks east repair. Required west13 + east12 = 25 PU, optional BEACON3 only via isolated installed direct GRID→BEACON_SPUR4; not through overloaded WEST16/14. Beacon 100 continuous GRID ticks, no hard deadline. On verification host emits 2-second staggered restoration event receipts and radio subtitle with input active. Physical finale, human, GPU, older saves, Steam and release HOLD.",
+  "players": [
+    "P1"
+  ],
+  "tools": [
+    "screwdriver",
+    "puller",
+    "cutter",
+    "crimper",
+    "meter"
+  ],
+  "max_ticks": 900,
+  "pace_ticks_per_command": 1,
+  "steps": [
+    {
+      "note": "Restore WEST fuse and drain the east access using 4 PU GEN control for 120 uninterrupted host ticks."
+    },
+    {
+      "as": "P1",
+      "intent": "request_lock",
+      "entity": "R_WEST_FUSE",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "inspect",
+      "entity": "PANEL_WEST",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_WEST_FUSE",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_WEST_FUSE",
+      "payload": {
+        "step": "diagnose"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_WEST_FUSE",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_WEST_FUSE",
+      "payload": {
+        "step": "isolate"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_WEST_FUSE",
+      "payload": {
+        "tool": "screwdriver"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_WEST_FUSE",
+      "payload": {
+        "step": "open"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_WEST_FUSE",
+      "payload": {
+        "tool": "puller"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_WEST_FUSE",
+      "payload": {
+        "step": "remove"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_WEST_FUSE",
+      "payload": {
+        "tool": "puller"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_WEST_FUSE",
+      "payload": {
+        "step": "install"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_WEST_FUSE",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_WEST_FUSE",
+      "payload": {
+        "step": "close"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_WEST_FUSE",
+      "payload": {
+        "tool": "meter"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_WEST_FUSE",
+      "payload": {
+        "step": "test"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_WEST_FUSE",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_WEST_FUSE",
+      "payload": {
+        "step": "restore"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "pickup"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "place",
+        "anchor": "PAD_HILL_DRAIN"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "connect",
+        "route": "E_TEMP_CONTROL"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "start"
+      },
+      "expect": "ok"
+    },
+    {
+      "ticks": 120,
+      "expect_events": [
+        "latch"
+      ]
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "stop"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "disconnect",
+        "route": "E_TEMP_CONTROL"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "pickup"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "place",
+        "anchor": "VAN_BAY"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "request_lock",
+      "entity": "R_EAST_TRUNK",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "inspect",
+      "entity": "PANEL_EAST",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "diagnose"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "isolate"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": "screwdriver"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "open"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": "cutter"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "remove"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": "crimper"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "install"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "close"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": "meter"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "test"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_EAST_TRUNK",
+      "payload": {
+        "step": "restore"
+      },
+      "expect": "ok"
+    },
+    {
+      "note": "Install direct GRID→BEACON 4 PU spur; WEST13 + BEACON3 through west would overload 14."
+    },
+    {
+      "as": "P1",
+      "intent": "request_lock",
+      "entity": "R_BEACON_SPUR",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "inspect",
+      "entity": "PANEL_BEACON",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_BEACON_SPUR",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_BEACON_SPUR",
+      "payload": {
+        "step": "diagnose"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_BEACON_SPUR",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_BEACON_SPUR",
+      "payload": {
+        "step": "isolate"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_BEACON_SPUR",
+      "payload": {
+        "tool": "screwdriver"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_BEACON_SPUR",
+      "payload": {
+        "step": "open"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_BEACON_SPUR",
+      "payload": {
+        "tool": "cutter"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_BEACON_SPUR",
+      "payload": {
+        "step": "remove"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_BEACON_SPUR",
+      "payload": {
+        "tool": "crimper"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_BEACON_SPUR",
+      "payload": {
+        "step": "install"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_BEACON_SPUR",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_BEACON_SPUR",
+      "payload": {
+        "step": "close"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_BEACON_SPUR",
+      "payload": {
+        "tool": "meter"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_BEACON_SPUR",
+      "payload": {
+        "step": "test"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_BEACON_SPUR",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_BEACON_SPUR",
+      "payload": {
+        "step": "restore"
+      },
+      "expect": "ok"
+    },
+    {
+      "ticks": 100,
+      "expect_events": [
+        "latch",
+        "verified",
+        "finale_lights_wave",
+        "finale_radio_subtitle"
+      ]
+    },
+    {
+      "ticks": 20,
+      "expect_events": [
+        "finale_lights_wave",
+        "finale_lights_completed"
+      ]
+    },
+    {
+      "zone": "ZONE_VAN",
+      "as": "P1",
+      "inside": true
+    },
+    {
+      "as": "P1",
+      "intent": "request_extract",
+      "entity": "ZONE_VAN",
+      "payload": {
+        "action": "start"
+      },
+      "expect": "ok"
+    },
+    {
+      "ticks": 50,
+      "expect_events": [
+        "mission_complete"
+      ]
+    }
+  ]
+}
