@@ -162,3 +162,76 @@ func test_CTL1_C03_P01_preview_loading_briefing_is_not_C01_instruction() -> void
 	assert_eq(c03_label.text, UiText.t("offline.loading.c03_briefing"))
 	assert_ne(c03_label.text, c01_label.text)
 	assert_true(c03_label.text.contains("ladder"))
+
+
+
+## P02: the physical switch stations are geometry only, but every actual C03
+## host switch must be aimable from a real authored world marker.
+func test_CTL1_C03_P02_every_host_switch_has_world_marker_and_visible_plate() -> void:
+	var scene: Node3D = _preview()
+	var session: Offline = scene.get("session") as Offline
+	var view: Ladder = scene.get("_ladder_view") as Ladder
+	var controls: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
+		Offline.C03_CONTRACT.path_join("switches.json")))
+	assert_eq(controls["switches"].size(), 6)
+	for rec: Dictionary in controls["switches"]:
+		var id: String = str(rec["id"])
+		assert_true(scene.get_node_or_null("District/Markers/" + id) is Marker3D, id)
+		assert_true(view.get_node_or_null("C03SwitchStations/" + id + "/SwitchPlate") is MeshInstance3D, id)
+		assert_true(view.get_node_or_null("C03SwitchStations/" + id + "/SwitchState") is Label3D, id)
+		assert_eq(str(session.action_for(id, "meter").get("kind", "")), "toggle_switch", id)
+		assert_true(session.radius_for(id) > 0.0, id)
+	assert_false(bool(scene.get("_save_enabled")))
+	assert_eq(scene.get("_store"), null)
+
+
+func test_CTL1_C03_P02_switch_states_are_host_observations_not_supply_claims() -> void:
+	var scene: Node3D = _preview()
+	var session: Offline = scene.get("session") as Offline
+	var view: Ladder = scene.get("_ladder_view") as Ladder
+	view.apply_host(session.host_state())
+	var feed: Label3D = view.get_node("C03SwitchStations/SW_ROOF_FEED/SwitchState") as Label3D
+	var breaker: Label3D = view.get_node("C03SwitchStations/SW_JW_BREAKER/SwitchState") as Label3D
+	var crossfeed: Label3D = view.get_node("C03SwitchStations/SW_CROSSFEED/SwitchState") as Label3D
+	assert_true(feed.text.ends_with("DISABLED"))
+	assert_true(breaker.text.ends_with("TRIPPED"))
+	assert_true(crossfeed.text.ends_with("ISOLATED"))
+	var before: String = Grid.serialize(session.host_state())
+	var simulated: Dictionary = session.host_state()
+	simulated["grid"]["edges"]["E_GRID_ROOF"]["enabled"] = true
+	view.apply_host(simulated)
+	assert_true(feed.text.ends_with("ENABLED"))
+	assert_eq(Grid.serialize(session.host_state()), before, "presentation must not mutate the host")
+	view.apply_host({"grid": {"nodes": {}, "edges": {}}})
+	assert_true(feed.text.ends_with("UNKNOWN"), "missing host data must not imply active power")
+	assert_false((view.get_node("C03SwitchStations/SW_ROOF_FEED/SwitchPlate") as MeshInstance3D).material_override.emission_enabled)
+
+
+func test_CTL1_C03_P02_missing_or_duplicate_switch_marker_fails_closed() -> void:
+	var source: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
+		Offline.C03_CONTRACT.path_join("world.json")))
+	var controls: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
+		Offline.C03_CONTRACT.path_join("switches.json")))
+	var world: Node3D = Node3D.new()
+	_holder.add_child(world)
+	var markers: Node3D = Node3D.new()
+	markers.name = "Markers"
+	world.add_child(markers)
+	var existing: Marker3D = Marker3D.new()
+	existing.name = "SW_JW_BREAKER"
+	markers.add_child(existing)
+	var missing: Dictionary = source.duplicate(true)
+	var filtered: Array = []
+	for rec: Dictionary in missing["markers"]:
+		if str(rec["id"]) != "SW_ROOF_FEED":
+			filtered.append(rec)
+	missing["markers"] = filtered
+	var invalid_view: Ladder = Ladder.new()
+	world.add_child(invalid_view)
+	assert_false(invalid_view.setup(world, missing, controls))
+	assert_false(invalid_view.has_node("C03SwitchStations"))
+	assert_false(markers.has_node("SW_ACCESS_LIGHT"), "failed setup must not partially add markers")
+	var duplicate_controls: Dictionary = controls.duplicate(true)
+	duplicate_controls["switches"].append(duplicate_controls["switches"][0].duplicate(true))
+	assert_false(invalid_view.setup(world, source, duplicate_controls))
+	assert_false(markers.has_node("SW_ACCESS_LIGHT"))

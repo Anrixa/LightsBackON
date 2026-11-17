@@ -118,7 +118,8 @@ func _ready() -> void:
 		_ladder_view = C03LadderView.new()
 		_ladder_view.name = "C03RoofRoute"
 		_world.add_child(_ladder_view)
-		if not _ladder_view.setup(_world, _json(OfflineSession.C03_CONTRACT.path_join("world.json"))):
+		if not _ladder_view.setup(_world, _json(OfflineSession.C03_CONTRACT.path_join("world.json")),
+				_json(OfflineSession.C03_CONTRACT.path_join("switches.json"))):
 			push_error("C03_ROOF_WORLD_INVALID")
 			return
 	_make_player()

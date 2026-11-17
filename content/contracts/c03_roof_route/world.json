@@ -48,6 +48,16 @@
       ]
     },
     {
+      "id": "SW_ACCESS_LIGHT",
+      "kind": "switch",
+      "pos_cm": [3120, 140, 2330]
+    },
+    {
+      "id": "SW_ROOF_FEED",
+      "kind": "switch",
+      "pos_cm": [2260, 965, 4420]
+    },
+    {
       "id": "SW_CROSSFEED",
       "kind": "switch",
       "pos_cm": [
