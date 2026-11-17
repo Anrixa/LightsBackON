@@ -25,8 +25,19 @@
     {
       "id": "CTL2-C06",
       "contract_id": "C06",
-      "title": "Canal Yard C06",
-      "status": "NOT_STARTED"
+      "title": "Cold-Chain Window (provisional design name)",
+      "status": "CLOUD_VERIFIED",
+      "source": "content/contracts/c06_cold_chain",
+      "evidence": "docs/evidence/CTL2-C06.md",
+      "pending": [
+        "Original blueprint C06 contract sheet needs comparison, including title, 280-tick optional grace, consumer demand, pump latches and kit",
+        "C06 physical Canal Yard scene with host ranged repairs and cold-chain status UI, exported-GPU P95/memory and human/controller checks",
+        "Global rules_revision compatibility with older saved sessions (keep saves intact; no migration)",
+        "Official CT04 blocked behind CT01/CT03; F02/F06 real Steam network checks pending"
+      ],
+      "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43993660385",
+      "source_head": "5c704a8fac80041f7c1e320e3511454d8777bdbe",
+      "pull_request": "https://github.com/Anrixa/LightsBackON/pull/162"
     },
     {
       "id": "CTL2-C07",

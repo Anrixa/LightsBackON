@@ -1,0 +1,62 @@
+{
+  "contract_id": "C06",
+  "source_note": "C06 Cold-Chain Window: original CT-L2 Canal Yard headless logic authoring under ADR-017. The primary blueprint C06 sheet was not available for verification; all C06 PU, 280-tick grace period and title are provisional design choices requiring original-sheet reconciliation. Not a physically playable district. Original meter-first, independently flood-gated dock and cold feeder repairs are retained; no extra repair state machine or inventory changes.",
+  "supplies": {
+    "FUSE_DOCK": 1,
+    "CABLE_SPLICE": 1
+  },
+  "repairs": [
+    {
+      "id": "R_DOCK_FUSE",
+      "name_key": "repair.c06.dock_fuse",
+      "panel": "PANEL_DOCK",
+      "access": "DOCK_DRAINED",
+      "isolate": "DOCK",
+      "fix": {
+        "op": "set",
+        "id": "DOCK",
+        "field": "failed",
+        "value": false
+      },
+      "component": "FUSE_DOCK",
+      "tools": {
+        "open": "screwdriver",
+        "remove": "puller",
+        "install": "puller",
+        "test": "meter"
+      },
+      "hold_ticks": {
+        "open": 6,
+        "remove": 8,
+        "install": 8,
+        "close": 6
+      }
+    },
+    {
+      "id": "R_COLD_FEED",
+      "name_key": "repair.c06.cold_feed",
+      "panel": "PANEL_COLD",
+      "access": "COLD_DRAINED",
+      "isolate": "COLD",
+      "fix": {
+        "op": "set",
+        "id": "E_GRID_COLD",
+        "field": "healthy",
+        "value": true
+      },
+      "component": "CABLE_SPLICE",
+      "tools": {
+        "open": "screwdriver",
+        "remove": "cutter",
+        "install": "crimper",
+        "test": "meter"
+      },
+      "hold_ticks": {
+        "open": 6,
+        "remove": 10,
+        "install": 12,
+        "close": 6
+      }
+    }
+  ]
+}

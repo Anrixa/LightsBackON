@@ -1,0 +1,188 @@
+{
+  "contract_id": "C06",
+  "source_note": "C06 Cold-Chain Window: original CT-L2 Canal Yard headless logic authoring under ADR-017. The primary blueprint C06 sheet was not available for verification; all C06 PU, 280-tick grace period and title are provisional design choices requiring original-sheet reconciliation. Not a physically playable district. Four mandatory grid-fed services: DOCK_OFFICE 4, CRANE 4, YARD_LIGHTS 3, WORKSHOP 3 = 14 PU. Cold store 5 PU is an independent optional consumer, manually switchable, for a 280-tick on-GRID first-supply bonus. Full load 19/24 PU, DOCK 8/12, COLD 11/12. Two 4 PU pump routes exceed the 6 PU GEN when energized concurrently.",
+  "trip_ticks": 15,
+  "nodes": [
+    {
+      "id": "GRID",
+      "kind": "source",
+      "capacity": 24,
+      "online": true
+    },
+    {
+      "id": "GEN",
+      "kind": "source",
+      "capacity": 6,
+      "online": false
+    },
+    {
+      "id": "DOCK",
+      "kind": "junction",
+      "isolated": false,
+      "failed": true,
+      "tripped": true
+    },
+    {
+      "id": "COLD",
+      "kind": "junction",
+      "isolated": false,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "TEMP",
+      "kind": "junction",
+      "isolated": false,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "DOCK_OFFICE",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "CRANE",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "COLD_STORE",
+      "kind": "consumer",
+      "demand": 5,
+      "enabled": false,
+      "healthy": true
+    },
+    {
+      "id": "YARD_LIGHTS",
+      "kind": "consumer",
+      "demand": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "WORKSHOP",
+      "kind": "consumer",
+      "demand": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "PUMP_DOCK",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "PUMP_COLD",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    }
+  ],
+  "edges": [
+    {
+      "id": "E_GRID_DOCK",
+      "from": "GRID",
+      "to": "DOCK",
+      "capacity": 12,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_GRID_COLD",
+      "from": "GRID",
+      "to": "COLD",
+      "capacity": 12,
+      "enabled": true,
+      "healthy": false
+    },
+    {
+      "id": "E_DOCK_OFFICE",
+      "from": "DOCK",
+      "to": "DOCK_OFFICE",
+      "capacity": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_DOCK_CRANE",
+      "from": "DOCK",
+      "to": "CRANE",
+      "capacity": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_COLD_STORE",
+      "from": "COLD",
+      "to": "COLD_STORE",
+      "capacity": 5,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_COLD_LIGHTS",
+      "from": "COLD",
+      "to": "YARD_LIGHTS",
+      "capacity": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_COLD_WORKSHOP",
+      "from": "COLD",
+      "to": "WORKSHOP",
+      "capacity": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_GEN_TEMP",
+      "from": "GEN",
+      "to": "TEMP",
+      "capacity": 6,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_TEMP_PUMP_DOCK",
+      "from": "TEMP",
+      "to": "PUMP_DOCK",
+      "capacity": 4,
+      "enabled": false,
+      "healthy": true
+    },
+    {
+      "id": "E_TEMP_PUMP_COLD",
+      "from": "TEMP",
+      "to": "PUMP_COLD",
+      "capacity": 4,
+      "enabled": false,
+      "healthy": true
+    }
+  ],
+  "protections": [
+    {
+      "id": "BRK_DOCK",
+      "element": "E_GRID_DOCK",
+      "breaker": "DOCK"
+    },
+    {
+      "id": "BRK_COLD",
+      "element": "E_GRID_COLD",
+      "breaker": "COLD"
+    },
+    {
+      "id": "BRK_TEMP",
+      "element": "E_GEN_TEMP",
+      "breaker": "TEMP"
+    }
+  ]
+}

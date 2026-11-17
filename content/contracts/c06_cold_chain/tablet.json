@@ -1,0 +1,80 @@
+{
+  "contract_id": "C06",
+  "source_note": "C06 Cold-Chain Window: original CT-L2 Canal Yard headless logic authoring under ADR-017. The primary blueprint C06 sheet was not available for verification; all C06 PU, 280-tick grace period and title are provisional design choices requiring original-sheet reconciliation. Not a physically playable district. Logical map positions only; no physical pump-room coordinates until Canal Yard is authored.",
+  "columns": 5,
+  "rows": 4,
+  "nodes": [
+    {
+      "id": "GRID",
+      "col": 2,
+      "row": 0,
+      "name_key": "node.c06.grid"
+    },
+    {
+      "id": "DOCK",
+      "col": 1,
+      "row": 1,
+      "name_key": "node.c06.dock"
+    },
+    {
+      "id": "COLD",
+      "col": 4,
+      "row": 1,
+      "name_key": "node.c06.cold"
+    },
+    {
+      "id": "DOCK_OFFICE",
+      "col": 0,
+      "row": 2,
+      "name_key": "node.c06.dock_office"
+    },
+    {
+      "id": "CRANE",
+      "col": 1,
+      "row": 2,
+      "name_key": "node.c06.crane"
+    },
+    {
+      "id": "COLD_STORE",
+      "col": 2,
+      "row": 2,
+      "name_key": "node.c06.cold_store"
+    },
+    {
+      "id": "YARD_LIGHTS",
+      "col": 3,
+      "row": 2,
+      "name_key": "node.c06.yard_lights"
+    },
+    {
+      "id": "WORKSHOP",
+      "col": 4,
+      "row": 2,
+      "name_key": "node.c06.workshop"
+    },
+    {
+      "id": "GEN",
+      "col": 0,
+      "row": 3,
+      "name_key": "node.c06.gen"
+    },
+    {
+      "id": "TEMP",
+      "col": 1,
+      "row": 3,
+      "name_key": "node.c06.temp"
+    },
+    {
+      "id": "PUMP_DOCK",
+      "col": 2,
+      "row": 3,
+      "name_key": "node.c06.pump_dock"
+    },
+    {
+      "id": "PUMP_COLD",
+      "col": 3,
+      "row": 3,
+      "name_key": "node.c06.pump_cold"
+    }
+  ]
+}
