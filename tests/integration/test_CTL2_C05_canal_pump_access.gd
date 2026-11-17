@@ -220,7 +220,9 @@ func test_CT_BP_C05_optional_bonus_accepts_tick_1800_but_not_tick_1801() -> void
 		var item: Dictionary = steps[i]
 		if item.get("entity", "") != "R_EAST_TRUNK":
 			continue
-		if item.get("intent", "") == "request_lock" and lock_index < 0:
+		# The trace contains an intentional early NO_ACCESS refusal; choose
+		# the later accepted lock immediately before the real east repair.
+		if item.get("intent", "") == "request_lock" and item.get("expect", "ok") == "ok":
 			lock_index = i
 		if item.get("intent", "") == "repair_step" and (item.get("payload", {}) as Dictionary).get("step", "") == "restore":
 			restore_index = i
