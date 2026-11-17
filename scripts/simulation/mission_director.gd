@@ -75,7 +75,9 @@ func load_definition(definition: Dictionary, grid: PowerGrid, interaction: Inter
 	else:
 		_grid_source = src
 	# C08 permits two named permanent sources. Single-source contracts retain their old behavior.
-	_grid_sources = [_grid_source] if not _grid_source.is_empty() else [] as Array[String]
+	_grid_sources = []
+	if not _grid_source.is_empty():
+		_grid_sources.append(_grid_source)
 	if definition.has("grid_sources"):
 		var names: Variant = definition["grid_sources"]
 		if not names is Array or (names as Array).is_empty():
@@ -474,8 +476,6 @@ func canonical_state() -> Dictionary:
 		out["optional_meter_evidence"] = {"observed": _evidence_observed, "reset_attempted": _evidence_reset_attempted}
 	if not _continuous_optional.is_empty():
 		out["optional_continuous_supply"] = {"ok": _continuous_ok}
-	if not _continuous_optional.is_empty():
-		out["optional_continuous_supply"] = {"ok": _continuous_ok}
 	if not _fixed_ladders.is_empty():
 		out["ladder_access"] = _ladder_access.duplicate()
 	return out
@@ -494,6 +494,8 @@ func durable_state() -> Dictionary:
 		out["optional_first_supplied"] = _optional_first_supplied.duplicate()
 	if not _meter_evidence.is_empty():
 		out["optional_meter_evidence"] = {"observed": _evidence_observed, "reset_attempted": _evidence_reset_attempted}
+	if not _continuous_optional.is_empty():
+		out["optional_continuous_supply"] = {"ok": _continuous_ok}
 	if not _fixed_ladders.is_empty():
 		out["ladder_access"] = _ladder_access.duplicate()
 	return out
