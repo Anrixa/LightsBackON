@@ -1,6 +1,6 @@
 {
   "contract_id": "C04",
-  "source_note": "C04 host-intent solution restores east and west, isolates/repairs the optional direct sign spur, enables only its GRID supply, verifies five services for 100 ticks and extracts in 50 ticks. Wrong east sign path is exercised independently in regressions, not silently used by the solution.",
+  "source_note": "CT-BP/C04 host-intent original-blueprint solution: resolve required west/east faults, install 4 PU GRID sign feeder while isolated, energize SIGN3 through safe source, sustain 100 uninterrupted GRID ticks for optional sign bonus as five required services verify, then extract. Source-authoring/headless trace only.",
   "players": [
     "P1"
   ],
@@ -342,7 +342,7 @@
       "expect": "ok"
     },
     {
-      "note": "Optional direct sign spur uses an independently isolated panel; no mandatory extra grind is required."
+      "note": "Optional 4 PU direct GRID sign feeder is installed at the isolated SPUR panel under the existing host repair sequence; it is not portable equipment."
     },
     {
       "as": "P1",
@@ -503,7 +503,7 @@
       "expect": "ok"
     },
     {
-      "note": "With the east sign connection disabled, the direct spur adds 3 PU: 20 required + 3 optional = 23/24."
+      "note": "Direct GRID sign feeder is installed and east sign route stays isolated: GRID=23/24 PU, JE=11/12 PU, dedicated spur capacity=4 PU carrying 3 PU."
     },
     {
       "as": "P1",
@@ -517,6 +517,7 @@
     {
       "ticks": 100,
       "expect_events": [
+        "latch",
         "verified"
       ]
     },

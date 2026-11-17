@@ -1,6 +1,6 @@
 {
   "contract_id": "C04",
-  "source_note": "C04 Whole Block (ADR-017 logic-only): the west fuse and east trunk interrupt five 20 PU services. A 3 PU sign over the 12 PU east feeder via the isolated EAST_SIGN junction would trip; an independently repaired GRID-to-SPUR-to-SIGN path supplies the optional sign. Required services draw 20 PU; sign raises GRID demand to 23/24 PU. PU are abstract.",
+  "source_note": "CT-BP/C04 original-blueprint headless alignment: west fuse failed, east trunk broken, GEN remains optional. A 4 PU direct GRID-to-SPUR-to-SIGN feeder is initially uninstalled/disabled and can be installed only via isolated, meter-first host repair. SIGN3 on the separate GRID feeder brings GRID to 23/24 PU while east remains 11/12 PU. Unsafe east-sign path would draw 14/12 PU; simultaneous energized sign routes are refused atomically.",
   "trip_ticks": 15,
   "nodes": [
     {
@@ -177,17 +177,17 @@
       "id": "E_GRID_SPUR",
       "from": "GRID",
       "to": "SPUR",
-      "capacity": 3,
-      "enabled": true,
+      "capacity": 4,
+      "enabled": false,
       "healthy": true
     },
     {
       "id": "E_SPUR_SIGN",
       "from": "SPUR",
       "to": "SIGN",
-      "capacity": 3,
+      "capacity": 4,
       "enabled": true,
-      "healthy": false
+      "healthy": true
     },
     {
       "id": "E_GEN_TEMP",

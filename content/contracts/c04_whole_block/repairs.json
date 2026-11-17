@@ -1,6 +1,6 @@
 {
   "contract_id": "C04",
-  "source_note": "C04 has two required independent feeder repairs and an optional isolated sign-spur splice. All use the existing host-locked, meter-first repair state machine; generator equipment remains optional.",
+  "source_note": "CT-BP/C04: required west-fuse/east-trunk repairs and optional isolated GRID-to-SIGN 4 PU cable installation. Sign feeder starts disabled; the approved meter-first, host-locked splice install enables the authored feeder only while SPUR is isolated. Installed feeder is not a deployable item and is exempt from equipment stow.",
   "supplies": {
     "FUSE_W": 1,
     "CABLE_SPLICE": 2
@@ -63,8 +63,8 @@
       "isolate": "SPUR",
       "fix": {
         "op": "set",
-        "id": "E_SPUR_SIGN",
-        "field": "healthy",
+        "id": "E_GRID_SPUR",
+        "field": "enabled",
         "value": true
       },
       "component": "CABLE_SPLICE",

@@ -69,20 +69,34 @@
     },
     {
       "id": "C04",
-      "status": "NOT_STARTED",
+      "status": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
       "source": "content/contracts/c04_whole_block",
       "requires": [
-        "West fuse failed, east trunk broken, no pump gate",
-        "Direct GRID-to-SIGN spur capacity4 installed while isolated",
-        "JE-to-SIGN and GRID-to-SIGN mutually exclusive",
-        "SIGN3 powered 100 continuous ticks latches optional, source23/24 and east11/12"
+        "West fuse failed/tripped and east trunk broken; five required services GRID20/24 with no pump gate",
+        "Separate GRID→SPUR→SIGN feeder rated 4 PU, enabled only via isolated host-authorized installation",
+        "JE→SIGN and GRID→SIGN simultaneously energized paths refused atomically; incorrect east sign route overloads JE14/12",
+        "SIGN3 sustained by GRID for 100 uninterrupted ticks latches optional; valid load GRID23/24, east11/12"
       ],
       "tests": [
-        "capacity4 exact and simultaneous route refusal",
-        "100 tick optional latch and supply loss/reset",
-        "installed cable exempt from stow",
-        "save/reload, full trace"
-      ]
+        "exact 4 PU source topology and installed cable stow exemption",
+        "two energized sign routes refused without mutation and unsafe east route trips at 15 ticks",
+        "100 tick optional latch with 99/100 boundary, same-tick switch and breaker interruptions",
+        "optional omission, save/resume/forgery refusal, solution replay, older contract shapes"
+      ],
+      "implementation_phase": "CT-BP-C04",
+      "branch": "task/CT-BP-C04-four-pu-sign-latch",
+      "evidence": "docs/evidence/CT-BP-C04.md",
+      "known_solution": "content/contracts/c04_whole_block/solution.json",
+      "full_original_blueprint_certification": "HOLD_PHYSICAL_LEVEL_AND_HUMAN_ACCEPTANCE",
+      "pending": [
+        "Final documentation HEAD Linux/Windows exact-head CI, merge commit, and merged-main CI",
+        "Physical C04 sign cable and socket, mission scene, HUD, controller/human, exported target GPU performance",
+        "Historical release save compatibility, Steam F02/F06 two real networks, official CT03/D08 and production acceptance"
+      ],
+      "fidelity": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
+      "source_head": "96a30e1cd26e299551b9ec05a0db96eb9599ea5e",
+      "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44041360152",
+      "pull_request": "https://github.com/Anrixa/LightsBackON/pull/167"
     },
     {
       "id": "C05",
