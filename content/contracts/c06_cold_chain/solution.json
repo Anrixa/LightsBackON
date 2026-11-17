@@ -1,6 +1,6 @@
 {
   "contract_id": "C06",
-  "source_note": "C06 Cold-Chain Window: original CT-L2 Canal Yard headless logic authoring under ADR-017. The primary blueprint C06 sheet was not available for verification; all C06 PU, 280-tick grace period and title are provisional design choices requiring original-sheet reconciliation. Not a physically playable district. 62 host-intent steps supply both pumps sequentially, repair two independently accessed feeders, switch the optional 5 PU cold store on before the grace deadline, maintain four mandatory consumers for 100 ticks, stow generator and extract.",
+  "source_note": "Original Development Blueprint v1.0 pp.18,20 C06 Cold Chain, source-aligned headless candidate only. Canal GRID30 west/east feeders14, GEN8, required loads25 PU. West feeder healthy, east trunk broken behind 4 PU pump access for 120 ticks. Exclusive GRID/GEN cold-store5 routes; concurrent pump4 + cold store5 overload GEN8. Optional cumulative cold-store unsupplied time strictly below 1200 host ticks; pause on valid supply, never reset. Physical scene, historic saves and real Steam remain unqualified.",
   "players": [
     "P1"
   ],
@@ -11,23 +11,16 @@
     "crimper",
     "meter"
   ],
-  "max_ticks": 700,
+  "max_ticks": 900,
   "pace_ticks_per_command": 1,
   "steps": [
     {
-      "note": "Before pumping, neither flooded repair room may be accessed."
+      "note": "West feeder is healthy. East flooded access requires GEN8 to power the 4 PU pump for 120 consecutive ticks."
     },
     {
       "as": "P1",
       "intent": "request_lock",
-      "entity": "R_DOCK_FUSE",
-      "payload": {},
-      "expect": "NO_ACCESS"
-    },
-    {
-      "as": "P1",
-      "intent": "request_lock",
-      "entity": "R_COLD_FEED",
+      "entity": "R_EAST_TRUNK",
       "payload": {},
       "expect": "NO_ACCESS"
     },
@@ -51,7 +44,7 @@
       "expect": "ok"
     },
     {
-      "note": "The portable 6 PU generator powers the 4 PU dock pump alone for 80 continuous ticks. Do not connect both pumps."
+      "note": "East pump"
     },
     {
       "as": "P1",
@@ -59,7 +52,7 @@
       "entity": "GEN_PORTABLE",
       "payload": {
         "action": "connect",
-        "route": "E_TEMP_PUMP_DOCK"
+        "route": "E_TEMP_PUMP_EAST"
       },
       "expect": "ok"
     },
@@ -73,7 +66,7 @@
       "expect": "ok"
     },
     {
-      "ticks": 80,
+      "ticks": 120,
       "expect_events": [
         "latch"
       ]
@@ -93,12 +86,12 @@
       "entity": "GEN_PORTABLE",
       "payload": {
         "action": "disconnect",
-        "route": "E_TEMP_PUMP_DOCK"
+        "route": "E_TEMP_PUMP_EAST"
       },
       "expect": "ok"
     },
     {
-      "note": "A separately controlled 4 PU cold-bay pump drains the second room after 100 continuous ticks."
+      "note": "Pause cold-store cumulative outage using an exclusive 5 PU temporary generator route after draining."
     },
     {
       "as": "P1",
@@ -106,7 +99,7 @@
       "entity": "GEN_PORTABLE",
       "payload": {
         "action": "connect",
-        "route": "E_TEMP_PUMP_COLD"
+        "route": "E_TEMP_COLD_STORE"
       },
       "expect": "ok"
     },
@@ -120,10 +113,7 @@
       "expect": "ok"
     },
     {
-      "ticks": 100,
-      "expect_events": [
-        "latch"
-      ]
+      "ticks": 20
     },
     {
       "as": "P1",
@@ -140,7 +130,7 @@
       "entity": "GEN_PORTABLE",
       "payload": {
         "action": "disconnect",
-        "route": "E_TEMP_PUMP_COLD"
+        "route": "E_TEMP_COLD_STORE"
       },
       "expect": "ok"
     },
@@ -164,26 +154,26 @@
       "expect": "ok"
     },
     {
-      "note": "Both distinct host access flags have latched; restore DOCK fuse and damaged COLD feeder."
+      "note": "Break-before-make: disconnect and stow generator before repairing east grid trunk."
     },
     {
       "as": "P1",
       "intent": "request_lock",
-      "entity": "R_DOCK_FUSE",
+      "entity": "R_EAST_TRUNK",
       "payload": {},
       "expect": "ok"
     },
     {
       "as": "P1",
       "intent": "inspect",
-      "entity": "PANEL_DOCK",
+      "entity": "PANEL_EAST",
       "payload": {},
       "expect": "ok"
     },
     {
       "as": "P1",
       "intent": "equip",
-      "entity": "R_DOCK_FUSE",
+      "entity": "R_EAST_TRUNK",
       "payload": {
         "tool": ""
       },
@@ -192,7 +182,7 @@
     {
       "as": "P1",
       "intent": "repair_step",
-      "entity": "R_DOCK_FUSE",
+      "entity": "R_EAST_TRUNK",
       "payload": {
         "step": "diagnose"
       },
@@ -201,7 +191,7 @@
     {
       "as": "P1",
       "intent": "equip",
-      "entity": "R_DOCK_FUSE",
+      "entity": "R_EAST_TRUNK",
       "payload": {
         "tool": ""
       },
@@ -210,7 +200,7 @@
     {
       "as": "P1",
       "intent": "repair_step",
-      "entity": "R_DOCK_FUSE",
+      "entity": "R_EAST_TRUNK",
       "payload": {
         "step": "isolate"
       },
@@ -219,7 +209,7 @@
     {
       "as": "P1",
       "intent": "equip",
-      "entity": "R_DOCK_FUSE",
+      "entity": "R_EAST_TRUNK",
       "payload": {
         "tool": "screwdriver"
       },
@@ -228,7 +218,7 @@
     {
       "as": "P1",
       "intent": "repair_step",
-      "entity": "R_DOCK_FUSE",
+      "entity": "R_EAST_TRUNK",
       "payload": {
         "step": "open"
       },
@@ -237,165 +227,7 @@
     {
       "as": "P1",
       "intent": "equip",
-      "entity": "R_DOCK_FUSE",
-      "payload": {
-        "tool": "puller"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_DOCK_FUSE",
-      "payload": {
-        "step": "remove"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_DOCK_FUSE",
-      "payload": {
-        "tool": "puller"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_DOCK_FUSE",
-      "payload": {
-        "step": "install"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_DOCK_FUSE",
-      "payload": {
-        "tool": ""
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_DOCK_FUSE",
-      "payload": {
-        "step": "close"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_DOCK_FUSE",
-      "payload": {
-        "tool": "meter"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_DOCK_FUSE",
-      "payload": {
-        "step": "test"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_DOCK_FUSE",
-      "payload": {
-        "tool": ""
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_DOCK_FUSE",
-      "payload": {
-        "step": "restore"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "request_lock",
-      "entity": "R_COLD_FEED",
-      "payload": {},
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "inspect",
-      "entity": "PANEL_COLD",
-      "payload": {},
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_COLD_FEED",
-      "payload": {
-        "tool": ""
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_COLD_FEED",
-      "payload": {
-        "step": "diagnose"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_COLD_FEED",
-      "payload": {
-        "tool": ""
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_COLD_FEED",
-      "payload": {
-        "step": "isolate"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_COLD_FEED",
-      "payload": {
-        "tool": "screwdriver"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "repair_step",
-      "entity": "R_COLD_FEED",
-      "payload": {
-        "step": "open"
-      },
-      "expect": "ok"
-    },
-    {
-      "as": "P1",
-      "intent": "equip",
-      "entity": "R_COLD_FEED",
+      "entity": "R_EAST_TRUNK",
       "payload": {
         "tool": "cutter"
       },
@@ -404,7 +236,7 @@
     {
       "as": "P1",
       "intent": "repair_step",
-      "entity": "R_COLD_FEED",
+      "entity": "R_EAST_TRUNK",
       "payload": {
         "step": "remove"
       },
@@ -413,7 +245,7 @@
     {
       "as": "P1",
       "intent": "equip",
-      "entity": "R_COLD_FEED",
+      "entity": "R_EAST_TRUNK",
       "payload": {
         "tool": "crimper"
       },
@@ -422,7 +254,7 @@
     {
       "as": "P1",
       "intent": "repair_step",
-      "entity": "R_COLD_FEED",
+      "entity": "R_EAST_TRUNK",
       "payload": {
         "step": "install"
       },
@@ -431,7 +263,7 @@
     {
       "as": "P1",
       "intent": "equip",
-      "entity": "R_COLD_FEED",
+      "entity": "R_EAST_TRUNK",
       "payload": {
         "tool": ""
       },
@@ -440,7 +272,7 @@
     {
       "as": "P1",
       "intent": "repair_step",
-      "entity": "R_COLD_FEED",
+      "entity": "R_EAST_TRUNK",
       "payload": {
         "step": "close"
       },
@@ -449,7 +281,7 @@
     {
       "as": "P1",
       "intent": "equip",
-      "entity": "R_COLD_FEED",
+      "entity": "R_EAST_TRUNK",
       "payload": {
         "tool": "meter"
       },
@@ -458,7 +290,7 @@
     {
       "as": "P1",
       "intent": "repair_step",
-      "entity": "R_COLD_FEED",
+      "entity": "R_EAST_TRUNK",
       "payload": {
         "step": "test"
       },
@@ -467,7 +299,7 @@
     {
       "as": "P1",
       "intent": "equip",
-      "entity": "R_COLD_FEED",
+      "entity": "R_EAST_TRUNK",
       "payload": {
         "tool": ""
       },
@@ -476,21 +308,9 @@
     {
       "as": "P1",
       "intent": "repair_step",
-      "entity": "R_COLD_FEED",
+      "entity": "R_EAST_TRUNK",
       "payload": {
         "step": "restore"
-      },
-      "expect": "ok"
-    },
-    {
-      "note": "Turn on the 5 PU cold-store consumer before tick 280 to earn the time-limited bonus. Unlike a hard mission timer, late or missed cold-chain supply never blocks core completion."
-    },
-    {
-      "as": "P1",
-      "intent": "toggle_switch",
-      "entity": "SW_COLD_STORE",
-      "payload": {
-        "value": true
       },
       "expect": "ok"
     },

@@ -1,26 +1,23 @@
 {
   "contract_id": "C06",
-  "source_note": "C06 Cold-Chain Window: original CT-L2 Canal Yard headless logic authoring under ADR-017. The primary blueprint C06 sheet was not available for verification; all C06 PU, 280-tick grace period and title are provisional design choices requiring original-sheet reconciliation. Not a physically playable district. Four mandatory loads remain completable without energizing optional COLD_STORE. The optional cold chain earns a star only if GRID first powers COLD_STORE at a tick <= 280. Late supply is allowed but cannot earn the deadline star. Two independent pump-drain latches still gate repairs. No hard fail on deadline.",
+  "source_note": "Original Development Blueprint v1.0 pp.18,20 C06 Cold Chain, source-aligned headless candidate only. Canal GRID30 west/east feeders14, GEN8, required loads25 PU. West feeder healthy, east trunk broken behind 4 PU pump access for 120 ticks. Exclusive GRID/GEN cold-store5 routes; concurrent pump4 + cold store5 overload GEN8. Optional cumulative cold-store unsupplied time strictly below 1200 host ticks; pause on valid supply, never reset. Physical scene, historic saves and real Steam remain unqualified.",
   "grid_source": "GRID",
   "required_consumers": [
-    "DOCK_OFFICE",
-    "CRANE",
-    "YARD_LIGHTS",
-    "WORKSHOP"
+    "LAUNDRETTE",
+    "DINER",
+    "ROW_HOUSES",
+    "DEPOT",
+    "COLD_STORE",
+    "PUMP_KIOSK"
   ],
   "excluded_loads": [],
   "access_latches": [
     {
-      "id": "LATCH_DOCK_DRAIN",
-      "consumer": "PUMP_DOCK",
-      "supplied_ticks": 80,
-      "grants": "DOCK_DRAINED"
-    },
-    {
-      "id": "LATCH_COLD_DRAIN",
-      "consumer": "PUMP_COLD",
-      "supplied_ticks": 100,
-      "grants": "COLD_DRAINED"
+      "id": "LATCH_EAST_DRAIN",
+      "consumer": "PUMP_EAST",
+      "source": "GEN",
+      "supplied_ticks": 120,
+      "grants": "EAST_DRAINED"
     }
   ],
   "final_verification_ticks": 100,
@@ -30,36 +27,20 @@
   },
   "objectives": [
     {
-      "id": "OBJ_DOCK_DRAIN",
-      "text_key": "objective.c06.drain_dock",
+      "id": "OBJ_EAST_DRAIN",
+      "text_key": "objective.c05.drain_east",
       "done_when": {
-        "latch": "LATCH_DOCK_DRAIN"
+        "latch": "LATCH_EAST_DRAIN"
       }
     },
     {
-      "id": "OBJ_COLD_DRAIN",
-      "text_key": "objective.c06.drain_cold",
-      "done_when": {
-        "latch": "LATCH_COLD_DRAIN"
-      }
-    },
-    {
-      "id": "OBJ_DOCK_REPAIR",
-      "text_key": "objective.c06.restore_dock",
+      "id": "OBJ_EAST_REPAIR",
+      "text_key": "objective.c05.restore_east",
       "done_when": {
         "supplied_from_grid": [
-          "DOCK_OFFICE",
-          "CRANE"
-        ]
-      }
-    },
-    {
-      "id": "OBJ_COLD_REPAIR",
-      "text_key": "objective.c06.restore_cold",
-      "done_when": {
-        "supplied_from_grid": [
-          "YARD_LIGHTS",
-          "WORKSHOP"
+          "DEPOT",
+          "COLD_STORE",
+          "PUMP_KIOSK"
         ]
       }
     },
@@ -67,9 +48,7 @@
       "id": "OBJ_COLD_CHAIN",
       "text_key": "objective.c06.cold_chain",
       "done_when": {
-        "supplied_from_grid": [
-          "COLD_STORE"
-        ]
+        "cumulative_outage": "COLD_CHAIN"
       }
     },
     {
@@ -95,9 +74,15 @@
     }
   ],
   "max_visible_objectives": 3,
-  "optional_services": [
-    "COLD_STORE"
-  ],
+  "optional_services": [],
   "tutorial_trip_allowance": 0,
-  "optional_deadline_ticks": 280
+  "optional_cumulative_outage": {
+    "id": "COLD_CHAIN",
+    "consumer": "COLD_STORE",
+    "deadline_ticks": 1200,
+    "permitted_sources": [
+      "GRID",
+      "GEN"
+    ]
+  }
 }

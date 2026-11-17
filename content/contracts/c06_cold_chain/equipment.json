@@ -1,6 +1,6 @@
 {
   "contract_id": "C06",
-  "source_note": "C06 Cold-Chain Window: original CT-L2 Canal Yard headless logic authoring under ADR-017. The primary blueprint C06 sheet was not available for verification; all C06 PU, 280-tick grace period and title are provisional design choices requiring original-sheet reconciliation. Not a physically playable district. Same safe stowed generator and pump routes as C05. No real 3D coordinates claimed.",
+  "source_note": "Original Development Blueprint v1.0 pp.18,20 C06 Cold Chain, source-aligned headless candidate only. Canal GRID30 west/east feeders14, GEN8, required loads25 PU. West feeder healthy, east trunk broken behind 4 PU pump access for 120 ticks. Exclusive GRID/GEN cold-store5 routes; concurrent pump4 + cold store5 overload GEN8. Optional cumulative cold-store unsupplied time strictly below 1200 host ticks; pause on valid supply, never reset. Physical scene, historic saves and real Steam remain unqualified.",
   "equipment": [
     {
       "id": "GEN_PORTABLE",
@@ -25,8 +25,8 @@
       "id": "PAD_CANAL_PUMPS",
       "storage": false,
       "routes": [
-        "E_TEMP_PUMP_DOCK",
-        "E_TEMP_PUMP_COLD"
+        "E_TEMP_PUMP_EAST",
+        "E_TEMP_COLD_STORE"
       ]
     }
   ],
