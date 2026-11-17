@@ -1,6 +1,6 @@
 {
   "contract_id": "C05",
-  "source_note": "Headless logical 5x4 network tablet, not physical Canal Yard coordinates or scene acceptance.",
+  "source_note": "C05 source-aligned 5x4 logical tablet. No physical map coordinates or human playthrough measured.",
   "columns": 5,
   "rows": 4,
   "nodes": [
@@ -11,28 +11,28 @@
       "name_key": "node.c05.grid"
     },
     {
-      "id": "DOCK",
+      "id": "WEST",
       "col": 1,
       "row": 1,
-      "name_key": "node.c05.dock"
+      "name_key": "node.c05.west"
     },
     {
-      "id": "COLD",
+      "id": "EAST",
       "col": 4,
       "row": 1,
-      "name_key": "node.c05.cold"
+      "name_key": "node.c05.east"
     },
     {
-      "id": "DOCK_OFFICE",
+      "id": "DINER",
       "col": 0,
       "row": 2,
-      "name_key": "node.c05.dock_office"
+      "name_key": "node.c05.diner"
     },
     {
-      "id": "CRANE",
+      "id": "ROW_HOUSES",
       "col": 1,
       "row": 2,
-      "name_key": "node.c05.crane"
+      "name_key": "node.c05.row_houses"
     },
     {
       "id": "COLD_STORE",
@@ -41,16 +41,16 @@
       "name_key": "node.c05.cold_store"
     },
     {
-      "id": "YARD_LIGHTS",
+      "id": "PUMP_KIOSK",
       "col": 3,
       "row": 2,
-      "name_key": "node.c05.yard_lights"
+      "name_key": "node.c05.pump_kiosk"
     },
     {
-      "id": "WORKSHOP",
+      "id": "DEPOT",
       "col": 4,
       "row": 2,
-      "name_key": "node.c05.workshop"
+      "name_key": "node.c05.depot"
     },
     {
       "id": "GEN",
@@ -65,22 +65,22 @@
       "name_key": "node.c05.temp"
     },
     {
-      "id": "PUMP_DOCK",
+      "id": "PUMP_WEST",
       "col": 2,
       "row": 3,
-      "name_key": "node.c05.pump_dock"
+      "name_key": "node.c05.pump_west"
     },
     {
-      "id": "PUMP_COLD",
+      "id": "PUMP_EAST",
       "col": 3,
       "row": 3,
-      "name_key": "node.c05.pump_cold"
+      "name_key": "node.c05.pump_east"
     },
     {
-      "id": "BEACON",
+      "id": "LAUNDRETTE",
       "col": 4,
       "row": 3,
-      "name_key": "node.c05.beacon"
+      "name_key": "node.c05.laundrette"
     }
   ]
 }
