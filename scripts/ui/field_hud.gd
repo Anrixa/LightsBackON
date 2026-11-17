@@ -322,8 +322,27 @@ func _objectives() -> PanelContainer:
 		chip.name = "Objective_%s" % o.get("id", str(i))
 		box.add_child(chip)
 
+	_add_pickup_deadline(box)
 	_add_field_shift(box)
 	return card
+
+
+## The deadline is rendered from a host snapshot; this HUD owns no timer.
+func _add_pickup_deadline(parent: VBoxContainer) -> void:
+	var clock: Dictionary = _view.get("pickup_deadline", {})
+	if clock.is_empty():
+		return
+	var text_key: String = "hud.pickup_deadline.waiting"
+	var text_args: Array = []
+	if bool(clock.get("on_time", false)):
+		text_key = "hud.pickup_deadline.saved"
+	elif bool(clock.get("missed", false)):
+		text_key = "hud.pickup_deadline.missed"
+	elif bool(clock.get("started", false)):
+		text_key = "hud.pickup_deadline.remaining"
+		text_args = [ceili(int(clock.get("remaining_ticks", 0)) / 10.0)]
+	var label: Label = _label(parent, UiText.tf(text_key, text_args), "StrongLabel", "text_muted")
+	label.name = "PickupDeadlineStatus"
 
 
 ## Keep one compact line and at most one read-only meter inside the existing
