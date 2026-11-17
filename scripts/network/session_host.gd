@@ -256,6 +256,8 @@ func receive(peer_id: int, bytes: PackedByteArray) -> Dictionary:
 	_last_seq[peer_id] = seq
 	var before: String = state_hash()
 	var reply: Dictionary = _dispatch(_members[peer_id], msg)
+	if _mission != null:
+		_mission.observe_supply_state()
 	# A refused reset can still consume a C07 evidence-before-reset bonus;
 	# the host revision must reflect any authorized mission fact change.
 	if state_hash() != before:

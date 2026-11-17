@@ -1,0 +1,97 @@
+{
+  "contract_id": "C08",
+  "source_note": "Original Development Blueprint v1.0 pp.18,20: C08 Split Supply. A 18 PU -> west 13/14; B 16 PU offline -> east 12/14; A-to-JE 14 PU tie disabled. Shed 5+4 west loads to supply diner 4+east 12 from A; depot latch 100 continuous ticks; repair B; open A tie before close B feeder. Optional uninterrupted diner, host-authoritative headless only.",
+  "grid_source": "A",
+  "grid_sources": [
+    "A",
+    "B"
+  ],
+  "required_consumers": [
+    "LAUNDRETTE",
+    "DINER",
+    "ROW_HOUSES",
+    "DEPOT",
+    "COLD_STORE",
+    "PUMP_KIOSK"
+  ],
+  "excluded_loads": [],
+  "access_latches": [
+    {
+      "id": "LATCH_DEPOT_ACCESS",
+      "consumer": "DEPOT",
+      "supplied_ticks": 100,
+      "grants": "B_CABINET_ACCESS"
+    }
+  ],
+  "optional_services": [],
+  "optional_continuous_supply": {
+    "id": "DINER_UNINTERRUPTED",
+    "consumer": "DINER"
+  },
+  "final_verification_ticks": 100,
+  "extraction": {
+    "zone": "ZONE_VAN",
+    "countdown_ticks": 50
+  },
+  "max_visible_objectives": 3,
+  "tutorial_trip_allowance": 0,
+  "objectives": [
+    {
+      "id": "OBJ_SHED",
+      "text_key": "objective.c08.shed",
+      "done_when": {
+        "latch": "LATCH_DEPOT_ACCESS"
+      }
+    },
+    {
+      "id": "OBJ_B",
+      "text_key": "objective.c08.b",
+      "done_when": {
+        "supplied_from_grid": [
+          "DEPOT",
+          "COLD_STORE",
+          "PUMP_KIOSK"
+        ]
+      }
+    },
+    {
+      "id": "OBJ_WEST",
+      "text_key": "objective.c08.west",
+      "done_when": {
+        "supplied_from_grid": [
+          "LAUNDRETTE",
+          "DINER",
+          "ROW_HOUSES"
+        ]
+      }
+    },
+    {
+      "id": "OBJ_DINER",
+      "text_key": "objective.c08.diner",
+      "done_when": {
+        "continuous_supply": "DINER_UNINTERRUPTED"
+      }
+    },
+    {
+      "id": "OBJ_VERIFY",
+      "text_key": "objective.c01.verify_supply",
+      "done_when": {
+        "verified": true
+      }
+    },
+    {
+      "id": "OBJ_STOW",
+      "text_key": "objective.c01.stow_equipment",
+      "done_when": {
+        "stowed": true
+      }
+    },
+    {
+      "id": "OBJ_EXTRACT",
+      "text_key": "objective.c01.extract",
+      "done_when": {
+        "completed": true
+      }
+    }
+  ]
+}

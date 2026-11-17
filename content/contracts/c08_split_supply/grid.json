@@ -1,0 +1,166 @@
+{
+  "contract_id": "C08",
+  "source_note": "Original Development Blueprint v1.0 pp.18,20: C08 Split Supply. A 18 PU -> west 13/14; B 16 PU offline -> east 12/14; A-to-JE 14 PU tie disabled. Shed 5+4 west loads to supply diner 4+east 12 from A; depot latch 100 continuous ticks; repair B; open A tie before close B feeder. Optional uninterrupted diner, host-authoritative headless only.",
+  "trip_ticks": 15,
+  "nodes": [
+    {
+      "id": "A",
+      "kind": "source",
+      "capacity": 18,
+      "online": true
+    },
+    {
+      "id": "B",
+      "kind": "source",
+      "capacity": 16,
+      "online": false
+    },
+    {
+      "id": "JW",
+      "kind": "junction",
+      "isolated": false,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "JE",
+      "kind": "junction",
+      "isolated": false,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "LAUNDRETTE",
+      "kind": "consumer",
+      "demand": 5,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "DINER",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "ROW_HOUSES",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "DEPOT",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "COLD_STORE",
+      "kind": "consumer",
+      "demand": 5,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "PUMP_KIOSK",
+      "kind": "consumer",
+      "demand": 3,
+      "enabled": true,
+      "healthy": true
+    }
+  ],
+  "edges": [
+    {
+      "id": "E_A_JW",
+      "from": "A",
+      "to": "JW",
+      "capacity": 14,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_B_JE",
+      "from": "B",
+      "to": "JE",
+      "capacity": 14,
+      "enabled": false,
+      "healthy": true
+    },
+    {
+      "id": "E_A_JE_TIE",
+      "from": "A",
+      "to": "JE",
+      "capacity": 14,
+      "enabled": false,
+      "healthy": true
+    },
+    {
+      "id": "E_JW_LAUNDRETTE",
+      "from": "JW",
+      "to": "LAUNDRETTE",
+      "capacity": 5,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_JW_DINER",
+      "from": "JW",
+      "to": "DINER",
+      "capacity": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_JW_ROW_HOUSES",
+      "from": "JW",
+      "to": "ROW_HOUSES",
+      "capacity": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_JE_DEPOT",
+      "from": "JE",
+      "to": "DEPOT",
+      "capacity": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_JE_COLD_STORE",
+      "from": "JE",
+      "to": "COLD_STORE",
+      "capacity": 5,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_JE_PUMP_KIOSK",
+      "from": "JE",
+      "to": "PUMP_KIOSK",
+      "capacity": 3,
+      "enabled": true,
+      "healthy": true
+    }
+  ],
+  "protections": [
+    {
+      "id": "BRK_A_WEST",
+      "element": "E_A_JW",
+      "breaker": "JW"
+    },
+    {
+      "id": "BRK_A_TIE",
+      "element": "E_A_JE_TIE",
+      "breaker": "JE"
+    },
+    {
+      "id": "BRK_B_EAST",
+      "element": "E_B_JE",
+      "breaker": "JE"
+    }
+  ]
+}

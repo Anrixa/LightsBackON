@@ -65,8 +65,17 @@
     {
       "id": "CTL2-C08",
       "contract_id": "C08",
-      "title": "Canal Yard C08",
-      "status": "NOT_STARTED"
+      "title": "Split Supply",
+      "status": "IN_PROGRESS",
+      "source": "content/contracts/c08_split_supply",
+      "evidence": "docs/evidence/CTL2-C08.md",
+      "blueprint_fidelity": "SOURCE_ALIGNED_UNVERIFIED",
+      "pending": [
+        "Exact-head Linux/Windows CI including full solution and negative tests; until then NOT CLOUD_VERIFIED",
+        "Physical Canal Yard source cabinets/ties, in-world range and controller-only/human playability",
+        "Exported Windows GPU P95/memory and source-scoped save continuity across actual builds",
+        "Official CT05 depends on CT04; Steam F02/F06 and human V09/D08 gates remain open"
+      ]
     }
   ]
 }
