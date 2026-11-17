@@ -4,7 +4,7 @@
 - Authority: original repository `docs/blueprint/Lights-Back-On-Development-Blueprint-v1.0.pdf`, pp.18, 20–21, read from the page content streams.
 - Main baseline: `5cd24e75e8cdaf805d3ce4bb10cbf3e1d327c8d3` (merged C07).
 - Work branch: `task/CTL2-C08-split-supply-blueprint`.
-- Status: **IN_PROGRESS — NOT YET CLOUD_VERIFIED / NOT ORIGINAL-BLUEPRINT CERTIFIED** until final exact-head Linux and Windows CI, full content replay, export smoke and QA57 complete.
+- Status: **CLOUD_VERIFIED headless logic candidate**, source-aligned to original sheet; not physical/release/production certified. Implementation commit `7af2e943a06017d7f50df93cd7981b7129d577ef` passed Linux/Windows CI #43999774167. Final PR-head documentation-only verification and post-merge CI must still pass.
 
 ## Authored host semantics
 
@@ -22,11 +22,26 @@ No new real-physics electrical claims, client-side power authority, speculative 
 - [PR #164 CI #43999444015](https://github.com/Anrixa/LightsBackON/actions/runs/43999444015): Linux reported **625 passed, 10 failed, 45,801 assertions**. The common root cause was `SessionHost.configure` validating switches only against nodes; both authored C08 tie switches target edges, so they were rejected as BAD_SWITCH and the downstream trace/tests failed. Existing C01–C07 solution replays remained SOLVED, Python parity MATCH.
 - Correction: permit authored edge targets only for existing whitelisted PowerGrid.SETTABLE boolean fields, still rejecting capacity mutation and invalid/missing IDs. Added a same-tick depot glitch reset for continuous cabinet access and two more regressions. This is NOT a passing CI receipt.
 
-## Tests authored (execution pending)
+## Verified host and export evidence (source commit `7af2e943a06017d7f50df93cd7981b7129d577ef`)
+
+[GitHub Actions #43999774167](https://github.com/Anrixa/LightsBackON/actions/runs/43999774167): **Linux SUCCESS, Windows SUCCESS** on the tested PR source.
+
+| Gate | Linux | Windows |
+|---|---|---|
+| Godot suite | 637 PASS / 0 FAIL / 45,948 assertions | 637 PASS / 0 FAIL / 45,948 assertions |
+| Content validator | 85 JSON files / 0 errors | 85 JSON files / 0 errors |
+| All eight solution traces | C01–C08 SOLVED | C01–C08 SOLVED |
+| C08 host trace | 277 ticks / 35 steps / SOLVED | 277 ticks / 35 steps / SOLVED |
+| Reference hash parity | MATCH: 32 runs, 246 commands, 10 rejection cases | MATCH: same |
+| Windows export/QA57 | N/A | Godot script UIDs PASS, Windows export PASS, headless exported smoke PASS, QA57 EXE/PCK source pin PASS |
+
+The Windows CI build uses a synthetic PR merge SHA `a06e3ea829e95bae467233a46d8290352b3a58eb` for its export; the tested PR source SHA above is the implementation authority. This is not a live GPU, controller, audio or two-machine Steam test. A subsequent evidence-only head update must still pass on its own exact SHA before merge.
+
+## Tests authored (executed on the tested source)
 
 `tests/integration/test_CTL2_C08_split_supply.gd` checks baseline/source/feeder/demand, exact 3-star known solution, timed access latch, interrupted timer reset, source-overload abuse, atomic dual-supply refusal, one-tick break-before-make transition, same-tick DINER interruption bonus loss, durable save validation and tampering rejection, bad source and optional definitions, two-player host replay and legacy C01–C07 save shapes.
 
-Required verification before any merge or CLOUD_VERIFIED label: full Linux and Windows suite on the **final** PR head; solution validator C01–C08; content validator, Python reference parity, Windows export/headless smoke, QA57, and QA51 resource probes where applicable. Record actual job counts, exact commit and run URLs after observing them.
+All code-level Linux/Windows gates above were observed PASS on implementation SHA. The **final** PR-head CI (after this evidence update) remains required for merge. QA51 lifetime probes apply to scene/resource changes; this C08 work adds headless contract data and mission/host rules without new scene nodes or runtime resource lifecycle ownership. Do not substitute this CI for physical hardware or human acceptance.
 
 ## Certification limits and corrective track
 
@@ -34,4 +49,4 @@ C02–C06 retain `HOLD_CONFIRMED_MISMATCH`; the recorded defects in `docs/eviden
 
 ## Resume notes
 
-Finish exact-head Linux/Windows CI, repair any regressions, update this evidence with observed results, and merge only after both required hosted operating systems pass. Then begin dedicated C02→C06 original-blueprint corrections on separate branches, each with new solution replay and falsification tests; never promote provisional content solely because its old CI passed.
+Run exact-final-PR-head Linux and Windows CI after this evidence/tracker commit. If both PASS, merge PR #164 with a merge commit and verify the merged-main push CI; log the merge SHA in PR discussion. Next, undertake dedicated C02→C06 original-blueprint corrections in separately reviewable phases (C02 first), each with a new solution replay and falsification tests. Do not promote provisional C02–C06 based on historical CI; original-blueprint fidelity remains HOLD.
