@@ -102,7 +102,12 @@ func test_CTL1_C04_optional_repair_can_be_skipped_without_blocking_completion() 
 	for step: Dictionary in _trace()["steps"]:
 		if step.get("entity", "") in ["R_SIGN_SPUR", "PANEL_SPUR", "SW_SIGN"]:
 			continue
-		reduced.append(step)
+		# Omitting the optional sign must not pretend to earn its latch event.
+		# The required verification event still has to occur normally.
+		if step.has("ticks") and int(step["ticks"]) == 100:
+			reduced.append({"ticks": 100, "expect_events": ["verified"]})
+		else:
+			reduced.append(step)
 	var failures: Array[String] = Runner.run(ctx, reduced, 1)
 	assert_eq(failures, [] as Array[String], str(failures))
 	var mission: Mission = ctx["mission"] as Mission
