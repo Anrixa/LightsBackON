@@ -23,6 +23,9 @@ static func build(state: Dictionary, objectives: Array[Dictionary], ctx: Diction
 		"prompt": ctx.get("prompt", {}),
 		"event": ctx.get("event", {}),
 	}
+	var mission_state: Dictionary = state.get("mission", {})
+	if mission_state.has("pickup_deadline"):
+		view["pickup_deadline"] = (mission_state["pickup_deadline"] as Dictionary).duplicate(true)
 	return view
 
 
