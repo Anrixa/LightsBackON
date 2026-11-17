@@ -69,7 +69,7 @@
     },
     {
       "id": "C04",
-      "status": "IMPLEMENTED_PENDING_INDEPENDENT_CI",
+      "status": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
       "source": "content/contracts/c04_whole_block",
       "requires": [
         "West fuse failed/tripped and east trunk broken; five required services GRID20/24 with no pump gate",
@@ -89,10 +89,14 @@
       "known_solution": "content/contracts/c04_whole_block/solution.json",
       "full_original_blueprint_certification": "HOLD_PHYSICAL_LEVEL_AND_HUMAN_ACCEPTANCE",
       "pending": [
-        "Exact branch-head Linux/Windows CI with full solution replay and negative tests",
-        "Post-merge main CI, checks and evidence receipts",
-        "Physical authored sign cable, full HUD/controller/human and target-GPU acceptance, historical save compatibility, Steam real two-network gate"
-      ]
+        "Final documentation HEAD Linux/Windows exact-head CI, merge commit, and merged-main CI",
+        "Physical C04 sign cable and socket, mission scene, HUD, controller/human, exported target GPU performance",
+        "Historical release save compatibility, Steam F02/F06 two real networks, official CT03/D08 and production acceptance"
+      ],
+      "fidelity": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
+      "source_head": "96a30e1cd26e299551b9ec05a0db96eb9599ea5e",
+      "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44041360152",
+      "pull_request": "https://github.com/Anrixa/LightsBackON/pull/167"
     },
     {
       "id": "C05",
