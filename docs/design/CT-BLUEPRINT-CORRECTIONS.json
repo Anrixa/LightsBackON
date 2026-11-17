@@ -5,7 +5,7 @@
   "contracts": [
     {
       "id": "C02",
-      "status": "NOT_STARTED",
+      "status": "IMPLEMENTED_PENDING_CI",
       "source": "content/contracts/c02_dinner_rush",
       "requires": [
         "Two initial broken branches; required grid load 20 PU",
@@ -18,7 +18,12 @@
         "safe generator route switch and no dual supply",
         "missed bonus still completes",
         "save/reload, full trace, earlier contracts"
-      ]
+      ],
+      "implementation_phase": "CT-BP-C02",
+      "branch": "task/CTL-BP-C02-dinner-rush-correction",
+      "evidence": "docs/evidence/CT-BP-C02.md",
+      "fidelity": "HOLD_PENDING_FINAL_SOURCE_CI",
+      "known_solution": "content/contracts/c02_dinner_rush/solution.json"
     },
     {
       "id": "C03",

@@ -411,6 +411,8 @@
     "node.c08.row_houses": "Row houses",
     "node.c08.depot": "Depot",
     "node.c08.cold_store": "Cold store",
-    "node.c08.pump_kiosk": "Pump kiosk"
+    "node.c08.pump_kiosk": "Pump kiosk",
+    "objective.c02.market_opening": "Opening: keep MARKET supplied continuously for 10 seconds before the 180-second deadline",
+    "objective.c02.pub_opening": "Opening: keep PUB supplied continuously for 10 seconds before the 180-second deadline"
   }
 }

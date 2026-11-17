@@ -21,8 +21,20 @@
       "merged_pr": "https://github.com/Anrixa/LightsBackON/pull/156",
       "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43911687483",
       "merged_main_sha": "395e60303904f1014bebe254607c8a6f83f6afd5",
-      "blueprint_fidelity": "HOLD_CONFIRMED_MISMATCH",
-      "blueprint_reconciliation": "Blueprint p.19 requires TWO optional venue services MARKET and PUB each supplied continuously 10 s before 180-second opening deadline; existing C02 mission awards optional SIGN with deadline 2400 ticks (240 s)."
+      "blueprint_fidelity": "HOLD_PENDING_FINAL_SOURCE_CI",
+      "blueprint_reconciliation": "Blueprint p.19 requires TWO optional venue services MARKET and PUB each supplied continuously 10 s before 180-second opening deadline; existing C02 mission awards optional SIGN with deadline 2400 ticks (240 s).",
+      "corrective_phase": {
+        "id": "CT-BP-C02",
+        "status": "IN_PROGRESS",
+        "branch": "task/CTL-BP-C02-dinner-rush-correction",
+        "evidence": "docs/evidence/CT-BP-C02.md",
+        "scope": "Source-aligned host logic only; old cloud evidence remains historical and valid",
+        "pending": [
+          "Final exact-head Linux/Windows full test, C01–C08 replay, Windows export/QA57",
+          "Physical C02 venue pad, late-opening countdown HUD, human/controller and target GPU acceptance",
+          "Real cross-release checkpoint/rules_revision compatibility: no historical save migrations authorized"
+        ]
+      }
     },
     {
       "id": "CTL1-C03",
