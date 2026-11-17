@@ -242,3 +242,36 @@ func test_CTL1_C03_P02_missing_or_duplicate_switch_marker_fails_closed() -> void
 	duplicate_controls["switches"].append(duplicate_controls["switches"][0].duplicate(true))
 	assert_false(invalid_view.setup(world, source, duplicate_controls))
 	assert_false(markers.has_node("SW_ACCESS_LIGHT"))
+
+
+func test_CTL1_C03_P02_generator_preview_uses_roof_light_not_C01_pump_route() -> void:
+	var c03: Offline = Offline.new()
+	var errors: Array[Dictionary] = c03.setup(
+		func(_player: String, _target: String) -> bool: return true,
+		func(_player: String) -> Vector3i: return Vector3i(800, 100, 1300),
+		Offline.C03_CONTRACT)
+	assert_eq(errors, [] as Array[Dictionary])
+	assert_eq(c03.action_for("GEN_PORTABLE", "meter")["payload"]["action"], "pickup")
+	assert_true(c03.interact("GEN_PORTABLE", "meter")["ok"])
+	assert_true(c03.interact("PAD_PUMP", "meter")["ok"])
+	var connect: Dictionary = c03.action_for("GEN_PORTABLE", "meter")
+	assert_eq(connect["payload"]["action"], "connect")
+	assert_eq(connect["payload"]["route"], "E_TEMP_ROOF_LIGHT")
+	assert_true(c03.interact("GEN_PORTABLE", "meter")["ok"])
+	var edges: Dictionary = c03.grid.canonical_state()["edges"]
+	assert_true(bool(edges["E_TEMP_ROOF_LIGHT"]["enabled"]))
+	assert_false(bool(edges["E_TEMP_PUMP"]["enabled"]))
+	assert_eq(c03.action_for("GEN_PORTABLE", "meter")["payload"]["action"], "start")
+	assert_true(c03.interact("GEN_PORTABLE", "meter")["ok"])
+	assert_eq(c03.action_for("GEN_PORTABLE", "meter")["payload"]["action"], "stop")
+	assert_true(c03.command("toggle_switch", "SW_BEACON", {"value": true})["ok"])
+	for _tick: int in 100:
+		c03.tick_once()
+	assert_true(c03.mission.is_latched("LATCH_ROOF_WORK_LIGHT"),
+		"optional roof work light earns its latch from the actual GEN source")
+	assert_true(c03.interact("GEN_PORTABLE", "meter")["ok"])
+	var disconnect: Dictionary = c03.action_for("GEN_PORTABLE", "meter")
+	assert_eq(disconnect["payload"]["action"], "disconnect")
+	assert_eq(disconnect["payload"]["route"], "E_TEMP_ROOF_LIGHT")
+	assert_true(c03.interact("GEN_PORTABLE", "meter")["ok"])
+	assert_eq(c03.action_for("GEN_PORTABLE", "meter")["payload"]["action"], "pickup")

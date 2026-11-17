@@ -31,6 +31,8 @@ const PLAYER_ID: String = "P1"
 const PEER_ID: int = SessionHost.HOST_PEER
 const PROTOCOL_VERSION: int = 1
 const PUMP_ROUTE: String = "E_TEMP_PUMP"
+const C03_ROOF_ROUTE: String = "E_TEMP_ROOF_LIGHT"
+const C03_ROOF_LATCH: String = "LATCH_ROOF_WORK_LIGHT"
 const GENERATOR: String = "GEN_PORTABLE"
 const PUMP_LATCH: String = "LATCH_PUMP_DRAIN"
 const EAST_REPAIR_ID: String = "R_JE_TRUNK"
@@ -376,21 +378,29 @@ func _generator_action() -> Dictionary:
 	if anchor == "VAN_BAY" or anchor == "STORE_PUMP_HOUSE":
 		action = "pickup"
 	elif anchor == "PAD_PUMP":
+		# The preview has the same physical pad but a different authored GEN6
+		# connection. C01 must retain its pump/latch behavior byte-for-byte.
+		var route: String = C03_ROOF_ROUTE if _contract_dir == C03_CONTRACT else PUMP_ROUTE
+		var latch: String = C03_ROOF_LATCH if _contract_dir == C03_CONTRACT else PUMP_LATCH
 		var grid_state: Dictionary = grid.canonical_state()
+		var edges: Dictionary = grid_state.get("edges", {})
+		var route_state: Dictionary = edges.get(route, {})
+		if not route_state.has("enabled") or not (route_state["enabled"] is bool):
+			return {}
 		var online: bool = bool(grid_state["nodes"]["GEN"]["online"])
-		var connected: bool = bool(grid_state["edges"][PUMP_ROUTE]["enabled"])
+		var connected: bool = bool(route_state["enabled"])
 		if online:
 			action = "stop"
-		elif connected and mission.is_latched(PUMP_LATCH):
+		elif connected and mission.is_latched(latch):
 			action = "disconnect"
-			payload["route"] = PUMP_ROUTE
+			payload["route"] = route
 		elif connected:
 			action = "start"
-		elif mission.is_latched(PUMP_LATCH):
+		elif mission.is_latched(latch):
 			action = "pickup"
 		else:
 			action = "connect"
-			payload["route"] = PUMP_ROUTE
+			payload["route"] = route
 	if action == "":
 		return {}
 	payload["action"] = action
