@@ -1,6 +1,6 @@
 {
   "contract_id": "C03",
-  "source_note": "West crossfeed is a deliberately bad branch if all west and east services are supplied; isolator must be opened by the player. Beacon is an optional 1 PU switch.",
+  "source_note": "Host controls: repaired JW breaker, ladder light, disabled 12 PU roof bypass feeder, generator-fed roof work light and deliberately unsafe west crossfeed. No client may energize both east routes.",
   "switches": [
     {
       "id": "SW_CROSSFEED",
@@ -21,6 +21,16 @@
       "id": "SW_ROOF_BREAKER",
       "target": "ROOF",
       "field": "tripped"
+    },
+    {
+      "id": "SW_ACCESS_LIGHT",
+      "target": "LADDER_LIGHT",
+      "field": "enabled"
+    },
+    {
+      "id": "SW_ROOF_FEED",
+      "target": "E_GRID_ROOF",
+      "field": "enabled"
     }
   ]
 }

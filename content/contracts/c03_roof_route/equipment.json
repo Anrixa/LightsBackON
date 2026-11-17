@@ -1,6 +1,6 @@
 {
   "contract_id": "C03",
-  "source_note": "Original Alder optional standby generator; the canonical C03 solution does not deploy it.",
+  "source_note": "Portable GEN6 optional work-light route; PAD_PUMP is only an abstract approved connection anchor for headless C03, not a certified physical rooftop socket.",
   "equipment": [
     {
       "id": "GEN_PORTABLE",
@@ -36,7 +36,8 @@
       "storage": false,
       "routes": [
         "E_TEMP_PUMP",
-        "E_TEMP_PUB"
+        "E_TEMP_PUB",
+        "E_TEMP_ROOF_LIGHT"
       ],
       "position_cm": [
         6250,
