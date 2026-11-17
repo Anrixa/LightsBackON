@@ -211,6 +211,46 @@ func test_CT_BP_C05_missed_optional_deadline_never_blocks_main_completion() -> v
 	assert_eq(m.results()["stars"], 2)
 
 
+
+func test_CT_BP_C05_optional_bonus_accepts_tick_1800_but_not_tick_1801() -> void:
+	var steps: Array = _trace()["steps"]
+	var restore_index: int = -1
+	for i: int in steps.size():
+		var item: Dictionary = steps[i]
+		if item.get("intent", "") == "repair_step" and item.get("entity", "") == "R_EAST_TRUNK" \
+				and (item.get("payload", {}) as Dictionary).get("step", "") == "restore":
+			restore_index = i
+			break
+	assert_true(restore_index > 0)
+	if restore_index <= 0:
+		return
+	var prefix: Array = steps.slice(0, restore_index)
+	for late: bool in [false, true]:
+		var ctx: Dictionary = _context()
+		assert_eq(Runner.run(ctx, prefix, 1), [] as Array[String])
+		var m: Mission = ctx["mission"] as Mission
+		var clock: Dictionary = m.canonical_state()["pickup_deadline"]
+		assert_true(clock["started"])
+		assert_false(clock["on_time"])
+		assert_true(int(clock["elapsed"]) < 1800)
+		var ticks_before_restore: int = 1800 - int(clock["elapsed"]) - (0 if late else 1)
+		Runner.ticks(ctx, ticks_before_restore)
+		if late:
+			Runner.ticks(ctx, 1)
+			assert_true(m.canonical_state()["pickup_deadline"]["missed"])
+		var reply: Dictionary = Runner.send(ctx, "P1", "repair_step", "R_EAST_TRUNK", {"step": "restore"})
+		assert_true(reply.get("ok", false))
+		Runner.ticks(ctx, 1)
+		var observed: Dictionary = m.canonical_state()["pickup_deadline"]
+		if late:
+			assert_true(observed["missed"])
+			assert_false(observed["on_time"])
+		else:
+			assert_eq(observed["elapsed"], 1800)
+			assert_true(observed["on_time"])
+			assert_false(observed["missed"])
+
+
 func test_CT_BP_C05_durable_clock_and_two_latches_reject_forgery() -> void:
 	var ctx: Dictionary = _context()
 	_place(ctx)
