@@ -62,6 +62,7 @@ var outbox: IntentOutbox
 var _outbox_bridge: RefCounted  # keep the weak-reference relay alive while this session exists
 var _content: Dictionary = {}
 var _markers: Dictionary = {}
+var _authorized_switches: Dictionary = {}  # loaded for the selected contract only
 var _repairs_by_panel: Dictionary = {}
 var _repair_targets: Dictionary = {}
 var _tuning: Dictionary = {}
@@ -108,6 +109,9 @@ func setup(range_check: Callable, position_of: Callable, contract_dir: String = 
 	_tuning = _json("res://content/interaction.json")
 	_solo_tuning = _json("res://content/offline_solo.json")
 	_markers.clear()
+	_authorized_switches.clear()
+	for control: Dictionary in _content["switches"]["switches"]:
+		_authorized_switches[str(control["id"])] = true
 	_repairs_by_panel.clear()
 	_repair_targets.clear()
 	for record: Dictionary in _content["world"]["markers"]:
@@ -420,6 +424,10 @@ func targets() -> Array[Dictionary]:
 		var kind: String = str(marker["kind"])
 		if kind == "panel" and not (_repair_targets.has(id) or meter.has_panel(id)):
 			continue
+		# The inherited Alder scene contains switches for other contracts.
+		# Never advertise or aim-assist a switch the selected host disallows.
+		if kind == "switch" and not _authorized_switches.has(id):
+			continue
 		if kind == "anchor" and equipment.carrier_of(GENERATOR) != PLAYER_ID:
 			continue
 		if not ["panel", "switch", "anchor", "ladder"].has(kind):
@@ -433,6 +441,8 @@ func targets() -> Array[Dictionary]:
 
 ## Same authored selection radius is used by client reticle and host range verdict.
 func radius_for(entity: String) -> float:
+	if entity.begins_with("SW_") and not _authorized_switches.has(entity):
+		return 0.0
 	if entity == GENERATOR:
 		return _radius("equipment")
 	if entity.begins_with("R_"):
@@ -445,6 +455,8 @@ func radius_for(entity: String) -> float:
 
 
 func entity_position(entity: String) -> Vector3:
+	if entity.begins_with("SW_") and not _authorized_switches.has(entity):
+		return Vector3.INF
 	var marker_id: String = entity
 	if entity.begins_with("R_"):
 		for repair: Dictionary in _content["repairs"]["repairs"]:
