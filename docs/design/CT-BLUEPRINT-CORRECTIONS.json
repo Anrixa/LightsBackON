@@ -5,7 +5,7 @@
   "contracts": [
     {
       "id": "C02",
-      "status": "IMPLEMENTED_PENDING_CI",
+      "status": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
       "source": "content/contracts/c02_dinner_rush",
       "requires": [
         "Two initial broken branches; required grid load 20 PU",
@@ -22,8 +22,17 @@
       "implementation_phase": "CT-BP-C02",
       "branch": "task/CTL-BP-C02-dinner-rush-correction",
       "evidence": "docs/evidence/CT-BP-C02.md",
-      "fidelity": "HOLD_PENDING_FINAL_SOURCE_CI",
-      "known_solution": "content/contracts/c02_dinner_rush/solution.json"
+      "fidelity": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
+      "known_solution": "content/contracts/c02_dinner_rush/solution.json",
+      "source_head": "282be90b582ed9b7d45a087a8ba802c979e962b5",
+      "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44003254561",
+      "pull_request": "https://github.com/Anrixa/LightsBackON/pull/165",
+      "full_original_blueprint_certification": "HOLD_PHYSICAL_LEVEL_AND_HUMAN_ACCEPTANCE",
+      "pending": [
+        "Exact final documentation head and post-merge main CI",
+        "C02 authored physical street sockets, on-screen deadline countdown, keyboard/controller/human playthrough, target GPU performance",
+        "Original C02 deployed-checkpoint compatibility policy: no automatic destructive migration or deletion"
+      ]
     },
     {
       "id": "C03",

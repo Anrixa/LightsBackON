@@ -3,7 +3,7 @@
 - Authority: canonical `docs/blueprint/Lights-Back-On-Development-Blueprint-v1.0.pdf` pp.18–19 (C01 baseline + C02 contract sheet).
 - Baseline main `4d40b8a47d234fb92463fd5af456fe64f17b1987`; branch `task/CTL-BP-C02-dinner-rush-correction`.
 - ADR-017 independent logic/data correction track. Original C02 logic CI from PR #156 is historical and remains valid **for the old provisional source only**.
-- Certification: **HOLD_PENDING_FINAL_SOURCE_CI**, and physical/UX/release acceptance separately HOLD. Do not mark the official `docs/backlog.json` CT03 DONE.
+- Certification: **SOURCE_ALIGNED_HEADLESS_CANDIDATE** after observed Linux/Windows implementation CI; physical/UX/release acceptance separately HOLD. Do not mark the official `docs/backlog.json` CT03 DONE.
 
 ## Specification applied
 
@@ -30,6 +30,21 @@ The new `opening_venues` persistent receipt is **conditional only for C02** with
 
 - [CI #44002892971](https://github.com/Anrixa/LightsBackON/actions/runs/44002892971): both Linux and Windows **FAIL** because the prior one-line test adjustment wrote a literal `\\t` into GDScript line 215 instead of indentation. Godot reported `Parse Error: Expected new line after "\\"`, so it skipped that C02 test script. The remainder reported 630 passing tests/0 failures, and C02 solution SOLVED 395 ticks/54 steps on each OS. **Neither result qualifies as a passing full suite.**
 - Fix is a literal one-line text-format correction to a real indentation tab. New exact-head dual-OS CI required. Both failed iterations are kept in the evidence trail.
+
+## Successful exact implementation-source CI
+
+The corrected implementation commit `282be90b582ed9b7d45a087a8ba802c979e962b5` passed [GitHub Actions #44003254561](https://github.com/Anrixa/LightsBackON/actions/runs/44003254561) on **both Linux and Windows**:
+
+| Gate | Linux | Windows |
+| --- | --- | --- |
+| Godot tests | **646 passed, 0 failed, 47,196 assertions** | **646 passed, 0 failed, 47,196 assertions** |
+| Content validation | 85 JSON files, 0 errors | 85 JSON files, 0 errors |
+| C02 authoring trace | **SOLVED in 395 ticks / 54 steps** | **SOLVED in 395 ticks / 54 steps** |
+| Entire C01–C08 trace set | All SOLVED | All SOLVED |
+| Python/Godot reference parity | MATCH, 32 cases, 246 hashes, 10 invalid definitions | MATCH, same |
+| Windows EXE/PCK, QA57, exported headless boot | Not applicable | PASS — script UID, source pin, export and smoke |
+
+These results establish **source-aligned headless C02 contract logic**, not player interaction/UI or old-release save acceptance. The evidence+tracker documentation commit after this test must be checked on its own final PR head before merge; then verify post-merge main CI.
 
 ## Pending acceptance
 
