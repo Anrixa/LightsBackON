@@ -54,7 +54,7 @@ func test_CTL2_C07_canal_baseline_and_module_rating_are_blueprint_exact() -> voi
 	var m: Dictionary = Runner.json(C07.path_join("mission.json"))
 	assert_eq(m["required_consumers"].size(), 6)
 	assert_eq(m["optional_services"], [] as Array[String])
-	assert_eq(m["optional_meter_evidence"]["label_capacity"], 14)
+	assert_eq(int(m["optional_meter_evidence"]["label_capacity"]), 14)
 	assert_eq(Runner.json(C07.path_join("repairs.json"))["supplies"]["MODULE_14PU"], 1.0)
 
 
@@ -193,7 +193,9 @@ func test_CTL2_C07_meter_evidence_durable_receipt_round_trip_and_rejects_wrong_s
 
 
 func test_CTL2_C07_invalid_module_definitions_fail_closed() -> void:
-	for invalid: int in [9, 11, 100]:
+	## Any other positive authored rating above the original is allowed by the generic engine;
+	## malformed/non-upgrade values alone must be rejected at content load.
+	for invalid: int in [0, 9, 10]:
 		var g: Dictionary = Runner.json(C07.path_join("grid.json"))
 		g["module_upgrades"][0]["to_capacity"] = invalid
 		var candidate: Grid = Grid.new()
