@@ -9,6 +9,7 @@ const Offline := preload("res://scripts/gameplay/offline_c01_session.gd")
 const Controller := preload("res://scripts/actors/first_person_controller.gd")
 const Ladder := preload("res://scripts/world/c03_fixed_ladder_view.gd")
 const Grid := preload("res://scripts/simulation/power_grid.gd")
+const Selector := preload("res://scripts/interaction/target_selector.gd")
 
 var _holder: Node3D
 
@@ -333,3 +334,21 @@ func test_CTL1_C03_P03_actual_capsule_walks_ground_and_roof_corridors() -> void:
 		8.0, ["PANEL_ROOF", "SW_ROOF_FEED", "SW_ROOF_BREAKER", "SW_BEACON",
 			"LADDER_WEST_RETURN"])
 	roof.free_scene()
+
+
+func test_CTL1_C03_P03_ladder_inside_sphere_is_only_selected_when_aimed() -> void:
+	var eye: Vector3 = Vector3(21.0, 9.99, 44.3)
+	var roof_panel: Vector3 = Vector3(22.1, 9.70, 45.9)
+	var ladder_return: Vector3 = Vector3(21.0, 9.65, 44.5)
+	var candidates: Array[Dictionary] = [
+		{"id": "LADDER_WEST_RETURN", "position": ladder_return, "radius": 0.48},
+		{"id": "PANEL_ROOF", "position": roof_panel, "radius": 0.48},
+	]
+	assert_true(eye.distance_to(ladder_return) < 0.48,
+		"regression fixture must actually put camera inside ladder assist radius")
+	var toward_panel: Vector3 = (roof_panel - eye).normalized()
+	assert_eq(Selector.select(eye, toward_panel, candidates, 2.3, 6.0), "PANEL_ROOF",
+		"overlapping ladder aim sphere must not steal roof panel center ray")
+	var toward_ladder: Vector3 = (ladder_return - eye).normalized()
+	assert_eq(Selector.select(eye, toward_ladder, candidates, 2.3, 6.0), "LADDER_WEST_RETURN",
+		"looking directly at nearby return ladder must still select it")
