@@ -126,8 +126,10 @@ func test_CTL3_C09_gust_does_not_mutate_faults_or_reset_repairs() -> void:
 	var ctx: Dictionary = _context()
 	var before: Dictionary = (ctx["grid"] as Grid).canonical_state()
 	Runner.ticks(ctx, 1500)
-	assert_eq((ctx["grid"] as Grid).canonical_state(), before,
-		"wind warning is a route-access gate, never a random grid fault")
+	var after: Dictionary = (ctx["grid"] as Grid).canonical_state()
+	assert_eq(after["nodes"], before["nodes"], "wind must not alter node/fault states")
+	assert_eq(after["edges"], before["edges"], "wind must not alter electrical topology")
+	assert_eq(after["tick"], 1500, "the host clock itself is expected to advance")
 
 
 func test_CTL3_C09_east_repair_requires_real_route_access() -> void:
