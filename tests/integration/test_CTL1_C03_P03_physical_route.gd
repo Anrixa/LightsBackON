@@ -192,6 +192,11 @@ func test_CTL1_C03_P03_station_staged_host_route_reaches_extraction() -> void:
 	_aim(scene, "LADDER_WEST_RETURN")
 	scene.call("_interact")
 	assert_eq(player.global_position, ladder.destination("LADDER_WEST_RETURN"))
+	# Player travel to the far van and pump pad takes substantially more than
+	# one second in-game. Advance the real 10 Hz host clock rather than
+	# unrealistically burst >20 commands into a single rate-limit window.
+	for i: int in 10:
+		session.tick_once()
 
 	# Reuse the authenticated C03 temporary-light generator route, never C01 pump.
 	_stand(scene, Vector3(8.0, 0.9, 14.4))
