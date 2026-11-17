@@ -9,7 +9,7 @@
 ## Development changes
 
 - GRID30, 14/14 west/east feeders, 13+12 required PU; GEN8 and 5+4 PU pumps.
-- Two independent 120-continuous-tick pump access latches; 9/8 concurrent overload remains unsafe; generator route order independent.
+- Two independent 120-continuous-tick pump access latches; both flooded GRID feeder trunks are initially broken and repaired as cable splices, not silently substituted west fuse faults; 9/8 concurrent overload remains unsafe; generator route order independent.
 - Host-only first-accepted-pickup optional cold-store bonus: 1800 ticks, durable fail-closed conditional state, no hard failure; HUD reads authoritative remaining ticks.
 - Complete 6-service solution trace and C05 negative/integration test replacement; earlier C05 provisional evidence retained without rewriting history.
 - No deployed checkpoint migration, physical scene promotion, Steam publishing or save deletion.
