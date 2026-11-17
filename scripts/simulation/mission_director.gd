@@ -74,6 +74,7 @@ var _outage_option: Dictionary = {}
 var _outage_ticks: int = 0
 var _outage_failed: bool = false
 var _outage_unsupplied: bool = false
+var _outage_last_valid: bool = false  # transition-only same-tick interruption detector
 ## Optional host-observed meter finding; absent from legacy contracts and saves.
 var _meter_evidence: Dictionary = {}
 var _evidence_observed: bool = false
@@ -262,7 +263,8 @@ func load_definition(definition: Dictionary, grid: PowerGrid, interaction: Inter
 			errs.append(PowerGrid.diag("BAD_MISSION", "cumulative outage needs a required consumer, two sources and positive tick limit", []))
 		else:
 			_outage_option = {"id": opt["id"], "consumer": consumer, "deadline_ticks": int(limit), "permitted_sources": allowed}
-			_outage_unsupplied = not _valid_outage_supply(grid.canonical_state())
+			_outage_unsupplied = false
+			_outage_last_valid = _valid_outage_supply(grid.canonical_state())
 	var evidence_raw: Variant = definition.get("optional_meter_evidence", null)
 	if evidence_raw != null:
 		var evidence: Dictionary = evidence_raw if evidence_raw is Dictionary else {}
@@ -416,6 +418,7 @@ func tick(now: int) -> Array[Dictionary]:
 				_outage_failed = true
 				events.append({"type": "cumulative_outage_bonus_missed", "id": _outage_option["id"], "tick": now})
 		_outage_unsupplied = false
+		_outage_last_valid = _valid_outage_supply(st)
 	var was_verified: bool = verified()
 	_verify_ticks = mini(_verify_ticks + 1, _verify_needed) if _all_required_on_grid(st) else 0
 	if verified() and not was_verified:
@@ -467,8 +470,14 @@ func observe_supply_state() -> void:
 	if not _continuous_optional.is_empty() and _continuous_ok:
 		if not _on_grid(_continuous_optional["consumer"], st):
 			_continuous_ok = false
-	if not _outage_option.is_empty() and not _outage_failed and not _valid_outage_supply(st):
-		_outage_unsupplied = true
+	if not _outage_option.is_empty():
+		var outage_supplied: bool = _valid_outage_supply(st)
+		# Only a real powered-to-unpowered transition flags an interruption.
+		# Starting from darkness and powering up before the next tick is not
+		# an extra outage tick; an off/on interruption while lit still counts.
+		if not _outage_failed and _outage_last_valid and not outage_supplied:
+			_outage_unsupplied = true
+		_outage_last_valid = outage_supplied
 
 
 ## Host-only evidence: a real inspected panel must show the 10 PU component
@@ -911,6 +920,7 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 	_outage_ticks = outage_ticks
 	_outage_failed = outage_failed
 	_outage_unsupplied = outage_pending
+	_outage_last_valid = _valid_outage_supply(_grid.canonical_state())
 	_evidence_observed = observed
 	_evidence_reset_attempted = reset_attempted
 	_continuous_ok = continuous_ok
