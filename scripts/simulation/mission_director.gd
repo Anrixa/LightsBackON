@@ -62,6 +62,13 @@ var _opening_elapsed: int = 0
 var _opening_ticks: Dictionary = {}
 var _opening_latched: Dictionary = {}  # consumer -> relative host elapsed tick
 var _opening_failed: bool = false
+## C05 deadline: first successful host equipment pickup starts the clock.
+## It is durable, never reset by unloading, and cannot block mandatory completion.
+var _pickup_option: Dictionary = {}
+var _pickup_started: bool = false
+var _pickup_elapsed: int = 0
+var _pickup_on_time: bool = false
+var _pickup_missed: bool = false
 ## Optional host-observed meter finding; absent from legacy contracts and saves.
 var _meter_evidence: Dictionary = {}
 var _evidence_observed: bool = false
@@ -214,6 +221,19 @@ func load_definition(definition: Dictionary, grid: PowerGrid, interaction: Inter
 		else:
 			_continuous_optional = {"id": opt["id"], "consumer": opt["consumer"]}
 			_continuous_ok = _on_grid(opt["consumer"], grid.canonical_state())
+	var pickup_raw: Variant = definition.get("optional_pickup_deadline", null)
+	if pickup_raw != null:
+		var pickup: Dictionary = pickup_raw if pickup_raw is Dictionary else {}
+		var consumer: Variant = pickup.get("consumer")
+		var deadline: Variant = PowerGrid.to_int(pickup.get("deadline_ticks"))
+		if not (consumer is String and _required.has(consumer) and
+				deadline != null and int(deadline) >= 1 and
+				pickup.get("start_trigger") == "first_equipment_pickup" and
+				_optional.is_empty() and _opening_venues.is_empty()):
+			errs.append(PowerGrid.diag("BAD_MISSION",
+				"pickup deadline needs a required consumer, positive ticks and host pickup trigger", []))
+		else:
+			_pickup_option = {"consumer": consumer, "deadline_ticks": int(deadline)}
 	var evidence_raw: Variant = definition.get("optional_meter_evidence", null)
 	if evidence_raw != null:
 		var evidence: Dictionary = evidence_raw if evidence_raw is Dictionary else {}
@@ -292,6 +312,14 @@ func begin_after_briefing() -> Dictionary:
 	return {"ok": true, "opening_deadline_ticks": _opening_deadline}
 
 
+## Host-only callback after an accepted, non-duplicate equipment pickup.
+func note_equipment_pickup() -> Array[Dictionary]:
+	if _pickup_option.is_empty() or _pickup_started or _completed_tick >= 0:
+		return []
+	_pickup_started = true
+	return [{"type": "pickup_deadline_started", "deadline_ticks": _pickup_option["deadline_ticks"], "tick": _now}]
+
+
 ## A qualifying venue can be on GRID or GEN, but not on an overloaded
 ## source. The host power model owns all supply and dual-route decisions.
 func _opening_supplied(consumer: String, st: Dictionary) -> bool:
@@ -343,6 +371,15 @@ func tick(now: int) -> Array[Dictionary]:
 			if not _optional_first_supplied.has(optional_id) and _on_grid(optional_id, st):
 				_optional_first_supplied[optional_id] = now
 				events.append({"type": "optional_service_on_time", "id": optional_id, "tick": now})
+	if _pickup_started and not _pickup_on_time and not _pickup_missed:
+		_pickup_elapsed += 1
+		if _pickup_elapsed <= int(_pickup_option["deadline_ticks"]) and _on_grid(_pickup_option["consumer"], st):
+			_pickup_on_time = true
+			events.append({"type": "pickup_optional_on_time", "id": _pickup_option["consumer"],
+				"elapsed_ticks": _pickup_elapsed, "tick": now})
+		elif _pickup_elapsed > int(_pickup_option["deadline_ticks"]):
+			_pickup_missed = true
+			events.append({"type": "pickup_deadline_missed", "id": _pickup_option["consumer"], "tick": now})
 	var was_verified: bool = verified()
 	_verify_ticks = mini(_verify_ticks + 1, _verify_needed) if _all_required_on_grid(st) else 0
 	if verified() and not was_verified:
@@ -449,10 +486,12 @@ func _build_results() -> Dictionary:
 	for venue: String in _opening_venues:
 		if _opening_latched.has(venue):
 			optional_restored.append(venue)
+	if not _pickup_option.is_empty() and _pickup_on_time:
+		optional_restored.append(_pickup_option["consumer"])
 	for reward_id: String in _optional_latch_rewards:
 		if _latched.has(reward_id):
 			optional_restored.append(_latches[reward_id]["consumer"])
-	var optional_total: int = _optional.size() + (1 if not _meter_evidence.is_empty() else 0) + (1 if not _continuous_optional.is_empty() else 0) + _opening_venues.size() + _optional_latch_rewards.size()
+	var optional_total: int = _optional.size() + (1 if not _meter_evidence.is_empty() else 0) + (1 if not _continuous_optional.is_empty() else 0) + _opening_venues.size() + _optional_latch_rewards.size() + (1 if not _pickup_option.is_empty() else 0)
 	var preventable: int = maxi(0, _trips - _trip_allowance)
 	var stars: int = 1 + (1 if optional_restored.size() == optional_total else 0) + (1 if preventable == 0 else 0)
 	return {"required_restored": restored, "required_total": _required.size(), "optional_services": optional_restored,
@@ -577,6 +616,8 @@ func _objective_done(cond: Dictionary, st: Dictionary) -> bool:
 		return _ladder_access.has(cond["ladder"])
 	if cond.has("opening_venue"):
 		return _opening_venues.has(cond["opening_venue"]) and _opening_latched.has(cond["opening_venue"])
+	if cond.has("pickup_deadline"):
+		return not _pickup_option.is_empty() and cond["pickup_deadline"] == _pickup_option["consumer"] and _pickup_on_time
 	if cond.has("continuous_supply"):
 		return not _continuous_optional.is_empty() and cond["continuous_supply"] == _continuous_optional["id"] \
 			and _completed_tick >= 0 and _continuous_ok and _on_grid(_continuous_optional["consumer"], st)
@@ -603,6 +644,13 @@ func canonical_state() -> Dictionary:
 	if not _opening_venues.is_empty():
 		out["opening_venues"] = {"started": _opening_started, "elapsed": _opening_elapsed,
 			"progress": _opening_ticks.duplicate(), "latched": _opening_latched.duplicate(), "failed": _opening_failed}
+	if not _pickup_option.is_empty():
+		out["pickup_deadline"] = {"started": _pickup_started, "elapsed": _pickup_elapsed,
+			"on_time": _pickup_on_time, "missed": _pickup_missed}
+	if not _pickup_option.is_empty():
+		out["pickup_deadline"] = {"started": _pickup_started, "elapsed": _pickup_elapsed,
+			"on_time": _pickup_on_time, "missed": _pickup_missed,
+			"remaining_ticks": maxi(0, int(_pickup_option["deadline_ticks"]) - _pickup_elapsed)}
 	if not _meter_evidence.is_empty():
 		out["optional_meter_evidence"] = {"observed": _evidence_observed, "reset_attempted": _evidence_reset_attempted}
 	if not _continuous_optional.is_empty():
@@ -721,6 +769,30 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 				return bad
 		if opening_failed and (opening_elapsed <= _opening_deadline or opening_latched.size() == _opening_venues.size()):
 			return bad
+	# Fail closed before committing any mission fields from the checkpoint.
+	var pickup_started: bool = false
+	var pickup_elapsed: int = 0
+	var pickup_on_time: bool = false
+	var pickup_missed: bool = false
+	if not _pickup_option.is_empty():
+		var pickup_record: Variant = d.get("pickup_deadline")
+		if not (pickup_record is Dictionary and (pickup_record as Dictionary).size() == 4
+				and pickup_record.get("started") is bool and pickup_record.get("on_time") is bool
+				and pickup_record.get("missed") is bool):
+			return bad
+		var pickup_ticks: Variant = PowerGrid.to_int(pickup_record.get("elapsed"))
+		if pickup_ticks == null or int(pickup_ticks) < 0 or int(pickup_ticks) > int(_pickup_option["deadline_ticks"]) + 1:
+			return bad
+		pickup_started = pickup_record["started"]
+		pickup_elapsed = int(pickup_ticks)
+		pickup_on_time = pickup_record["on_time"]
+		pickup_missed = pickup_record["missed"]
+		if (not pickup_started and (pickup_elapsed != 0 or pickup_on_time or pickup_missed)) or (pickup_on_time and pickup_missed):
+			return bad
+		if pickup_on_time and (pickup_elapsed < 1 or pickup_elapsed > int(_pickup_option["deadline_ticks"])):
+			return bad
+		if pickup_missed != (pickup_elapsed == int(_pickup_option["deadline_ticks"]) + 1):
+			return bad
 	# Evidence state is saved only by contracts that declare this objective.
 	# Verify the complete shape before mutating mission data (fail closed).
 	var observed: bool = false
@@ -764,6 +836,10 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 	_opening_ticks = opening_progress
 	_opening_latched = opening_latched
 	_opening_failed = opening_failed
+	_pickup_started = pickup_started
+	_pickup_elapsed = pickup_elapsed
+	_pickup_on_time = pickup_on_time
+	_pickup_missed = pickup_missed
 	_evidence_observed = observed
 	_evidence_reset_attempted = reset_attempted
 	_continuous_ok = continuous_ok
