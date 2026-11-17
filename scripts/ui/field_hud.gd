@@ -323,6 +323,7 @@ func _objectives() -> PanelContainer:
 		box.add_child(chip)
 
 	_add_pickup_deadline(box)
+	_add_cumulative_outage(box)
 	_add_field_shift(box)
 	return card
 
@@ -344,6 +345,19 @@ func _add_pickup_deadline(parent: VBoxContainer) -> void:
 	var formatted: String = UiText.t(text_key) if text_args.is_empty() else UiText.tf(text_key, text_args)
 	var label: Label = _label(parent, formatted, "StrongLabel", "text_muted")
 	label.name = "PickupDeadlineStatus"
+
+
+## Read-only display of the host's cumulative outage allowance; no local timer state.
+func _add_cumulative_outage(parent: VBoxContainer) -> void:
+	var clock: Dictionary = _view.get("cumulative_outage", {})
+	if clock.is_empty():
+		return
+	var key: String = "hud.cold_outage.remaining"
+	if bool(clock.get("missed", false)):
+		key = "hud.cold_outage.missed"
+	var seconds: int = ceili(int(clock.get("remaining_ticks", 0)) / 10.0)
+	var label: Label = _label(parent, UiText.tf(key, [seconds]), "StrongLabel", "text_muted")
+	label.name = "ColdOutageStatus"
 
 
 ## Keep one compact line and at most one read-only meter inside the existing

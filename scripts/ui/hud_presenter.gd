@@ -26,6 +26,8 @@ static func build(state: Dictionary, objectives: Array[Dictionary], ctx: Diction
 	var mission_state: Dictionary = state.get("mission", {})
 	if mission_state.has("pickup_deadline"):
 		view["pickup_deadline"] = (mission_state["pickup_deadline"] as Dictionary).duplicate(true)
+	if mission_state.has("cumulative_outage"):
+		view["cumulative_outage"] = (mission_state["cumulative_outage"] as Dictionary).duplicate(true)
 	return view
 
 
