@@ -226,14 +226,16 @@ func load_definition(definition: Dictionary, grid: PowerGrid, interaction: Inter
 		var pickup: Dictionary = pickup_raw if pickup_raw is Dictionary else {}
 		var consumer: Variant = pickup.get("consumer")
 		var deadline: Variant = PowerGrid.to_int(pickup.get("deadline_ticks"))
+		var required_latch: Variant = pickup.get("requires_latch", "")
 		if not (consumer is String and _required.has(consumer) and
 				deadline != null and int(deadline) >= 1 and
+				required_latch is String and (required_latch == "" or _latches.has(required_latch)) and
 				pickup.get("start_trigger") == "first_equipment_pickup" and
 				_optional.is_empty() and _opening_venues.is_empty()):
 			errs.append(PowerGrid.diag("BAD_MISSION",
-				"pickup deadline needs a required consumer, positive ticks and host pickup trigger", []))
+				"pickup deadline needs a required consumer, valid access latch, positive ticks and host pickup trigger", []))
 		else:
-			_pickup_option = {"consumer": consumer, "deadline_ticks": int(deadline)}
+			_pickup_option = {"consumer": consumer, "deadline_ticks": int(deadline), "requires_latch": required_latch}
 	var evidence_raw: Variant = definition.get("optional_meter_evidence", null)
 	if evidence_raw != null:
 		var evidence: Dictionary = evidence_raw if evidence_raw is Dictionary else {}
@@ -789,7 +791,8 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 		pickup_missed = pickup_record["missed"]
 		if (not pickup_started and (pickup_elapsed != 0 or pickup_on_time or pickup_missed)) or (pickup_on_time and pickup_missed):
 			return bad
-		if pickup_on_time and (pickup_elapsed < 1 or pickup_elapsed > int(_pickup_option["deadline_ticks"])):
+		if pickup_on_time and (pickup_elapsed < 1 or pickup_elapsed > int(_pickup_option["deadline_ticks"])
+				or (_pickup_option["requires_latch"] != "" and not latched.has(_pickup_option["requires_latch"]))):
 			return bad
 		if pickup_missed != (pickup_elapsed == int(_pickup_option["deadline_ticks"]) + 1):
 			return bad
