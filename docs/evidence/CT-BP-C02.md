@@ -21,6 +21,11 @@ The newly rewritten `tests/integration/test_CTL1_C02_dinner_rush.gd` covers 16 o
 
 The new `opening_venues` persistent receipt is **conditional only for C02** with started flag, relative elapsed time, exact progress/latch dictionaries and failure boolean. The validator rejects malformed or invented values before partial restore. Legacy C01 and other contract snapshot shapes remain unchanged; C02 rule revision necessarily changes, and earlier deployed C02 checkpoints are **not automatically migrated or deleted**. A documented versioned compatibility policy is required before resuming older C02 sessions in a released build.
 
+## Initial hosted CI finding and corrective test revision
+
+- [CI #44002529243](https://github.com/Anrixa/LightsBackON/actions/runs/44002529243) on initial PR head `f65752d4a4d0a720a5202ee4ae3fe5262b7d0ba5`: Windows reported 645 passed/1 failed. The single C02 durable partial-progress test expected MARKET=50 despite the trace runner already advancing one tick after the successful west feeder restore; actual authoritative progress=51, followed by the test's requested 50 more ticks. C02's 54-step solution replay solved in 395 ticks. This is an off-by-one test expectation, not evidence of power-supply failure.
+- The assertion is corrected to 51. This revision **requires new final-head Linux/Windows CI** before source fidelity may advance. Preserve original CI logs.
+
 ## Pending acceptance
 
 1. Exact PR head: full Linux and Windows checks, host trace replay C01–C08, Python reference parity, Godot parsing and Windows export/QA57.
