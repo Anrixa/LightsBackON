@@ -1,0 +1,85 @@
+{
+  "contract_id": "C04",
+  "source_note": "C04 has two required independent feeder repairs and an optional isolated sign-spur splice. All use the existing host-locked, meter-first repair state machine; generator equipment remains optional.",
+  "supplies": {
+    "FUSE_W": 1,
+    "CABLE_SPLICE": 2
+  },
+  "repairs": [
+    {
+      "id": "R_JW_FUSE",
+      "name_key": "repair.c04.west_fuse",
+      "panel": "PANEL_JW",
+      "isolate": "JW",
+      "fix": {
+        "op": "set",
+        "id": "JW",
+        "field": "failed",
+        "value": false
+      },
+      "component": "FUSE_W",
+      "tools": {
+        "open": "screwdriver",
+        "remove": "puller",
+        "install": "puller",
+        "test": "meter"
+      },
+      "hold_ticks": {
+        "open": 6,
+        "remove": 8,
+        "install": 8,
+        "close": 6
+      }
+    },
+    {
+      "id": "R_JE_TRUNK",
+      "name_key": "repair.c04.east_trunk",
+      "panel": "PANEL_JE",
+      "isolate": "JE",
+      "fix": {
+        "op": "set",
+        "id": "E_GRID_JE",
+        "field": "healthy",
+        "value": true
+      },
+      "component": "CABLE_SPLICE",
+      "tools": {
+        "open": "screwdriver",
+        "remove": "cutter",
+        "install": "crimper",
+        "test": "meter"
+      },
+      "hold_ticks": {
+        "open": 6,
+        "remove": 10,
+        "install": 12,
+        "close": 6
+      }
+    },
+    {
+      "id": "R_SIGN_SPUR",
+      "name_key": "repair.c04.sign_spur",
+      "panel": "PANEL_SPUR",
+      "isolate": "SPUR",
+      "fix": {
+        "op": "set",
+        "id": "E_SPUR_SIGN",
+        "field": "healthy",
+        "value": true
+      },
+      "component": "CABLE_SPLICE",
+      "tools": {
+        "open": "screwdriver",
+        "remove": "cutter",
+        "install": "crimper",
+        "test": "meter"
+      },
+      "hold_ticks": {
+        "open": 6,
+        "remove": 10,
+        "install": 12,
+        "close": 6
+      }
+    }
+  ]
+}

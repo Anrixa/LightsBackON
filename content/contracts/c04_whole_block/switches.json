@@ -1,0 +1,31 @@
+{
+  "contract_id": "C04",
+  "source_note": "Host-operated junction isolator SW_EAST_SIGN defaults closed to east sign routing (EAST_SIGN isolated=true). Opening that isolator allows unsafe 14/12 PU via JE. Direct 3 PU spur is the safe choice; simultaneous sign routes are refused before mutation.",
+  "switches": [
+    {
+      "id": "SW_SIGN",
+      "target": "SIGN",
+      "field": "enabled"
+    },
+    {
+      "id": "SW_EAST_SIGN",
+      "target": "EAST_SIGN",
+      "field": "isolated"
+    },
+    {
+      "id": "SW_JW_BREAKER",
+      "target": "JW",
+      "field": "tripped"
+    },
+    {
+      "id": "SW_JE_BREAKER",
+      "target": "JE",
+      "field": "tripped"
+    },
+    {
+      "id": "SW_SPUR_BREAKER",
+      "target": "SPUR",
+      "field": "tripped"
+    }
+  ]
+}

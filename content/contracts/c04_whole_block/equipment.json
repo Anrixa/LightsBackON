@@ -1,0 +1,49 @@
+{
+  "contract_id": "C04",
+  "source_note": "C04 retains the authored Alder portable generator and original anchor positions. The verified solution uses the repaired grid only and leaves the generator stowed.",
+  "equipment": [
+    {
+      "id": "GEN_PORTABLE",
+      "kind": "generator",
+      "source": "GEN",
+      "breaker": "TEMP",
+      "start_anchor": "VAN_BAY"
+    }
+  ],
+  "anchors": [
+    {
+      "id": "VAN_BAY",
+      "storage": true,
+      "routes": [],
+      "position_cm": [
+        800,
+        0,
+        1300
+      ]
+    },
+    {
+      "id": "STORE_PUMP_HOUSE",
+      "storage": true,
+      "routes": [],
+      "position_cm": [
+        6450,
+        0,
+        1350
+      ]
+    },
+    {
+      "id": "PAD_PUMP",
+      "storage": false,
+      "routes": [
+        "E_TEMP_PUMP",
+        "E_TEMP_PUB"
+      ],
+      "position_cm": [
+        6250,
+        0,
+        1600
+      ]
+    }
+  ],
+  "recovery_anchor": "VAN_BAY"
+}
