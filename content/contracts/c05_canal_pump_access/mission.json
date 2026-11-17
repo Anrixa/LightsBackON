@@ -104,6 +104,7 @@
   "optional_pickup_deadline": {
     "consumer": "COLD_STORE",
     "deadline_ticks": 1800,
-    "start_trigger": "first_equipment_pickup"
+    "start_trigger": "first_equipment_pickup",
+    "requires_latch": "LATCH_EAST_DRAIN"
   }
 }
