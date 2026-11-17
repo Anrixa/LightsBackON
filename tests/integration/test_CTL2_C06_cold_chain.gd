@@ -58,10 +58,10 @@ func test_CT_BP_C06_exact_original_topology_and_contract() -> void:
 	var definition: Dictionary = Runner.json(C06.path_join("mission.json"))
 	assert_eq(definition["required_consumers"].size(), 6)
 	assert_eq(definition["access_latches"].size(), 1)
-	assert_eq(definition["access_latches"][0]["supplied_ticks"], 120)
+	assert_eq(int(definition["access_latches"][0]["supplied_ticks"]), 120)
 	assert_eq(definition["optional_services"], [] as Array)
 	assert_false(definition.has("optional_deadline_ticks"))
-	assert_eq(definition["optional_cumulative_outage"]["deadline_ticks"], 1200)
+	assert_eq(int(definition["optional_cumulative_outage"]["deadline_ticks"]), 1200)
 	assert_eq(Runner.json(C06.path_join("repairs.json"))["repairs"].size(), 1)
 
 
