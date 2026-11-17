@@ -1,0 +1,61 @@
+{
+  "contract_id": "C09",
+  "source_note": "Development Blueprint v1.0 pp.18,20: Hill Road GRID28, west/east feeders14, GEN6; west13 (hall6 bakery4 greenhouse3), east12 (flats5 telecom4 garage3). West fuse failed, east trunk broken. Wind warning at tick600, roof entry closed 900–1300 inclusive with ground route unaffected. Sheltered GEN work light2 optional for 100 uninterrupted ticks. Source-only headless logic; physical scene/HUD/human HOLD.",
+  "supplies": {
+    "FUSE_W": 1,
+    "CABLE_SPLICE": 1
+  },
+  "repairs": [
+    {
+      "id": "R_JW_FUSE",
+      "name_key": "repair.c09.west_fuse",
+      "panel": "PANEL_JW",
+      "isolate": "JW",
+      "fix": {
+        "op": "set",
+        "id": "JW",
+        "field": "failed",
+        "value": false
+      },
+      "component": "FUSE_W",
+      "tools": {
+        "open": "screwdriver",
+        "remove": "puller",
+        "install": "puller",
+        "test": "meter"
+      },
+      "hold_ticks": {
+        "open": 6,
+        "remove": 8,
+        "install": 10,
+        "close": 6
+      }
+    },
+    {
+      "id": "R_EAST_TRUNK",
+      "name_key": "repair.c09.east_trunk",
+      "panel": "PANEL_JE",
+      "isolate": "JE",
+      "fix": {
+        "op": "set",
+        "id": "E_GRID_JE",
+        "field": "healthy",
+        "value": true
+      },
+      "component": "CABLE_SPLICE",
+      "tools": {
+        "open": "screwdriver",
+        "remove": "cutter",
+        "install": "crimper",
+        "test": "meter"
+      },
+      "hold_ticks": {
+        "open": 6,
+        "remove": 8,
+        "install": 10,
+        "close": 6
+      },
+      "access": "EAST_REPAIR_REACHED"
+    }
+  ]
+}

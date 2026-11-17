@@ -1,0 +1,188 @@
+{
+  "contract_id": "C09",
+  "source_note": "Development Blueprint v1.0 pp.18,20: Hill Road GRID28, west/east feeders14, GEN6; west13 (hall6 bakery4 greenhouse3), east12 (flats5 telecom4 garage3). West fuse failed, east trunk broken. Wind warning at tick600, roof entry closed 900–1300 inclusive with ground route unaffected. Sheltered GEN work light2 optional for 100 uninterrupted ticks. Source-only headless logic; physical scene/HUD/human HOLD.",
+  "trip_ticks": 15,
+  "nodes": [
+    {
+      "id": "GRID",
+      "kind": "source",
+      "capacity": 28,
+      "online": true
+    },
+    {
+      "id": "GEN",
+      "kind": "source",
+      "capacity": 6,
+      "online": false
+    },
+    {
+      "id": "JW",
+      "kind": "junction",
+      "isolated": false,
+      "failed": true,
+      "tripped": true
+    },
+    {
+      "id": "JE",
+      "kind": "junction",
+      "isolated": false,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "TEMP",
+      "kind": "junction",
+      "isolated": false,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "COMMUNITY_HALL",
+      "kind": "consumer",
+      "demand": 6,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "BAKERY",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "GREENHOUSE",
+      "kind": "consumer",
+      "demand": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "FLATS",
+      "kind": "consumer",
+      "demand": 5,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "TELECOM_HUT",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "SERVICE_GARAGE",
+      "kind": "consumer",
+      "demand": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "WORK_LIGHT",
+      "kind": "consumer",
+      "demand": 2,
+      "enabled": true,
+      "healthy": true
+    }
+  ],
+  "edges": [
+    {
+      "id": "E_GRID_JW",
+      "from": "GRID",
+      "to": "JW",
+      "capacity": 14,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_GRID_JE",
+      "from": "GRID",
+      "to": "JE",
+      "capacity": 14,
+      "enabled": true,
+      "healthy": false
+    },
+    {
+      "id": "E_JW_HALL",
+      "from": "JW",
+      "to": "COMMUNITY_HALL",
+      "capacity": 6,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_JW_BAKERY",
+      "from": "JW",
+      "to": "BAKERY",
+      "capacity": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_JW_GREENHOUSE",
+      "from": "JW",
+      "to": "GREENHOUSE",
+      "capacity": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_JE_FLATS",
+      "from": "JE",
+      "to": "FLATS",
+      "capacity": 5,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_JE_TELECOM",
+      "from": "JE",
+      "to": "TELECOM_HUT",
+      "capacity": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_JE_GARAGE",
+      "from": "JE",
+      "to": "SERVICE_GARAGE",
+      "capacity": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_GEN_TEMP",
+      "from": "GEN",
+      "to": "TEMP",
+      "capacity": 6,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_TEMP_LIGHT",
+      "from": "TEMP",
+      "to": "WORK_LIGHT",
+      "capacity": 2,
+      "enabled": false,
+      "healthy": true
+    }
+  ],
+  "protections": [
+    {
+      "id": "BRK_JW",
+      "element": "E_GRID_JW",
+      "breaker": "JW"
+    },
+    {
+      "id": "BRK_JE",
+      "element": "E_GRID_JE",
+      "breaker": "JE"
+    },
+    {
+      "id": "BRK_TEMP",
+      "element": "E_GEN_TEMP",
+      "breaker": "TEMP"
+    }
+  ]
+}

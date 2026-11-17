@@ -1,0 +1,21 @@
+{
+  "contract_id": "C09",
+  "source_note": "Host-only breaker and work-light controls; route travel is not an electrical switch.",
+  "switches": [
+    {
+      "id": "SW_JW_BREAKER",
+      "target": "JW",
+      "field": "tripped"
+    },
+    {
+      "id": "SW_JE_BREAKER",
+      "target": "JE",
+      "field": "tripped"
+    },
+    {
+      "id": "SW_LIGHT",
+      "target": "WORK_LIGHT",
+      "field": "enabled"
+    }
+  ]
+}
