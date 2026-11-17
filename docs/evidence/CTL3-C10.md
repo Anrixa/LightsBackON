@@ -26,3 +26,7 @@ Implementation source `eb8dcb01f75040269c252a7cfe09a8bf0accb9c7`, draft PR [#173
 - The C10 tests cover exact event-latch 2400/2401 boundary, 100 continuous ticks, optional missed completion, WEST16/14 protection trip, atomic refusal of dual stage circuits, save/restore corruption refusal, C01–C09 checkpoint-shape regression, and a 2-player host trace.
 
 **Qualification:** original-sheet SOURCE_ALIGNED_HEADLESS_CANDIDATE source logic. This addendum changes the PR head and therefore itself requires final exact-head Linux/Windows CI before merge, followed by independent merged-main CI. No physical gameplay/release certification implied.
+
+## Verified final-head and independent merged-main source CI — 17 November 2026 (UTC)
+
+C10: [173](https://github.com/Anrixa/LightsBackON/pull/173) final source [CI #44141631975](https://github.com/Anrixa/LightsBackON/actions/runs/44141631975) SUCCESS Linux+Windows; merged-main `7eda69f1b80863d5f82a0cab928d526251b051b1` [CI #44142259928](https://github.com/Anrixa/LightsBackON/actions/runs/44142259928) SUCCESS Linux+Windows. Source/headless only; original physical/Hill controller/GPU/old saves/Steam/release HOLD. Historical pending notes above are retained as original checkpoints.
