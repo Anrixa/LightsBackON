@@ -167,11 +167,14 @@ func load_definition(definition: Dictionary, grid: PowerGrid, interaction: Inter
 					errs.append(PowerGrid.diag("BAD_MISSION", "opening source must be a distinct source node", []))
 				else:
 					_opening_sources.append(source)
-			if _opening_venues.size() != (venue_list as Array).size() or _opening_venues.size() < 2 or
-					_opening_venues.size() != (venue_list as Array).duplicate().size() or _opening_sources.size() != (sources as Array).size() or
-					not _opening_sources.has(_grid_source):
-				errs.append(PowerGrid.diag("BAD_MISSION", "opening venues need distinct consumers and valid supply sources", []))
+			if _opening_venues.size() != (venue_list as Array).size() or _opening_venues.size() < 2 \
+					or _opening_sources.size() != (sources as Array).size() or not _opening_sources.has(_grid_source):
+				errs.append(PowerGrid.diag("BAD_MISSION", "opening venues need valid consumers and distinct supply sources", []))
+			var unique_venues: Dictionary = {}
 			for c: String in _opening_venues:
+				if unique_venues.has(c):
+					errs.append(PowerGrid.diag("BAD_MISSION", "opening venues cannot repeat a consumer", [c]))
+				unique_venues[c] = true
 				if not _required.has(c):
 					errs.append(PowerGrid.diag("BAD_MISSION", "opening venue must be required for main completion", [c]))
 				_opening_ticks[c] = 0
@@ -669,15 +672,15 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 			return bad
 		for c: Variant in progress:
 			var ticks: Variant = PowerGrid.to_int(progress[c])
-			if not (c is String and _opening_venues.has(c)) or ticks == null or
-					int(ticks) < 0 or int(ticks) > _opening_needed:
+			if not (c is String and _opening_venues.has(c)) or ticks == null \
+					or int(ticks) < 0 or int(ticks) > _opening_needed:
 				return bad
 			opening_progress[c] = int(ticks)
 		for c: Variant in record["latched"]:
 			var at: Variant = PowerGrid.to_int(record["latched"][c])
-			if not (c is String and _opening_venues.has(c)) or at == null or
-					int(at) < _opening_needed or int(at) > _opening_deadline or int(at) > opening_elapsed or
-					int(opening_progress.get(c, 0)) != _opening_needed:
+			if not (c is String and _opening_venues.has(c)) or at == null \
+					or int(at) < _opening_needed or int(at) > _opening_deadline or int(at) > opening_elapsed \
+					or int(opening_progress.get(c, 0)) != _opening_needed:
 				return bad
 			opening_latched[c] = int(at)
 		for c: String in _opening_venues:
