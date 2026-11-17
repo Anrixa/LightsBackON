@@ -212,7 +212,7 @@ func test_CT_BP_C02_durable_partial_progress_and_latched_venue_round_trip() -> v
 	var mission: Mission = ctx["mission"] as Mission
 	var saved: Dictionary = mission.durable_state()
 	# The runner advances one host tick after the west restore command.
-\tassert_eq(saved["opening_venues"]["progress"]["MARKET"], 51)
+	assert_eq(saved["opening_venues"]["progress"]["MARKET"], 51)
 	assert_eq(saved["opening_venues"]["progress"]["PUB"], 100)
 	assert_true(saved["opening_venues"]["latched"].has("PUB"))
 	var fresh: Dictionary = _context()

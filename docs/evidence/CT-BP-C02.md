@@ -26,6 +26,11 @@ The new `opening_venues` persistent receipt is **conditional only for C02** with
 - [CI #44002529243](https://github.com/Anrixa/LightsBackON/actions/runs/44002529243) on initial PR head `f65752d4a4d0a720a5202ee4ae3fe5262b7d0ba5`: Windows reported 645 passed/1 failed. The single C02 durable partial-progress test expected MARKET=50 despite the trace runner already advancing one tick after the successful west feeder restore; actual authoritative progress=51, followed by the test's requested 50 more ticks. C02's 54-step solution replay solved in 395 ticks. This is an off-by-one test expectation, not evidence of power-supply failure.
 - The assertion is corrected to 51. This revision **requires new final-head Linux/Windows CI** before source fidelity may advance. Preserve original CI logs.
 
+## Second hosted CI finding and formatting correction
+
+- [CI #44002892971](https://github.com/Anrixa/LightsBackON/actions/runs/44002892971): both Linux and Windows **FAIL** because the prior one-line test adjustment wrote a literal `\\t` into GDScript line 215 instead of indentation. Godot reported `Parse Error: Expected new line after "\\"`, so it skipped that C02 test script. The remainder reported 630 passing tests/0 failures, and C02 solution SOLVED 395 ticks/54 steps on each OS. **Neither result qualifies as a passing full suite.**
+- Fix is a literal one-line text-format correction to a real indentation tab. New exact-head dual-OS CI required. Both failed iterations are kept in the evidence trail.
+
 ## Pending acceptance
 
 1. Exact PR head: full Linux and Windows checks, host trace replay C01–C08, Python reference parity, Godot parsing and Windows export/QA57.
