@@ -1,0 +1,231 @@
+{
+  "contract_id": "C10",
+  "source_note": "Original Development Blueprint v1.0 pp.18,20–21 C10 Community Night, source-aligned headless candidate only. Hill GRID28 west/east feeders14, GEN6; west13 initially failed fuse, east12 healthy, stage3 overloaded if powered from west (16/14) and safe via installed direct GRID→STAGE_SPUR feeder4. Exact GRID28/28 with optional. Stage must receive 100 consecutive safe GRID ticks by mission tick2400. Missed optional does not block required completion. Hill Road physical, GPU, old saves, Steam, release HOLD.",
+  "trip_ticks": 15,
+  "nodes": [
+    {
+      "id": "GRID",
+      "kind": "source",
+      "capacity": 28,
+      "online": true
+    },
+    {
+      "id": "GEN",
+      "kind": "source",
+      "capacity": 6,
+      "online": false
+    },
+    {
+      "id": "WEST",
+      "kind": "junction",
+      "isolated": false,
+      "failed": true,
+      "tripped": true
+    },
+    {
+      "id": "EAST",
+      "kind": "junction",
+      "isolated": false,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "STAGE_SPUR",
+      "kind": "junction",
+      "isolated": false,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "WEST_STAGE",
+      "kind": "junction",
+      "isolated": true,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "TEMP",
+      "kind": "junction",
+      "isolated": false,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "COMMUNITY_HALL",
+      "kind": "consumer",
+      "demand": 6,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "BAKERY",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "GREENHOUSE",
+      "kind": "consumer",
+      "demand": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "FLATS",
+      "kind": "consumer",
+      "demand": 5,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "TELECOM_HUT",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "SERVICE_GARAGE",
+      "kind": "consumer",
+      "demand": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "STAGE",
+      "kind": "consumer",
+      "demand": 3,
+      "enabled": true,
+      "healthy": true
+    }
+  ],
+  "edges": [
+    {
+      "id": "E_GRID_WEST",
+      "from": "GRID",
+      "to": "WEST",
+      "capacity": 14,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_GRID_EAST",
+      "from": "GRID",
+      "to": "EAST",
+      "capacity": 14,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_WEST_HALL",
+      "from": "WEST",
+      "to": "COMMUNITY_HALL",
+      "capacity": 6,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_WEST_BAKERY",
+      "from": "WEST",
+      "to": "BAKERY",
+      "capacity": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_WEST_GREENHOUSE",
+      "from": "WEST",
+      "to": "GREENHOUSE",
+      "capacity": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_EAST_FLATS",
+      "from": "EAST",
+      "to": "FLATS",
+      "capacity": 5,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_EAST_TELECOM",
+      "from": "EAST",
+      "to": "TELECOM_HUT",
+      "capacity": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_EAST_GARAGE",
+      "from": "EAST",
+      "to": "SERVICE_GARAGE",
+      "capacity": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_WEST_STAGE",
+      "from": "WEST",
+      "to": "WEST_STAGE",
+      "capacity": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_WEST_STAGE_LOAD",
+      "from": "WEST_STAGE",
+      "to": "STAGE",
+      "capacity": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_GRID_STAGE",
+      "from": "GRID",
+      "to": "STAGE_SPUR",
+      "capacity": 4,
+      "enabled": false,
+      "healthy": true
+    },
+    {
+      "id": "E_STAGE_SPUR_STAGE",
+      "from": "STAGE_SPUR",
+      "to": "STAGE",
+      "capacity": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_GEN_TEMP",
+      "from": "GEN",
+      "to": "TEMP",
+      "capacity": 6,
+      "enabled": true,
+      "healthy": true
+    }
+  ],
+  "protections": [
+    {
+      "id": "BRK_WEST",
+      "element": "E_GRID_WEST",
+      "breaker": "WEST"
+    },
+    {
+      "id": "BRK_EAST",
+      "element": "E_GRID_EAST",
+      "breaker": "EAST"
+    },
+    {
+      "id": "BRK_STAGE_SPUR",
+      "element": "E_GRID_STAGE",
+      "breaker": "STAGE_SPUR"
+    },
+    {
+      "id": "BRK_TEMP",
+      "element": "E_GEN_TEMP",
+      "breaker": "TEMP"
+    }
+  ]
+}

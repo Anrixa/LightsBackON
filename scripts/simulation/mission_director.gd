@@ -68,6 +68,12 @@ var _opening_elapsed: int = 0
 var _opening_ticks: Dictionary = {}
 var _opening_latched: Dictionary = {}  # consumer -> relative host elapsed tick
 var _opening_failed: bool = false
+## C10: mission-relative deadline for a continuously supplied optional latch.
+## A late latch may complete, but never recovers its missed event award.
+var _timed_latch_option: Dictionary = {}
+var _timed_latch_elapsed: int = 0
+var _timed_latch_on_time: bool = false
+var _timed_latch_missed: bool = false
 ## C05 deadline: first successful host equipment pickup starts the clock.
 ## It is durable, never reset by unloading, and cannot block mandatory completion.
 var _pickup_option: Dictionary = {}
@@ -152,6 +158,19 @@ func load_definition(definition: Dictionary, grid: PowerGrid, interaction: Inter
 				errs.append(PowerGrid.diag("BAD_MISSION", "optional latch reward must name one unique access latch", []))
 			else:
 				_optional_latch_rewards.append(reward)
+	var timed_raw: Variant = definition.get("optional_timed_latch", null)
+	if timed_raw != null:
+		var timed: Dictionary = timed_raw if timed_raw is Dictionary else {}
+		var lid: Variant = timed.get("latch")
+		var limit: Variant = PowerGrid.to_int(timed.get("deadline_ticks"))
+		if not (timed.size() == 3 and lid is String and _latches.has(lid)
+				and _optional_latch_rewards.has(lid) and limit != null and
+				int(limit) >= int(_latches[lid]["supplied_ticks"]) and
+				timed.get("start_trigger") == "mission_first_tick"):
+			errs.append(PowerGrid.diag("BAD_MISSION",
+				"timed optional latch needs a rewarded latch, valid deadline and mission clock", []))
+		else:
+			_timed_latch_option = {"latch": lid, "deadline_ticks": int(limit)}
 	# Fixed ladders are contract access interactions, not electrical nodes.
 	for rec: Variant in definition.get("fixed_ladders", []):
 		var ladder: Dictionary = rec if rec is Dictionary else {}
@@ -422,6 +441,20 @@ func tick(now: int) -> Array[Dictionary]:
 			_latched[lid] = now
 			_interaction.set_access(l["grants"], true)
 			events.append({"type": "latch", "id": lid, "grants": l["grants"], "tick": now})
+	# Count the latch-completion tick against the event-start boundary.
+	# The core mission is never cancelled when an optional event deadline expires.
+	if not _timed_latch_option.is_empty() and not _timed_latch_on_time and not _timed_latch_missed:
+		_timed_latch_elapsed += 1
+		var timed_id: String = _timed_latch_option["latch"]
+		var timed_limit: int = int(_timed_latch_option["deadline_ticks"])
+		if _latched.has(timed_id) and _timed_latch_elapsed <= timed_limit:
+			_timed_latch_on_time = true
+			events.append({"type": "timed_latch_bonus_achieved", "latch": timed_id,
+				"elapsed_ticks": _timed_latch_elapsed, "tick": now})
+		elif _timed_latch_elapsed > timed_limit:
+			_timed_latch_missed = true
+			events.append({"type": "timed_latch_bonus_missed", "latch": timed_id,
+				"elapsed_ticks": _timed_latch_elapsed, "tick": now})
 	# The opening clock is independent of absolute host ticks and cannot advance
 	# during briefing/loading; it is therefore safe across offline save/reload.
 	if _opening_started:
@@ -580,7 +613,8 @@ func _build_results() -> Dictionary:
 	if not _outage_option.is_empty() and not _outage_failed and _valid_outage_supply(st):
 		optional_restored.append(_outage_option["id"])
 	for reward_id: String in _optional_latch_rewards:
-		if _latched.has(reward_id):
+		if _latched.has(reward_id) and (_timed_latch_option.is_empty()
+				or reward_id != _timed_latch_option["latch"] or _timed_latch_on_time):
 			optional_restored.append(_latches[reward_id]["consumer"])
 	var optional_total: int = _optional.size() + (1 if not _meter_evidence.is_empty() else 0) + (1 if not _continuous_optional.is_empty() else 0) + _opening_venues.size() + _optional_latch_rewards.size() + (1 if not _pickup_option.is_empty() else 0) + (1 if not _outage_option.is_empty() else 0)
 	var preventable: int = maxi(0, _trips - _trip_allowance)
@@ -741,6 +775,8 @@ func _objective_done(cond: Dictionary, st: Dictionary) -> bool:
 		return true
 	if cond.has("latch"):
 		return _latched.has(cond["latch"])
+	if cond.has("timed_latch"):
+		return not _timed_latch_option.is_empty() and cond["timed_latch"] == _timed_latch_option["latch"] and _timed_latch_on_time
 	if cond.has("ladder"):
 		return _ladder_access.has(cond["ladder"])
 	if cond.has("wind_access"):
@@ -778,6 +814,10 @@ func canonical_state() -> Dictionary:
 	if not _opening_venues.is_empty():
 		out["opening_venues"] = {"started": _opening_started, "elapsed": _opening_elapsed,
 			"progress": _opening_ticks.duplicate(), "latched": _opening_latched.duplicate(), "failed": _opening_failed}
+	if not _timed_latch_option.is_empty():
+		out["timed_latch_bonus"] = {"elapsed_ticks": _timed_latch_elapsed,
+			"on_time": _timed_latch_on_time, "missed": _timed_latch_missed,
+			"remaining_ticks": maxi(0, int(_timed_latch_option["deadline_ticks"]) - _timed_latch_elapsed)}
 	if not _pickup_option.is_empty():
 		out["pickup_deadline"] = {"started": _pickup_started, "elapsed": _pickup_elapsed,
 			"on_time": _pickup_on_time, "missed": _pickup_missed,
@@ -815,6 +855,9 @@ func durable_state() -> Dictionary:
 	if not _opening_venues.is_empty():
 		out["opening_venues"] = {"started": _opening_started, "elapsed": _opening_elapsed,
 			"progress": _opening_ticks.duplicate(), "latched": _opening_latched.duplicate(), "failed": _opening_failed}
+	if not _timed_latch_option.is_empty():
+		out["timed_latch_bonus"] = {"elapsed_ticks": _timed_latch_elapsed,
+			"on_time": _timed_latch_on_time, "missed": _timed_latch_missed}
 	if not _pickup_option.is_empty():
 		out["pickup_deadline"] = {"started": _pickup_started, "elapsed": _pickup_elapsed,
 			"on_time": _pickup_on_time, "missed": _pickup_missed}
@@ -1002,6 +1045,28 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 		wind_access = wind_record["access_route"]
 		if wind_access != "" and not [str(_wind_routes["ground_route"]), str(_wind_routes["roof_route"])].has(wind_access):
 			return bad
+	# C10 checkpoint fields are conditional: never alter older contract shapes.
+	# Validate the complete record before committing a single restored field.
+	var timed_elapsed: int = 0
+	var timed_on_time: bool = false
+	var timed_missed: bool = false
+	if not _timed_latch_option.is_empty():
+		var timed_saved: Variant = d.get("timed_latch_bonus")
+		if not (timed_saved is Dictionary and (timed_saved as Dictionary).size() == 3
+				and timed_saved.get("on_time") is bool and timed_saved.get("missed") is bool):
+			return bad
+		var elapsed: Variant = PowerGrid.to_int(timed_saved.get("elapsed_ticks"))
+		var limit: int = int(_timed_latch_option["deadline_ticks"])
+		if elapsed == null or int(elapsed) < 0 or int(elapsed) > limit + 1:
+			return bad
+		timed_elapsed = int(elapsed)
+		timed_on_time = timed_saved["on_time"]
+		timed_missed = timed_saved["missed"]
+		if (timed_on_time and (timed_missed or timed_elapsed < 1 or timed_elapsed > limit
+				or not latched.has(_timed_latch_option["latch"]))) or (timed_missed != (timed_elapsed == limit + 1)):
+			return bad
+		if not timed_on_time and not timed_missed and latched.has(_timed_latch_option["latch"]):
+			return bad
 	if (counters["completed_tick"] >= 0) == (d["results"] as Dictionary).is_empty():
 		return bad  # a finished run must carry its frozen results, an unfinished one none
 	for lid: String in latch_ticks:
@@ -1030,6 +1095,9 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 	_evidence_reset_attempted = reset_attempted
 	_continuous_ok = continuous_ok
 	_ladder_access = ladder_access
+	_timed_latch_elapsed = timed_elapsed
+	_timed_latch_on_time = timed_on_time
+	_timed_latch_missed = timed_missed
 	_wind_elapsed = wind_elapsed
 	_wind_access_route = wind_access
 	_wind_roof_players = {}

@@ -324,6 +324,7 @@ func _objectives() -> PanelContainer:
 
 	_add_pickup_deadline(box)
 	_add_cumulative_outage(box)
+	_add_timed_latch_bonus(box)
 	_add_field_shift(box)
 	return card
 
@@ -358,6 +359,24 @@ func _add_cumulative_outage(parent: VBoxContainer) -> void:
 	var seconds: int = ceili(int(clock.get("remaining_ticks", 0)) / 10.0)
 	var label: Label = _label(parent, UiText.tf(key, [seconds]), "StrongLabel", "text_muted")
 	label.name = "ColdOutageStatus"
+
+
+## C10 event countdown is derived exclusively from the host's mission snapshot.
+## Existing contracts never receive this optional field.
+func _add_timed_latch_bonus(parent: VBoxContainer) -> void:
+	var clock: Dictionary = _view.get("timed_latch_bonus", {})
+	if clock.is_empty():
+		return
+	var msg: String = ""
+	if bool(clock.get("on_time", false)):
+		msg = UiText.t("hud.stage_deadline.achieved")
+	elif bool(clock.get("missed", false)):
+		msg = UiText.t("hud.stage_deadline.missed")
+	else:
+		msg = UiText.tf("hud.stage_deadline.remaining", [
+			ceili(int(clock.get("remaining_ticks", 0)) / 10.0)])
+	var label: Label = _label(parent, msg, "StrongLabel", "text_muted")
+	label.name = "StageEventDeadlineStatus"
 
 
 ## Keep one compact line and at most one read-only meter inside the existing

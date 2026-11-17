@@ -10,7 +10,7 @@
       "id": "CTL3-C09",
       "contract_id": "C09",
       "status": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
-      "stage": "SOURCE_CI_VERIFIED_FINAL_DOCUMENTATION_HEAD_PENDING",
+      "stage": "MERGED_MAIN_CI_VERIFIED_SOURCE_ONLY",
       "prerequisites": [
         "Extract original contract sheet without guessing PU/timing",
         "Write machine-verified authoring test, negative cases and host solution replay",
@@ -22,9 +22,8 @@
       "source": "content/contracts/c09_wind_warning",
       "evidence": "docs/evidence/CTL3-C09.md",
       "pending": [
-        "Exact documentation PR-head Linux/Windows CI and independent merged-main revalidation",
-        "Real Hill Road 3D scene, physical roof safe-return movement, wind warning HUD, ground route pacing and human/controller/GPU",
-        "Old-release save compatibility, Steam F02/F06 and official CT06 dependency gates"
+        "Physical Hill Road roof/access, safe return, 20-second detour, warning HUD and human/controller/GPU qualification",
+        "Old released-save compatibility and real Steam F02/F06, canonical CT06 and production gates HOLD"
       ],
       "source_ci_commit": "e0f7336b368463f817a1265fe0ffec4c30ec46ae",
       "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44136706464",
@@ -33,20 +32,41 @@
         "failed": 0,
         "assertions": 50107
       },
-      "solution_replay": "SOLVED C09: 197 ticks, 54 steps"
+      "solution_replay": "SOLVED C09: 197 ticks, 54 steps",
+      "merged_main_sha": "13223b7472a9720a8e2630a497ee02452fb407e0",
+      "merged_main_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44138557595",
+      "corrective_pr": "https://github.com/Anrixa/LightsBackON/pull/171"
     },
     {
       "id": "CTL3-C10",
       "contract_id": "C10",
-      "status": "NOT_STARTED",
-      "stage": "PLANNED_AFTER_PREVIOUS_CONTRACT",
+      "status": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
+      "stage": "CODE_HEAD_LINUX_WINDOWS_VERIFIED_FINAL_DOCUMENTATION_HEAD_PENDING",
       "prerequisites": [
         "Extract original contract sheet without guessing PU/timing",
         "Write machine-verified authoring test, negative cases and host solution replay",
         "Separate exact-head Linux/Windows CI and merged-main validation"
       ],
       "acceptance_ceiling": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
-      "physical_release_status": "HOLD"
+      "physical_release_status": "HOLD",
+      "branch": "task/CT-L3-C10-community-night",
+      "source": "content/contracts/c10_community_night",
+      "evidence": "docs/evidence/CTL3-C10.md",
+      "pending": [
+        "Exact PR-head Linux/Windows CI and C01-C10 replay",
+        "Windows QA57 export and merged-main CI",
+        "Actual Hill Road physical stage cabling, event playback/HUD, controller/human/GPU, old saves and Steam F02/F06"
+      ],
+      "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44140713810",
+      "verified_code_head": "eb8dcb01f75040269c252a7cfe09a8bf0accb9c7",
+      "known_solution": "content/contracts/c10_community_night/solution.json",
+      "pull_request": "https://github.com/Anrixa/LightsBackON/pull/173",
+      "tests_each_os": {
+        "passed": 689,
+        "failed": 0,
+        "assertions": 50809
+      },
+      "solution_replay": "SOLVED C10: 187 ticks, 43 steps"
     },
     {
       "id": "CTL3-C11",

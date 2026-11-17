@@ -1,0 +1,60 @@
+{
+  "contract_id": "C10",
+  "source_note": "Original Development Blueprint v1.0 pp.18,20–21 C10 Community Night, source-aligned headless candidate only. Hill GRID28 west/east feeders14, GEN6; west13 initially failed fuse, east12 healthy, stage3 overloaded if powered from west (16/14) and safe via installed direct GRID→STAGE_SPUR feeder4. Exact GRID28/28 with optional. Stage must receive 100 consecutive safe GRID ticks by mission tick2400. Missed optional does not block required completion. Hill Road physical, GPU, old saves, Steam, release HOLD.",
+  "supplies": {
+    "FUSE_W": 1,
+    "CABLE_SPLICE": 1
+  },
+  "repairs": [
+    {
+      "id": "R_WEST_FUSE",
+      "name_key": "repair.c10.west_fuse",
+      "panel": "PANEL_WEST",
+      "isolate": "WEST",
+      "fix": {
+        "op": "set",
+        "id": "WEST",
+        "field": "failed",
+        "value": false
+      },
+      "component": "FUSE_W",
+      "tools": {
+        "open": "screwdriver",
+        "remove": "puller",
+        "install": "puller",
+        "test": "meter"
+      },
+      "hold_ticks": {
+        "open": 6,
+        "remove": 8,
+        "install": 8,
+        "close": 6
+      }
+    },
+    {
+      "id": "R_STAGE_SPUR",
+      "name_key": "repair.c10.stage_spur",
+      "panel": "PANEL_STAGE",
+      "isolate": "STAGE_SPUR",
+      "fix": {
+        "op": "set",
+        "id": "E_GRID_STAGE",
+        "field": "enabled",
+        "value": true
+      },
+      "component": "CABLE_SPLICE",
+      "tools": {
+        "open": "screwdriver",
+        "remove": "cutter",
+        "install": "crimper",
+        "test": "meter"
+      },
+      "hold_ticks": {
+        "open": 6,
+        "remove": 10,
+        "install": 12,
+        "close": 6
+      }
+    }
+  ]
+}

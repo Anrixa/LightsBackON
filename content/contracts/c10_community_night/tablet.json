@@ -1,0 +1,92 @@
+{
+  "contract_id": "C10",
+  "source_note": "Original Development Blueprint v1.0 pp.18,20–21 C10 Community Night, source-aligned headless candidate only. Hill GRID28 west/east feeders14, GEN6; west13 initially failed fuse, east12 healthy, stage3 overloaded if powered from west (16/14) and safe via installed direct GRID→STAGE_SPUR feeder4. Exact GRID28/28 with optional. Stage must receive 100 consecutive safe GRID ticks by mission tick2400. Missed optional does not block required completion. Hill Road physical, GPU, old saves, Steam, release HOLD.",
+  "columns": 6,
+  "rows": 4,
+  "nodes": [
+    {
+      "id": "GRID",
+      "col": 3,
+      "row": 0,
+      "name_key": "node.c10.grid"
+    },
+    {
+      "id": "GEN",
+      "col": 0,
+      "row": 3,
+      "name_key": "node.c10.gen"
+    },
+    {
+      "id": "WEST",
+      "col": 1,
+      "row": 1,
+      "name_key": "node.c10.west"
+    },
+    {
+      "id": "EAST",
+      "col": 5,
+      "row": 1,
+      "name_key": "node.c10.east"
+    },
+    {
+      "id": "STAGE_SPUR",
+      "col": 4,
+      "row": 0,
+      "name_key": "node.c10.stage_spur"
+    },
+    {
+      "id": "WEST_STAGE",
+      "col": 2,
+      "row": 1,
+      "name_key": "node.c10.west_stage"
+    },
+    {
+      "id": "TEMP",
+      "col": 1,
+      "row": 3,
+      "name_key": "node.c10.temp"
+    },
+    {
+      "id": "COMMUNITY_HALL",
+      "col": 0,
+      "row": 2,
+      "name_key": "node.c10.community_hall"
+    },
+    {
+      "id": "BAKERY",
+      "col": 1,
+      "row": 2,
+      "name_key": "node.c10.bakery"
+    },
+    {
+      "id": "GREENHOUSE",
+      "col": 2,
+      "row": 2,
+      "name_key": "node.c10.greenhouse"
+    },
+    {
+      "id": "FLATS",
+      "col": 3,
+      "row": 2,
+      "name_key": "node.c10.flats"
+    },
+    {
+      "id": "TELECOM_HUT",
+      "col": 4,
+      "row": 2,
+      "name_key": "node.c10.telecom_hut"
+    },
+    {
+      "id": "SERVICE_GARAGE",
+      "col": 5,
+      "row": 2,
+      "name_key": "node.c10.service_garage"
+    },
+    {
+      "id": "STAGE",
+      "col": 3,
+      "row": 3,
+      "name_key": "node.c10.stage"
+    }
+  ]
+}
