@@ -1,6 +1,6 @@
 {
   "contract_id": "C05",
-  "source_note": "CT-BP/C05 original blueprint rising-water solution, Development Blueprint v1.0 pp.18-19. First host pickup starts the 1800-tick cold-store clock. Stage two non-overlapping GEN8 routes: west pump5 for 120 continuous ticks and east pump4 for 120. Independently repair west fuse and east trunk, restore all six required consumers GRID25/30, verify, stow and extract. Simulated host intent trace, not a timed human playthrough.",
+  "source_note": "CT-BP/C05 original blueprint rising-water solution, Development Blueprint v1.0 pp.18-19. First host pickup starts the 1800-tick cold-store clock. Stage two non-overlapping GEN8 routes: west pump5 for 120 continuous ticks and east pump4 for 120. Independently repair both broken flooded trunks, restore all six required consumers GRID25/30, verify, stow and extract. Simulated host intent trace, not a timed human playthrough.",
   "players": [
     "P1"
   ],
@@ -242,7 +242,7 @@
       "intent": "equip",
       "entity": "R_WEST_TRUNK",
       "payload": {
-        "tool": "puller"
+        "tool": "cutter"
       },
       "expect": "ok"
     },
@@ -260,7 +260,7 @@
       "intent": "equip",
       "entity": "R_WEST_TRUNK",
       "payload": {
-        "tool": "puller"
+        "tool": "crimper"
       },
       "expect": "ok"
     },
