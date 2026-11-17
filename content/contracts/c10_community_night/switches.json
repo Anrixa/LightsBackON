@@ -1,0 +1,21 @@
+{
+  "contract_id": "C10",
+  "source_note": "Original Development Blueprint v1.0 pp.18,20–21 C10 Community Night, source-aligned headless candidate only. Hill GRID28 west/east feeders14, GEN6; west13 initially failed fuse, east12 healthy, stage3 overloaded if powered from west (16/14) and safe via installed direct GRID→STAGE_SPUR feeder4. Exact GRID28/28 with optional. Stage must receive 100 consecutive safe GRID ticks by mission tick2400. Missed optional does not block required completion. Hill Road physical, GPU, old saves, Steam, release HOLD.",
+  "switches": [
+    {
+      "id": "SW_WEST_BREAKER",
+      "target": "WEST",
+      "field": "tripped"
+    },
+    {
+      "id": "SW_STAGE_BREAKER",
+      "target": "STAGE_SPUR",
+      "field": "tripped"
+    },
+    {
+      "id": "SW_WEST_STAGE",
+      "target": "WEST_STAGE",
+      "field": "isolated"
+    }
+  ]
+}

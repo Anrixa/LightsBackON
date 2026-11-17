@@ -38,15 +38,23 @@
     {
       "id": "CTL3-C10",
       "contract_id": "C10",
-      "status": "NOT_STARTED",
-      "stage": "PLANNED_AFTER_PREVIOUS_CONTRACT",
+      "status": "SOURCE_IMPLEMENTED_CI_PENDING",
+      "stage": "CORRECTIVE_SOURCE_AUTHORING_UNDER_TEST",
       "prerequisites": [
         "Extract original contract sheet without guessing PU/timing",
         "Write machine-verified authoring test, negative cases and host solution replay",
         "Separate exact-head Linux/Windows CI and merged-main validation"
       ],
       "acceptance_ceiling": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
-      "physical_release_status": "HOLD"
+      "physical_release_status": "HOLD",
+      "branch": "task/CT-L3-C10-community-night",
+      "source": "content/contracts/c10_community_night",
+      "evidence": "docs/evidence/CTL3-C10.md",
+      "pending": [
+        "Exact PR-head Linux/Windows CI and C01-C10 replay",
+        "Windows QA57 export and merged-main CI",
+        "Actual Hill Road physical stage cabling, event playback/HUD, controller/human/GPU, old saves and Steam F02/F06"
+      ]
     },
     {
       "id": "CTL3-C11",

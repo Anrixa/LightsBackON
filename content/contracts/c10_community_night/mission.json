@@ -1,0 +1,91 @@
+{
+  "contract_id": "C10",
+  "source_note": "Original Development Blueprint v1.0 pp.18,20–21 C10 Community Night, source-aligned headless candidate only. Hill GRID28 west/east feeders14, GEN6; west13 initially failed fuse, east12 healthy, stage3 overloaded if powered from west (16/14) and safe via installed direct GRID→STAGE_SPUR feeder4. Exact GRID28/28 with optional. Stage must receive 100 consecutive safe GRID ticks by mission tick2400. Missed optional does not block required completion. Hill Road physical, GPU, old saves, Steam, release HOLD.",
+  "grid_source": "GRID",
+  "required_consumers": [
+    "COMMUNITY_HALL",
+    "BAKERY",
+    "GREENHOUSE",
+    "FLATS",
+    "TELECOM_HUT",
+    "SERVICE_GARAGE"
+  ],
+  "excluded_loads": [],
+  "access_latches": [
+    {
+      "id": "LATCH_STAGE",
+      "consumer": "STAGE",
+      "source": "GRID",
+      "supplied_ticks": 100,
+      "grants": "STAGE_SERVICE_READY"
+    }
+  ],
+  "optional_latch_rewards": [
+    "LATCH_STAGE"
+  ],
+  "optional_timed_latch": {
+    "latch": "LATCH_STAGE",
+    "deadline_ticks": 2400,
+    "start_trigger": "mission_first_tick"
+  },
+  "final_verification_ticks": 100,
+  "extraction": {
+    "zone": "ZONE_VAN",
+    "countdown_ticks": 50
+  },
+  "objectives": [
+    {
+      "id": "OBJ_WEST",
+      "text_key": "objective.c10.restore_west",
+      "done_when": {
+        "supplied_from_grid": [
+          "COMMUNITY_HALL",
+          "BAKERY",
+          "GREENHOUSE"
+        ]
+      }
+    },
+    {
+      "id": "OBJ_EAST",
+      "text_key": "objective.c10.check_east",
+      "done_when": {
+        "supplied_from_grid": [
+          "FLATS",
+          "TELECOM_HUT",
+          "SERVICE_GARAGE"
+        ]
+      }
+    },
+    {
+      "id": "OBJ_STAGE",
+      "text_key": "objective.c10.stage",
+      "done_when": {
+        "timed_latch": "LATCH_STAGE"
+      }
+    },
+    {
+      "id": "OBJ_VERIFY",
+      "text_key": "objective.c01.verify_supply",
+      "done_when": {
+        "verified": true
+      }
+    },
+    {
+      "id": "OBJ_STOW",
+      "text_key": "objective.c01.stow_equipment",
+      "done_when": {
+        "stowed": true
+      }
+    },
+    {
+      "id": "OBJ_EXTRACT",
+      "text_key": "objective.c01.extract",
+      "done_when": {
+        "completed": true
+      }
+    }
+  ],
+  "max_visible_objectives": 3,
+  "optional_services": [],
+  "tutorial_trip_allowance": 0
+}
