@@ -1,0 +1,61 @@
+{
+  "contract_id": "C09",
+  "source_note": "Original Development Blueprint v1.0 pp.18,20 C09 Wind Warning: Hill GRID28, 14/14 feeders, GEN6, west13/east12=25 PU; failed west fuse, broken east trunk, roof warning tick600, closed roof ENTRY 900–1300 inclusive and safe roof RETURN and ground detour always permitted. Optional GEN work light 2 PU for 100 continuous ticks. 200-tick relative ground traversal is physical target NOT simulated travel; source-only headless candidate, physical/release HOLD.",
+  "supplies": {
+    "FUSE_W": 1,
+    "CABLE_SPLICE": 1
+  },
+  "repairs": [
+    {
+      "id": "R_WEST_FUSE",
+      "name_key": "repair.c09.west_fuse",
+      "panel": "PANEL_WEST",
+      "isolate": "WEST",
+      "fix": {
+        "op": "set",
+        "id": "WEST",
+        "field": "failed",
+        "value": false
+      },
+      "component": "FUSE_W",
+      "tools": {
+        "open": "screwdriver",
+        "remove": "puller",
+        "install": "puller",
+        "test": "meter"
+      },
+      "hold_ticks": {
+        "open": 6,
+        "remove": 8,
+        "install": 8,
+        "close": 6
+      }
+    },
+    {
+      "id": "R_EAST_TRUNK",
+      "name_key": "repair.c09.east_trunk",
+      "panel": "PANEL_EAST",
+      "access": "EAST_REPAIR_ACCESS",
+      "isolate": "EAST",
+      "fix": {
+        "op": "set",
+        "id": "E_GRID_EAST",
+        "field": "healthy",
+        "value": true
+      },
+      "component": "CABLE_SPLICE",
+      "tools": {
+        "open": "screwdriver",
+        "remove": "cutter",
+        "install": "crimper",
+        "test": "meter"
+      },
+      "hold_ticks": {
+        "open": 6,
+        "remove": 10,
+        "install": 12,
+        "close": 6
+      }
+    }
+  ]
+}

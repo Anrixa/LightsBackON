@@ -1,0 +1,109 @@
+{
+  "contract_id": "C09",
+  "source_note": "Original Development Blueprint v1.0 pp.18,20 C09 Wind Warning: Hill GRID28, 14/14 feeders, GEN6, west13/east12=25 PU; failed west fuse, broken east trunk, roof warning tick600, closed roof ENTRY 900–1300 inclusive and safe roof RETURN and ground detour always permitted. Optional GEN work light 2 PU for 100 continuous ticks. 200-tick relative ground traversal is physical target NOT simulated travel; source-only headless candidate, physical/release HOLD.",
+  "grid_source": "GRID",
+  "required_consumers": [
+    "COMMUNITY_HALL",
+    "BAKERY",
+    "GREENHOUSE",
+    "FLATS",
+    "TELECOM_HUT",
+    "SERVICE_GARAGE"
+  ],
+  "excluded_loads": [],
+  "access_latches": [
+    {
+      "id": "LATCH_SHELTER_LIGHT",
+      "consumer": "WORK_LIGHT",
+      "source": "GEN",
+      "supplied_ticks": 100,
+      "grants": "SHELTER_LIGHT_READY"
+    }
+  ],
+  "fixed_ladders": [
+    {
+      "id": "ROUTE_ROOF_ENTRY",
+      "grants": "EAST_REPAIR_ACCESS"
+    },
+    {
+      "id": "ROUTE_ROOF_RETURN",
+      "grants": "ROOF_SAFE_RETURN"
+    },
+    {
+      "id": "ROUTE_GROUND_SERVICE",
+      "grants": "EAST_REPAIR_ACCESS"
+    }
+  ],
+  "wind_window": {
+    "roof_entry": "ROUTE_ROOF_ENTRY",
+    "roof_return": "ROUTE_ROOF_RETURN",
+    "ground_route": "ROUTE_GROUND_SERVICE",
+    "warning_ticks": 600,
+    "closed_from_ticks": 900,
+    "closed_through_ticks": 1300,
+    "ground_extra_ticks": 200
+  },
+  "final_verification_ticks": 100,
+  "extraction": {
+    "zone": "ZONE_VAN",
+    "countdown_ticks": 50
+  },
+  "objectives": [
+    {
+      "id": "OBJ_WEST",
+      "text_key": "objective.c09.restore_west",
+      "done_when": {
+        "supplied_from_grid": [
+          "COMMUNITY_HALL",
+          "BAKERY",
+          "GREENHOUSE"
+        ]
+      }
+    },
+    {
+      "id": "OBJ_EAST",
+      "text_key": "objective.c09.restore_east",
+      "done_when": {
+        "supplied_from_grid": [
+          "FLATS",
+          "TELECOM_HUT",
+          "SERVICE_GARAGE"
+        ]
+      }
+    },
+    {
+      "id": "OBJ_LIGHT",
+      "text_key": "objective.c09.shelter_light",
+      "done_when": {
+        "latch": "LATCH_SHELTER_LIGHT"
+      }
+    },
+    {
+      "id": "OBJ_VERIFY",
+      "text_key": "objective.c01.verify_supply",
+      "done_when": {
+        "verified": true
+      }
+    },
+    {
+      "id": "OBJ_STOW",
+      "text_key": "objective.c01.stow_equipment",
+      "done_when": {
+        "stowed": true
+      }
+    },
+    {
+      "id": "OBJ_EXTRACT",
+      "text_key": "objective.c01.extract",
+      "done_when": {
+        "completed": true
+      }
+    }
+  ],
+  "max_visible_objectives": 3,
+  "optional_services": [],
+  "optional_latch_rewards": [
+    "LATCH_SHELTER_LIGHT"
+  ],
+  "tutorial_trip_allowance": 0
+}

@@ -1,0 +1,188 @@
+{
+  "contract_id": "C09",
+  "source_note": "Original Development Blueprint v1.0 pp.18,20 C09 Wind Warning: Hill GRID28, 14/14 feeders, GEN6, west13/east12=25 PU; failed west fuse, broken east trunk, roof warning tick600, closed roof ENTRY 900–1300 inclusive and safe roof RETURN and ground detour always permitted. Optional GEN work light 2 PU for 100 continuous ticks. 200-tick relative ground traversal is physical target NOT simulated travel; source-only headless candidate, physical/release HOLD.",
+  "trip_ticks": 15,
+  "nodes": [
+    {
+      "id": "GRID",
+      "kind": "source",
+      "capacity": 28,
+      "online": true
+    },
+    {
+      "id": "GEN",
+      "kind": "source",
+      "capacity": 6,
+      "online": false
+    },
+    {
+      "id": "WEST",
+      "kind": "junction",
+      "isolated": false,
+      "failed": true,
+      "tripped": true
+    },
+    {
+      "id": "EAST",
+      "kind": "junction",
+      "isolated": false,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "TEMP",
+      "kind": "junction",
+      "isolated": false,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "COMMUNITY_HALL",
+      "kind": "consumer",
+      "demand": 6,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "BAKERY",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "GREENHOUSE",
+      "kind": "consumer",
+      "demand": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "FLATS",
+      "kind": "consumer",
+      "demand": 5,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "TELECOM_HUT",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "SERVICE_GARAGE",
+      "kind": "consumer",
+      "demand": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "WORK_LIGHT",
+      "kind": "consumer",
+      "demand": 2,
+      "enabled": false,
+      "healthy": true
+    }
+  ],
+  "edges": [
+    {
+      "id": "E_GRID_WEST",
+      "from": "GRID",
+      "to": "WEST",
+      "capacity": 14,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_GRID_EAST",
+      "from": "GRID",
+      "to": "EAST",
+      "capacity": 14,
+      "enabled": true,
+      "healthy": false
+    },
+    {
+      "id": "E_WEST_HALL",
+      "from": "WEST",
+      "to": "COMMUNITY_HALL",
+      "capacity": 6,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_WEST_BAKERY",
+      "from": "WEST",
+      "to": "BAKERY",
+      "capacity": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_WEST_GREENHOUSE",
+      "from": "WEST",
+      "to": "GREENHOUSE",
+      "capacity": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_EAST_FLATS",
+      "from": "EAST",
+      "to": "FLATS",
+      "capacity": 5,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_EAST_TELECOM",
+      "from": "EAST",
+      "to": "TELECOM_HUT",
+      "capacity": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_EAST_GARAGE",
+      "from": "EAST",
+      "to": "SERVICE_GARAGE",
+      "capacity": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_GEN_TEMP",
+      "from": "GEN",
+      "to": "TEMP",
+      "capacity": 6,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_TEMP_WORK_LIGHT",
+      "from": "TEMP",
+      "to": "WORK_LIGHT",
+      "capacity": 2,
+      "enabled": false,
+      "healthy": true
+    }
+  ],
+  "protections": [
+    {
+      "id": "BRK_WEST",
+      "element": "E_GRID_WEST",
+      "breaker": "WEST"
+    },
+    {
+      "id": "BRK_EAST",
+      "element": "E_GRID_EAST",
+      "breaker": "EAST"
+    },
+    {
+      "id": "BRK_TEMP",
+      "element": "E_GEN_TEMP",
+      "breaker": "TEMP"
+    }
+  ]
+}

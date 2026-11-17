@@ -1,0 +1,27 @@
+{
+  "contract_id": "C09",
+  "source_note": "Original Development Blueprint v1.0 pp.18,20 C09 Wind Warning: Hill GRID28, 14/14 feeders, GEN6, west13/east12=25 PU; failed west fuse, broken east trunk, roof warning tick600, closed roof ENTRY 900–1300 inclusive and safe roof RETURN and ground detour always permitted. Optional GEN work light 2 PU for 100 continuous ticks. 200-tick relative ground traversal is physical target NOT simulated travel; source-only headless candidate, physical/release HOLD.",
+  "panels": [
+    {
+      "id": "PANEL_GRID",
+      "target": "GRID"
+    },
+    {
+      "id": "PANEL_GEN",
+      "target": "GEN"
+    },
+    {
+      "id": "PANEL_WEST",
+      "target": "WEST"
+    },
+    {
+      "id": "PANEL_EAST",
+      "target": "EAST"
+    },
+    {
+      "id": "PANEL_TEMP",
+      "target": "TEMP"
+    }
+  ],
+  "initial_breaker_reasons": {}
+}

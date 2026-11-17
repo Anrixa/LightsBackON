@@ -9,54 +9,64 @@
     {
       "id": "CTL3-C09",
       "contract_id": "C09",
-      "status": "NOT_STARTED",
-      "stage": "NEXT_SOURCE_SPEC_AND_HOST_IMPLEMENTATION",
+      "status": "SOURCE_IMPLEMENTED_CI_PENDING",
+      "stage": "HOST_LOGIC_AWAITING_DUAL_OS_CI",
       "prerequisites": [
         "Extract original contract sheet without guessing PU/timing",
         "Write machine-verified authoring test, negative cases and host solution replay",
         "Separate exact-head Linux/Windows CI and merged-main validation"
       ],
       "acceptance_ceiling": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
-      "physical_release_status": "HOLD"
+      "physical_release_status": "HOLD",
+      "source": "content/contracts/c09_wind_warning",
+      "evidence": "docs/evidence/CT-L3-C09.md",
+      "pending": [
+        "Exact Linux/Windows CI and host solution replay",
+        "Hill Road physical roof and alley, safe return, 20s detour human measurement",
+        "Target GPU/controller, existing saves and Steam F02/F06"
+      ]
     },
     {
       "id": "CTL3-C10",
       "contract_id": "C10",
       "status": "NOT_STARTED",
-      "stage": "PLANNED_AFTER_PREVIOUS_CONTRACT",
+      "stage": "ORIGINAL_BLUEPRINT_TRANSCRIBED_IMPLEMENTATION_NOT_STARTED",
       "prerequisites": [
         "Extract original contract sheet without guessing PU/timing",
         "Write machine-verified authoring test, negative cases and host solution replay",
         "Separate exact-head Linux/Windows CI and merged-main validation"
       ],
       "acceptance_ceiling": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
-      "physical_release_status": "HOLD"
+      "physical_release_status": "HOLD",
+      "source_spec": "docs/design/CT-L3-original-contract-sheets.json"
     },
     {
       "id": "CTL3-C11",
       "contract_id": "C11",
       "status": "NOT_STARTED",
-      "stage": "PLANNED_AFTER_PREVIOUS_CONTRACT",
+      "stage": "ORIGINAL_BLUEPRINT_TRANSCRIBED_IMPLEMENTATION_NOT_STARTED",
       "prerequisites": [
         "Extract original contract sheet without guessing PU/timing",
         "Write machine-verified authoring test, negative cases and host solution replay",
         "Separate exact-head Linux/Windows CI and merged-main validation"
       ],
       "acceptance_ceiling": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
-      "physical_release_status": "HOLD"
+      "physical_release_status": "HOLD",
+      "source_spec": "docs/design/CT-L3-original-contract-sheets.json"
     },
     {
       "id": "CTL3-C12",
       "contract_id": "C12",
       "status": "NOT_STARTED",
-      "stage": "PLANNED_AFTER_PREVIOUS_CONTRACT",
+      "stage": "ORIGINAL_BLUEPRINT_TRANSCRIBED_IMPLEMENTATION_NOT_STARTED",
       "prerequisites": [
         "Extract original contract sheet without guessing PU/timing",
         "Write machine-verified authoring test, negative cases and host solution replay",
         "Separate exact-head Linux/Windows CI and merged-main validation"
       ],
       "acceptance_ceiling": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
-      "physical_release_status": "HOLD"
+      "physical_release_status": "HOLD",
+      "source_spec": "docs/design/CT-L3-original-contract-sheets.json"
     }
   ]
 }

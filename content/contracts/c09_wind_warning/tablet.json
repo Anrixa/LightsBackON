@@ -1,0 +1,80 @@
+{
+  "contract_id": "C09",
+  "source_note": "Original Development Blueprint v1.0 pp.18,20 C09 Wind Warning: Hill GRID28, 14/14 feeders, GEN6, west13/east12=25 PU; failed west fuse, broken east trunk, roof warning tick600, closed roof ENTRY 900–1300 inclusive and safe roof RETURN and ground detour always permitted. Optional GEN work light 2 PU for 100 continuous ticks. 200-tick relative ground traversal is physical target NOT simulated travel; source-only headless candidate, physical/release HOLD.",
+  "columns": 6,
+  "rows": 4,
+  "nodes": [
+    {
+      "id": "GRID",
+      "col": 3,
+      "row": 0,
+      "name_key": "node.c09.grid"
+    },
+    {
+      "id": "GEN",
+      "col": 0,
+      "row": 3,
+      "name_key": "node.c09.gen"
+    },
+    {
+      "id": "WEST",
+      "col": 1,
+      "row": 1,
+      "name_key": "node.c09.west"
+    },
+    {
+      "id": "EAST",
+      "col": 5,
+      "row": 1,
+      "name_key": "node.c09.east"
+    },
+    {
+      "id": "TEMP",
+      "col": 1,
+      "row": 3,
+      "name_key": "node.c09.temp"
+    },
+    {
+      "id": "COMMUNITY_HALL",
+      "col": 0,
+      "row": 2,
+      "name_key": "node.c09.community_hall"
+    },
+    {
+      "id": "BAKERY",
+      "col": 1,
+      "row": 2,
+      "name_key": "node.c09.bakery"
+    },
+    {
+      "id": "GREENHOUSE",
+      "col": 2,
+      "row": 2,
+      "name_key": "node.c09.greenhouse"
+    },
+    {
+      "id": "FLATS",
+      "col": 3,
+      "row": 2,
+      "name_key": "node.c09.flats"
+    },
+    {
+      "id": "TELECOM_HUT",
+      "col": 4,
+      "row": 2,
+      "name_key": "node.c09.telecom_hut"
+    },
+    {
+      "id": "SERVICE_GARAGE",
+      "col": 5,
+      "row": 2,
+      "name_key": "node.c09.service_garage"
+    },
+    {
+      "id": "WORK_LIGHT",
+      "col": 3,
+      "row": 3,
+      "name_key": "node.c09.work_light"
+    }
+  ]
+}

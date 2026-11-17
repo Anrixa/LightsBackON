@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "authority": "Original Development Blueprint v1.0 pp.18,20-21; original design constants, not measured outcomes",
+  "baseline": {
+    "district": "Hill Road",
+    "grid_pu": 28,
+    "feeder_west_pu": 14,
+    "feeder_east_pu": 14,
+    "generator_pu": 6,
+    "required_pu": 25,
+    "west_services": {
+      "COMMUNITY_HALL": 6,
+      "BAKERY": 4,
+      "GREENHOUSE": 3
+    },
+    "east_services": {
+      "FLATS": 5,
+      "TELECOM_HUT": 4,
+      "SERVICE_GARAGE": 3
+    }
+  },
+  "contracts": [
+    {
+      "id": "C09",
+      "name": "Wind Warning",
+      "faults": [
+        "WEST failed fuse",
+        "EAST broken trunk"
+      ],
+      "wind": {
+        "warning_tick": 600,
+        "roof_entry_closed_start_tick": 900,
+        "roof_entry_closed_last_tick": 1300,
+        "ground_additional_travel_target_ticks": 200,
+        "safe_return": true
+      },
+      "bonus": {
+        "work_light_pu": 2,
+        "required_supplied_ticks": 100,
+        "sheltered_generator_pad": true
+      }
+    },
+    {
+      "id": "C10",
+      "name": "Community Night",
+      "faults": [
+        "WEST failed fuse"
+      ],
+      "east_initial_healthy": true,
+      "stage": {
+        "demand_pu": 3,
+        "installed_direct_spur_capacity_pu": 4,
+        "west_if_local_stage_pu": 16,
+        "final_grid_pu": 28,
+        "bonus_supplied_ticks": 100,
+        "bonus_deadline_ticks": 2400
+      }
+    },
+    {
+      "id": "C11",
+      "name": "Borrowed Power",
+      "faults": [
+        "EAST broken trunk"
+      ],
+      "west_initial_healthy": true,
+      "telecom": {
+        "demand_pu": 4,
+        "alternate_west_bypass": true,
+        "west_with_all_loads_pu": 17,
+        "greenhouse_shed_pu": 3,
+        "west_after_shed_and_bypass_pu": 14
+      },
+      "garage_control": {
+        "demand_pu": 4,
+        "access_latch_ticks": 100
+      },
+      "optional": {
+        "max_uninterrupted_telecom_outage_ticks": 50,
+        "fail_when_greater": true
+      }
+    },
+    {
+      "id": "C12",
+      "name": "Lights Back On",
+      "faults": [
+        "WEST failed protection module",
+        "EAST broken trunk"
+      ],
+      "access": {
+        "generator_pu": 4,
+        "continuous_ticks": 120
+      },
+      "beacon": {
+        "demand_pu": 3,
+        "direct_spur_capacity_pu": 4,
+        "bonus_supplied_ticks": 100
+      },
+      "final_grid_pu": 28,
+      "lighting_stagger_ticks": 20
+    }
+  ],
+  "physical_certification": "HOLD",
+  "release_certification": "HOLD"
+}
