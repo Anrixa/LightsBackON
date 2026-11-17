@@ -1,0 +1,77 @@
+{
+  "contract_id": "C04",
+  "source_note": "C04 Whole Block: repair both essential Alder feeders, then optionally isolate and splice a direct 3 PU GRID sign spur. Enabling the east-sign connection instead of the direct spur overloads the 12 PU east feeder. All five services must be GRID-supplied for 100 uninterrupted ticks, extraction is 50 ticks. The optional sign never blocks completion.",
+  "grid_source": "GRID",
+  "required_consumers": [
+    "APT_E",
+    "APT_W",
+    "MARKET",
+    "PUB",
+    "WORKSHOP"
+  ],
+  "excluded_loads": [],
+  "access_latches": [],
+  "final_verification_ticks": 100,
+  "extraction": {
+    "zone": "ZONE_VAN",
+    "countdown_ticks": 50
+  },
+  "objectives": [
+    {
+      "id": "OBJ_EAST",
+      "text_key": "objective.c04.restore_east",
+      "done_when": {
+        "supplied_from_grid": [
+          "APT_E",
+          "PUB",
+          "WORKSHOP"
+        ]
+      }
+    },
+    {
+      "id": "OBJ_WEST",
+      "text_key": "objective.c04.restore_west",
+      "done_when": {
+        "supplied_from_grid": [
+          "APT_W",
+          "MARKET"
+        ]
+      }
+    },
+    {
+      "id": "OBJ_SPUR",
+      "text_key": "objective.c04.restore_sign",
+      "done_when": {
+        "supplied_from_grid": [
+          "SIGN"
+        ]
+      }
+    },
+    {
+      "id": "OBJ_VERIFY",
+      "text_key": "objective.c01.verify_supply",
+      "done_when": {
+        "verified": true
+      }
+    },
+    {
+      "id": "OBJ_STOW",
+      "text_key": "objective.c01.stow_equipment",
+      "done_when": {
+        "stowed": true
+      }
+    },
+    {
+      "id": "OBJ_EXTRACT",
+      "text_key": "objective.c01.extract",
+      "done_when": {
+        "completed": true
+      }
+    }
+  ],
+  "max_visible_objectives": 3,
+  "optional_services": [
+    "SIGN"
+  ],
+  "tutorial_trip_allowance": 0
+}

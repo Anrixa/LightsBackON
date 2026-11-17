@@ -326,6 +326,14 @@
     "offline.verb.roof_ladder": "Use ladder",
     "offline.c03.unsaved_notice": "Roof Route development preview — progress is not saved. Find the fixed ladder beside the west apartments.",
     "offline.c03.landing_blocked": "The ladder landing is obstructed. Move away and try again.",
-    "offline.loading.c03_briefing": "The east service row is dark. Use the fixed ladder beside the west apartments to inspect the rooftop network."
+    "offline.loading.c03_briefing": "The east service row is dark. Use the fixed ladder beside the west apartments to inspect the rooftop network.",
+    "contract.c04": "The Whole Block",
+    "repair.c04.west_fuse": "West feeder fuse",
+    "repair.c04.east_trunk": "East feeder cable",
+    "repair.c04.sign_spur": "Direct sign spur",
+    "objective.c04.restore_east": "Restore the east services",
+    "objective.c04.restore_west": "Restore the west services",
+    "objective.c04.restore_sign": "Optional: restore the sign through its direct feed",
+    "node.c04.spur": "Sign spur junction"
   }
 }

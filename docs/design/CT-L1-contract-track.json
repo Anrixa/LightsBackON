@@ -52,7 +52,14 @@
       "id": "CTL1-C04",
       "contract_id": "C04",
       "title": "The Whole Block",
-      "status": "NOT_STARTED"
+      "status": "IN_PROGRESS",
+      "source": "content/contracts/c04_whole_block",
+      "evidence": "docs/evidence/CTL1-C04.md",
+      "pending": [
+        "Linux/Windows full authoritative solution replay and regression CI",
+        "physical in-game C04 geometry, controller/keyboard/human playthrough and target GPU P95/memory",
+        "global rules-revision checkpoint continuity; official CT03 D08 and Steam F02/F06 gates"
+      ]
     }
   ]
 }

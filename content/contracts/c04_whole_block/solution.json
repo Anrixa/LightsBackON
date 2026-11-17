@@ -1,0 +1,545 @@
+{
+  "contract_id": "C04",
+  "source_note": "C04 host-intent solution restores east and west, isolates/repairs the optional direct sign spur, enables only its GRID supply, verifies five services for 100 ticks and extracts in 50 ticks. Wrong east sign path is exercised independently in regressions, not silently used by the solution.",
+  "players": [
+    "P1"
+  ],
+  "tools": [
+    "screwdriver",
+    "puller",
+    "cutter",
+    "crimper",
+    "meter"
+  ],
+  "max_ticks": 600,
+  "steps": [
+    {
+      "note": "Both feeder faults are resolved through measured host-authorized repairs. Direct sign supply is optional."
+    },
+    {
+      "as": "P1",
+      "intent": "request_lock",
+      "entity": "R_JE_TRUNK",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "inspect",
+      "entity": "PANEL_JE",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "step": "diagnose"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "step": "isolate"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "tool": "screwdriver"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "step": "open"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "tool": "cutter"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "step": "remove"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "tool": "crimper"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "step": "install"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "step": "close"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "tool": "meter"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "step": "test"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JE_TRUNK",
+      "payload": {
+        "step": "restore"
+      },
+      "expect": "ok"
+    },
+    {
+      "note": "The Lantern sign is a separately switched optional venue service, not a mandatory condition."
+    },
+    {
+      "note": "The east feeder has 11/12 PU. Keep its sign route open: sending the 3 PU sign down that path causes a protection trip."
+    },
+    {
+      "note": "West fuse is the second independent fault. All five required services need grid supply."
+    },
+    {
+      "as": "P1",
+      "intent": "request_lock",
+      "entity": "R_JW_FUSE",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "inspect",
+      "entity": "PANEL_JW",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "step": "diagnose"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "step": "isolate"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "tool": "screwdriver"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "step": "open"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "tool": "puller"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "step": "remove"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "tool": "puller"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "step": "install"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "step": "close"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "tool": "meter"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "step": "test"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "step": "restore"
+      },
+      "expect": "ok"
+    },
+    {
+      "note": "Optional direct sign spur uses an independently isolated panel; no mandatory extra grind is required."
+    },
+    {
+      "as": "P1",
+      "intent": "request_lock",
+      "entity": "R_SIGN_SPUR",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "inspect",
+      "entity": "PANEL_SPUR",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_SIGN_SPUR",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_SIGN_SPUR",
+      "payload": {
+        "step": "diagnose"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_SIGN_SPUR",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_SIGN_SPUR",
+      "payload": {
+        "step": "isolate"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_SIGN_SPUR",
+      "payload": {
+        "tool": "screwdriver"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_SIGN_SPUR",
+      "payload": {
+        "step": "open"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_SIGN_SPUR",
+      "payload": {
+        "tool": "cutter"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_SIGN_SPUR",
+      "payload": {
+        "step": "remove"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_SIGN_SPUR",
+      "payload": {
+        "tool": "crimper"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_SIGN_SPUR",
+      "payload": {
+        "step": "install"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_SIGN_SPUR",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_SIGN_SPUR",
+      "payload": {
+        "step": "close"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_SIGN_SPUR",
+      "payload": {
+        "tool": "meter"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_SIGN_SPUR",
+      "payload": {
+        "step": "test"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_SIGN_SPUR",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_SIGN_SPUR",
+      "payload": {
+        "step": "restore"
+      },
+      "expect": "ok"
+    },
+    {
+      "note": "With the east sign connection disabled, the direct spur adds 3 PU: 20 required + 3 optional = 23/24."
+    },
+    {
+      "as": "P1",
+      "intent": "toggle_switch",
+      "entity": "SW_SIGN",
+      "payload": {
+        "value": true
+      },
+      "expect": "ok"
+    },
+    {
+      "ticks": 100,
+      "expect_events": [
+        "verified"
+      ]
+    },
+    {
+      "zone": "ZONE_VAN",
+      "as": "P1",
+      "inside": true
+    },
+    {
+      "as": "P1",
+      "intent": "request_extract",
+      "entity": "ZONE_VAN",
+      "payload": {
+        "action": "start"
+      },
+      "expect": "ok"
+    },
+    {
+      "ticks": 50,
+      "expect_events": [
+        "mission_complete"
+      ]
+    }
+  ],
+  "pace_ticks_per_command": 1
+}

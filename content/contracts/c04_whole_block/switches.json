@@ -1,0 +1,31 @@
+{
+  "contract_id": "C04",
+  "source_note": "Host-operated switches select the optional sign's feed. The direct sign spur is safe at 3 PU; the east branch at 11/12 PU cannot carry the sign too. An active second route is refused before mutation.",
+  "switches": [
+    {
+      "id": "SW_SIGN",
+      "target": "SIGN",
+      "field": "enabled"
+    },
+    {
+      "id": "SW_EAST_SIGN",
+      "target": "E_JE_SIGN",
+      "field": "enabled"
+    },
+    {
+      "id": "SW_JW_BREAKER",
+      "target": "JW",
+      "field": "tripped"
+    },
+    {
+      "id": "SW_JE_BREAKER",
+      "target": "JE",
+      "field": "tripped"
+    },
+    {
+      "id": "SW_SPUR_BREAKER",
+      "target": "SPUR",
+      "field": "tripped"
+    }
+  ]
+}
