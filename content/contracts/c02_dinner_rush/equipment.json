@@ -1,6 +1,6 @@
 {
   "contract_id": "C02",
-  "source_note": "C02 portable generator is available as optional equipment and stays stowed by the known solution. Placement and route topology are reused from authored Alder C01; source/dual path rules remain enforced. No extra player-dependent tasks.",
+  "source_note": "C02 original blueprint: GEN6 placed at the logical PAD_VENUES can feed MARKET5 or PUB4 via authored separate sockets, never 9PU simultaneously. Existing pump pad remains unused in this contract. Logical pad is NOT a scene-position certification.",
   "equipment": [
     {
       "id": "GEN_PORTABLE",
@@ -35,13 +35,20 @@
       "id": "PAD_PUMP",
       "storage": false,
       "routes": [
-        "E_TEMP_PUMP",
-        "E_TEMP_PUB"
+        "E_TEMP_PUMP"
       ],
       "position_cm": [
         6250,
         0,
         1600
+      ]
+    },
+    {
+      "id": "PAD_VENUES",
+      "storage": false,
+      "routes": [
+        "E_TEMP_MARKET",
+        "E_TEMP_PUB"
       ]
     }
   ],
