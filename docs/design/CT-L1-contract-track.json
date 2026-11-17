@@ -52,14 +52,17 @@
       "id": "CTL1-C04",
       "contract_id": "C04",
       "title": "The Whole Block",
-      "status": "IN_PROGRESS",
+      "status": "CLOUD_VERIFIED",
       "source": "content/contracts/c04_whole_block",
       "evidence": "docs/evidence/CTL1-C04.md",
       "pending": [
-        "Linux/Windows full authoritative solution replay and regression CI",
-        "physical in-game C04 geometry, controller/keyboard/human playthrough and target GPU P95/memory",
-        "global rules-revision checkpoint continuity; official CT03 D08 and Steam F02/F06 gates"
-      ]
+        "authored C04 physical mission scene, target GPU P95/memory, human/controller validation",
+        "C01/C02/C03 save continuity across rules revisions, no migration/deletion authorized",
+        "official CT03 remains blocked by D08; F02/F06 require real Steam networks"
+      ],
+      "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43990072603",
+      "source_head": "1a9cfde193f5d024d080907e6296b61372fc74ea",
+      "pull_request": "https://github.com/Anrixa/LightsBackON/pull/160"
     }
   ]
 }
