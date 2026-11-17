@@ -23,7 +23,5 @@
       "target": "TEMP"
     }
   ],
-  "initial_breaker_reasons": {
-    "WEST": "fault"
-  }
+  "initial_breaker_reasons": {}
 }
