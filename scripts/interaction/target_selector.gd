@@ -21,7 +21,11 @@ static func select(origin: Vector3, forward: Vector3, candidates: Array, ray_len
 			continue
 		var miss: float = (to - dir * along).length()  # distance from the ray to the candidate center
 		# a hit counts only if the ray enters the candidate's sphere before its end point (finite 2.3 m ray)
-		var hit: bool = miss <= radius and along - sqrt(radius * radius - miss * miss) <= ray_length_m
+		# An eye inside a nearby target's assist sphere is not aiming at it.
+		# Otherwise the roof-return ladder (surrounding the arrival camera) wins
+		# every center ray, even when the user looks directly at a roof switch.
+		# Inside-sphere targets still work when actually faced inside the cone.
+		var hit: bool = to.length() > radius and miss <= radius 			and along - sqrt(radius * radius - miss * miss) <= ray_length_m
 		var angle: float = rad_to_deg(dir.angle_to(to))
 		if not hit and angle > cone_deg:
 			continue
