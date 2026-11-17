@@ -113,7 +113,6 @@ func test_CTL3_C12_full_70_step_solution_scores_beacon_and_offers_replay() -> vo
 
 func test_CTL3_C12_drain_control_requires_120_continuous_generator_ticks() -> void:
 	var ctx: Dictionary = _context()
-	_prefix_until(ctx, "GEN_PORTABLE", "place_item")
 	var steps: Array = []
 	for step: Dictionary in _trace()["steps"]:
 		if step.get("intent") == "place_item":
