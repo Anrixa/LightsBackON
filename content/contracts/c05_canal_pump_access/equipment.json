@@ -1,0 +1,34 @@
+{
+  "contract_id": "C05",
+  "source_note": "CT-L2/C05 provisional Canal Yard content candidate under ADR-017; authored PU, timing, logical anchor and topology values require comparison with the unavailable original C05 contract sheet before content certification. This is headless logic only; no physical Canal Yard scene or playtest. Provisional logical storage and work-pad IDs only; real scene coordinates intentionally omitted until a Canal Yard scene is authored.",
+  "equipment": [
+    {
+      "id": "GEN_PORTABLE",
+      "kind": "generator",
+      "source": "GEN",
+      "breaker": "TEMP",
+      "start_anchor": "VAN_BAY"
+    }
+  ],
+  "anchors": [
+    {
+      "id": "VAN_BAY",
+      "storage": true,
+      "routes": []
+    },
+    {
+      "id": "STORE_CANAL",
+      "storage": true,
+      "routes": []
+    },
+    {
+      "id": "PAD_CANAL_PUMPS",
+      "storage": false,
+      "routes": [
+        "E_TEMP_PUMP_DOCK",
+        "E_TEMP_PUMP_COLD"
+      ]
+    }
+  ],
+  "recovery_anchor": "VAN_BAY"
+}

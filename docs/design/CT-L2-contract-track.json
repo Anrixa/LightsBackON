@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "title": "ADR-017 CT-L2 Canal Yard original contract-logic track (canonical CT04 gates unchanged)",
+  "parent_backlog": "CT04",
+  "parent_backlog_status": "NOT_STARTED",
+  "authority": "docs/adr/ADR-017-design-first-while-f02-blocked.md",
+  "episodes": [
+    {
+      "id": "CTL2-C05",
+      "contract_id": "C05",
+      "title": "Canal Yard — Pump Access (provisional design name)",
+      "status": "IN_PROGRESS",
+      "source": "content/contracts/c05_canal_pump_access",
+      "evidence": "docs/evidence/CTL2-C05.md",
+      "pending": [
+        "Linux/Windows exact-head solution/negative CI",
+        "Blueprint C05 contract-sheet source retrieval and mechanics/naming comparison",
+        "Real Canal Yard scene, controller/human and GPU qualification",
+        "Official CT04 dependencies CT01/CT03; Steam F02/F06; rules-revision save compatibility"
+      ]
+    },
+    {
+      "id": "CTL2-C06",
+      "contract_id": "C06",
+      "title": "Canal Yard C06",
+      "status": "NOT_STARTED"
+    },
+    {
+      "id": "CTL2-C07",
+      "contract_id": "C07",
+      "title": "Canal Yard C07",
+      "status": "NOT_STARTED"
+    },
+    {
+      "id": "CTL2-C08",
+      "contract_id": "C08",
+      "title": "Canal Yard C08",
+      "status": "NOT_STARTED"
+    }
+  ]
+}

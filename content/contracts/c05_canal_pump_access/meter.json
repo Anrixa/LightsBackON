@@ -1,0 +1,29 @@
+{
+  "contract_id": "C05",
+  "source_note": "CT-L2/C05 provisional Canal Yard content candidate under ADR-017; authored PU, timing, logical anchor and topology values require comparison with the unavailable original C05 contract sheet before content certification. This is headless logic only; no physical Canal Yard scene or playtest. Readings remain unknown until an actual host-inspect intent; both separate access panels are independently metered.",
+  "panels": [
+    {
+      "id": "PANEL_GRID",
+      "target": "GRID"
+    },
+    {
+      "id": "PANEL_GEN",
+      "target": "GEN"
+    },
+    {
+      "id": "PANEL_DOCK",
+      "target": "DOCK"
+    },
+    {
+      "id": "PANEL_COLD",
+      "target": "COLD"
+    },
+    {
+      "id": "PANEL_TEMP",
+      "target": "TEMP"
+    }
+  ],
+  "initial_breaker_reasons": {
+    "DOCK": "fault"
+  }
+}

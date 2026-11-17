@@ -1,0 +1,524 @@
+{
+  "contract_id": "C05",
+  "source_note": "CT-L2/C05 provisional Canal Yard content candidate under ADR-017; authored PU, timing, logical anchor and topology values require comparison with the unavailable original C05 contract sheet before content certification. This is headless logic only; no physical Canal Yard scene or playtest. One-player host-intent trace proves isolated pump drains followed by two meter-first repairs, optional dock beacon, stable grid supply and extraction. Not actual gameplay timing.",
+  "players": [
+    "P1"
+  ],
+  "tools": [
+    "screwdriver",
+    "puller",
+    "cutter",
+    "crimper",
+    "meter"
+  ],
+  "max_ticks": 550,
+  "pace_ticks_per_command": 1,
+  "steps": [
+    {
+      "note": "Before pumping, neither flooded repair room may be accessed."
+    },
+    {
+      "as": "P1",
+      "intent": "request_lock",
+      "entity": "R_DOCK_FUSE",
+      "payload": {},
+      "expect": "NO_ACCESS"
+    },
+    {
+      "as": "P1",
+      "intent": "request_lock",
+      "entity": "R_COLD_FEED",
+      "payload": {},
+      "expect": "NO_ACCESS"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "pickup"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "place",
+        "anchor": "PAD_CANAL_PUMPS"
+      },
+      "expect": "ok"
+    },
+    {
+      "note": "The portable 6 PU generator powers the 4 PU dock pump alone for 80 continuous ticks. Do not connect both pumps."
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "connect",
+        "route": "E_TEMP_PUMP_DOCK"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "start"
+      },
+      "expect": "ok"
+    },
+    {
+      "ticks": 80,
+      "expect_events": [
+        "latch"
+      ]
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "stop"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "disconnect",
+        "route": "E_TEMP_PUMP_DOCK"
+      },
+      "expect": "ok"
+    },
+    {
+      "note": "A separately controlled 4 PU cold-bay pump drains the second room after 100 continuous ticks."
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "connect",
+        "route": "E_TEMP_PUMP_COLD"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "start"
+      },
+      "expect": "ok"
+    },
+    {
+      "ticks": 100,
+      "expect_events": [
+        "latch"
+      ]
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "stop"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "disconnect",
+        "route": "E_TEMP_PUMP_COLD"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "pickup"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "place",
+        "anchor": "VAN_BAY"
+      },
+      "expect": "ok"
+    },
+    {
+      "note": "Both distinct host access flags have latched; restore DOCK fuse and damaged COLD feeder."
+    },
+    {
+      "as": "P1",
+      "intent": "request_lock",
+      "entity": "R_DOCK_FUSE",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "inspect",
+      "entity": "PANEL_DOCK",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_DOCK_FUSE",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_DOCK_FUSE",
+      "payload": {
+        "step": "diagnose"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_DOCK_FUSE",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_DOCK_FUSE",
+      "payload": {
+        "step": "isolate"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_DOCK_FUSE",
+      "payload": {
+        "tool": "screwdriver"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_DOCK_FUSE",
+      "payload": {
+        "step": "open"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_DOCK_FUSE",
+      "payload": {
+        "tool": "puller"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_DOCK_FUSE",
+      "payload": {
+        "step": "remove"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_DOCK_FUSE",
+      "payload": {
+        "tool": "puller"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_DOCK_FUSE",
+      "payload": {
+        "step": "install"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_DOCK_FUSE",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_DOCK_FUSE",
+      "payload": {
+        "step": "close"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_DOCK_FUSE",
+      "payload": {
+        "tool": "meter"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_DOCK_FUSE",
+      "payload": {
+        "step": "test"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_DOCK_FUSE",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_DOCK_FUSE",
+      "payload": {
+        "step": "restore"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "request_lock",
+      "entity": "R_COLD_FEED",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "inspect",
+      "entity": "PANEL_COLD",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_COLD_FEED",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_COLD_FEED",
+      "payload": {
+        "step": "diagnose"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_COLD_FEED",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_COLD_FEED",
+      "payload": {
+        "step": "isolate"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_COLD_FEED",
+      "payload": {
+        "tool": "screwdriver"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_COLD_FEED",
+      "payload": {
+        "step": "open"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_COLD_FEED",
+      "payload": {
+        "tool": "cutter"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_COLD_FEED",
+      "payload": {
+        "step": "remove"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_COLD_FEED",
+      "payload": {
+        "tool": "crimper"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_COLD_FEED",
+      "payload": {
+        "step": "install"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_COLD_FEED",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_COLD_FEED",
+      "payload": {
+        "step": "close"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_COLD_FEED",
+      "payload": {
+        "tool": "meter"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_COLD_FEED",
+      "payload": {
+        "step": "test"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_COLD_FEED",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_COLD_FEED",
+      "payload": {
+        "step": "restore"
+      },
+      "expect": "ok"
+    },
+    {
+      "note": "The optional 2 PU dock beacon fits DOCK 10/12 and GRID 21/24. It is never a mandatory restoration."
+    },
+    {
+      "as": "P1",
+      "intent": "toggle_switch",
+      "entity": "SW_BEACON",
+      "payload": {
+        "value": true
+      },
+      "expect": "ok"
+    },
+    {
+      "ticks": 100,
+      "expect_events": [
+        "verified"
+      ]
+    },
+    {
+      "zone": "ZONE_VAN",
+      "as": "P1",
+      "inside": true
+    },
+    {
+      "as": "P1",
+      "intent": "request_extract",
+      "entity": "ZONE_VAN",
+      "payload": {
+        "action": "start"
+      },
+      "expect": "ok"
+    },
+    {
+      "ticks": 50,
+      "expect_events": [
+        "mission_complete"
+      ]
+    }
+  ]
+}
