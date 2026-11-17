@@ -14,3 +14,15 @@
 ## Mandatory gates
 - Exact-head Linux/Windows full Godot suite, C01–C10 replay, Python parity/content validation and Windows QA57 build/export/smoke; source-only final PR CI and merged-main CI before promotion.
 - Real Hill Road world stage, sockets and 3D cable, performance, real controller/human and event sound/lighting, historic-save continuity, real two-network Steam F02/F06 and canonical CT06 **HOLD**. The stage UI receives only host state.
+
+## Observed code-head dual-OS evidence — 17 November 2026 (UTC)
+
+Implementation source `eb8dcb01f75040269c252a7cfe09a8bf0accb9c7`, draft PR [#173](https://github.com/Anrixa/LightsBackON/pull/173), [GitHub Actions #44140713810](https://github.com/Anrixa/LightsBackON/actions/runs/44140713810): **Linux SUCCESS, Windows SUCCESS**.
+
+- **689 Godot tests passed / 0 failed / 50,809 assertions EACH OS.** All sixteen C10 contract tests passed.
+- **C01–C10 all host traces SOLVED**; C10 **187 host ticks, 43 steps**.
+- Reference parity: 32 matching cases, 246 command hashes and 10 definition rejections.
+- Windows Godot 4.7.2 export templates, tracked GDScript UIDs, EXE/PCK release build, headless export smoke and QA57 source-manifest preflight **SUCCESS**.
+- The C10 tests cover exact event-latch 2400/2401 boundary, 100 continuous ticks, optional missed completion, WEST16/14 protection trip, atomic refusal of dual stage circuits, save/restore corruption refusal, C01–C09 checkpoint-shape regression, and a 2-player host trace.
+
+**Qualification:** original-sheet SOURCE_ALIGNED_HEADLESS_CANDIDATE source logic. This addendum changes the PR head and therefore itself requires final exact-head Linux/Windows CI before merge, followed by independent merged-main CI. No physical gameplay/release certification implied.

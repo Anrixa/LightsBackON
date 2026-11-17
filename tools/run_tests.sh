@@ -21,6 +21,9 @@ if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 echo "== CT-BP original-blueprint source/receipt consistency (no physical certification) =="
 if [ -n "$PY" ]; then "$PY" tools/check_ct_blueprint_gate.py || FAIL=1; fi
 
+echo "== CT-L3 Hill original-blueprint source drift (no hardware certification) =="
+if [ -n "$PY" ]; then "$PY" tools/check_ct_l3_gate.py || FAIL=1; fi
+
 echo "== UI token contrast (WCAG 2.2 AA, ADR-004) =="
 if [ -n "$PY" ]; then "$PY" tools/check_contrast.py | tail -1; [ "${PIPESTATUS[0]}" -eq 0 ] || FAIL=1; fi
 
