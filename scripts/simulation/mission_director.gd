@@ -36,6 +36,12 @@ var _latched: Dictionary = {}  # latch id -> tick it latched
 var _fixed_ladders: Dictionary = {}  # ladder id -> access flag
 var _ladder_requires: Dictionary = {}  # ladder id -> required completed supply latch
 var _ladder_access: Dictionary = {}  # ladder id -> first authoritative use tick
+## C09-only host wind-event state; legacy contract snapshots remain unchanged.
+var _wind_routes: Dictionary = {}
+var _wind_elapsed: int = 0
+var _wind_access_route: String = ""
+var _wind_roof_players: Dictionary = {}
+
 var _verify_needed: int = 0
 var _verify_ticks: int = 0
 var _zone: String = ""
@@ -161,6 +167,28 @@ func load_definition(definition: Dictionary, grid: PowerGrid, interaction: Inter
 				_fixed_ladders[ladder_id] = grant
 				if required_latch != "":
 					_ladder_requires[ladder_id] = required_latch
+	# Access route identifiers represent host-approved travel, not electrical nodes.
+	if definition.has("wind_routes"):
+		var raw_wind: Variant = definition["wind_routes"]
+		var w: Dictionary = raw_wind if raw_wind is Dictionary else {}
+		var warn: Variant = PowerGrid.to_int(w.get("warning_ticks"))
+		var start: Variant = PowerGrid.to_int(w.get("close_start_ticks"))
+		var finish: Variant = PowerGrid.to_int(w.get("close_end_ticks"))
+		var route_names: Array[String] = []
+		for key: String in ["roof_route", "ground_route", "safe_return"]:
+			var value: Variant = w.get(key)
+			if value is String and PowerGrid.is_valid_id(value) and not route_names.has(value):
+				route_names.append(value)
+		if not (w.size() == 7 and warn != null and start != null and finish != null
+				and int(warn) >= 1 and int(warn) < int(start) and int(start) <= int(finish)
+				and route_names.size() == 3 and PowerGrid.is_valid_id(w.get("grants"))
+				and not definition.has("fixed_ladders")):
+			errs.append(PowerGrid.diag("BAD_MISSION", "wind routes require unique IDs, a grant and ordered tick windows", []))
+		else:
+			_wind_routes = {"roof_route": w["roof_route"], "ground_route": w["ground_route"],
+				"safe_return": w["safe_return"], "grants": w["grants"],
+				"warning_ticks": int(warn), "close_start_ticks": int(start),
+				"close_end_ticks": int(finish)}
 	var verify: Variant = PowerGrid.to_int(definition.get("final_verification_ticks"))
 	var ex: Dictionary = definition.get("extraction", {})
 	var countdown: Variant = PowerGrid.to_int(ex.get("countdown_ticks"))
@@ -317,6 +345,7 @@ func player_joined(player: String) -> void:
 func player_left(player: String) -> void:
 	_players.erase(player)
 	_in_zone.erase(player)
+	_wind_roof_players.erase(player)
 
 
 ## Host movement says whether the player stands in a zone. Leaving the extraction zone cancels a countdown (MIS04).
@@ -370,6 +399,19 @@ func tick(now: int) -> Array[Dictionary]:
 		return events
 	observe_supply_state()
 	var st: Dictionary = _grid.canonical_state()
+	if not _wind_routes.is_empty():
+		_wind_elapsed += 1
+		if _wind_elapsed == int(_wind_routes["warning_ticks"]):
+			events.append({"type": "wind_warning", "tick": now,
+				"roof_closes_at": _wind_routes["close_start_ticks"]})
+		if _wind_elapsed == int(_wind_routes["close_start_ticks"]):
+			events.append({"type": "wind_roof_closed", "tick": now,
+				"through_tick": _wind_routes["close_end_ticks"]})
+			for occupant: String in _sorted(_wind_roof_players.keys()):
+				events.append({"type": "wind_safe_return_offered", "player": occupant,
+					"route": _wind_routes["safe_return"], "tick": now})
+		if _wind_elapsed == int(_wind_routes["close_end_ticks"]) + 1:
+			events.append({"type": "wind_roof_reopened", "tick": now})
 	for lid: String in _sorted(_latches.keys()):
 		if _latched.has(lid):
 			continue
@@ -632,6 +674,44 @@ func use_ladder(ladder_id: String, in_range: bool) -> Dictionary:
 	return {"ok": true, "events": [{"type": "ladder_access", "id": ladder_id, "grants": grant, "tick": _now}]}
 
 
+## Returns host-authorized route receipt; no client coordinates/timing are trusted.
+## A gust never causes a forced fall or breaks repaired equipment.
+func use_wind_route(player: String, route_id: String, in_range: bool) -> Dictionary:
+	if _wind_routes.is_empty() or not [str(_wind_routes.get("roof_route", "")),
+			str(_wind_routes.get("ground_route", "")), str(_wind_routes.get("safe_return", ""))].has(route_id):
+		return _refuse("UNKNOWN_ROUTE", "unknown timed route", [route_id])
+	if not _players.has(player):
+		return _refuse("UNKNOWN_PLAYER", "player is not in this mission", [])
+	if _completed_tick >= 0:
+		return _refuse("ALREADY_COMPLETE", "mission is finished", [])
+	if not in_range:
+		return _refuse("NOT_IN_RANGE", "move closer to the route", [route_id])
+	if route_id == _wind_routes["safe_return"]:
+		if not _wind_roof_players.has(player):
+			return _refuse("NOT_ON_ROOF", "only rooftop occupants can return", [route_id])
+		_wind_roof_players.erase(player)
+		return {"ok": true, "events": [{"type": "wind_safe_return", "player": player,
+			"route": route_id, "tick": _now}]}
+	if route_id == _wind_routes["roof_route"] and _wind_roof_closed():
+		return _refuse("WIND_ROOF_CLOSED", "roof entry closed during gusts; ground access remains open", [route_id])
+	if route_id == _wind_routes["roof_route"]:
+		if _wind_roof_players.has(player):
+			return {"ok": true, "duplicate": true}
+		_wind_roof_players[player] = true
+	else:
+		_wind_roof_players.erase(player)
+	if _wind_access_route.is_empty():
+		_wind_access_route = route_id
+		_interaction.set_access(_wind_routes["grants"], true)
+	return {"ok": true, "events": [{"type": "wind_route_used", "player": player,
+		"route": route_id, "tick": _now}]}
+
+
+func _wind_roof_closed() -> bool:
+	return not _wind_routes.is_empty() and _wind_elapsed >= int(_wind_routes["close_start_ticks"]) \
+		and _wind_elapsed <= int(_wind_routes["close_end_ticks"])
+
+
 func is_complete() -> bool:
 	return _completed_tick >= 0
 
@@ -663,6 +743,8 @@ func _objective_done(cond: Dictionary, st: Dictionary) -> bool:
 		return _latched.has(cond["latch"])
 	if cond.has("ladder"):
 		return _ladder_access.has(cond["ladder"])
+	if cond.has("wind_access"):
+		return not _wind_routes.is_empty() and cond["wind_access"] == _wind_routes["grants"] and not _wind_access_route.is_empty()
 	if cond.has("opening_venue"):
 		return _opening_venues.has(cond["opening_venue"]) and _opening_latched.has(cond["opening_venue"])
 	if cond.has("cumulative_outage"):
@@ -711,6 +793,11 @@ func canonical_state() -> Dictionary:
 		out["optional_continuous_supply"] = {"ok": _continuous_ok}
 	if not _fixed_ladders.is_empty():
 		out["ladder_access"] = _ladder_access.duplicate()
+	if not _wind_routes.is_empty():
+		out["wind_routes"] = {"elapsed_ticks": _wind_elapsed,
+			"warned": _wind_elapsed >= int(_wind_routes["warning_ticks"]),
+			"roof_closed": _wind_roof_closed(), "access_route": _wind_access_route,
+			"roof_players": _sorted(_wind_roof_players.keys())}
 	return out
 
 
@@ -740,6 +827,8 @@ func durable_state() -> Dictionary:
 		out["optional_continuous_supply"] = {"ok": _continuous_ok}
 	if not _fixed_ladders.is_empty():
 		out["ladder_access"] = _ladder_access.duplicate()
+	if not _wind_routes.is_empty():
+		out["wind_routes"] = {"elapsed_ticks": _wind_elapsed, "access_route": _wind_access_route}
 	return out
 
 
@@ -897,6 +986,22 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 			if not (ladder_id is String and _fixed_ladders.has(ladder_id)) or first_tick == null or int(first_tick) < 0:
 				return bad
 			ladder_access[ladder_id] = int(first_tick)
+	# Check conditional C09 receipt before mutating state. After a reload,
+	# rooftop occupancy is not restored without a verified physical position.
+	var wind_elapsed: int = 0
+	var wind_access: String = ""
+	if not _wind_routes.is_empty():
+		var wind_record: Variant = d.get("wind_routes")
+		if not (wind_record is Dictionary and (wind_record as Dictionary).size() == 2
+				and wind_record.get("access_route") is String):
+			return bad
+		var elapsed_raw: Variant = PowerGrid.to_int(wind_record.get("elapsed_ticks"))
+		if elapsed_raw == null or int(elapsed_raw) < 0:
+			return bad
+		wind_elapsed = int(elapsed_raw)
+		wind_access = wind_record["access_route"]
+		if wind_access != "" and not [str(_wind_routes["ground_route"]), str(_wind_routes["roof_route"])].has(wind_access):
+			return bad
 	if (counters["completed_tick"] >= 0) == (d["results"] as Dictionary).is_empty():
 		return bad  # a finished run must carry its frozen results, an unfinished one none
 	for lid: String in latch_ticks:
@@ -925,6 +1030,11 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 	_evidence_reset_attempted = reset_attempted
 	_continuous_ok = continuous_ok
 	_ladder_access = ladder_access
+	_wind_elapsed = wind_elapsed
+	_wind_access_route = wind_access
+	_wind_roof_players = {}
+	if not _wind_routes.is_empty() and not _wind_access_route.is_empty():
+		_interaction.set_access(_wind_routes["grants"], true)
 	for ladder_id: String in _ladder_access:
 		_interaction.set_access(_fixed_ladders[ladder_id], true)
 	_countdown_left = -1

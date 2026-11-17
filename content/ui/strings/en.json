@@ -447,6 +447,25 @@
     "node.c06.pump_kiosk": "Pump kiosk",
     "node.c06.pump_east": "East flood pump",
     "hud.cold_outage.remaining": "Cold store: %d seconds of outage allowance left",
-    "hud.cold_outage.missed": "Cold-store bonus missed (%d seconds remaining); restore power to complete"
+    "hud.cold_outage.missed": "Cold-store bonus missed (%d seconds remaining); restore power to complete",
+    "objective.c09.access": "Find a safe route to the east repair",
+    "objective.c09.west": "Restore Hill Road west services",
+    "objective.c09.east": "Restore the east service branch",
+    "objective.c09.work_light": "Optional: power sheltered work light for 10 seconds",
+    "repair.c09.west_fuse": "Replace the failed Hill Road west fuse",
+    "repair.c09.east_trunk": "Repair east trunk from the approved service route",
+    "node.c09.hall": "Community hall",
+    "node.c09.bakery": "Bakery",
+    "node.c09.greenhouse": "Greenhouse",
+    "node.c09.flats": "Flats",
+    "node.c09.telecom": "Telecom hut",
+    "node.c09.garage": "Service garage",
+    "node.c09.work_light": "Sheltered work light",
+    "node.c09.jw": "West junction",
+    "node.c09.je": "East junction",
+    "wind.c09.warning": "High wind warning. Roof route closes at 90 seconds.",
+    "wind.c09.roof_closed": "Roof entry closed during strong gusts; the ground alley remains open.",
+    "wind.c09.safe_return": "Safe return to ground is available from the roof.",
+    "wind.c09.roof_reopened": "The roof access route has reopened."
   }
 }

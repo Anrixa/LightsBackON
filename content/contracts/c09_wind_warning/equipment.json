@@ -1,0 +1,28 @@
+{
+  "contract_id": "C09",
+  "source_note": "Optional work-light generator, logical pad only; physical Hill Yard is not authored.",
+  "equipment": [
+    {
+      "id": "GEN_PORTABLE",
+      "kind": "generator",
+      "source": "GEN",
+      "breaker": "TEMP",
+      "start_anchor": "VAN_BAY"
+    }
+  ],
+  "anchors": [
+    {
+      "id": "VAN_BAY",
+      "storage": true,
+      "routes": []
+    },
+    {
+      "id": "PAD_SHELTER",
+      "storage": false,
+      "routes": [
+        "E_TEMP_LIGHT"
+      ]
+    }
+  ],
+  "recovery_anchor": "VAN_BAY"
+}

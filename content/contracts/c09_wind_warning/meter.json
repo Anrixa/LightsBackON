@@ -1,0 +1,27 @@
+{
+  "contract_id": "C09",
+  "source_note": "Meter remains unknown until inspection; gusts never change actual capacity.",
+  "panels": [
+    {
+      "id": "PANEL_GRID",
+      "target": "GRID"
+    },
+    {
+      "id": "PANEL_GEN",
+      "target": "GEN"
+    },
+    {
+      "id": "PANEL_JW",
+      "target": "JW"
+    },
+    {
+      "id": "PANEL_JE",
+      "target": "JE"
+    },
+    {
+      "id": "PANEL_TEMP",
+      "target": "TEMP"
+    }
+  ],
+  "initial_breaker_reasons": {}
+}

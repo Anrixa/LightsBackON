@@ -1,0 +1,102 @@
+{
+  "contract_id": "C09",
+  "source_note": "Development Blueprint v1.0 pp.18,20: Hill Road GRID28, west/east feeders14, GEN6; west13 (hall6 bakery4 greenhouse3), east12 (flats5 telecom4 garage3). West fuse failed, east trunk broken. Wind warning at tick600, roof entry closed 900–1300 inclusive with ground route unaffected. Sheltered GEN work light2 optional for 100 uninterrupted ticks. Source-only headless logic; physical scene/HUD/human HOLD.",
+  "grid_source": "GRID",
+  "required_consumers": [
+    "COMMUNITY_HALL",
+    "BAKERY",
+    "GREENHOUSE",
+    "FLATS",
+    "TELECOM_HUT",
+    "SERVICE_GARAGE"
+  ],
+  "excluded_loads": [],
+  "access_latches": [
+    {
+      "id": "LATCH_WORK_LIGHT",
+      "consumer": "WORK_LIGHT",
+      "source": "GEN",
+      "supplied_ticks": 100,
+      "grants": "WORK_LIGHT_READY"
+    }
+  ],
+  "optional_latch_rewards": [
+    "LATCH_WORK_LIGHT"
+  ],
+  "wind_routes": {
+    "warning_ticks": 600,
+    "close_start_ticks": 900,
+    "close_end_ticks": 1300,
+    "roof_route": "ROUTE_ROOF",
+    "ground_route": "ROUTE_GROUND",
+    "safe_return": "ROUTE_SAFE_RETURN",
+    "grants": "EAST_REPAIR_REACHED"
+  },
+  "final_verification_ticks": 100,
+  "extraction": {
+    "zone": "ZONE_VAN",
+    "countdown_ticks": 50
+  },
+  "max_visible_objectives": 3,
+  "tutorial_trip_allowance": 0,
+  "optional_services": [],
+  "objectives": [
+    {
+      "id": "OBJ_ACCESS",
+      "text_key": "objective.c09.access",
+      "done_when": {
+        "wind_access": "EAST_REPAIR_REACHED"
+      }
+    },
+    {
+      "id": "OBJ_WEST",
+      "text_key": "objective.c09.west",
+      "done_when": {
+        "supplied_from_grid": [
+          "COMMUNITY_HALL",
+          "BAKERY",
+          "GREENHOUSE"
+        ]
+      }
+    },
+    {
+      "id": "OBJ_EAST",
+      "text_key": "objective.c09.east",
+      "done_when": {
+        "supplied_from_grid": [
+          "FLATS",
+          "TELECOM_HUT",
+          "SERVICE_GARAGE"
+        ]
+      }
+    },
+    {
+      "id": "OBJ_LIGHT",
+      "text_key": "objective.c09.work_light",
+      "done_when": {
+        "latch": "LATCH_WORK_LIGHT"
+      }
+    },
+    {
+      "id": "OBJ_VERIFY",
+      "text_key": "objective.c01.verify_supply",
+      "done_when": {
+        "verified": true
+      }
+    },
+    {
+      "id": "OBJ_STOW",
+      "text_key": "objective.c01.stow_equipment",
+      "done_when": {
+        "stowed": true
+      }
+    },
+    {
+      "id": "OBJ_EXTRACT",
+      "text_key": "objective.c01.extract",
+      "done_when": {
+        "completed": true
+      }
+    }
+  ]
+}

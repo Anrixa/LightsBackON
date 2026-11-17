@@ -1,0 +1,80 @@
+{
+  "contract_id": "C09",
+  "source_note": "Logical graph coordinates, NOT physical Hill Road scene coordinates.",
+  "columns": 5,
+  "rows": 4,
+  "nodes": [
+    {
+      "id": "GRID",
+      "col": 2,
+      "row": 0,
+      "name_key": "node.c01.grid"
+    },
+    {
+      "id": "JW",
+      "col": 1,
+      "row": 1,
+      "name_key": "node.c09.jw"
+    },
+    {
+      "id": "JE",
+      "col": 3,
+      "row": 1,
+      "name_key": "node.c09.je"
+    },
+    {
+      "id": "COMMUNITY_HALL",
+      "col": 0,
+      "row": 2,
+      "name_key": "node.c09.hall"
+    },
+    {
+      "id": "BAKERY",
+      "col": 1,
+      "row": 2,
+      "name_key": "node.c09.bakery"
+    },
+    {
+      "id": "GREENHOUSE",
+      "col": 2,
+      "row": 2,
+      "name_key": "node.c09.greenhouse"
+    },
+    {
+      "id": "FLATS",
+      "col": 3,
+      "row": 2,
+      "name_key": "node.c09.flats"
+    },
+    {
+      "id": "TELECOM_HUT",
+      "col": 4,
+      "row": 2,
+      "name_key": "node.c09.telecom"
+    },
+    {
+      "id": "SERVICE_GARAGE",
+      "col": 3,
+      "row": 3,
+      "name_key": "node.c09.garage"
+    },
+    {
+      "id": "GEN",
+      "col": 0,
+      "row": 0,
+      "name_key": "node.c01.gen"
+    },
+    {
+      "id": "TEMP",
+      "col": 0,
+      "row": 1,
+      "name_key": "node.c01.temp"
+    },
+    {
+      "id": "WORK_LIGHT",
+      "col": 1,
+      "row": 3,
+      "name_key": "node.c09.work_light"
+    }
+  ]
+}
