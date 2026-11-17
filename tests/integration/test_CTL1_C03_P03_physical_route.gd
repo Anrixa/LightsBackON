@@ -240,7 +240,10 @@ func test_CTL1_C03_P03_station_staged_host_route_reaches_extraction() -> void:
 	_aim(scene, "VAN_BAY")
 	scene.call("_interact")  # stow
 	assert_true(session.equipment.all_stowed())
-	session.set_in_van_zone(true)
+	var actually_in_van: bool = session.inside_van(player.global_position)
+	assert_true(actually_in_van,
+		"extraction position must be inside real C03 van bounds, never a fabricated zone flag")
+	session.set_in_van_zone(actually_in_van)
 	_host_ok(session, "request_extract", "ZONE_VAN", {"action": "start"})
 	for i: int in 50:
 		session.tick_once()
