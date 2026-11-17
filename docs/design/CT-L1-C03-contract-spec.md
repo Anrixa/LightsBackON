@@ -1,3 +1,5 @@
+> **Historical provisional C03 design (17 November 2026).** The original 1 PU beacon and missing 5-second ladder-light latch below describe the superseded source. For original-blueprint alignment and the verified corrective implementation, use [CT-BP/C03 source specification](CT-BP-C03-original-blueprint-spec.md) and [CT-BP/C03 evidence](../evidence/CT-BP-C03.md). The earlier CI and design history remain valid only for their original commit.
+
 # CT-L1 / C03 — Roof Route
 
 17 November 2026. ADR-017 authorizes independent **logic and data**, not official backlog CT03 qualification.

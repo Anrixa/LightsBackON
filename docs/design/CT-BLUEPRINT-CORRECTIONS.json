@@ -29,14 +29,16 @@
       "pull_request": "https://github.com/Anrixa/LightsBackON/pull/165",
       "full_original_blueprint_certification": "HOLD_PHYSICAL_LEVEL_AND_HUMAN_ACCEPTANCE",
       "pending": [
-        "Exact final documentation head and post-merge main CI",
         "C02 authored physical street sockets, on-screen deadline countdown, keyboard/controller/human playthrough, target GPU performance",
-        "Original C02 deployed-checkpoint compatibility policy: no automatic destructive migration or deletion"
-      ]
+        "Original C02 deployed-checkpoint compatibility policy: no automatic destructive migration or deletion",
+        "Post-merge C02 main validation was green on 2026-11-17; C02 original physical certification remains held"
+      ],
+      "merged_main_sha": "300703ef494d19ee045efa5bcae459d5673d8e58",
+      "post_merge_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44004321714"
     },
     {
       "id": "C03",
-      "status": "NOT_STARTED",
+      "status": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
       "source": "content/contracts/c03_roof_route",
       "requires": [
         "West fuse failure; inaccessible broken east trunk",
@@ -49,6 +51,20 @@
         "roof cable/access/dual-route refusal",
         "100-tick bonus and missed bonus",
         "save/reload, full trace"
+      ],
+      "implementation_phase": "CT-BP-C03",
+      "branch": "task/CT-BP-C03-roof-route-correction",
+      "evidence": "docs/evidence/CT-BP-C03.md",
+      "fidelity": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
+      "known_solution": "content/contracts/c03_roof_route/solution.json",
+      "source_head": "1451efa0a5126b9f4a9170be99666858c2356237",
+      "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/44034573394",
+      "pull_request": "https://github.com/Anrixa/LightsBackON/pull/166",
+      "full_original_blueprint_certification": "HOLD_PHYSICAL_LEVEL_AND_HUMAN_ACCEPTANCE",
+      "pending": [
+        "Final documentation PR head dual-OS CI and merge/main revalidation",
+        "Physical C03 preview switch and generator socket affordances, controlled 3D player walkthrough, HUD/hint visibility and controller/human tests",
+        "Target-class GPU exported performance, old C03 release checkpoint compatibility, real Steam two-network tests, canonical CT03 backlog gate"
       ]
     },
     {
