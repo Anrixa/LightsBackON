@@ -416,6 +416,26 @@
     "node.c08.cold_store": "Cold store",
     "node.c08.pump_kiosk": "Pump kiosk",
     "objective.c02.market_opening": "Opening: keep MARKET supplied continuously for 10 seconds before the 180-second deadline",
-    "objective.c02.pub_opening": "Opening: keep PUB supplied continuously for 10 seconds before the 180-second deadline"
+    "objective.c02.pub_opening": "Opening: keep PUB supplied continuously for 10 seconds before the 180-second deadline",
+    "node.c05.west": "West trunk",
+    "node.c05.east": "East trunk",
+    "node.c05.laundrette": "Laundrette",
+    "node.c05.diner": "Diner",
+    "node.c05.row_houses": "Row houses",
+    "node.c05.depot": "Depot",
+    "node.c05.pump_kiosk": "Pump kiosk",
+    "node.c05.pump_west": "West flood pump",
+    "node.c05.pump_east": "East flood pump",
+    "repair.c05.west_trunk": "Repair flooded west trunk",
+    "repair.c05.east_trunk": "Repair flooded east trunk",
+    "objective.c05.drain_west": "Drain the west access room",
+    "objective.c05.drain_east": "Drain the east access room",
+    "objective.c05.restore_west": "Restore west-side services",
+    "objective.c05.restore_east": "Restore east-side services",
+    "objective.c05.cold_store_time": "Restore the cold store before the pickup deadline",
+    "hud.pickup_deadline.waiting": "Cold-store bonus starts at first equipment pickup",
+    "hud.pickup_deadline.remaining": "Cold-store bonus: %d seconds remaining",
+    "hud.pickup_deadline.saved": "Cold-store timing bonus achieved",
+    "hud.pickup_deadline.missed": "Cold-store timing bonus missed; repairs can continue"
   }
 }
