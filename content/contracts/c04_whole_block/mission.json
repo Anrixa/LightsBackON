@@ -1,6 +1,6 @@
 {
   "contract_id": "C04",
-  "source_note": "C04 Whole Block: repair both essential Alder feeders, then optionally isolate and splice a direct 3 PU GRID sign spur. Enabling the east-sign connection instead of the direct spur overloads the 12 PU east feeder. All five services must be GRID-supplied for 100 uninterrupted ticks, extraction is 50 ticks. The optional sign never blocks completion.",
+  "source_note": "CT-BP/C04 source-aligned candidate: required Alder five services GRID20/24, optional SIGN3 through isolated-installed GRID spur4. Optional sign bonus latches only after 100 consecutive valid GRID-supply ticks, including host-observed same-tick interruptions; omitting it cannot block required verification or extraction.",
   "grid_source": "GRID",
   "required_consumers": [
     "APT_E",
@@ -10,7 +10,15 @@
     "WORKSHOP"
   ],
   "excluded_loads": [],
-  "access_latches": [],
+  "access_latches": [
+    {
+      "id": "LATCH_SIGN_SUPPLY",
+      "consumer": "SIGN",
+      "source": "GRID",
+      "supplied_ticks": 100,
+      "grants": "SIGN_CONTINUITY_COMPLETE"
+    }
+  ],
   "final_verification_ticks": 100,
   "extraction": {
     "zone": "ZONE_VAN",
@@ -42,9 +50,7 @@
       "id": "OBJ_SPUR",
       "text_key": "objective.c04.restore_sign",
       "done_when": {
-        "supplied_from_grid": [
-          "SIGN"
-        ]
+        "latch": "LATCH_SIGN_SUPPLY"
       }
     },
     {
@@ -70,8 +76,9 @@
     }
   ],
   "max_visible_objectives": 3,
-  "optional_services": [
-    "SIGN"
-  ],
-  "tutorial_trip_allowance": 0
+  "optional_services": [],
+  "tutorial_trip_allowance": 0,
+  "optional_latch_rewards": [
+    "LATCH_SIGN_SUPPLY"
+  ]
 }
