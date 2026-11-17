@@ -92,8 +92,17 @@ func _check_repair(r: Dictionary, nodes: Dictionary) -> Dictionary:
 	if not (iso is String and nodes.has(iso) and nodes[iso]["kind"] == PowerGrid.KIND_JUNCTION):
 		return PowerGrid.diag("BAD_REPAIR", "%s: isolate must name a grid junction" % rid, [rid])
 	var fix: Variant = r.get("fix")
-	if not (fix is Dictionary and (fix as Dictionary).get("op") == "set" and (fix as Dictionary).get("value") is bool):
-		return PowerGrid.diag("BAD_REPAIR", "%s: fix must be a grid set command" % rid, [rid])
+	if not fix is Dictionary:
+		return PowerGrid.diag("BAD_REPAIR", "%s: missing fix command" % rid, [rid])
+	var command: Dictionary = fix
+	if command.get("op") == "replace_module":
+		var edge_id: Variant = command.get("id")
+		var rating: Variant = PowerGrid.to_int(command.get("capacity"))
+		var upgrade: Dictionary = _grid.module_upgrade(str(edge_id)) if edge_id is String else {}
+		if upgrade.is_empty() or upgrade["breaker"] != iso or rating == null or int(rating) != int(upgrade["to_capacity"]):
+			return PowerGrid.diag("BAD_REPAIR", "%s: module fix must match the isolated, authorized feeder rating" % rid, [rid])
+	elif command.get("op") != "set" or not command.get("value") is bool:
+		return PowerGrid.diag("BAD_REPAIR", "%s: fix must be an authorized bool set or module replacement" % rid, [rid])
 	if not (r.get("component") is String and _supplies.has(r["component"])):
 		return PowerGrid.diag("BAD_REPAIR", "%s: component must be a listed supply" % rid, [rid])
 	if not (r.get("panel") is String and _meter.has_panel(r["panel"])):

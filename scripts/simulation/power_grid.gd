@@ -37,7 +37,7 @@ const NODE_DEFAULTS: Dictionary = {
 const EDGE_FIELDS: Dictionary = {"from": TYPE_STRING, "to": TYPE_STRING, "capacity": TYPE_INT, "enabled": TYPE_BOOL, "healthy": TYPE_BOOL}
 const EDGE_DEFAULTS: Dictionary = {"enabled": true, "healthy": true}
 const PROTECTION_FIELDS: Dictionary = {"element": TYPE_STRING, "breaker": TYPE_STRING}
-# Fields a command may change at runtime; capacities, demands and endpoints are authored content.
+# Generic set commands cannot change capacities; only explicitly authored, isolated module replacements may do so.
 const SETTABLE: Dictionary = {
 	KIND_SOURCE: ["online"],
 	KIND_JUNCTION: ["isolated", "failed", "tripped"],
@@ -48,6 +48,7 @@ const SETTABLE: Dictionary = {
 var tick: int = 0
 var _nodes: Dictionary = {}  # id -> record (includes "kind")
 var _edges: Dictionary = {}  # id -> record
+var _module_upgrades: Dictionary = {}  # edge -> {breaker, from_capacity, to_capacity}, authored whitelist
 var _protections: Dictionary = {}  # id -> {"id", "element": edge id, "breaker": junction id}
 var _overload_ticks: Dictionary = {}  # protection id -> consecutive overloaded ticks
 var _trip_ticks: int = 0
@@ -112,6 +113,25 @@ func load_definition(definition: Dictionary) -> Array[Dictionary]:
 			errs.append(diag("BAD_VALUE", "trip_ticks must be an int >= 1 when protections exist", []))
 		else:
 			_trip_ticks = int(trip)
+	# Contract-authored protected-edge rating replacements (C07). No upgrade
+	# is implicit: the exact initial rating and breaker must match the grid.
+	for record: Variant in definition.get("module_upgrades", []):
+		var module: Dictionary = record if record is Dictionary else {}
+		var eid: Variant = module.get("edge")
+		var breaker: Variant = module.get("breaker")
+		var old_cap: Variant = to_int(module.get("from_capacity"))
+		var new_cap: Variant = to_int(module.get("to_capacity"))
+		var protected: bool = false
+		for pid: String in _protections:
+			if _protections[pid]["element"] == eid and _protections[pid]["breaker"] == breaker:
+				protected = true
+		if not (eid is String and _edges.has(eid) and breaker is String and _nodes.has(breaker)
+				and _nodes[breaker]["kind"] == KIND_JUNCTION and protected and not _module_upgrades.has(eid)
+				and old_cap != null and new_cap != null and int(old_cap) >= 1 and int(new_cap) > int(old_cap)
+				and _edges[eid]["capacity"] == int(old_cap)):
+			errs.append(diag("BAD_MODULE_UPGRADE", "module must replace one protected feeder with an exact larger rating", [str(eid)]))
+		else:
+			_module_upgrades[eid] = {"breaker": breaker, "from_capacity": int(old_cap), "to_capacity": int(new_cap)}
 	if errs.is_empty():
 		errs = validate()
 	if not errs.is_empty():
@@ -126,6 +146,7 @@ func _clear() -> void:
 	_nodes = {}
 	_edges = {}
 	_protections = {}
+	_module_upgrades = {}
 	_overload_ticks = {}
 	_trip_ticks = 0
 
@@ -387,6 +408,20 @@ func _mutate(cmd: Dictionary) -> Dictionary:
 			return diag("BAD_VALUE", "%s: %s must be bool" % [tid, field], [tid])
 		rec[field] = value
 		return {}
+	if op is String and op == "replace_module":
+		var eid: Variant = cmd.get("id")
+		if not (eid is String and _module_upgrades.has(eid)):
+			return diag("MODULE_NOT_AUTHORIZED", "no authorized module for %s" % str(eid), [str(eid)])
+		var module: Dictionary = _module_upgrades[eid]
+		var new_cap: Variant = to_int(cmd.get("capacity"))
+		if new_cap == null or int(new_cap) != int(module["to_capacity"]):
+			return diag("MODULE_RATING_REFUSED", "%s replacement rating is not in the contract" % eid, [eid])
+		if not _nodes[module["breaker"]]["isolated"]:
+			return diag("MODULE_NOT_ISOLATED", "isolate %s before replacing its module" % module["breaker"], [eid, module["breaker"]])
+		if _edges[eid]["capacity"] != int(module["from_capacity"]):
+			return diag("MODULE_ALREADY_REPLACED", "%s no longer contains the old module" % eid, [eid])
+		_edges[eid]["capacity"] = int(new_cap)
+		return {}
 	if op is String and op == "add_edge":
 		var checked: Array = _check_record(cmd.get("edge"), EDGE_FIELDS, EDGE_DEFAULTS, "edge")
 		var errs: Array[Dictionary] = checked[1]
@@ -405,6 +440,11 @@ func _mutate(cmd: Dictionary) -> Dictionary:
 		_edges.erase(rid)
 		return {}
 	return diag("UNKNOWN_OP", "unknown command %s" % str(op), [])
+
+
+## Only upgrades in the contract whitelist can be referenced by repairs.
+func module_upgrade(edge_id: String) -> Dictionary:
+	return (_module_upgrades.get(edge_id, {}) as Dictionary).duplicate()
 
 
 # ---------- causes (saves, G06) ----------
@@ -473,6 +513,16 @@ func _restore_into(saved: Dictionary) -> Array[Dictionary]:
 		if checked[0] != null:
 			var e: Dictionary = checked[0]
 			if _edges.has(eid):
+				# Save capacity may differ only by an exact contract-authorized
+				# module replacement; other forged/mismatched values fail closed.
+				var current_capacity: int = int(_edges[eid]["capacity"])
+				var saved_capacity: int = int(e["capacity"])
+				if saved_capacity != current_capacity:
+					var module: Dictionary = _module_upgrades.get(eid, {})
+					if module.is_empty() or current_capacity != int(module["from_capacity"]) or saved_capacity != int(module["to_capacity"]):
+						errs.append(diag("BAD_SAVE", "%s capacity is not an authorized module replacement" % eid, [eid]))
+						continue
+				_edges[eid]["capacity"] = saved_capacity
 				_edges[eid]["enabled"] = e["enabled"]
 				_edges[eid]["healthy"] = e["healthy"]
 			else:
