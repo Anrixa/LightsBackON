@@ -176,6 +176,28 @@ func test_CT_BP_C06_pump_and_cold_store_overload_gen8_at_9_pu() -> void:
 	assert_false((ctx["mission"] as Mission).canonical_state()["latched"].has("LATCH_EAST_DRAIN"))
 
 
+func test_CT_BP_C06_grid_and_temp_cold_store_tie_rejected_atomically() -> void:
+	var ctx: Dictionary = _context()
+	var steps: Array = []
+	for step: Dictionary in _trace()["steps"]:
+		if step.has("ticks") and int(step["ticks"]) == 100:
+			break
+		steps.append(step)
+	assert_eq(Runner.run(ctx, steps, 1), [] as Array[String])
+	assert_true((ctx["grid"] as Grid).canonical_state()["nodes"]["COLD_STORE"]["supplied"])
+	_generator_at_pad(ctx)
+	var before_connect: Dictionary = (ctx["grid"] as Grid).canonical_state()
+	var connected: Dictionary = _equipment(ctx, "connect", "E_TEMP_COLD_STORE")
+	if not connected.get("ok", false):
+		assert_eq((ctx["grid"] as Grid).canonical_state(), before_connect)
+	else:
+		var before_start: Dictionary = (ctx["grid"] as Grid).canonical_state()
+		var attempted_start: Dictionary = _equipment(ctx, "start")
+		assert_false(attempted_start.get("ok", false), "source tie must be refused")
+		assert_eq((ctx["grid"] as Grid).canonical_state(), before_start,
+			"refused source tie must not partially energize the generator")
+
+
 func test_CT_BP_C06_durable_outage_restores_only_valid_counters() -> void:
 	var ctx: Dictionary = _context()
 	Runner.ticks(ctx, 37)
