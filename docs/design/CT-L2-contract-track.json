@@ -26,15 +26,18 @@
       "id": "CTL2-C06",
       "contract_id": "C06",
       "title": "Cold-Chain Window (provisional design name)",
-      "status": "IN_PROGRESS",
+      "status": "CLOUD_VERIFIED",
       "source": "content/contracts/c06_cold_chain",
       "evidence": "docs/evidence/CTL2-C06.md",
       "pending": [
-        "Exact-head GitHub Linux and Windows CI with C01-C06 solution replays and boundary tests",
-        "Original blueprint C06 contract sheet, title, grace timer and gameplay-value reconciliation",
-        "Physical Canal Yard C06 scene, controller/human and GPU P95/memory, UI deadline presentation",
-        "Official CT04 remains dependency-blocked, and Steam F02/F06 plus rules_revision save compatibility remain unqualified"
-      ]
+        "Original blueprint C06 contract sheet needs comparison, including title, 280-tick optional grace, consumer demand, pump latches and kit",
+        "C06 physical Canal Yard scene with host ranged repairs and cold-chain status UI, exported-GPU P95/memory and human/controller checks",
+        "Global rules_revision compatibility with older saved sessions (keep saves intact; no migration)",
+        "Official CT04 blocked behind CT01/CT03; F02/F06 real Steam network checks pending"
+      ],
+      "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43993660385",
+      "source_head": "5c704a8fac80041f7c1e320e3511454d8777bdbe",
+      "pull_request": "https://github.com/Anrixa/LightsBackON/pull/162"
     },
     {
       "id": "CTL2-C07",
