@@ -1,0 +1,83 @@
+{
+  "contract_id": "C07",
+  "source_note": "Development Blueprint v1.0, p.18 Canal Yard baseline and p.20 C07 Wrong Label; recovered from canonical repository PDF. PU are abstract, not real electrical fuse ratings. This is host-authoritative headless contract logic, not physical scene acceptance. Extra star is a durable host-measured evidence bonus: inspect PANEL_JE and see 12 PU demand vs actual 10 PU rating (stale label 14) before any in-range reset attempt, even one refused as overloaded. Wrong resets remain recoverable; no hard deadline or mandatory generator task.",
+  "grid_source": "GRID",
+  "required_consumers": [
+    "LAUNDRETTE",
+    "DINER",
+    "ROW_HOUSES",
+    "DEPOT",
+    "COLD_STORE",
+    "PUMP_KIOSK"
+  ],
+  "excluded_loads": [],
+  "access_latches": [],
+  "optional_services": [],
+  "optional_meter_evidence": {
+    "id": "EVIDENCE_MISMATCH",
+    "panel": "PANEL_JE",
+    "edge": "E_GRID_JE",
+    "breaker": "JE",
+    "actual_capacity": 10,
+    "label_capacity": 14
+  },
+  "final_verification_ticks": 100,
+  "extraction": {
+    "zone": "ZONE_VAN",
+    "countdown_ticks": 50
+  },
+  "max_visible_objectives": 3,
+  "tutorial_trip_allowance": 0,
+  "objectives": [
+    {
+      "id": "OBJ_WEST",
+      "text_key": "objective.c07.west",
+      "done_when": {
+        "supplied_from_grid": [
+          "LAUNDRETTE",
+          "DINER",
+          "ROW_HOUSES"
+        ]
+      }
+    },
+    {
+      "id": "OBJ_EVIDENCE",
+      "text_key": "objective.c07.evidence",
+      "done_when": {
+        "meter_evidence": "EVIDENCE_MISMATCH"
+      }
+    },
+    {
+      "id": "OBJ_EAST",
+      "text_key": "objective.c07.east",
+      "done_when": {
+        "supplied_from_grid": [
+          "DEPOT",
+          "COLD_STORE",
+          "PUMP_KIOSK"
+        ]
+      }
+    },
+    {
+      "id": "OBJ_VERIFY",
+      "text_key": "objective.c01.verify_supply",
+      "done_when": {
+        "verified": true
+      }
+    },
+    {
+      "id": "OBJ_STOW",
+      "text_key": "objective.c01.stow_equipment",
+      "done_when": {
+        "stowed": true
+      }
+    },
+    {
+      "id": "OBJ_EXTRACT",
+      "text_key": "objective.c01.extract",
+      "done_when": {
+        "completed": true
+      }
+    }
+  ]
+}

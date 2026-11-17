@@ -46,6 +46,10 @@ var _optional: Array[String] = []
 ## -1 retains C01's original "on grid at completion" behaviour byte-for-byte.
 var _optional_deadline_ticks: int = -1
 var _optional_first_supplied: Dictionary = {}  # optional ID -> first authoritative supplied tick, if within cutoff
+## Optional host-observed meter finding; absent from legacy contracts and saves.
+var _meter_evidence: Dictionary = {}
+var _evidence_observed: bool = false
+var _evidence_reset_attempted: bool = false
 var _trip_allowance: int = 0
 var _trips: int = 0
 var _recoveries: int = 0
@@ -111,6 +115,24 @@ func load_definition(definition: Dictionary, grid: PowerGrid, interaction: Inter
 				"optional_deadline_ticks requires >=1 and an optional service", []))
 		else:
 			_optional_deadline_ticks = int(deadline)
+	var evidence_raw: Variant = definition.get("optional_meter_evidence", null)
+	if evidence_raw != null:
+		var evidence: Dictionary = evidence_raw if evidence_raw is Dictionary else {}
+		var eid: Variant = evidence.get("edge")
+		var breaker: Variant = evidence.get("breaker")
+		var label_rating: Variant = PowerGrid.to_int(evidence.get("label_capacity"))
+		var real_rating: Variant = PowerGrid.to_int(evidence.get("actual_capacity"))
+		var edges: Dictionary = grid.canonical_state()["edges"]
+		if not (PowerGrid.is_valid_id(evidence.get("id")) and PowerGrid.is_valid_id(evidence.get("panel"))
+				and breaker is String and nodes.has(breaker) and nodes[breaker]["kind"] == PowerGrid.KIND_JUNCTION
+				and eid is String and edges.has(eid) and edges[eid]["to"] == breaker
+				and label_rating != null and real_rating != null and int(real_rating) >= 1
+				and int(label_rating) > int(real_rating) and edges[eid]["capacity"] == int(real_rating)
+				and _optional.is_empty()):
+			errs.append(PowerGrid.diag("BAD_MISSION", "meter evidence needs a real under-rated feeder and stale larger label", []))
+		else:
+			_meter_evidence = {"id": evidence["id"], "panel": evidence["panel"], "breaker": breaker,
+				"edge": eid, "label_capacity": int(label_rating), "actual_capacity": int(real_rating)}
 	var allowance: Variant = PowerGrid.to_int(definition.get("tutorial_trip_allowance", 0))
 	if allowance == null or int(allowance) < 0:
 		errs.append(PowerGrid.diag("BAD_MISSION", "tutorial_trip_allowance must be an int >= 0", []))
@@ -214,6 +236,34 @@ func note_events(events: Array[Dictionary]) -> void:
 			_recoveries += 1
 
 
+## Host-only evidence: a real inspected panel must show the 10 PU component
+## capacity and branch demand above that capacity before the first reset attempt.
+func note_meter_inspection(panel: String, reading: Dictionary) -> void:
+	if _meter_evidence.is_empty() or _evidence_observed or _evidence_reset_attempted or _completed_tick >= 0:
+		return
+	if panel != _meter_evidence["panel"]:
+		return
+	var cap: Dictionary = reading.get("capacity_pu", {})
+	var demand: Dictionary = reading.get("demand_pu", {})
+	if not cap.get("known", false) or not demand.get("known", false):
+		return
+	var actual: Variant = PowerGrid.to_int(cap.get("value"))
+	var pu: Variant = PowerGrid.to_int(demand.get("value"))
+	if actual == null or pu == null:
+		return
+	if int(actual) == int(_meter_evidence["actual_capacity"]) and int(pu) > int(actual):
+		_evidence_observed = true
+
+
+## The first *attempt* matters, not just the first successful reset. A genuine
+## in-range reset intent is counted even if the grid correctly refuses overload.
+func note_breaker_reset_attempt(target: String, field: String, value: bool) -> void:
+	if _meter_evidence.is_empty() or _evidence_reset_attempted or _completed_tick >= 0:
+		return
+	if target == _meter_evidence["breaker"] and field == "tripped" and not value:
+		_evidence_reset_attempted = true
+
+
 ## Results report (blueprint p.12 scoring): required restored, optional services restored, trips, crew recoveries,
 ## time and equipment collected; stars: 1 completion, 2 every optional service restored (granted when the contract has
 ## none), 3 no preventable branch trips after the tutorial allowance. No speed star. Empty until the mission is
@@ -232,10 +282,13 @@ func _build_results() -> Dictionary:
 	for c: String in _optional:  # already sorted by _consumer_list
 		if _on_grid(c, st) and (_optional_deadline_ticks < 0 or _optional_first_supplied.has(c)):
 			optional_restored.append(c)
+	if not _meter_evidence.is_empty() and _evidence_observed:
+		optional_restored.append(_meter_evidence["id"])
+	var optional_total: int = _optional.size() + (1 if not _meter_evidence.is_empty() else 0)
 	var preventable: int = maxi(0, _trips - _trip_allowance)
-	var stars: int = 1 + (1 if optional_restored.size() == _optional.size() else 0) + (1 if preventable == 0 else 0)
+	var stars: int = 1 + (1 if optional_restored.size() == optional_total else 0) + (1 if preventable == 0 else 0)
 	return {"required_restored": restored, "required_total": _required.size(), "optional_services": optional_restored,
-		"optional_total": _optional.size(), "trips": _trips, "preventable_trips": preventable, "crew_recoveries": _recoveries,
+		"optional_total": optional_total, "trips": _trips, "preventable_trips": preventable, "crew_recoveries": _recoveries,
 		"ticks": _completed_tick, "equipment_collected": _equipment.all_stowed(), "stars": stars}
 
 
@@ -352,6 +405,8 @@ func _objective_done(cond: Dictionary, st: Dictionary) -> bool:
 		return _latched.has(cond["latch"])
 	if cond.has("ladder"):
 		return _ladder_access.has(cond["ladder"])
+	if cond.has("meter_evidence"):
+		return not _meter_evidence.is_empty() and cond["meter_evidence"] == _meter_evidence["id"] and _evidence_observed
 	if cond.has("verified"):
 		return verified()
 	if cond.has("stowed"):
@@ -370,6 +425,8 @@ func canonical_state() -> Dictionary:
 		"countdown_left": _countdown_left, "completed_tick": _completed_tick, "in_zone": _sorted(_in_zone.keys())}
 	if _optional_deadline_ticks >= 0:
 		out["optional_first_supplied"] = _optional_first_supplied.duplicate()
+	if not _meter_evidence.is_empty():
+		out["optional_meter_evidence"] = {"observed": _evidence_observed, "reset_attempted": _evidence_reset_attempted}
 	if not _fixed_ladders.is_empty():
 		out["ladder_access"] = _ladder_access.duplicate()
 	return out
@@ -386,6 +443,8 @@ func durable_state() -> Dictionary:
 		"trips": _trips, "recoveries": _recoveries, "completed_tick": _completed_tick, "results": _results.duplicate(true)}
 	if _optional_deadline_ticks >= 0:
 		out["optional_first_supplied"] = _optional_first_supplied.duplicate()
+	if not _meter_evidence.is_empty():
+		out["optional_meter_evidence"] = {"observed": _evidence_observed, "reset_attempted": _evidence_reset_attempted}
 	if not _fixed_ladders.is_empty():
 		out["ladder_access"] = _ladder_access.duplicate()
 	return out
@@ -427,6 +486,17 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 					or int(when) < 1 or int(when) > _optional_deadline_ticks:
 				return bad
 			optional_first[id] = int(when)
+	# Evidence state is saved only by contracts that declare this objective.
+	# Verify the complete shape before mutating mission data (fail closed).
+	var observed: bool = false
+	var reset_attempted: bool = false
+	if not _meter_evidence.is_empty():
+		var record: Variant = d.get("optional_meter_evidence")
+		if not (record is Dictionary and (record as Dictionary).size() == 2
+				and record.get("observed") is bool and record.get("reset_attempted") is bool):
+			return bad
+		observed = record["observed"]
+		reset_attempted = record["reset_attempted"]
 	# Validate all ladder keys before any state mutation. Legacy missions omit them.
 	var ladder_access: Dictionary = {}
 	if not _fixed_ladders.is_empty():
@@ -448,6 +518,8 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 	_completed_tick = counters["completed_tick"]
 	_results = (d["results"] as Dictionary).duplicate(true)
 	_optional_first_supplied = optional_first
+	_evidence_observed = observed
+	_evidence_reset_attempted = reset_attempted
 	_ladder_access = ladder_access
 	for ladder_id: String in _ladder_access:
 		_interaction.set_access(_fixed_ladders[ladder_id], true)

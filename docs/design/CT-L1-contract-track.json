@@ -15,11 +15,14 @@
       "pending": [
         "physical Windows in-game C02 scene and human/UX/controller acceptance",
         "target GPU exported P95/memory and content-revision compatibility across releases",
-        "canonical CT03 remains gate-blocked on D08; F02/F06/V09 open"
+        "canonical CT03 remains gate-blocked on D08; F02/F06/V09 open",
+        "Original blueprint recovered: implementation must be reconciled before claiming contract-sheet compliance"
       ],
       "merged_pr": "https://github.com/Anrixa/LightsBackON/pull/156",
       "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43911687483",
-      "merged_main_sha": "395e60303904f1014bebe254607c8a6f83f6afd5"
+      "merged_main_sha": "395e60303904f1014bebe254607c8a6f83f6afd5",
+      "blueprint_fidelity": "HOLD_CONFIRMED_MISMATCH",
+      "blueprint_reconciliation": "Blueprint p.19 requires TWO optional venue services MARKET and PUB each supplied continuously 10 s before 180-second opening deadline; existing C02 mission awards optional SIGN with deadline 2400 ticks (240 s)."
     },
     {
       "id": "CTL1-C03",
@@ -31,7 +34,8 @@
       "pending": [
         "physical C03 ladder landing scene, contract selectability and real host range check",
         "physical Windows keyboard/controller playthrough and target GPU P95/memory",
-        "global rules revision checkpoint continuity, F02/F06 Steam verification, official CT03 D08 gate"
+        "global rules revision checkpoint continuity, F02/F06 Steam verification, official CT03 D08 gate",
+        "Original blueprint recovered: implementation must be reconciled before claiming contract-sheet compliance"
       ],
       "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43919744681",
       "preview_phase": {
@@ -46,7 +50,9 @@
           "target GPU frame-time/memory/screenshots, contrast and accessibility review",
           "C03-specific persistence, release-quality scene gate, official CT03 D08 and Steam F02/F06"
         ]
-      }
+      },
+      "blueprint_fidelity": "HOLD_CONFIRMED_MISMATCH",
+      "blueprint_reconciliation": "Blueprint p.19 requires the ladder access-light supply latch to run 5 s and an optional 2 PU rooftop work light. Current C03 mission has no access_latches and its source_note describes a 1 PU roof beacon."
     },
     {
       "id": "CTL1-C04",
@@ -58,11 +64,14 @@
       "pending": [
         "authored C04 physical mission scene, target GPU P95/memory, human/controller validation",
         "C01/C02/C03 save continuity across rules revisions, no migration/deletion authorized",
-        "official CT03 remains blocked by D08; F02/F06 require real Steam networks"
+        "official CT03 remains blocked by D08; F02/F06 require real Steam networks",
+        "Original blueprint recovered: implementation must be reconciled before claiming contract-sheet compliance"
       ],
       "verified_ci_run": "https://github.com/Anrixa/LightsBackON/actions/runs/43990072603",
       "source_head": "1a9cfde193f5d024d080907e6296b61372fc74ea",
-      "pull_request": "https://github.com/Anrixa/LightsBackON/pull/160"
+      "pull_request": "https://github.com/Anrixa/LightsBackON/pull/160",
+      "blueprint_fidelity": "HOLD_CONFIRMED_MISMATCH",
+      "blueprint_reconciliation": "Blueprint p.19 requires a GRID-to-SIGN spur rated 4 PU and optional sign supply for 10 continuous seconds; current C04 E_GRID_SPUR is rated 3 PU and uses immediate optional-on-GRID scoring."
     }
   ]
 }

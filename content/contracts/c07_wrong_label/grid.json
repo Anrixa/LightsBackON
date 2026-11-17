@@ -1,0 +1,189 @@
+{
+  "contract_id": "C07",
+  "source_note": "Development Blueprint v1.0, p.18 Canal Yard baseline and p.20 C07 Wrong Label; recovered from canonical repository PDF. PU are abstract, not real electrical fuse ratings. This is host-authoritative headless contract logic, not physical scene acceptance. West 13/14 starts GRID supplied; east 12 PU is dark with JE tripped and installed feeder module rated 10 although the stale panel label says 14. The sole approved replacement upgrades protected edge E_GRID_JE exactly to 14 PU.",
+  "trip_ticks": 15,
+  "nodes": [
+    {
+      "id": "GRID",
+      "kind": "source",
+      "capacity": 30,
+      "online": true
+    },
+    {
+      "id": "GEN",
+      "kind": "source",
+      "capacity": 8,
+      "online": false
+    },
+    {
+      "id": "JW",
+      "kind": "junction",
+      "isolated": false,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "JE",
+      "kind": "junction",
+      "isolated": false,
+      "failed": false,
+      "tripped": true
+    },
+    {
+      "id": "TEMP",
+      "kind": "junction",
+      "isolated": false,
+      "failed": false,
+      "tripped": false
+    },
+    {
+      "id": "LAUNDRETTE",
+      "kind": "consumer",
+      "demand": 5,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "DINER",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "ROW_HOUSES",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "DEPOT",
+      "kind": "consumer",
+      "demand": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "COLD_STORE",
+      "kind": "consumer",
+      "demand": 5,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "PUMP_KIOSK",
+      "kind": "consumer",
+      "demand": 3,
+      "enabled": true,
+      "healthy": true
+    }
+  ],
+  "edges": [
+    {
+      "id": "E_GRID_JW",
+      "from": "GRID",
+      "to": "JW",
+      "capacity": 14,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_GRID_JE",
+      "from": "GRID",
+      "to": "JE",
+      "capacity": 10,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_JW_LAUNDRETTE",
+      "from": "JW",
+      "to": "LAUNDRETTE",
+      "capacity": 5,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_JW_DINER",
+      "from": "JW",
+      "to": "DINER",
+      "capacity": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_JW_ROW_HOUSES",
+      "from": "JW",
+      "to": "ROW_HOUSES",
+      "capacity": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_JE_DEPOT",
+      "from": "JE",
+      "to": "DEPOT",
+      "capacity": 4,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_JE_COLD_STORE",
+      "from": "JE",
+      "to": "COLD_STORE",
+      "capacity": 5,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_JE_PUMP_KIOSK",
+      "from": "JE",
+      "to": "PUMP_KIOSK",
+      "capacity": 3,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_GEN_TEMP",
+      "from": "GEN",
+      "to": "TEMP",
+      "capacity": 8,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_TEMP_DEPOT",
+      "from": "TEMP",
+      "to": "DEPOT",
+      "capacity": 4,
+      "enabled": false,
+      "healthy": true
+    }
+  ],
+  "protections": [
+    {
+      "id": "BRK_JW",
+      "element": "E_GRID_JW",
+      "breaker": "JW"
+    },
+    {
+      "id": "BRK_JE",
+      "element": "E_GRID_JE",
+      "breaker": "JE"
+    },
+    {
+      "id": "BRK_TEMP",
+      "element": "E_GEN_TEMP",
+      "breaker": "TEMP"
+    }
+  ],
+  "module_upgrades": [
+    {
+      "edge": "E_GRID_JE",
+      "breaker": "JE",
+      "from_capacity": 10,
+      "to_capacity": 14
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "contract_id": "C07",
+  "source_note": "Development Blueprint v1.0, p.18 Canal Yard baseline and p.20 C07 Wrong Label; recovered from canonical repository PDF. PU are abstract, not real electrical fuse ratings. This is host-authoritative headless contract logic, not physical scene acceptance. Portable 8 PU GEN is provided in the van; it is not needed for the known solution. Logical graybox-only storage and optional depot pad, no physical positions claimed.",
+  "equipment": [
+    {
+      "id": "GEN_PORTABLE",
+      "kind": "generator",
+      "source": "GEN",
+      "breaker": "TEMP",
+      "start_anchor": "VAN_BAY"
+    }
+  ],
+  "anchors": [
+    {
+      "id": "VAN_BAY",
+      "storage": true,
+      "routes": []
+    },
+    {
+      "id": "PAD_CANAL_DEPOT",
+      "storage": false,
+      "routes": [
+        "E_TEMP_DEPOT"
+      ]
+    }
+  ],
+  "recovery_anchor": "VAN_BAY"
+}

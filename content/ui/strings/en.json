@@ -377,6 +377,24 @@
     "node.c06.gen": "Portable generator",
     "node.c06.temp": "Temporary supply",
     "node.c06.pump_dock": "Dock drain pump",
-    "node.c06.pump_cold": "Cold-yard drain pump"
+    "node.c06.pump_cold": "Cold-yard drain pump",
+    "contract.c07": "Wrong Label",
+    "repair.c07.module": "East feeder protection module (14 PU replacement)",
+    "objective.c07.west": "Confirm all three west services remain supplied",
+    "objective.c07.evidence": "Optional: compare the meter with the east panel label before a reset",
+    "objective.c07.east": "Replace the incorrect protection module and restore all east services",
+    "panel.c07.je.stale": "EAST FEEDER — 14 PU (stale plate; inspect the meter)",
+    "access.c07.east_module": "Isolate the east junction before replacing the module",
+    "node.c07.grid": "Canal Grid",
+    "node.c07.gen": "Portable Generator",
+    "node.c07.jw": "West junction",
+    "node.c07.je": "East junction",
+    "node.c07.temp": "Temporary junction",
+    "node.c07.laundrette": "Laundrette",
+    "node.c07.diner": "Diner",
+    "node.c07.row_houses": "Row Houses",
+    "node.c07.depot": "Canal Depot",
+    "node.c07.cold_store": "Cold Store",
+    "node.c07.pump_kiosk": "Pump Kiosk"
   }
 }
