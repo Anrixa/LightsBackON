@@ -1,20 +1,15 @@
 {
   "contract_id": "C05",
-  "source_note": "The only optional load is the dock beacon, 2 PU on the 12 PU feeder. DOCK/COLD are host-operated junction breaker controls; generator TEMP reset is an equipment command.",
+  "source_note": "Only west/east breaker controls are host-switchable; optional C05 bonus is time-qualified mandatory COLD_STORE grid supply, not a beacon.",
   "switches": [
     {
-      "id": "SW_BEACON",
-      "target": "BEACON",
-      "field": "enabled"
-    },
-    {
-      "id": "SW_DOCK_BREAKER",
-      "target": "DOCK",
+      "id": "SW_WEST_BREAKER",
+      "target": "WEST",
       "field": "tripped"
     },
     {
-      "id": "SW_COLD_BREAKER",
-      "target": "COLD",
+      "id": "SW_EAST_BREAKER",
+      "target": "EAST",
       "field": "tripped"
     }
   ]
