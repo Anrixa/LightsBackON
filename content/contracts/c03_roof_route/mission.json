@@ -1,6 +1,6 @@
 {
   "contract_id": "C03",
-  "source_note": "LADDER_WEST is host-ranged fixed ladder access. Physical roof transition is a later scene gate. Repaired rooftop bypass supplies required 11 PU east; optional 1 PU beacon at capacity. Verify GRID supply for 100 ticks; extract in 50 ticks. A second fixed-ladder endpoint allows a host-validated return from the roof; no new mandatory objective.",
+  "source_note": "Original blueprint C03 source-aligned headless candidate: repair failed west fuse, sustain GRID-powered ladder light 50 continuous ticks before host-ranged ladder admission, install rooftop alternate feeder (12 PU) while direct east stays disabled, and optionally sustain a GEN-powered 2 PU roof work light for 100 continuous ticks. All required GRID loads verify for 100 ticks; extraction needs 50 ticks. Physical wiring/ladder and old-release saves remain unqualified.",
   "grid_source": "GRID",
   "required_consumers": [
     "APT_E",
@@ -12,15 +12,32 @@
   "excluded_loads": [
     "SIGN"
   ],
-  "access_latches": [],
+  "access_latches": [
+    {
+      "id": "LATCH_LADDER_LIGHT",
+      "consumer": "LADDER_LIGHT",
+      "source": "GRID",
+      "supplied_ticks": 50,
+      "grants": "LADDER_LIGHT_READY"
+    },
+    {
+      "id": "LATCH_ROOF_WORK_LIGHT",
+      "consumer": "ROOF_BEACON",
+      "source": "GEN",
+      "supplied_ticks": 100,
+      "grants": "ROOF_WORK_LIGHT_COMPLETE"
+    }
+  ],
   "fixed_ladders": [
     {
       "id": "LADDER_WEST",
-      "grants": "ROOF_REACHED"
+      "grants": "ROOF_REACHED",
+      "requires_latch": "LATCH_LADDER_LIGHT"
     },
     {
       "id": "LADDER_WEST_RETURN",
-      "grants": "ROOF_REACHED"
+      "grants": "ROOF_REACHED",
+      "requires_latch": "LATCH_LADDER_LIGHT"
     }
   ],
   "final_verification_ticks": 100,
@@ -29,6 +46,13 @@
     "countdown_ticks": 50
   },
   "objectives": [
+    {
+      "id": "OBJ_LADDER_LIGHT",
+      "text_key": "objective.c03.power_ladder",
+      "done_when": {
+        "latch": "LATCH_LADDER_LIGHT"
+      }
+    },
     {
       "id": "OBJ_REACH_ROOF",
       "text_key": "objective.c03.reach_roof",
@@ -48,12 +72,10 @@
       }
     },
     {
-      "id": "OBJ_BEACON",
-      "text_key": "objective.c03.beacon",
+      "id": "OBJ_WORK_LIGHT",
+      "text_key": "objective.c03.roof_work_light",
       "done_when": {
-        "supplied_from_grid": [
-          "ROOF_BEACON"
-        ]
+        "latch": "LATCH_ROOF_WORK_LIGHT"
       }
     },
     {
@@ -79,8 +101,9 @@
     }
   ],
   "max_visible_objectives": 3,
-  "optional_services": [
-    "ROOF_BEACON"
-  ],
-  "tutorial_trip_allowance": 0
+  "optional_services": [],
+  "tutorial_trip_allowance": 0,
+  "optional_latch_rewards": [
+    "LATCH_ROOF_WORK_LIGHT"
+  ]
 }

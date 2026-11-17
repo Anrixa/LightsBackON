@@ -29,10 +29,12 @@ var _grid_source: String = ""
 var _grid_sources: Array[String] = []  # contract-approved permanent sources; legacy uses one
 var _required: Array[String] = []
 var _excluded: Array[String] = []
-var _latches: Dictionary = {}  # latch id -> {"id", "consumer", "supplied_ticks", "grants"}
+var _latches: Dictionary = {}  # latch id -> definition, optional source restricts qualifying power
+var _optional_latch_rewards: Array[String] = []  # only authored contracts add latched bonuses
 var _latch_ticks: Dictionary = {}  # latch id -> continuous supplied ticks so far
 var _latched: Dictionary = {}  # latch id -> tick it latched
 var _fixed_ladders: Dictionary = {}  # ladder id -> access flag
+var _ladder_requires: Dictionary = {}  # ladder id -> required completed supply latch
 var _ladder_access: Dictionary = {}  # ladder id -> first authoritative use tick
 var _verify_needed: int = 0
 var _verify_ticks: int = 0
@@ -114,8 +116,23 @@ func load_definition(definition: Dictionary, grid: PowerGrid, interaction: Inter
 				or n == null or int(n) < 1 or not (l.get("grants") is String):
 			errs.append(PowerGrid.diag("BAD_MISSION", "access latch %s needs id, consumer, supplied_ticks >= 1, grants" % str(l.get("id")), []))
 		else:
-			_latches[l["id"]] = {"id": l["id"], "consumer": l["consumer"], "supplied_ticks": int(n), "grants": l["grants"]}
-			_latch_ticks[l["id"]] = 0
+			var source: Variant = l.get("source", "")
+			if not (source is String) or (source != "" and (not nodes.has(source) or nodes[source]["kind"] != PowerGrid.KIND_SOURCE)):
+				errs.append(PowerGrid.diag("BAD_MISSION", "access latch source must be a real power source", [l["id"]]))
+			else:
+				_latches[l["id"]] = {"id": l["id"], "consumer": l["consumer"], "supplied_ticks": int(n), "grants": l["grants"]}
+				if source != "":
+					_latches[l["id"]]["source"] = source
+				_latch_ticks[l["id"]] = 0
+	var reward_raw: Variant = definition.get("optional_latch_rewards", [])
+	if not reward_raw is Array:
+		errs.append(PowerGrid.diag("BAD_MISSION", "optional_latch_rewards must be an array", []))
+	else:
+		for reward: Variant in reward_raw:
+			if not (reward is String and _latches.has(reward)) or _optional_latch_rewards.has(reward):
+				errs.append(PowerGrid.diag("BAD_MISSION", "optional latch reward must name one unique access latch", []))
+			else:
+				_optional_latch_rewards.append(reward)
 	# Fixed ladders are contract access interactions, not electrical nodes.
 	for rec: Variant in definition.get("fixed_ladders", []):
 		var ladder: Dictionary = rec if rec is Dictionary else {}
@@ -124,7 +141,13 @@ func load_definition(definition: Dictionary, grid: PowerGrid, interaction: Inter
 		if not PowerGrid.is_valid_id(ladder_id) or not PowerGrid.is_valid_id(grant) or _fixed_ladders.has(ladder_id):
 			errs.append(PowerGrid.diag("BAD_MISSION", "fixed ladder needs unique ID and grant flag", []))
 		else:
-			_fixed_ladders[ladder_id] = grant
+			var required_latch: Variant = ladder.get("requires_latch", "")
+			if not (required_latch is String) or (required_latch != "" and not _latches.has(required_latch)):
+				errs.append(PowerGrid.diag("BAD_MISSION", "fixed ladder requires a declared supply latch", [ladder_id]))
+			else:
+				_fixed_ladders[ladder_id] = grant
+				if required_latch != "":
+					_ladder_requires[ladder_id] = required_latch
 	var verify: Variant = PowerGrid.to_int(definition.get("final_verification_ticks"))
 	var ex: Dictionary = definition.get("extraction", {})
 	var countdown: Variant = PowerGrid.to_int(ex.get("countdown_ticks"))
@@ -292,7 +315,7 @@ func tick(now: int) -> Array[Dictionary]:
 		if _latched.has(lid):
 			continue
 		var l: Dictionary = _latches[lid]
-		var valid_supply: bool = _on_grid(l["consumer"], st) if _grid_sources.size() > 1 else st["nodes"][l["consumer"]]["supplied"]
+		var valid_supply: bool = _latch_supplied(l, st)
 		_latch_ticks[lid] = int(_latch_ticks[lid]) + 1 if valid_supply else 0
 		if int(_latch_ticks[lid]) >= int(l["supplied_ticks"]):
 			_latched[lid] = now
@@ -359,12 +382,9 @@ func observe_supply_state() -> void:
 	var st: Dictionary = _grid.canonical_state()
 	# A C08 depot interruption cannot be hidden by two valid switch commands
 	# that both arrive between 10 Hz ticks. Legacy latch behavior is unchanged.
-	if _grid_sources.size() > 1:
-		for lid: String in _sorted(_latches.keys()):
-			if _latched.has(lid):
-				continue
-			if not _on_grid(_latches[lid]["consumer"], st):
-				_latch_ticks[lid] = 0
+	for lid: String in _sorted(_latches.keys()):
+		if not _latched.has(lid) and not _latch_supplied(_latches[lid], st):
+			_latch_ticks[lid] = 0
 	# A loss and restoration within one 10 Hz tick must reset an unfinished
 	# venue's consecutive-tick count; the bonus is not a first-power latch.
 	if _opening_started:
@@ -429,7 +449,10 @@ func _build_results() -> Dictionary:
 	for venue: String in _opening_venues:
 		if _opening_latched.has(venue):
 			optional_restored.append(venue)
-	var optional_total: int = _optional.size() + (1 if not _meter_evidence.is_empty() else 0) + (1 if not _continuous_optional.is_empty() else 0) + _opening_venues.size()
+	for reward_id: String in _optional_latch_rewards:
+		if _latched.has(reward_id):
+			optional_restored.append(_latches[reward_id]["consumer"])
+	var optional_total: int = _optional.size() + (1 if not _meter_evidence.is_empty() else 0) + (1 if not _continuous_optional.is_empty() else 0) + _opening_venues.size() + _optional_latch_rewards.size()
 	var preventable: int = maxi(0, _trips - _trip_allowance)
 	var stars: int = 1 + (1 if optional_restored.size() == optional_total else 0) + (1 if preventable == 0 else 0)
 	return {"required_restored": restored, "required_total": _required.size(), "optional_services": optional_restored,
@@ -511,6 +534,8 @@ func use_ladder(ladder_id: String, in_range: bool) -> Dictionary:
 		return _refuse("NOT_IN_RANGE", "move closer to %s" % ladder_id, [ladder_id])
 	if _completed_tick >= 0:
 		return _refuse("ALREADY_COMPLETE", "mission already complete", [])
+	if _ladder_requires.has(ladder_id) and not _latched.has(_ladder_requires[ladder_id]):
+		return _refuse("ACCESS_NOT_READY", "power the ladder access light before climbing", [ladder_id])
 	if _ladder_access.has(ladder_id):
 		return {"ok": true, "duplicate": true}
 	_ladder_access[ladder_id] = _now
@@ -743,6 +768,18 @@ func restore_state(d: Dictionary) -> Array[Dictionary]:
 
 
 # ---------- supply attribution ----------
+
+## A source-bound latch only advances while the authored source is supplying a
+## healthy, non-overloaded route. This is a host rule, not a client light state.
+func _latch_supplied(l: Dictionary, st: Dictionary) -> bool:
+	var consumer: String = l["consumer"]
+	if not st["nodes"][consumer]["supplied"]:
+		return false
+	if l.has("source"):
+		var source: String = l["source"]
+		return _root_of(consumer, st) == source and not st["nodes"][source]["overloaded"]
+	return _on_grid(consumer, st) if _grid_sources.size() > 1 else true
+
 
 func _all_required_on_grid(st: Dictionary) -> bool:
 	for c: String in _required:

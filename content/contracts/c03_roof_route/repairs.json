@@ -1,10 +1,36 @@
 {
   "contract_id": "C03",
-  "source_note": "Rooftop cable repair requires host-issued ROOF_REACHED ladder receipt, the regular meter-first isolation/tools sequence, and a single splice.",
+  "source_note": "C03 adds the original failed west-fuse repair before ladder light access, then an installed roof bypass splice; both require meter-first isolation/tools and host authorization.",
   "supplies": {
-    "CABLE_SPLICE": 1
+    "CABLE_SPLICE": 1,
+    "FUSE_W": 1
   },
   "repairs": [
+    {
+      "id": "R_JW_FUSE",
+      "name_key": "repair.c02.west_fuse",
+      "panel": "PANEL_JW",
+      "isolate": "JW",
+      "fix": {
+        "op": "set",
+        "id": "JW",
+        "field": "failed",
+        "value": false
+      },
+      "component": "FUSE_W",
+      "tools": {
+        "open": "screwdriver",
+        "remove": "puller",
+        "install": "puller",
+        "test": "meter"
+      },
+      "hold_ticks": {
+        "open": 6,
+        "remove": 8,
+        "install": 8,
+        "close": 6
+      }
+    },
     {
       "id": "R_ROOF_SPLICE",
       "name_key": "repair.c03.roof_splice",

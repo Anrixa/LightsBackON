@@ -1,6 +1,6 @@
 {
   "contract_id": "C03",
-  "source_note": "ADR-017 logic-only Rooftop Route. Direct east feed damaged. West crossfeed adds 11 PU to 9 PU west load and trips 12 PU protection after 15 ticks; repaired rooftop bypass carries 11 PU east plus optional 1 PU beacon at equality. These are authored game PU.",
+  "source_note": "Original blueprint C03 source-alignment: JW fuse failed/tripped; west GRID feeder 12 PU supplies 9 PU required plus 1 PU ladder light after repair. Direct east trunk stays broken. Disabled roof bypass GRID->ROOF->JE carries east11/12 only after an installed splice and host switch. Portable GEN6 supplies separate optional 2 PU rooftop work light (100 continuous ticks). The crossfeed is an unsafe counterexample, not a solution.",
   "trip_ticks": 15,
   "nodes": [
     {
@@ -19,8 +19,8 @@
       "id": "JW",
       "kind": "junction",
       "isolated": false,
-      "failed": false,
-      "tripped": false
+      "failed": true,
+      "tripped": true
     },
     {
       "id": "JE",
@@ -102,8 +102,15 @@
     {
       "id": "ROOF_BEACON",
       "kind": "consumer",
-      "demand": 1,
+      "demand": 2,
       "enabled": false,
+      "healthy": true
+    },
+    {
+      "id": "LADDER_LIGHT",
+      "kind": "consumer",
+      "demand": 1,
+      "enabled": true,
       "healthy": true
     }
   ],
@@ -129,7 +136,7 @@
       "from": "GRID",
       "to": "ROOF",
       "capacity": 12,
-      "enabled": true,
+      "enabled": false,
       "healthy": true
     },
     {
@@ -189,14 +196,6 @@
       "healthy": false
     },
     {
-      "id": "E_ROOF_BEACON",
-      "from": "ROOF",
-      "to": "ROOF_BEACON",
-      "capacity": 1,
-      "enabled": true,
-      "healthy": true
-    },
-    {
       "id": "E_JW_TIE",
       "from": "JW",
       "to": "TIE",
@@ -233,6 +232,22 @@
       "from": "TEMP",
       "to": "PUB",
       "capacity": 4,
+      "enabled": false,
+      "healthy": true
+    },
+    {
+      "id": "E_JW_LADDER_LIGHT",
+      "from": "JW",
+      "to": "LADDER_LIGHT",
+      "capacity": 1,
+      "enabled": true,
+      "healthy": true
+    },
+    {
+      "id": "E_TEMP_ROOF_LIGHT",
+      "from": "TEMP",
+      "to": "ROOF_BEACON",
+      "capacity": 2,
       "enabled": false,
       "healthy": true
     }

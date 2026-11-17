@@ -1,6 +1,6 @@
 {
   "contract_id": "C03",
-  "source_note": "Host-intent full solution includes expected NO_ACCESS before fixed ladder, rooftop splice repair, optional beacon and extraction. It is not an in-game physical ladder playtest.",
+  "source_note": "Original C03 blueprint correction: west fuse repair, GRID ladder light 50 ticks, host-gated ladder, roof bypass cable install and GRID 11 PU east, GEN2 PU optional work light 100 ticks, equipment stow and final verification/extraction. Headless authoring trace; physical scene not certified.",
   "players": [
     "P1"
   ],
@@ -11,11 +11,18 @@
     "crimper",
     "meter"
   ],
-  "max_ticks": 400,
+  "max_ticks": 650,
   "pace_ticks_per_command": 1,
   "steps": [
     {
-      "note": "West services lit, east feed broken; the roof repair cannot be reached before the ladder."
+      "note": "Before repairing west, host denies roof admission and rooftop work. No client grant bypass."
+    },
+    {
+      "as": "P1",
+      "intent": "use_ladder",
+      "entity": "LADDER_WEST",
+      "payload": {},
+      "expect": "ACCESS_NOT_READY"
     },
     {
       "as": "P1",
@@ -23,6 +30,173 @@
       "entity": "R_ROOF_SPLICE",
       "payload": {},
       "expect": "NO_ACCESS"
+    },
+    {
+      "note": "Repair failed west fuse, restoring west GRID demand 9 PU plus 1 PU ladder light."
+    },
+    {
+      "as": "P1",
+      "intent": "request_lock",
+      "entity": "R_JW_FUSE",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "inspect",
+      "entity": "PANEL_JW",
+      "payload": {},
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "step": "diagnose"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "step": "isolate"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "tool": "screwdriver"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "step": "open"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "tool": "puller"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "step": "remove"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "tool": "puller"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "step": "install"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "step": "close"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "tool": "meter"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "step": "test"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "equip",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "tool": ""
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "repair_step",
+      "entity": "R_JW_FUSE",
+      "payload": {
+        "step": "restore"
+      },
+      "expect": "ok"
+    },
+    {
+      "ticks": 50,
+      "expect_events": [
+        "latch"
+      ]
     },
     {
       "as": "P1",
@@ -190,7 +364,57 @@
       "expect": "ok"
     },
     {
-      "note": "Optional beacon adds one PU, so roof edge reaches exactly 12/12 without a protection trip."
+      "note": "Enable ONLY the repaired alternate roof feeder; never energize the broken direct east trunk."
+    },
+    {
+      "as": "P1",
+      "intent": "toggle_switch",
+      "entity": "SW_ROOF_FEED",
+      "payload": {
+        "value": true
+      },
+      "expect": "ok"
+    },
+    {
+      "note": "Optional GEN6 runs the independent 2 PU work light for 100 continuous ticks; it must be stowed before extraction."
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "pickup"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "place",
+        "anchor": "PAD_PUMP"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "connect",
+        "route": "E_TEMP_ROOF_LIGHT"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "start"
+      },
+      "expect": "ok"
     },
     {
       "as": "P1",
@@ -204,8 +428,47 @@
     {
       "ticks": 100,
       "expect_events": [
+        "latch",
         "verified"
       ]
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "stop"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "disconnect",
+        "route": "E_TEMP_ROOF_LIGHT"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "pickup"
+      },
+      "expect": "ok"
+    },
+    {
+      "as": "P1",
+      "intent": "place_item",
+      "entity": "GEN_PORTABLE",
+      "payload": {
+        "action": "place",
+        "anchor": "VAN_BAY"
+      },
+      "expect": "ok"
     },
     {
       "zone": "ZONE_VAN",
