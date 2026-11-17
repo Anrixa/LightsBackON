@@ -108,7 +108,7 @@
       "id": "CTL3-C12",
       "contract_id": "C12",
       "status": "SOURCE_ALIGNED_HEADLESS_CANDIDATE",
-      "stage": "MERGED_MAIN_CI_PENDING_SOURCE_ONLY",
+      "stage": "MERGED_MAIN_CI_VERIFIED_SOURCE_ONLY",
       "prerequisites": [
         "Extract original contract sheet without guessing PU/timing",
         "Write machine-verified authoring test, negative cases and host solution replay",
