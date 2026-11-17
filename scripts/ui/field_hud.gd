@@ -341,7 +341,8 @@ func _add_pickup_deadline(parent: VBoxContainer) -> void:
 	elif bool(clock.get("started", false)):
 		text_key = "hud.pickup_deadline.remaining"
 		text_args = [ceili(int(clock.get("remaining_ticks", 0)) / 10.0)]
-	var label: Label = _label(parent, UiText.tf(text_key, text_args), "StrongLabel", "text_muted")
+	var formatted: String = UiText.t(text_key) if text_args.is_empty() else UiText.tf(text_key, text_args)
+	var label: Label = _label(parent, formatted, "StrongLabel", "text_muted")
 	label.name = "PickupDeadlineStatus"
 
 
