@@ -16,6 +16,23 @@ static func _point(cm: Array) -> Vector3:
 	return Vector3(float(cm[0]), float(cm[1]), float(cm[2])) / 100.0
 
 
+## Godot JSON.parse_string reads JSON numbers as floats even when serialized
+## without a decimal point. Preserve strict integral-centimeter placement
+## without incorrectly rejecting valid authored data.
+static func _valid_cm(coords: Array) -> bool:
+	if coords.size() != 3:
+		return false
+	for dimension: Variant in coords:
+		if not (dimension is int or dimension is float):
+			return false
+		var amount: float = float(dimension)
+		if is_nan(amount) or is_inf(amount) or absf(amount) > 20000.0:
+			return false
+		if amount != float(int(amount)):
+			return false
+	return true
+
+
 static func _material() -> StandardMaterial3D:
 	var result: StandardMaterial3D = StandardMaterial3D.new()
 	result.albedo_color = Color("#697E8B")
@@ -65,7 +82,7 @@ func setup(world: Node3D, overlay: Dictionary, controls: Dictionary) -> bool:
 		var id: String = str(rec.get("id", ""))
 		var coords: Array = rec.get("pos_cm", [])
 		var kind: String = str(rec.get("kind", ""))
-		if id.is_empty() or known.has(id) or extra.has(id) or coords.size() != 3:
+		if id.is_empty() or known.has(id) or extra.has(id) or not _valid_cm(coords):
 			return false
 		if not ["panel", "switch"].has(kind):
 			return false
@@ -91,11 +108,8 @@ func setup(world: Node3D, overlay: Dictionary, controls: Dictionary) -> bool:
 	if cable.size() < 2 or cable.size() > 12:
 		return false
 	for coords: Array in cable:
-		if coords.size() != 3:
+		if not _valid_cm(coords):
 			return false
-		for dimension: Variant in coords:
-			if not (dimension is int) or absi(int(dimension)) > 20000:
-				return false
 	_controls = live
 	for id: String in extra:
 		var record: Dictionary = extra[id]

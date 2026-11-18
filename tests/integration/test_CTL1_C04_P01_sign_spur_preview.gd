@@ -121,6 +121,10 @@ func test_CTL1_C04_P01_invalid_overlay_and_forged_controls_fail_without_partial_
 	bad_conduit["conduit_cm"] = [[0, 0, 0], [999999, 0, 0]]
 	assert_false(view.setup(scene, bad_conduit, switches))
 	assert_false(scene.has_node("Markers/PANEL_SPUR"))
+	var fractional: Dictionary = data.duplicate(true)
+	fractional["markers"][0]["pos_cm"][0] = 6020.5
+	assert_false(view.setup(scene, fractional, switches), "fractional centimeter coordinates are not accepted")
+	assert_false(scene.has_node("Markers/PANEL_SPUR"))
 
 
 func test_CTL1_C04_P01_c01_and_c03_contracts_remain_isolated() -> void:
