@@ -231,7 +231,8 @@ func _build_stations(markers: Node3D, _added: Dictionary) -> void:
 			description = UiText.t("node.c04.spur")
 		elif id.begins_with("PANEL_"):
 			description += " WORKSITE"
-		var indicator: Label3D = _label(station, "State", "%s\\nUNKNOWN" % description,
+		var caption: String = description if id.begins_with("PANEL_") and id != "PANEL_SPUR" else "%s\\nUNKNOWN" % description
+		var indicator: Label3D = _label(station, "State", caption,
 			Vector3(0.0, 0.17, -0.06))
 		if id == "PANEL_SPUR":
 			_spur_label = indicator
