@@ -12,7 +12,7 @@
 | P04 | All eight worksite plates, marker source validation and noncolliding station presentation | [P04](CTL1-C04-P04.md) | [#182](https://github.com/Anrixa/LightsBackON/pull/182) |
 | P05 | Six neutral guidance cues at authored standing locations; compatibility-safe storage outside the hashed rules tree | [P05](CTL1-C04-P05.md) | [#183](https://github.com/Anrixa/LightsBackON/pull/183) |
 | P06 | Read-only capsule, scene-marker, collider, sightline and target audits for eight stations; true JW cabinet obstruction | [P06](CTL1-C04-P06.md) | [#184](https://github.com/Anrixa/LightsBackON/pull/184) |
-| P07 | Read-only eight-target near/far distance + facing-away reticle matrix, real callback regression, both cabinet occlusions, evidence consolidation | [P07](CTL1-C04-P07.md) | This branch's review/CI receipt |
+| P07 | Read-only eight-target near/far distance + facing-away reticle matrix, real callback regression, both cabinet occlusions, evidence consolidation | [P07](CTL1-C04-P07.md) | [#185](https://github.com/Anrixa/LightsBackON/pull/185) — live CI pending |
 
 ## Previously independently verified merged-main checkpoints
 
