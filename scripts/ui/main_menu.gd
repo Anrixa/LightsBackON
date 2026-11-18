@@ -8,6 +8,7 @@ const OfflinePersistence := preload("res://scripts/persistence/offline_persisten
 const LoadingCard := preload("res://scripts/ui/loading_card.gd")
 const InputPrompt := preload("res://scripts/ui/input_prompt.gd")
 const InputDeviceTracker := preload("res://scripts/ui/input_device_tracker.gd")
+const DispatchAtlasPanel := preload("res://scripts/ui/dispatch_atlas_panel.gd")
 
 const MISSION_PATH: String = "res://scenes/mission/mission_root.tscn"
 const C03_PREVIEW_PATH: String = "res://scenes/mission/c03_roof_preview.tscn"
@@ -16,6 +17,8 @@ var start_button: Button
 var continue_button: Button
 var c03_preview_button: Button
 var c04_preview_button: Button
+var dispatch_atlas_button: Button
+var _dispatch_atlas_panel: Control
 var quit_button: Button
 var _store: OfflinePersistence
 var _save_available: bool = false
@@ -147,6 +150,15 @@ func _ready() -> void:
 	c04_preview_button.custom_minimum_size.y = 56.0
 	c04_preview_button.pressed.connect(_launch_c04_preview)
 	layout.add_child(c04_preview_button)
+
+	# EXP01 read-only design catalogue: never launches unbuilt levels, awards points
+	# or replaces the production C01 checkpoint.
+	dispatch_atlas_button = Button.new()
+	dispatch_atlas_button.name = "DispatchAtlasButton"
+	dispatch_atlas_button.text = "Explore 200 planned dispatches (preview)"
+	dispatch_atlas_button.custom_minimum_size.y = 56.0
+	dispatch_atlas_button.pressed.connect(_open_dispatch_atlas)
+	layout.add_child(dispatch_atlas_button)
 
 	var confirmation: ConfirmationDialog = ConfirmationDialog.new()
 	confirmation.name = "ReplaceCheckpointConfirmation"
@@ -303,6 +315,23 @@ func _launch_c04_preview() -> void:
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	get_tree().change_scene_to_file(C04_PREVIEW_PATH)
+
+
+## EXP01 catalogue is presentation-only, independent of solo campaign identity.
+func _open_dispatch_atlas() -> void:
+	if _dispatch_atlas_panel != null or _loading_card != null:
+		return
+	_dispatch_atlas_panel = DispatchAtlasPanel.new()
+	_dispatch_atlas_panel.name = "DispatchAtlasOverlay"
+	add_child(_dispatch_atlas_panel)
+	_dispatch_atlas_panel.closed.connect(_close_dispatch_atlas)
+
+
+func _close_dispatch_atlas() -> void:
+	if _dispatch_atlas_panel != null:
+		_dispatch_atlas_panel.queue_free()
+		_dispatch_atlas_panel = null
+	dispatch_atlas_button.grab_focus()
 
 
 ## Full-screen card that stays on screen while the mission scene loads. Blocks input so a second press cannot launch
