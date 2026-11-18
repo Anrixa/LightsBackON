@@ -153,10 +153,13 @@ func test_CTL1_C04_P04_staged_access_uses_real_scene_range_and_ray_not_route_cla
 func test_CTL1_C04_P04_c01_c03_world_and_saves_remain_untouched() -> void:
 	var c01: Node3D = C01.instantiate()
 	_holder.add_child(c01)
-	assert_eq(c01.get_node_or_null("District/C04SignSpur"), null)
+	assert_true(c01.get_node_or_null("District/C04SignSpur") == null,
+		"C01 cannot instantiate the C04 preview view")
 	assert_true(c01.get("_store") != null)
 	var c03: Node3D = C03.instantiate()
 	_holder.add_child(c03)
-	assert_eq(c03.get_node_or_null("District/C04SignSpur"), null)
+	assert_true(c03.get_node_or_null("District/C04SignSpur") == null,
+		"C03 cannot instantiate the C04 preview view")
 	assert_eq(c03.get("_store"), null)
-	assert_eq(c03.get_node_or_null("District/Markers/PANEL_SPUR"), null)
+	assert_true(c03.get_node_or_null("District/Markers/PANEL_SPUR") == null,
+		"C03 cannot inherit C04-only panel markers")
