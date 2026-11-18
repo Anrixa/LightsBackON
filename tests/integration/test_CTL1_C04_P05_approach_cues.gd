@@ -12,7 +12,7 @@ const Controller := preload("res://scripts/actors/first_person_controller.gd")
 const Grid := preload("res://scripts/simulation/power_grid.gd")
 const UiText := preload("res://scripts/ui/ui_text.gd")
 
-const GUIDES_PATH: String = "res://content/world/c04_preview_approaches.json"
+const GUIDES_PATH: String = "res://scenes/mission/c04_preview_approaches.json"
 const EXPECTED_IDS: Array[String] = [
 	"PANEL_JE", "PANEL_JW", "PANEL_SPUR", "SW_SIGN", "SW_EAST_SIGN", "ZONE_VAN"
 ]
