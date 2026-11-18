@@ -25,6 +25,7 @@ const ShiftOperations := preload("res://scripts/gameplay/shift_operations.gd")
 
 const CONTRACT: String = "res://content/contracts/c01_alder_street"
 const C03_CONTRACT: String = "res://content/contracts/c03_roof_route"
+const C04_CONTRACT: String = "res://content/contracts/c04_whole_block"
 const SESSION_ID: String = "S_C01_LOCAL"
 const CONTENT_REVISION: String = "C01_LOCAL_DEVELOPMENT"
 const PLAYER_ID: String = "P1"
@@ -81,19 +82,27 @@ static func _json(path: String) -> Dictionary:
 ## The caller supplies live host-side range and position checks from its physical character.
 ## Nothing in this module silently bypasses proximity merely because play is offline.
 func setup(range_check: Callable, position_of: Callable, contract_dir: String = CONTRACT) -> Array[Dictionary]:
-	# C03 is an explicitly selected development preview. A bad directory
-	# never loads arbitrary content or modifies the existing C01 campaign.
-	if not [CONTRACT, C03_CONTRACT].has(contract_dir):
+	# C03 and C04 are explicitly selected, ephemeral development previews.
+	# Arbitrary directories never reach the authoritative host or C01 saves.
+	if not [CONTRACT, C03_CONTRACT, C04_CONTRACT].has(contract_dir):
 		return [{"code": "UNKNOWN_CONTRACT", "message": "unsupported offline contract"}]
 	_contract_dir = contract_dir
 	_position_of = position_of
 	var world: Dictionary = _json("res://content/world/alder_street.json")
-	if _contract_dir == C03_CONTRACT:
+	if [C03_CONTRACT, C04_CONTRACT].has(_contract_dir):
 		var overlay: Dictionary = _json(_contract_dir.path_join("world.json"))
-		if overlay.get("contract_id") != "C03":
-			return [{"code": "BAD_WORLD", "message": "C03 marker overlay is invalid"}]
+		var expected: String = "C03" if _contract_dir == C03_CONTRACT else "C04"
+		if overlay.get("contract_id") != expected or not (overlay.get("markers") is Array):
+			return [{"code": "BAD_WORLD", "message": "selected preview overlay is invalid"}]
 		var markers: Array = world.get("markers", [])
-		for record: Dictionary in overlay.get("markers", []):
+		var ids: Dictionary = {}
+		for existing: Dictionary in markers:
+			ids[str(existing["id"])] = true
+		for record: Dictionary in overlay["markers"]:
+			var id: String = str(record.get("id", ""))
+			if id.is_empty() or ids.has(id) or not (record.get("pos_cm") is Array) or (record["pos_cm"] as Array).size() != 3:
+				return [{"code": "BAD_WORLD", "message": "invalid or duplicate preview marker"}]
+			ids[id] = true
 			markers.append(record)
 	_content = {
 		"grid": _json(_contract_dir.path_join("grid.json")),
@@ -118,7 +127,10 @@ func setup(range_check: Callable, position_of: Callable, contract_dir: String = 
 		_markers[str(record["id"])] = record
 	for repair: Dictionary in _content["repairs"]["repairs"]:
 		_repairs_by_panel[str(repair["panel"])] = repair
-		var point: String = EAST_WORK_MARKER if str(repair["id"]) == EAST_REPAIR_ID else str(repair["panel"])
+		# C04 authoritatively exposes the east-trunk operation at PANEL_JE.
+		# Retain the separate basement work marker for the older C01/C03 rules.
+		var basement: bool = _contract_dir != C04_CONTRACT and str(repair["id"]) == EAST_REPAIR_ID
+		var point: String = EAST_WORK_MARKER if basement else str(repair["panel"])
 		_repair_targets[point] = repair
 
 	var errors: Array[Dictionary] = []
@@ -137,10 +149,12 @@ func setup(range_check: Callable, position_of: Callable, contract_dir: String = 
 	if not errors.is_empty():
 		return errors
 
+	var preview_identity: String = "C03" if _contract_dir == C03_CONTRACT else "C04" if _contract_dir == C04_CONTRACT else ""
+	var revision: String = "%s_LOCAL_PREVIEW" % preview_identity if preview_identity != "" else CONTENT_REVISION
+	var session_id: String = "S_%s_PREVIEW" % preview_identity if preview_identity != "" else SESSION_ID
 	host = SessionHost.new()
 	errors.append_array(host.configure(_json("res://content/network.json"), PROTOCOL_VERSION,
-		"C03_LOCAL_PREVIEW" if _contract_dir == C03_CONTRACT else CONTENT_REVISION,
-		"S_C03_PREVIEW" if _contract_dir == C03_CONTRACT else SESSION_ID, grid, meter, interaction, equipment, _content["switches"], range_check))
+		revision, session_id, grid, meter, interaction, equipment, _content["switches"], range_check))
 	if not errors.is_empty():
 		return errors
 	host.set_position_provider(position_of)
@@ -151,7 +165,7 @@ func setup(range_check: Callable, position_of: Callable, contract_dir: String = 
 		return errors
 	host.set_comms(comms)
 	var admitted: Dictionary = host.admit(PEER_ID, PLAYER_ID, PROTOCOL_VERSION,
-		"C03_LOCAL_PREVIEW" if _contract_dir == C03_CONTRACT else CONTENT_REVISION, TOOL_LIST)
+		revision, TOOL_LIST)
 	if not admitted.get("ok", false):
 		errors.append({"code": "OFFLINE_ADMISSION_FAILED", "message": str(admitted)})
 		return errors
@@ -159,8 +173,7 @@ func setup(range_check: Callable, position_of: Callable, contract_dir: String = 
 	# The bridge keeps only weak references, so exiting a scene releases the
 	# authoritative host and its complete offline state without manual disposal.
 	_outbox_bridge = OfflineOutboxBridge.new(host, self, PEER_ID)
-	outbox = IntentOutbox.new("S_C03_PREVIEW" if _contract_dir == C03_CONTRACT else SESSION_ID,
-		Callable(_outbox_bridge, "send"))
+	outbox = IntentOutbox.new(session_id, Callable(_outbox_bridge, "send"))
 	outbox.replied.connect(Callable(_outbox_bridge, "on_reply"))
 	return errors
 
@@ -220,7 +233,7 @@ func hud_view(selected_slot: int, target: String, tool: String) -> Dictionary:
 		"local_player": PLAYER_ID, "names": {PLAYER_ID: UiText.t("hud.you")}, "tools": TOOL_LIST,
 		"selected_slot": selected_slot,
 		"district_key": "district.alder_street",
-		"contract_key": "contract.c03" if _contract_dir == C03_CONTRACT else "contract.c01",
+		"contract_key": "contract.c04" if _contract_dir == C04_CONTRACT else "contract.c03" if _contract_dir == C03_CONTRACT else "contract.c01",
 		"repairs": _content["repairs"], "equipment": _content["equipment"],
 		"prompt": prompt_for(target, tool)
 	}
@@ -339,7 +352,7 @@ func prompt_for(target: String, tool: String) -> Dictionary:
 		verb_key = "offline.verb.roof_ladder"
 	elif _repair_targets.has(target):
 		var record: Dictionary = _repair_targets[target]
-		object_key = "offline.object.exposed_trunk" if target == EAST_WORK_MARKER else "node.c01.jw"
+		object_key = "node.c04.spur" if target == "PANEL_SPUR" else "node.c01.je" if target == "PANEL_JE" else "offline.object.exposed_trunk" if target == EAST_WORK_MARKER else "node.c01.jw"
 		var state: String = interaction.repair_state(str(record["id"]))
 		detail = UiText.t("status.repair." + state)
 		verb_key = "offline.verb.repair"
@@ -348,7 +361,7 @@ func prompt_for(target: String, tool: String) -> Dictionary:
 		elif str(plan.get("kind", "")) == "request_lock":
 			verb_key = "offline.verb.lock"
 	elif _repairs_by_panel.has(target) and meter.has_panel(target):
-		object_key = "node.c01.je" if target == "PANEL_JE" else "node.c01.jw"
+		object_key = "node.c04.spur" if target == "PANEL_SPUR" else "node.c01.je" if target == "PANEL_JE" else "node.c01.jw"
 		verb_key = "offline.verb.measure"
 	elif target == GENERATOR:
 		object_key = "equipment.generator"

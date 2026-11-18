@@ -1,0 +1,60 @@
+{
+  "contract_id": "C04",
+  "source_note": "C04-P01 unsaved presentation overlay, source-aligned 4 PU GRID->SPUR sign route. Integer centimeter positions are authored first-pass visual placement only, not original blueprint-certified geometry or a human-validated route. No C01 world or C04 host topology mutations.",
+  "markers": [
+    {
+      "id": "PANEL_SPUR",
+      "kind": "panel",
+      "pos_cm": [
+        6020,
+        140,
+        3950
+      ]
+    },
+    {
+      "id": "SW_SPUR_BREAKER",
+      "kind": "switch",
+      "pos_cm": [
+        6100,
+        140,
+        3950
+      ]
+    },
+    {
+      "id": "SW_EAST_SIGN",
+      "kind": "switch",
+      "pos_cm": [
+        6690,
+        140,
+        4050
+      ]
+    }
+  ],
+  "conduit_cm": [
+    [
+      3020,
+      12,
+      2440
+    ],
+    [
+      5300,
+      12,
+      2440
+    ],
+    [
+      6020,
+      12,
+      3070
+    ],
+    [
+      6020,
+      12,
+      3920
+    ],
+    [
+      6460,
+      12,
+      4150
+    ]
+  ]
+}

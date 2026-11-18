@@ -30,6 +30,7 @@ const ShiftMeasurements := preload("res://scripts/diagnostics/shift_measurements
 const ShaderWarmup := preload("res://scripts/world/shader_warmup.gd")
 const LoadingCard := preload("res://scripts/ui/loading_card.gd")
 const C03LadderView := preload("res://scripts/world/c03_fixed_ladder_view.gd")
+const C04SignSpurView := preload("res://scripts/world/c04_sign_spur_view.gd")
 
 const MENU_PATH: String = "res://scenes/menu/main_menu.tscn"
 const HOST_TICK_SECONDS: float = 0.1
@@ -39,7 +40,13 @@ const TOOL_LIST: Array[String] = OfflineSession.TOOL_LIST
 ## scene that shares this controller/UI without touching SOLO_C01 checkpoints.
 @export var contract_id: String = "C01"
 var _c03_preview: bool = false
+var _c04_preview: bool = false
 var _ladder_view: C03LadderView
+var _sign_spur_view: C04SignSpurView
+
+
+func _is_preview() -> bool:
+	return _c03_preview or _c04_preview
 
 var session: OfflineSession
 var player: PlayerController
@@ -97,10 +104,11 @@ var warmup_stats: Dictionary = {}
 
 
 func _ready() -> void:
-	if not ["C01", "C03"].has(contract_id):
+	if not ["C01", "C03", "C04"].has(contract_id):
 		push_error("UNKNOWN_OFFLINE_CONTRACT: " + contract_id)
 		return
 	_c03_preview = contract_id == "C03"
+	_c04_preview = contract_id == "C04"
 	_ui_tokens = _json("res://content/ui/tokens.json")
 	_interaction = _json("res://content/interaction.json")
 	_solo_tuning = _json("res://content/offline_solo.json")
@@ -122,20 +130,28 @@ func _ready() -> void:
 				_json(OfflineSession.C03_CONTRACT.path_join("switches.json"))):
 			push_error("C03_ROOF_WORLD_INVALID")
 			return
+	if _c04_preview:
+		_sign_spur_view = C04SignSpurView.new()
+		_sign_spur_view.name = "C04SignSpur"
+		_world.add_child(_sign_spur_view)
+		if not _sign_spur_view.setup(_world, _json(OfflineSession.C04_CONTRACT.path_join("world.json")),
+				_json(OfflineSession.C04_CONTRACT.path_join("switches.json"))):
+			push_error("C04_SIGN_SPUR_WORLD_INVALID")
+			return
 	_make_player()
 
 	session = OfflineSession.new()
 	var errors: Array[Dictionary] = session.setup(_in_range, _position_cm,
-		OfflineSession.C03_CONTRACT if _c03_preview else OfflineSession.CONTRACT)
+		OfflineSession.C04_CONTRACT if _c04_preview else OfflineSession.C03_CONTRACT if _c03_preview else OfflineSession.CONTRACT)
 	if not errors.is_empty():
 		push_error("OFFLINE_CONTRACT_SETUP_FAILED: %s" % str(errors))
 		return
 	# C03 preview is strictly ephemeral and never initializes the C01
 	# checkpoint writer. Corrupt or newer C01 saves are therefore untouched.
 	var identity: Dictionary = {}
-	var resume: bool = bool(get_tree().get_meta("offline_resume", false)) and not _c03_preview
+	var resume: bool = bool(get_tree().get_meta("offline_resume", false)) and not _is_preview()
 	get_tree().remove_meta("offline_resume")
-	if not _c03_preview:
+	if not _is_preview():
 		_store = OfflinePersistence.new()
 		identity = _store.initialize()
 		_save_enabled = bool(identity.get("ok", false))
@@ -166,7 +182,7 @@ func _ready() -> void:
 	_recovery_fx = RecoveryPayoffPresentation.new()
 	_recovery_fx.setup(_world)
 	_make_ui()
-	if _c03_preview:
+	if _is_preview():
 		onboarding.visible = false
 		onboarding.set_hints_enabled(false)
 		if _briefing_pump != null:
@@ -194,8 +210,8 @@ func _ready() -> void:
 	if _measurements.enabled():
 		_measurements.observe_tick(0, session.mission.objectives())
 	_refresh_hud()
-	if _c03_preview:
-		_show_feedback(UiText.t("offline.c03.unsaved_notice"), true)
+	if _is_preview():
+		_show_feedback(UiText.t("offline.c04.unsaved_notice" if _c04_preview else "offline.c03.unsaved_notice"), true)
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	if session.completed():
 		_finish()
@@ -221,7 +237,7 @@ func begin_shader_warmup() -> void:
 	var screen: Vector2 = get_viewport().get_visible_rect().size
 	var effective: float = ThemeTokens.effective_percent(100, screen)
 	var card: ColorRect = LoadingCard.build(_ui_tokens, effective, ThemeTokens.px(46.0, effective), true, true,
-		"offline.loading.c03_briefing" if _c03_preview else "offline.loading.briefing")
+		"offline.loading.c04_briefing" if _c04_preview else "offline.loading.c03_briefing" if _c03_preview else "offline.loading.briefing")
 	_loading_layer.add_child(card)
 	var lights: Array[Node3D] = []
 	for node: Node in find_children("*", "Light3D", true, false):
@@ -630,7 +646,7 @@ func _process(delta: float) -> void:
 			_feedback_remaining_s = maxf(0.0, _feedback_remaining_s - maxf(0.0, delta))
 			if _feedback_remaining_s <= 0.0:
 				_status.text = ""
-	if onboarding != null and not _c03_preview and not _paused and not _finished and not _warming and tablet != null and not tablet.visible:
+	if onboarding != null and not _is_preview() and not _paused and not _finished and not _warming and tablet != null and not tablet.visible:
 		onboarding.advance_idle(delta)
 
 
@@ -724,10 +740,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	if _paused or tablet.visible:
 		return
 	if event.is_action_pressed("onboarding_hint"):
-		if not _c03_preview and bool(settings.value("hints_enabled")):
+		if not _is_preview() and bool(settings.value("hints_enabled")):
 			_measurements.mark_activity(_measurement_tick)
 			_measurements.note("hint_requested", _measurement_tick)
-		if not _c03_preview:
+		if not _is_preview():
 			onboarding.show_hint()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("map_meter"):
@@ -788,7 +804,7 @@ func _on_player_moved() -> void:
 ## snapshots. Loading a checkpoint deliberately erases meter snapshots, so
 ## partially completed repairs first guide the player to inspect again.
 func _sync_onboarding_progress(resumed: bool = false) -> void:
-	if _c03_preview or session == null or onboarding == null:
+	if _is_preview() or session == null or onboarding == null:
 		return
 	var any_measured: bool = false
 	var measured_isolation: bool = false
@@ -931,6 +947,8 @@ func _refresh_hud() -> void:
 	var snapshot: Dictionary = session.host_state()
 	if _ladder_view != null:
 		_ladder_view.apply_host(snapshot)
+	if _sign_spur_view != null:
+		_sign_spur_view.apply_host(snapshot)
 	if _world_fx != null:
 		_world_fx.apply(snapshot, session.mission.is_latched(OfflineSession.PUMP_LATCH))
 	if _recovery_fx != null:
