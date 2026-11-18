@@ -146,7 +146,9 @@ func test_CTL1_C04_P01_menu_text_and_immutable_source_boundaries() -> void:
 	assert_true(UiText.t("offline.c04.unsaved_notice").contains("not saved")
 		or UiText.t("offline.c04.unsaved_notice").contains("no progress is saved"))
 	assert_true(UiText.t("offline.loading.c04_briefing").contains("4 PU"))
-	assert_eq((Preview.instantiate() as Node3D).get("contract_id"), "C04")
+	var preview_resource: Node3D = Preview.instantiate()
+	assert_eq(preview_resource.get("contract_id"), "C04")
+	preview_resource.free()
 	var world: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
 		Offline.C04_CONTRACT.path_join("world.json")))
 	assert_eq(world.get("contract_id"), "C04")
