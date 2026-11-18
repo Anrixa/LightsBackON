@@ -1,5 +1,5 @@
 extends Node3D
-## CT-L1/C04 P01: non-colliding, original preview-only visualization of the
+## CT-L1/C04 P01–P02: non-colliding, original preview-only visualization of the
 ## dedicated 4-PU sign feeder. The real SessionHost remains the sole authority
 ## for switches, repairs, source selection, protection and optional rewards.
 ## Nothing here writes a campaign checkpoint or infers power from cable art.
@@ -76,22 +76,37 @@ func setup(world: Node3D, overlay: Dictionary, controls: Dictionary) -> bool:
 	var known: Dictionary = {}
 	for node: Node in markers.get_children():
 		known[str(node.name)] = true
+	# Reject forged/mistyped stations before adding any nodes to the scene.
+	# The original C04 overlay has one meter panel and two switch plates.
+	if not (overlay.get("markers") is Array) or not (controls.get("switches") is Array):
+		return false
+	var expected_kinds: Dictionary = {
+		"PANEL_SPUR": "panel",
+		"SW_SPUR_BREAKER": "switch",
+		"SW_EAST_SIGN": "switch"
+	}
 	var extra: Dictionary = {}
-	var records: Array = overlay.get("markers", [])
-	for rec: Dictionary in records:
+	var records: Array = overlay["markers"]
+	if records.size() != expected_kinds.size():
+		return false
+	for candidate: Variant in records:
+		if not (candidate is Dictionary):
+			return false
+		var rec: Dictionary = candidate
 		var id: String = str(rec.get("id", ""))
-		var coords: Array = rec.get("pos_cm", [])
-		var kind: String = str(rec.get("kind", ""))
-		if id.is_empty() or known.has(id) or extra.has(id) or not _valid_cm(coords):
+		if not expected_kinds.has(id) or known.has(id) or extra.has(id):
 			return false
-		if not ["panel", "switch"].has(kind):
+		if rec.get("kind") != expected_kinds[id] or not (rec.get("pos_cm") is Array):
 			return false
-		extra[id] = {"kind": kind, "coords": coords}
-	for required: String in ["PANEL_SPUR", "SW_SPUR_BREAKER", "SW_EAST_SIGN"]:
-		if not extra.has(required):
+		var coords: Array = rec["pos_cm"]
+		if not _valid_cm(coords):
 			return false
+		extra[id] = {"kind": str(rec["kind"]), "coords": coords}
 	var live: Dictionary = {}
-	for control: Dictionary in controls.get("switches", []):
+	for candidate: Variant in controls["switches"]:
+		if not (candidate is Dictionary):
+			return false
+		var control: Dictionary = candidate
 		var id: String = str(control.get("id", ""))
 		var target: String = str(control.get("target", ""))
 		var field: String = str(control.get("field", ""))
@@ -102,12 +117,26 @@ func setup(world: Node3D, overlay: Dictionary, controls: Dictionary) -> bool:
 		if not known.has(id) and not extra.has(id):
 			return false
 		live[id] = {"target": target, "field": field}
-	if live.size() != 5:
+	# C04 must expose exactly its five source-authorized switches. An
+	# unexpected inherited switch is not allowed to displace a real control.
+	var expected_switches: Array[String] = [
+		"SW_SIGN", "SW_JW_BREAKER", "SW_JE_BREAKER",
+		"SW_SPUR_BREAKER", "SW_EAST_SIGN"
+	]
+	if live.size() != expected_switches.size():
 		return false
-	var cable: Array = overlay.get("conduit_cm", [])
+	for required: String in expected_switches:
+		if not live.has(required):
+			return false
+	if not (overlay.get("conduit_cm") is Array):
+		return false
+	var cable: Array = overlay["conduit_cm"]
 	if cable.size() < 2 or cable.size() > 12:
 		return false
-	for coords: Array in cable:
+	for item: Variant in cable:
+		if not (item is Array):
+			return false
+		var coords: Array = item
 		if not _valid_cm(coords):
 			return false
 	_controls = live
