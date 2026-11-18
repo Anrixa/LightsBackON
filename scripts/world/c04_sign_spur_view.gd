@@ -5,7 +5,7 @@ extends Node3D
 ## Nothing here writes a campaign checkpoint or infers power from cable art.
 
 const UiText := preload("res://scripts/ui/ui_text.gd")
-const APPROACHES_PATH: String = "res://content/world/c04_preview_approaches.json"
+const APPROACHES_PATH: String = "res://scenes/mission/c04_preview_approaches.json"
 
 ## Each physical C04 switch must represent its exact original-blueprint
 ## target and operation. Matching IDs alone must not accept a remapped switch.
