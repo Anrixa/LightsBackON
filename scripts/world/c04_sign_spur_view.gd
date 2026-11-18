@@ -203,9 +203,9 @@ func setup(world: Node3D, overlay: Dictionary, controls: Dictionary) -> bool:
 	_build_conduit(cable)
 	var sign: Node3D = markers.get_node_or_null("SIGN") as Node3D
 	if sign != null:
-		_sign_label = _label(self, "C04SignSupply", "%s\\nUNKNOWN" % UiText.t("node.c01.sign"),
+		_sign_label = _label(self, "C04SignSupply", "%s\nUNKNOWN" % UiText.t("node.c01.sign"),
 			sign.position + Vector3(0.0, 0.3, -0.25))
-		_bonus_label = _label(self, "C04SignBonus", "%s\\nUNKNOWN" % UiText.t("offline.c04.sign_bonus_label"),
+		_bonus_label = _label(self, "C04SignBonus", "%s\nUNKNOWN" % UiText.t("offline.c04.sign_bonus_label"),
 			sign.position + Vector3(0.0, -0.2, -0.25))
 	return true
 
@@ -231,7 +231,7 @@ func _build_stations(markers: Node3D, _added: Dictionary) -> void:
 			description = UiText.t("node.c04.spur")
 		elif id.begins_with("PANEL_"):
 			description += " WORKSITE"
-		var caption: String = description if id.begins_with("PANEL_") and id != "PANEL_SPUR" else "%s\\nUNKNOWN" % description
+		var caption: String = description if id.begins_with("PANEL_") and id != "PANEL_SPUR" else "%s\nUNKNOWN" % description
 		var indicator: Label3D = _label(station, "State", caption,
 			Vector3(0.0, 0.17, -0.06))
 		if id == "PANEL_SPUR":
@@ -321,16 +321,16 @@ static func _control_status(snapshot: Dictionary, source: Dictionary) -> String:
 func apply_host(snapshot: Dictionary) -> void:
 	for id: String in _indicators:
 		var label: Label3D = _indicators[id] as Label3D
-		label.text = "%s\\n%s" % [id.trim_prefix("SW_").replace("_", " "),
+		label.text = "%s\n%s" % [id.trim_prefix("SW_").replace("_", " "),
 			_control_status(snapshot, _controls[id])]
 	if _spur_label != null:
 		var feeder: Variant = _host_bool(snapshot, "edges", "E_GRID_SPUR", "enabled")
-		_spur_label.text = "%s\\n%s" % [UiText.t("node.c04.spur"),
+		_spur_label.text = "%s\n%s" % [UiText.t("node.c04.spur"),
 			"UNKNOWN" if feeder == null else "INSTALLED" if feeder else "NOT INSTALLED"]
 	if _sign_label != null:
 		var supplied: Variant = _host_bool(snapshot, "nodes", "SIGN", "supplied")
-		_sign_label.text = "%s\\n%s" % [UiText.t("node.c01.sign"),
+		_sign_label.text = "%s\n%s" % [UiText.t("node.c01.sign"),
 			"UNKNOWN" if supplied == null else "SUPPLIED" if supplied else "UNSUPPLIED"]
 	if _bonus_label != null:
-		_bonus_label.text = "%s\\n%s" % [UiText.t("offline.c04.sign_bonus_label"),
+		_bonus_label.text = "%s\n%s" % [UiText.t("offline.c04.sign_bonus_label"),
 			_bonus_status(snapshot)]
