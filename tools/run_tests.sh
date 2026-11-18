@@ -15,6 +15,12 @@ FAIL=0
 echo "== backlog =="
 if [ -n "$PY" ]; then "$PY" tools/backlog.py validate || FAIL=1; else echo "no python found"; FAIL=1; fi
 
+echo "== EXP01 dispatch atlas: generator, 200/200/1000 content validator =="
+if [ -n "$PY" ]; then
+  "$PY" tools/build_dispatch_atlas.py --check || FAIL=1
+  "$PY" tools/validate_dispatch_atlas.py || FAIL=1
+fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 

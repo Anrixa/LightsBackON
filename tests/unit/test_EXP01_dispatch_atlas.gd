@@ -61,7 +61,7 @@ func test_EXP01_forged_runtime_authority_fails_closed_without_mutating_source() 
 func test_EXP01_ui_browses_source_without_creating_gameplay_session() -> void:
 	var panel: Control = AtlasPanel.new()
 	(Engine.get_main_loop() as SceneTree).root.add_child(panel)
-	assert_true(panel.get_node_or_null("CloseAtlasButton") != null)
+	assert_true(panel.find_child("CloseAtlasButton", true, false) != null)
 	assert_true(panel.get_node_or_null("LevelList") != null or panel.find_child("LevelList", true, false) != null)
 	var list: ItemList = panel.find_child("LevelList", true, false) as ItemList
 	assert_eq(list.item_count, 200)
