@@ -1,0 +1,676 @@
+{
+  "schema_version": 1,
+  "regions": [
+    {
+      "id": "REG_01",
+      "name": "Alder Reach",
+      "setting": "brick terraces under wind-driven rain",
+      "hazard": "flooded service trenches",
+      "palette": "red-brick and enamel",
+      "climate": "rain",
+      "sites": [
+        "West Junction Arcade",
+        "Rookery Court Substation",
+        "Canary Street Clinic",
+        "The Blue Awning Market",
+        "Elmgate Pump House",
+        "Copper Bell Exchange",
+        "Schoolhouse Annex",
+        "South Shelter Hall"
+      ]
+    },
+    {
+      "id": "REG_02",
+      "name": "Glasswater Quay",
+      "setting": "tidal quay hidden by fog",
+      "hazard": "salt-contaminated switchgear",
+      "palette": "sea-glass and oxidized copper",
+      "climate": "sea_fog",
+      "sites": [
+        "Harbour Bell Gantry",
+        "Cutter Ferry Landing",
+        "The Sailors' Infirmary",
+        "Slipway Fish Exchange",
+        "Tidewheel Pump Gallery",
+        "Signalman's Loft",
+        "Glasshouse Boarding School",
+        "Lighthouse Relief Depot"
+      ]
+    },
+    {
+      "id": "REG_03",
+      "name": "Iron Viaduct",
+      "setting": "rail arches and grinding steel",
+      "hazard": "track-side vibration",
+      "palette": "graphite and signal amber",
+      "climate": "rail_vibration",
+      "sites": [
+        "Foundry Feed Cabinet",
+        "Nine-Arch Transfer",
+        "Railside First Aid",
+        "Night Platform Bazaar",
+        "Viaduct Drain Vault",
+        "Semaphore Control Box",
+        "Apprentice Signal School",
+        "Rail Workers' Canteen"
+      ]
+    },
+    {
+      "id": "REG_04",
+      "name": "Lantern Marsh",
+      "setting": "reed beds after a storm surge",
+      "hazard": "rising brackish groundwater",
+      "palette": "peat green and reed gold",
+      "climate": "brackish_flood",
+      "sites": [
+        "Marshland Intake",
+        "Eelboat Mooring",
+        "Reedbank Medical Post",
+        "Floating Produce Market",
+        "Sluice Seven",
+        "Fen Radio Mast",
+        "Marsh Learning Cabin",
+        "Raised Evacuation Lodge"
+      ]
+    },
+    {
+      "id": "REG_05",
+      "name": "Slate Ridge",
+      "setting": "steep hillside in freezing rain",
+      "hazard": "rockfall across feeder tracks",
+      "palette": "slate grey and moss",
+      "climate": "freezing_rain",
+      "sites": [
+        "Quarry Ridge Relay",
+        "Cliffline Funicular",
+        "Ridge Aid Station",
+        "Granite Traders' Yard",
+        "Mine Dewatering Shed",
+        "Summit Telegraph Hut",
+        "Stonecutters' Academy",
+        "Overlook Refuge"
+      ]
+    },
+    {
+      "id": "REG_06",
+      "name": "Bellfoundry Quarter",
+      "setting": "Victorian brick workshops",
+      "hazard": "conductive metal dust",
+      "palette": "iron rust and blue glass",
+      "climate": "metal_dust",
+      "sites": [
+        "Hammer Street Transformer",
+        "Casting Tram Terminus",
+        "Foundry Workers' Clinic",
+        "Bellmaker's Alley",
+        "Cooling Water Station",
+        "Clocktower Repeater",
+        "Patternmakers' School",
+        "Guild Fire Hall"
+      ]
+    },
+    {
+      "id": "REG_07",
+      "name": "Willow Floodplain",
+      "setting": "riverside willow groves",
+      "hazard": "silted utility channels",
+      "palette": "willow green and cream",
+      "climate": "river_silt",
+      "sites": [
+        "Willow Bend Feeder",
+        "Riverwalk Footbridge",
+        "Lowbank Dispensary",
+        "Orchard Cooperative",
+        "East Levee Pump Shed",
+        "Flood Warning Pavilion",
+        "Meadow Science Classroom",
+        "Raised Community Barn"
+      ]
+    },
+    {
+      "id": "REG_08",
+      "name": "North Lock",
+      "setting": "canal locks beneath thunderclouds",
+      "hazard": "jammed lock gates",
+      "palette": "limestone and cobalt",
+      "climate": "gate_surge",
+      "sites": [
+        "Lockkeeper Distribution",
+        "Towpath Lift Gate",
+        "Barge Medic Cabin",
+        "Old Wharf Provisioner",
+        "Twin Chamber Pump Room",
+        "Signal Flag Turret",
+        "Navigator Training Deck",
+        "North Lock Shelter"
+      ]
+    },
+    {
+      "id": "REG_09",
+      "name": "Kestrel Falls",
+      "setting": "waterfall village in dense spray",
+      "hazard": "overwet control relays",
+      "palette": "basalt and bright teal",
+      "climate": "spray",
+      "sites": [
+        "Upper Falls Switchyard",
+        "Spraybridge Cableway",
+        "Falls Rescue Clinic",
+        "Millstone Food Court",
+        "Cascade Pressure House",
+        "Cliffside Repeater",
+        "Hydro Workshop School",
+        "Riverside Volunteer Hall"
+      ]
+    },
+    {
+      "id": "REG_10",
+      "name": "Rainline Terminal",
+      "setting": "regional transit concourse",
+      "hazard": "failed platform sequence control",
+      "palette": "tungsten and midnight blue",
+      "climate": "platform_storm",
+      "sites": [
+        "Terminal Intake Bay",
+        "Rainline Departure Hall",
+        "Platform Seven Clinic",
+        "Lost Luggage Bazaar",
+        "Trackbed Drain Plant",
+        "Dispatch Signal Cabin",
+        "Driver Training Suite",
+        "Night Passenger Shelter"
+      ]
+    },
+    {
+      "id": "REG_11",
+      "name": "Embermill Valley",
+      "setting": "old textile mills and mist",
+      "hazard": "overheated legacy motors",
+      "palette": "burnt umber and cotton",
+      "climate": "motor_heat",
+      "sites": [
+        "Spindle Feeder House",
+        "Weaver's Footbridge",
+        "Mill Ward Clinic",
+        "Dyer's Exchange",
+        "Boiler Return Pumphouse",
+        "Cottonline Radio Room",
+        "Loomcraft Institute",
+        "Factory Families' Hall"
+      ]
+    },
+    {
+      "id": "REG_12",
+      "name": "Coldharbor Point",
+      "setting": "icy docks and freezing sea wind",
+      "hazard": "frost-loaded conductors",
+      "palette": "ice blue and dark pine",
+      "climate": "sea_ice",
+      "sites": [
+        "North Ice Converter",
+        "Cold Chain Pier",
+        "Seafarers' Warming Clinic",
+        "Frozen Catch Auction",
+        "Defrost Pump Station",
+        "Breakwater Radio Office",
+        "Marine Safety School",
+        "Harbor Heat Shelter"
+      ]
+    },
+    {
+      "id": "REG_13",
+      "name": "Sunrise Breakwater",
+      "setting": "storm-battered concrete seawall",
+      "hazard": "surge shutters stuck open",
+      "palette": "ochre and surf white",
+      "climate": "wave_surge",
+      "sites": [
+        "East Breaker House",
+        "Wave Tram Jetty",
+        "Coastguard Treatment Room",
+        "Seawall Provision Stall",
+        "Surge Tunnel Works",
+        "Beacon Dispatch Loft",
+        "Tidewatch Academy",
+        "Breakwater Safe Room"
+      ]
+    },
+    {
+      "id": "REG_14",
+      "name": "Briar Valley",
+      "setting": "overgrown hillside orchards",
+      "hazard": "fallen branches over circuits",
+      "palette": "sage and terracotta",
+      "climate": "treefall",
+      "sites": [
+        "Briar Subgrid Hut",
+        "Orchard Cargo Lift",
+        "Valley Health Cabin",
+        "Harvest Packing Hall",
+        "Briar Spring Pump",
+        "Firewatch Radio Platform",
+        "Forester's Field School",
+        "Apple Press Meeting House"
+      ]
+    },
+    {
+      "id": "REG_15",
+      "name": "Cinder Hill",
+      "setting": "ash-dark terraced industrial town",
+      "hazard": "ash-clogged filters",
+      "palette": "charcoal and copper orange",
+      "climate": "ash",
+      "sites": [
+        "Kiln Road Junction",
+        "Black Rail Overpass",
+        "Hilltop Urgent Care",
+        "Cinder Night Market",
+        "Ashwash Filtration Room",
+        "Furnace Signal Tower",
+        "Miners' Technical School",
+        "Ridge Evacuation Centre"
+      ]
+    },
+    {
+      "id": "REG_16",
+      "name": "Merrow Island",
+      "setting": "isolated tidal island",
+      "hazard": "intermittent ferry supply",
+      "palette": "driftwood and turquoise",
+      "climate": "isolation",
+      "sites": [
+        "Island Grid Room",
+        "Hollow Bay Ferry Dock",
+        "Harbour Nurse Station",
+        "Saltbread Trading Shed",
+        "Tidal Cistern Pumps",
+        "Northwind Radio Needle",
+        "One-Room Island School",
+        "Old Customs Refuge"
+      ]
+    },
+    {
+      "id": "REG_17",
+      "name": "Greenhouse Quarter",
+      "setting": "glass-roofed agricultural terraces",
+      "hazard": "condensation shorts",
+      "palette": "verdigris and jasmine",
+      "climate": "glass_condensation",
+      "sites": [
+        "Hothouse Main Board",
+        "Seed Shuttle Platform",
+        "Botany Health Post",
+        "Midnight Flower Auction",
+        "Irrigation Control Vault",
+        "Pollen Forecast Studio",
+        "Gardeners' Academy",
+        "Glass Pavilion Shelter"
+      ]
+    },
+    {
+      "id": "REG_18",
+      "name": "Blackstone Works",
+      "setting": "abandoned mine production zone",
+      "hazard": "coal-water leakage",
+      "palette": "black slate and lime",
+      "climate": "coal_seepage",
+      "sites": [
+        "Pithead Feeder Cabin",
+        "Ore Conveyor Crossing",
+        "Mine Rescue Station",
+        "Old Canteen Bazaar",
+        "Blackwater Lift Pump",
+        "Deep Shaft Signal Hub",
+        "Surface Safety Training",
+        "Emergency Muster Yard"
+      ]
+    },
+    {
+      "id": "REG_19",
+      "name": "Crescent Reservoir",
+      "setting": "dam embankment in heavy rain",
+      "hazard": "inlet overflow risk",
+      "palette": "deep aqua and stone",
+      "climate": "spillway_rain",
+      "sites": [
+        "Reservoir Control Gallery",
+        "Crescent Spillway Walk",
+        "Dam Operations Clinic",
+        "Waterside Supply Shop",
+        "Emergency Bypass Pumps",
+        "Hydrology Telemetry Cabin",
+        "Water Engineering College",
+        "Highbank Relief Pavilion"
+      ]
+    },
+    {
+      "id": "REG_20",
+      "name": "Wrenwood Heights",
+      "setting": "tall wooded residential slopes",
+      "hazard": "tree-root cable intrusion",
+      "palette": "cedar brown and mist silver",
+      "climate": "root_intrusion",
+      "sites": [
+        "Wrenwood Crest Board",
+        "Pine Tram Landing",
+        "Hillcrest Health Studio",
+        "Fir Row Grocer",
+        "Hollow Brook Pump Hut",
+        "Canopy Relay Treehouse",
+        "Ranger Learning House",
+        "Woodland Commons Hall"
+      ]
+    },
+    {
+      "id": "REG_21",
+      "name": "Tallow Market",
+      "setting": "historic covered trading streets",
+      "hazard": "mixed old/new electrical wiring",
+      "palette": "mustard and weathered brass",
+      "climate": "old_wiring",
+      "sites": [
+        "Market Cross Switchbox",
+        "Lantern Cart Station",
+        "Night Watch Dispensary",
+        "Tallow Central Arcade",
+        "Old Well Booster",
+        "Clockface Message Room",
+        "Guild Junior Workshop",
+        "Chandler's Meeting House"
+      ]
+    },
+    {
+      "id": "REG_22",
+      "name": "Foxglove Basin",
+      "setting": "wetland industrial basin",
+      "hazard": "toxic-looking but harmless dye leaks",
+      "palette": "violet and cool stone",
+      "climate": "dye_mist",
+      "sites": [
+        "Basin Transfer Stack",
+        "Rivet Ferry Causeway",
+        "Foxglove Aid Post",
+        "Dye Works Outlet",
+        "Basin Aeration Pumps",
+        "Weather Balloon Shed",
+        "Basin Studies Lab",
+        "Millpond Evacuation Hall"
+      ]
+    },
+    {
+      "id": "REG_23",
+      "name": "Cedar Observatory",
+      "setting": "mountain observatory precinct",
+      "hazard": "lightning-sensitive instruments",
+      "palette": "cedar green and brass",
+      "climate": "lightning",
+      "sites": [
+        "Astral Feeder Vault",
+        "Telescope Access Rail",
+        "Altitude Medical Room",
+        "Night-Sky Supply Booth",
+        "Mirror Cooling Plant",
+        "Northern Tracking Array",
+        "Cedar Astronomy School",
+        "Stargazer Dormitory"
+      ]
+    },
+    {
+      "id": "REG_24",
+      "name": "Hollowpoint Dunes",
+      "setting": "windswept coastal sand streets",
+      "hazard": "sand-blown power connectors",
+      "palette": "sandstone and signal blue",
+      "climate": "sandstorm",
+      "sites": [
+        "Dunewatch Switchfield",
+        "Sandline Transit Stop",
+        "Dune First Response",
+        "Oasis Supply Courtyard",
+        "Aquifer Pump Vault",
+        "Storm Flag Radio Mast",
+        "Desert Ecology Academy",
+        "Coastal Refuge Dome"
+      ]
+    },
+    {
+      "id": "REG_25",
+      "name": "Old Beacon Terrace",
+      "setting": "high-rise apartments above the bay",
+      "hazard": "stairwell flooding and antenna loss",
+      "palette": "faded rose and titanium",
+      "climate": "stairwell_flood",
+      "sites": [
+        "Beacon Row Transformer",
+        "Skybridge Transit Deck",
+        "Tower Eight Clinic",
+        "Roof Garden Market",
+        "Basement Sump Plant",
+        "Beacon Aerial Loft",
+        "Terrace Evening School",
+        "Residents' Emergency Hub"
+      ]
+    }
+  ],
+  "puzzle_names": [
+    "load-budget dilemma",
+    "mislabelled feeder",
+    "dual-route conflict",
+    "opening-time cutoff",
+    "cold-chain rescue",
+    "generator trade-off",
+    "staged pump sequence",
+    "access-interlock investigation",
+    "false fuse alarm",
+    "sticking isolator",
+    "substation restart",
+    "storm pulse timing",
+    "isolated bypass",
+    "pressure trip",
+    "intermittent ground",
+    "thermal breaker",
+    "drain-level dependency",
+    "source purity",
+    "network loop hunt",
+    "cable splice",
+    "voltage sag",
+    "priority dispatch",
+    "beacon continuity",
+    "cross-feed lock",
+    "reversible reset",
+    "archive power",
+    "brief service window",
+    "controlled load shed",
+    "limited cable reel",
+    "conflicting telemetry"
+  ],
+  "twists": [
+    "a contradictory night-shift note",
+    "an unexpected emergency load",
+    "a powerless warning lamp",
+    "a recently re-labelled cable",
+    "a trace of tampered maintenance records",
+    "an unacknowledged public request",
+    "an intermittent sensor reading",
+    "a damaged isolation seal",
+    "a forgotten alternate supply",
+    "a false overload warning",
+    "a delayed relay response",
+    "a missing replacement part",
+    "a displaced route diagram",
+    "a stuck emergency barrier",
+    "a test result that cannot be repeated",
+    "an abandoned temporary line",
+    "an unstable backup source",
+    "a mismatched circuit identifier",
+    "a silent protection trip",
+    "a stranded tool locker",
+    "a wet junction sleeve",
+    "a missing contractor handoff",
+    "a critical opening deadline",
+    "a contradictory radio dispatch",
+    "a long-hidden neighborhood keepsake",
+    "a fractured inspection window",
+    "a timing mismatch",
+    "a branch supplying the wrong building",
+    "a damaged witness marker",
+    "an unusual night-time demand"
+  ],
+  "evidence": [
+    "Compare an isolated meter reading with the last recorded alarm before trusting the display",
+    "Follow a live cable marker until its label and the tablet's topology stop agreeing",
+    "Read current under a temporary load without energizing the uninspected branch",
+    "Test the feeder downstream before opening the cabinet marked as the likely fault",
+    "Distinguish a failed conductor from a breaker that tripped for a legitimate overload",
+    "Check whether the warning originated in the load or in the substation instrument",
+    "Trace the last reliable reading across the storm-damaged telemetry hop",
+    "Inspect the grounded test terminal while keeping the affected public service dark",
+    "Map the apparent spare capacity against the actually powered neighboring loads",
+    "Confirm which route reached the building before replacing the supposedly failed part",
+    "Compare cold-start demand with the steady-state rating recorded at the service entrance",
+    "Find the missing meter evidence concealed by an unlabeled patch cable",
+    "Audit the emergency circuit's return path rather than assuming the bright sign is on grid supply",
+    "Locate the false continuity reading introduced by a wet inspection socket",
+    "Cross-check the physical isolator state with the host's approved switching record"
+  ],
+  "route": [
+    "Keep the tempting shortcut isolated and give the critical consumers their own capacity",
+    "Power a safe diagnostic load first so the wrong branch cannot trip the whole block",
+    "Stage the temporary source while leaving a reversible escape path for the crew",
+    "Balance two feeder legs before asking the breaker to close",
+    "Use the low-capacity bypass only for the declared essential service",
+    "Preserve a powered shelter while rerouting the nonessential lighting",
+    "Split the current demands so neither available branch exceeds its rating",
+    "Trace the feeder's actual source before closing the transfer switch",
+    "Reject simultaneous supply routes even though both switches seem available",
+    "Move the spare generator only after the load plan fits its safe capacity",
+    "Sequence the pumping loads rather than running them together",
+    "Isolate the legacy connection before energizing the replacement line",
+    "Reserve enough power for the final restoration check instead of spending it on decoration",
+    "Restore upstream protection before enabling the last dependent circuit",
+    "Choose which service gets the short supply window and record the trade-off"
+  ],
+  "repair": [
+    "Renew the damaged terminal with the proper tool order and a cold-work lock",
+    "Replace the false-tripping fuse after comparing its rating with measured demand",
+    "Rejoin a broken underground cable without touching the live adjacent feeder",
+    "Repair a flooded service panel only after the documented isolation condition holds",
+    "Rebuild the relay housing while keeping the nearby public load on an alternate circuit",
+    "Reseat the slipping contactor and verify that the breaker is not masking overload",
+    "Repair a corroded splice and obtain a fresh post-repair reading",
+    "Clear the damaged meter socket without using its erroneous reading as proof",
+    "Restore the signaling conductor without accidentally powering the signal from two sources",
+    "Reassemble the auxiliary switchgear under the original lock owner",
+    "Renew a heat-worn cable lug and test for a persistent demand spike",
+    "Replace the fractured insulation support without crossing the energized service",
+    "Rework the temporary connector before the generator is requested again",
+    "Repair the feeder's return conductor and prove it is no longer sharing the wrong route",
+    "Recommission the dead utility outlet after recording the full fault chain"
+  ],
+  "optional": [
+    "Recover a storm-time voice log that explains how the neighborhood protected its residents",
+    "Restore a small historic lamp without taking capacity from the essential services",
+    "Power an archive scanner long enough to preserve a damaged local record",
+    "Reunite an emergency supply tag with the equipment it was written for",
+    "Save a handwritten maintenance ledger from the rain-damaged cabinet",
+    "Reconnect the volunteer notice display for an uninterrupted safe interval",
+    "Trace an old street-name plate to the people who installed the original feeder",
+    "Light the community wayfinding sign only after priority consumers are stable",
+    "Document a surviving night-shift photo plate before the crew leaves",
+    "Retrieve a calibration certificate from the decommissioned test bench",
+    "Bring a closed help point back online without creating a second supply path",
+    "Recover the civic radio recording made when the power first failed",
+    "Restore the preservation fan protecting a collection of neighborhood maps",
+    "Find the engraved brass locator lost during the emergency repairs",
+    "Log a resident's repair suggestion without exposing private household details"
+  ],
+  "finish": [
+    "Hold verified supply through a full observation window before departure",
+    "Confirm that the fault stays cleared while the district's critical loads return",
+    "Prove the final demand fits its rating, then secure every portable tool",
+    "Complete the host-observed stability check without relying on decorative lights",
+    "Leave the spare generator stowed and the grid serving the essential buildings",
+    "Verify the authorized route, record the last meter reading and return to the safe zone",
+    "Run the restoration sequence in the prescribed load order before extraction",
+    "Check that the optional circuit cannot silently re-close after its bypass is opened",
+    "Report the restored service with its true source rather than its visible glow",
+    "Confirm breaker health after the last consumer comes back on line",
+    "Close the shift only after the crew's extraction zone and tool inventory agree",
+    "Measure final power quality at the worksite instead of trusting a cleared alarm",
+    "Prove the repaired cable remains stable under the declared peak demand",
+    "Observe the full recovery interval and leave the next crew an honest handoff",
+    "Return the temporary supply cart, then witness the restored neighborhood"
+  ],
+  "action_sets": [
+    [
+      "meter_trace",
+      "switch_isolation",
+      "splice_repair",
+      "archive_recovery",
+      "stable_grid"
+    ],
+    [
+      "load_test",
+      "transfer_route",
+      "fuse_repair",
+      "sign_continuity",
+      "safe_extraction"
+    ],
+    [
+      "topology_probe",
+      "dual_feed_lockout",
+      "contact_repair",
+      "resident_help",
+      "source_verify"
+    ],
+    [
+      "thermal_probe",
+      "generator_budget",
+      "trunk_repair",
+      "history_collection",
+      "final_observation"
+    ],
+    [
+      "signal_trace",
+      "prioritize_service",
+      "breaker_repair",
+      "radio_record",
+      "supply_handoff"
+    ],
+    [
+      "ground_test",
+      "pump_sequence",
+      "terminal_repair",
+      "cosmetic_restore",
+      "inventory_check"
+    ],
+    [
+      "voltage_probe",
+      "alternative_feed",
+      "isolator_repair",
+      "wayfinding",
+      "grid_continuity"
+    ],
+    [
+      "timestamp_audit",
+      "safe_load_shed",
+      "cable_repair",
+      "photo_collection",
+      "load_validation"
+    ],
+    [
+      "fault_localize",
+      "staged_restart",
+      "lockout_repair",
+      "equipment_log",
+      "safe_exit"
+    ],
+    [
+      "protective_probe",
+      "route_test",
+      "relay_repair",
+      "public_notice",
+      "final_reading"
+    ]
+  ]
+}
