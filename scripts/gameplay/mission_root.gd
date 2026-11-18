@@ -48,6 +48,13 @@ var _sign_spur_view: C04SignSpurView
 func _is_preview() -> bool:
 	return _c03_preview or _c04_preview
 
+
+## The tablet always identifies the selected contract, including unsaved
+## C03/C04 previews which intentionally reuse the C01 scene controller.
+func _tablet_breadcrumbs() -> Array[String]:
+	return ["district.alder_street",
+		"contract.c04" if _c04_preview else "contract.c03" if _c03_preview else "contract.c01"]
+
 var session: OfflineSession
 var player: PlayerController
 var hud: FieldHud
@@ -914,7 +921,9 @@ func _on_mission_event(event: Dictionary) -> void:
 		var event_tick: int = _measurement_tick
 		match kind:
 			"latch":
-				_measurements.note("drain_latched", event_tick)
+				# Optional C03/C04 latches are not a drained C01 basement.
+				if str(event.get("id", "")) == OfflineSession.PUMP_LATCH:
+					_measurements.note("drain_latched", event_tick)
 			"verified":
 				_measurements.note("supply_verified", event_tick)
 			"verification_lost":
@@ -927,9 +936,14 @@ func _on_mission_event(event: Dictionary) -> void:
 				_measurements.note("session_completed", event_tick)
 	match kind:
 		"latch":
-			_show_feedback(UiText.t("offline.status.drain"), true)
+			if _c04_preview:
+				if str(event.get("id", "")) == "LATCH_SIGN_SUPPLY":
+					_show_feedback(UiText.t("offline.c04.sign_bonus_latched"), true)
+			else:
+				_show_feedback(UiText.t("offline.status.drain"), true)
 		"verified":
-			_show_feedback(UiText.t("offline.status.verified"), true)
+			_show_feedback(UiText.t("offline.c04.required_verified" if _c04_preview
+				else "offline.status.verified"), true)
 			_save_checkpoint()
 		"trip":
 			_show_feedback(UiText.t("offline.status.trip"), true)
@@ -996,12 +1010,12 @@ func _refresh_shift_briefing() -> void:
 func _refresh_tablet() -> void:
 	if tablet != null and tablet.visible:
 		tablet.show_data(session.tablet_view(), session.mission.objectives(),
-			["district.alder_street", "contract.c01"])
+			_tablet_breadcrumbs())
 
 
 func _open_tablet() -> void:
 	tablet.show_data(session.tablet_view(), session.mission.objectives(),
-		["district.alder_street", "contract.c01"])
+		_tablet_breadcrumbs())
 	player.set_controls_active(false)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	tablet.open()

@@ -6,9 +6,20 @@ extends Node3D
 
 const UiText := preload("res://scripts/ui/ui_text.gd")
 
+## Each physical C04 switch must represent its exact original-blueprint
+## target and operation. Matching IDs alone must not accept a remapped switch.
+const EXPECTED_SWITCHES: Dictionary = {
+	"SW_SIGN": {"target": "SIGN", "field": "enabled"},
+	"SW_EAST_SIGN": {"target": "EAST_SIGN", "field": "isolated"},
+	"SW_JW_BREAKER": {"target": "JW", "field": "tripped"},
+	"SW_JE_BREAKER": {"target": "JE", "field": "tripped"},
+	"SW_SPUR_BREAKER": {"target": "SPUR", "field": "tripped"}
+}
+
 var _controls: Dictionary = {}
 var _indicators: Dictionary = {}
 var _sign_label: Label3D
+var _bonus_label: Label3D
 var _spur_label: Label3D
 
 
@@ -112,21 +123,18 @@ func setup(world: Node3D, overlay: Dictionary, controls: Dictionary) -> bool:
 		var field: String = str(control.get("field", ""))
 		if not id.begins_with("SW_") or target.is_empty() or live.has(id):
 			return false
-		if not ["enabled", "isolated", "tripped"].has(field):
+		var required: Dictionary = EXPECTED_SWITCHES.get(id, {})
+		if required.is_empty() or target != required["target"] or field != required["field"]:
 			return false
 		if not known.has(id) and not extra.has(id):
 			return false
 		live[id] = {"target": target, "field": field}
 	# C04 must expose exactly its five source-authorized switches. An
 	# unexpected inherited switch is not allowed to displace a real control.
-	var expected_switches: Array[String] = [
-		"SW_SIGN", "SW_JW_BREAKER", "SW_JE_BREAKER",
-		"SW_SPUR_BREAKER", "SW_EAST_SIGN"
-	]
-	if live.size() != expected_switches.size():
+	if live.size() != EXPECTED_SWITCHES.size():
 		return false
-	for required: String in expected_switches:
-		if not live.has(required):
+	for required_id: String in EXPECTED_SWITCHES:
+		if not live.has(required_id):
 			return false
 	if not (overlay.get("conduit_cm") is Array):
 		return false
@@ -153,6 +161,8 @@ func setup(world: Node3D, overlay: Dictionary, controls: Dictionary) -> bool:
 	if sign != null:
 		_sign_label = _label(self, "C04SignSupply", "%s\\nUNKNOWN" % UiText.t("node.c01.sign"),
 			sign.position + Vector3(0.0, 0.3, -0.25))
+		_bonus_label = _label(self, "C04SignBonus", "%s\\nUNKNOWN" % UiText.t("offline.c04.sign_bonus_label"),
+			sign.position + Vector3(0.0, -0.2, -0.25))
 	return true
 
 
@@ -204,12 +214,36 @@ func _build_conduit(path: Array) -> void:
 
 
 static func _host_bool(snapshot: Dictionary, collection: String, target: String, field: String) -> Variant:
-	var grid: Dictionary = snapshot.get("grid", {})
-	var entries: Dictionary = grid.get(collection, {})
-	var component: Dictionary = entries.get(target, {})
-	if not component.has(field) or not (component[field] is bool):
+	# Missing or malformed snapshots cannot become fabricated power cues.
+	var raw_grid: Variant = snapshot.get("grid")
+	if not (raw_grid is Dictionary):
 		return null
-	return component[field]
+	var raw_entries: Variant = (raw_grid as Dictionary).get(collection)
+	if not (raw_entries is Dictionary):
+		return null
+	var raw_component: Variant = (raw_entries as Dictionary).get(target)
+	if not (raw_component is Dictionary):
+		return null
+	var component: Dictionary = raw_component
+	return component[field] if component.get(field) is bool else null
+
+
+static func _bonus_status(snapshot: Dictionary) -> String:
+	# The bonus is the durable host mission latch, not instantaneous sign
+	# illumination or a locally counted 100-tick timer.
+	var raw_mission: Variant = snapshot.get("mission")
+	if not (raw_mission is Dictionary):
+		return "UNKNOWN"
+	var raw_latched: Variant = (raw_mission as Dictionary).get("latched")
+	if not (raw_latched is Dictionary):
+		return "UNKNOWN"
+	var latched: Dictionary = raw_latched
+	if not latched.has("LATCH_SIGN_SUPPLY"):
+		return UiText.t("offline.c04.sign_bonus_pending")
+	var value: Variant = latched["LATCH_SIGN_SUPPLY"]
+	if not (value is int and int(value) >= 0):
+		return "UNKNOWN"
+	return UiText.t("offline.c04.sign_bonus_verified")
 
 
 static func _control_status(snapshot: Dictionary, source: Dictionary) -> String:
@@ -245,3 +279,6 @@ func apply_host(snapshot: Dictionary) -> void:
 		var supplied: Variant = _host_bool(snapshot, "nodes", "SIGN", "supplied")
 		_sign_label.text = "%s\\n%s" % [UiText.t("node.c01.sign"),
 			"UNKNOWN" if supplied == null else "SUPPLIED" if supplied else "UNSUPPLIED"]
+	if _bonus_label != null:
+		_bonus_label.text = "%s\\n%s" % [UiText.t("offline.c04.sign_bonus_label"),
+			_bonus_status(snapshot)]
