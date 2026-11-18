@@ -5,6 +5,8 @@ extends Control
 signal closed
 
 const Atlas := preload("res://scripts/world/dispatch_atlas.gd")
+const LayoutPlan := preload("res://scripts/world/expedition_layout_plan.gd")
+const Graybox := preload("res://scripts/world/expedition_graybox.gd")
 
 var _data: Dictionary = {}
 var _district: OptionButton
@@ -14,6 +16,9 @@ var _details: RichTextLabel
 var _count: Label
 var _visible_levels: Array[Dictionary] = []
 var _close_button: Button
+var _preview_viewport: SubViewport
+var _preview_root: Node3D
+var _preview_world: Node3D
 
 
 func _ready() -> void:
@@ -85,6 +90,42 @@ func _ready() -> void:
 	_list.item_selected.connect(_describe)
 	left.add_child(_list)
 
+	# EXP02 one-at-a-time original 3D graybox preview. Geometry is schematic,
+	# never an actionable mission scene or a human/player route claim.
+	var right: VBoxContainer = VBoxContainer.new()
+	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	right.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	halves.add_child(right)
+	var viewport_frame: SubViewportContainer = SubViewportContainer.new()
+	viewport_frame.name = "SchematicViewportContainer"
+	viewport_frame.custom_minimum_size = Vector2(360.0, 220.0)
+	viewport_frame.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	viewport_frame.stretch = true
+	right.add_child(viewport_frame)
+	_preview_viewport = SubViewport.new()
+	_preview_viewport.name = "SchematicViewport"
+	_preview_viewport.size = Vector2i(720, 320)
+	_preview_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+	viewport_frame.add_child(_preview_viewport)
+	_preview_root = Node3D.new()
+	_preview_root.name = "SchematicStage"
+	_preview_viewport.add_child(_preview_root)
+	var camera: Camera3D = Camera3D.new()
+	camera.name = "SchematicCamera"
+	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
+	camera.size = 78.0
+	camera.position = Vector3(26.0, 58.0, 76.0)
+	_preview_root.add_child(camera)
+	camera.look_at(Vector3(26.0, 0.0, 26.0))
+	camera.current = true
+	var light: DirectionalLight3D = DirectionalLight3D.new()
+	light.name = "SchematicLight"
+	light.rotation_degrees = Vector3(-55.0, -35.0, 0.0)
+	_preview_root.add_child(light)
+	var preview_note: Label = Label.new()
+	preview_note.text = "3D graybox candidate — physical traversal and gameplay still on hold"
+	preview_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	right.add_child(preview_note)
 	_details = RichTextLabel.new()
 	_details.name = "LevelDetails"
 	_details.selection_enabled = true
@@ -92,7 +133,7 @@ func _ready() -> void:
 	_details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_details.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_details.bbcode_enabled = false
-	halves.add_child(_details)
+	right.add_child(_details)
 
 	var report: Dictionary = Atlas.inspect(_data)
 	if not report["ok"]:
@@ -128,6 +169,7 @@ func _describe(index: int) -> void:
 		return
 	var level: Dictionary = _visible_levels[index]
 	var location: Dictionary = Atlas.find_location(_data, str(level["location_id"]))
+	_update_schematic(level, location)
 	var lines: Array[String] = [
 		str(level["title"]), "",
 		"LOCATION  •  " + str(location.get("name", "")),
@@ -155,6 +197,25 @@ func _describe(index: int) -> void:
 	lines.append("STATUS  •  Design briefing only; no gameplay or playability certification")
 	_details.text = "\n".join(lines)
 	_details.scroll_to_line(0)
+
+
+## A selection replaces exactly one prior preview scene. No saved state, players,
+## colliders beyond the visual candidate floor, or host entities are retained.
+func _update_schematic(level: Dictionary, location: Dictionary) -> void:
+	if _preview_root == null or _preview_viewport == null:
+		return
+	if _preview_world != null:
+		_preview_root.remove_child(_preview_world)
+		_preview_world.free()
+		_preview_world = null
+	var plan: Dictionary = LayoutPlan.make_plan(level, location)
+	if not bool(plan.get("ok", false)):
+		return
+	_preview_world = Graybox.build(plan)
+	if _preview_world == null:
+		return
+	_preview_root.add_child(_preview_world)
+	_preview_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 
 
 func _unhandled_key_input(event: InputEvent) -> void:

@@ -121,9 +121,11 @@ static func make_plan(level: Dictionary, location: Dictionary) -> Dictionary:
 		})
 	var puzzle: Dictionary = capacity_candidate(serial)
 	var region_index: int = (serial - 1) / 8
+	var coordinates: Array[String] = []
+	for station: Dictionary in stations:
+		coordinates.append(str(station["position"]))
 	var signature: String = ("%s|%s|%s|%s|%s" % [
-		id, location["id"], category, turn, str(stations.map(func(s: Dictionary) -> Vector3:
-			return s["position"]))]).sha256_text()
+		id, location["id"], category, turn, ",".join(coordinates)]).sha256_text()
 	return {
 		"ok": true, "code": "VISUAL_CANDIDATE_ONLY",
 		"id": id, "location_id": location["id"], "region_id": location["district_id"],
