@@ -51,11 +51,21 @@ func _aim(scene: Node3D, target: String) -> void:
 	assert_eq(str(scene.get("_target")), target, "real C04 camera selects station: " + target)
 
 
+## Advance the authoritative 10 Hz clock before each host intent. The source
+## solution specifies one tick per command, while SessionHost enforces 20
+## commands per moving 10-tick window; an unpaced test is an invalid workload.
 func _host_ok(session: Offline, kind: String, entity: String,
 		payload: Dictionary = {}) -> void:
+	session.tick_once()
 	var reply: Dictionary = session.command(kind, entity, payload)
 	assert_true(bool(reply.get("ok", false)),
 		"C04 host %s %s payload=%s => %s" % [kind, entity, str(payload), str(reply)])
+
+
+func _tool_ok(session: Offline, tool: String) -> void:
+	session.tick_once()
+	var reply: Dictionary = session.set_tool(tool)
+	assert_true(bool(reply.get("ok", false)), "C04 equip %s => %s" % [tool, str(reply)])
 
 
 func _repair(session: Offline, repair: String, panel: String,
@@ -66,14 +76,14 @@ func _repair(session: Offline, repair: String, panel: String,
 	_host_ok(session, "inspect", panel)
 	_host_ok(session, "repair_step", repair, {"step": "diagnose"})
 	_host_ok(session, "repair_step", repair, {"step": "isolate"})
-	assert_true(bool(session.set_tool("screwdriver").get("ok", false)))
+	_tool_ok(session, "screwdriver")
 	_host_ok(session, "repair_step", repair, {"step": "open"})
-	assert_true(bool(session.set_tool(remove_tool).get("ok", false)))
+	_tool_ok(session, remove_tool)
 	_host_ok(session, "repair_step", repair, {"step": "remove"})
-	assert_true(bool(session.set_tool(install_tool).get("ok", false)))
+	_tool_ok(session, install_tool)
 	_host_ok(session, "repair_step", repair, {"step": "install"})
 	_host_ok(session, "repair_step", repair, {"step": "close"})
-	assert_true(bool(session.set_tool("meter").get("ok", false)))
+	_tool_ok(session, "meter")
 	_host_ok(session, "repair_step", repair, {"step": "test"})
 	_host_ok(session, "repair_step", repair, {"step": "restore"})
 
