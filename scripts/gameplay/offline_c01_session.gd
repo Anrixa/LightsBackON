@@ -79,6 +79,15 @@ static func _json(path: String) -> Dictionary:
 	return parsed if parsed is Dictionary else {}
 
 
+## The same contract-specific repair anchor must drive UI target planning and the
+## host's real scene-bound distance check. C04 works at street-level PANEL_JE;
+## the established C01/C03 exposed trunk remains in the pump-house basement.
+func _work_marker_for(repair: Dictionary) -> String:
+	if str(repair.get("id", "")) == EAST_REPAIR_ID and _contract_dir != C04_CONTRACT:
+		return EAST_WORK_MARKER
+	return str(repair.get("panel", ""))
+
+
 ## The caller supplies live host-side range and position checks from its physical character.
 ## Nothing in this module silently bypasses proximity merely because play is offline.
 func setup(range_check: Callable, position_of: Callable, contract_dir: String = CONTRACT) -> Array[Dictionary]:
@@ -127,11 +136,8 @@ func setup(range_check: Callable, position_of: Callable, contract_dir: String = 
 		_markers[str(record["id"])] = record
 	for repair: Dictionary in _content["repairs"]["repairs"]:
 		_repairs_by_panel[str(repair["panel"])] = repair
-		# C04 authoritatively exposes the east-trunk operation at PANEL_JE.
-		# Retain the separate basement work marker for the older C01/C03 rules.
-		var basement: bool = _contract_dir != C04_CONTRACT and str(repair["id"]) == EAST_REPAIR_ID
-		var point: String = EAST_WORK_MARKER if basement else str(repair["panel"])
-		_repair_targets[point] = repair
+		# Keep the prompt/action anchor identical to the host range anchor.
+		_repair_targets[_work_marker_for(repair)] = repair
 
 	var errors: Array[Dictionary] = []
 	grid = PowerGrid.new()
@@ -474,7 +480,7 @@ func entity_position(entity: String) -> Vector3:
 	if entity.begins_with("R_"):
 		for repair: Dictionary in _content["repairs"]["repairs"]:
 			if str(repair["id"]) == entity:
-				marker_id = EAST_WORK_MARKER if entity == EAST_REPAIR_ID else str(repair["panel"])
+				marker_id = _work_marker_for(repair)
 				break
 	elif entity == GENERATOR:
 		var anchor: String = equipment.anchor_of(GENERATOR)
