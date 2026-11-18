@@ -1,5 +1,5 @@
 extends Node3D
-## CT-L1/C04 P01–P02: non-colliding, original preview-only visualization of the
+## CT-L1/C04 P01–P04: non-colliding, original preview-only visualization of the
 ## dedicated 4-PU sign feeder. The real SessionHost remains the sole authority
 ## for switches, repairs, source selection, protection and optional rewards.
 ## Nothing here writes a campaign checkpoint or infers power from cable art.
@@ -15,6 +15,28 @@ const EXPECTED_SWITCHES: Dictionary = {
 	"SW_JE_BREAKER": {"target": "JE", "field": "tripped"},
 	"SW_SPUR_BREAKER": {"target": "SPUR", "field": "tripped"}
 }
+
+## P04: source-pinned worksite coordinates allow a small art tolerance but
+## reject displaced, sunken or overlapping targets before creating any scene
+## nodes. This is a geometry preflight, not a certified traversable route.
+const EXPECTED_INHERITED_SITES: Dictionary = {
+	"PANEL_JW": Vector3(29.6, 1.4, 24.3),
+	"SW_JW_BREAKER": Vector3(30.4, 1.4, 24.3),
+	"PANEL_JE": Vector3(72.6, 1.4, 24.3),
+	"SW_JE_BREAKER": Vector3(73.4, 1.4, 24.3),
+	"SW_SIGN": Vector3(64.6, 1.4, 41.9)
+}
+const EXPECTED_OVERLAY_SITES: Dictionary = {
+	"PANEL_SPUR": Vector3(60.2, 1.4, 39.5),
+	"SW_SPUR_BREAKER": Vector3(61.0, 1.4, 39.5),
+	"SW_EAST_SIGN": Vector3(66.9, 1.4, 40.5)
+}
+const MAX_SITE_DRIFT_M: float = 0.25
+const MIN_SITE_SEPARATION_M: float = 0.65
+const WORKSITE_ORDER: Array[String] = [
+	"PANEL_JW", "SW_JW_BREAKER", "PANEL_JE", "SW_JE_BREAKER",
+	"PANEL_SPUR", "SW_SPUR_BREAKER", "SW_EAST_SIGN", "SW_SIGN"
+]
 
 var _controls: Dictionary = {}
 var _indicators: Dictionary = {}
@@ -96,6 +118,15 @@ func setup(world: Node3D, overlay: Dictionary, controls: Dictionary) -> bool:
 		"SW_SPUR_BREAKER": "switch",
 		"SW_EAST_SIGN": "switch"
 	}
+	# The inherited Alder markers are real, scene-bound work targets. Do not
+	# build attractive but unreachable controls over a moved or forged anchor.
+	for id: String in EXPECTED_INHERITED_SITES:
+		var inherited: Marker3D = markers.get_node_or_null(id) as Marker3D
+		var kind: String = "panel" if id.begins_with("PANEL_") else "switch"
+		if inherited == null or str(inherited.get_meta("kind", "")) != kind:
+			return false
+		if inherited.position.distance_to(EXPECTED_INHERITED_SITES[id]) > 0.02:
+			return false
 	var extra: Dictionary = {}
 	var records: Array = overlay["markers"]
 	if records.size() != expected_kinds.size():
@@ -112,7 +143,20 @@ func setup(world: Node3D, overlay: Dictionary, controls: Dictionary) -> bool:
 		var coords: Array = rec["pos_cm"]
 		if not _valid_cm(coords):
 			return false
+		if _point(coords).distance_to(EXPECTED_OVERLAY_SITES[id]) > MAX_SITE_DRIFT_M:
+			return false
 		extra[id] = {"kind": str(rec["kind"]), "coords": coords}
+	# Prevent overlapping interaction plates in the intended curb-side work
+	# positions. This check cannot substitute for a walked/capsule route test.
+	var positions: Array[Vector3] = []
+	for id: String in EXPECTED_INHERITED_SITES:
+		positions.append(EXPECTED_INHERITED_SITES[id])
+	for id: String in extra:
+		var position: Vector3 = _point(extra[id]["coords"])
+		for previous: Vector3 in positions:
+			if position.distance_to(previous) < MIN_SITE_SEPARATION_M:
+				return false
+		positions.append(position)
 	var live: Dictionary = {}
 	for candidate: Variant in controls["switches"]:
 		if not (candidate is Dictionary):
@@ -166,25 +210,32 @@ func setup(world: Node3D, overlay: Dictionary, controls: Dictionary) -> bool:
 	return true
 
 
-func _build_stations(markers: Node3D, added: Dictionary) -> void:
+## P04: paint plates for all C04-authorized stations, not only the three
+## added in the overlay. Inherited C01 switch markers still use the unchanged
+## host selector/range callback; a visual plate never grants an interaction.
+func _build_stations(markers: Node3D, _added: Dictionary) -> void:
 	var group: Node3D = Node3D.new()
 	group.name = "C04ControlStations"
 	add_child(group)
 	var casing: StandardMaterial3D = _material()
-	for id: String in added:
-		var marker: Node3D = markers.get_node(id) as Node3D
+	for id: String in WORKSITE_ORDER:
+		var marker: Marker3D = markers.get_node(id) as Marker3D
 		var station: Node3D = Node3D.new()
 		station.name = id
 		station.position = marker.position
 		group.add_child(station)
 		_box(station, "Plate", Vector3(0.57, 0.35, 0.08),
 			Vector3(0.0, 0.10, 0.02), casing)
-		var description: String = UiText.t("node.c04.spur") if id == "PANEL_SPUR" else id.trim_prefix("SW_").replace("_", " ")
+		var description: String = id.trim_prefix("SW_").trim_prefix("PANEL_").replace("_", " ")
+		if id == "PANEL_SPUR":
+			description = UiText.t("node.c04.spur")
+		elif id.begins_with("PANEL_"):
+			description += " WORKSITE"
 		var indicator: Label3D = _label(station, "State", "%s\\nUNKNOWN" % description,
 			Vector3(0.0, 0.17, -0.06))
 		if id == "PANEL_SPUR":
 			_spur_label = indicator
-		else:
+		elif _controls.has(id):
 			_indicators[id] = indicator
 
 
