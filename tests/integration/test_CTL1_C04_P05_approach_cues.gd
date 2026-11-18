@@ -11,6 +11,7 @@ const Offline := preload("res://scripts/gameplay/offline_c01_session.gd")
 const Controller := preload("res://scripts/actors/first_person_controller.gd")
 const Grid := preload("res://scripts/simulation/power_grid.gd")
 const UiText := preload("res://scripts/ui/ui_text.gd")
+const ContentHash := preload("res://scripts/network/content_hash.gd")
 
 const GUIDES_PATH: String = "res://scenes/mission/c04_preview_approaches.json"
 const EXPECTED_IDS: Array[String] = [
@@ -172,3 +173,21 @@ func test_CTL1_C04_P05_legacy_scenes_keep_no_approach_cues() -> void:
 	assert_true(c03.get("_store") == null)
 	for entry: Dictionary in _content(GUIDES_PATH)["approaches"]:
 		assert_true(UiText.has(str(entry["label_key"])))
+
+
+func test_CTL1_C04_P05_guide_file_never_changes_rules_revision_classification() -> void:
+	assert_true(FileAccess.file_exists(GUIDES_PATH))
+	assert_false(GUIDES_PATH.begins_with(ContentHash.ROOT.trim_suffix("/") + "/"),
+		"the P05 visual guide must stay outside hashed content rules")
+	assert_true(ContentHash.presentation_paths().has("content/ui/strings/en.json"),
+		"new localized captions must remain presentation-only")
+	assert_false(ContentHash.presentation_paths().has(
+		"content/world/c04_preview_approaches.json"),
+		"there must be no stale compatibility exception for an obsolete guide file")
+
+
+func test_CTL1_C04_P05_both_export_presets_package_preview_json() -> void:
+	var presets: String = FileAccess.get_file_as_string("res://export_presets.cfg")
+	var pattern: String = 'include_filter="build_manifest.json,scenes/mission/c04_preview_approaches.json"'
+	assert_eq(presets.split(pattern).size() - 1, 2,
+		"release and internal exports must package C04's otherwise unreferenced JSON")
