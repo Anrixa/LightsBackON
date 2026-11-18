@@ -11,9 +11,11 @@ const InputDeviceTracker := preload("res://scripts/ui/input_device_tracker.gd")
 
 const MISSION_PATH: String = "res://scenes/mission/mission_root.tscn"
 const C03_PREVIEW_PATH: String = "res://scenes/mission/c03_roof_preview.tscn"
+const C04_PREVIEW_PATH: String = "res://scenes/mission/c04_sign_spur_preview.tscn"
 var start_button: Button
 var continue_button: Button
 var c03_preview_button: Button
+var c04_preview_button: Button
 var quit_button: Button
 var _store: OfflinePersistence
 var _save_available: bool = false
@@ -138,6 +140,13 @@ func _ready() -> void:
 	c03_preview_button.custom_minimum_size.y = 56.0
 	c03_preview_button.pressed.connect(_launch_c03_preview)
 	layout.add_child(c03_preview_button)
+
+	c04_preview_button = Button.new()
+	c04_preview_button.name = "C04PreviewButton"
+	c04_preview_button.text = UiText.t("offline.menu.c04_preview")
+	c04_preview_button.custom_minimum_size.y = 56.0
+	c04_preview_button.pressed.connect(_launch_c04_preview)
+	layout.add_child(c04_preview_button)
 
 	var confirmation: ConfirmationDialog = ConfirmationDialog.new()
 	confirmation.name = "ReplaceCheckpointConfirmation"
@@ -284,6 +293,16 @@ func _launch_c03_preview() -> void:
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	get_tree().change_scene_to_file(C03_PREVIEW_PATH)
+
+
+## C04 is never a replacement or continuation of the C01 saved campaign.
+func _launch_c04_preview() -> void:
+	if _loading_card != null:
+		return
+	show_loading_card("offline.loading.c04_briefing")
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	get_tree().change_scene_to_file(C04_PREVIEW_PATH)
 
 
 ## Full-screen card that stays on screen while the mission scene loads. Blocks input so a second press cannot launch
