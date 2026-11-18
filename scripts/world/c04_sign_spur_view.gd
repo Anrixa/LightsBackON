@@ -1,10 +1,11 @@
 extends Node3D
-## CT-L1/C04 P01–P04: non-colliding, original preview-only visualization of the
+## CT-L1/C04 P01–P05: non-colliding, original preview-only visualization of the
 ## dedicated 4-PU sign feeder. The real SessionHost remains the sole authority
 ## for switches, repairs, source selection, protection and optional rewards.
 ## Nothing here writes a campaign checkpoint or infers power from cable art.
 
 const UiText := preload("res://scripts/ui/ui_text.gd")
+const APPROACHES_PATH: String = "res://content/world/c04_preview_approaches.json"
 
 ## Each physical C04 switch must represent its exact original-blueprint
 ## target and operation. Matching IDs alone must not accept a remapped switch.
@@ -37,6 +38,20 @@ const WORKSITE_ORDER: Array[String] = [
 	"PANEL_JW", "SW_JW_BREAKER", "PANEL_JE", "SW_JE_BREAKER",
 	"PANEL_SPUR", "SW_SPUR_BREAKER", "SW_EAST_SIGN", "SW_SIGN"
 ]
+
+## These coordinates are staging hints grounded in the P02/P04 approach probes.
+## They are not a route graph, traversal guarantee or new host interaction zone.
+const EXPECTED_APPROACHES: Dictionary = {
+	"PANEL_JE": {"point": Vector3(72.6, 0.06, 26.1), "key": "offline.c04.guide.east"},
+	"PANEL_JW": {"point": Vector3(29.6, 0.06, 25.9), "key": "offline.c04.guide.west"},
+	"PANEL_SPUR": {"point": Vector3(60.2, 0.06, 37.9), "key": "offline.c04.guide.spur"},
+	"SW_SIGN": {"point": Vector3(64.6, 0.06, 40.2), "key": "offline.c04.guide.sign"},
+	"SW_EAST_SIGN": {"point": Vector3(66.9, 0.06, 38.8), "key": "offline.c04.guide.isolator"},
+	"ZONE_VAN": {"point": Vector3(8.0, 0.06, 14.4), "key": "offline.c04.guide.van"}
+}
+const MAX_APPROACH_DRIFT_M: float = 0.25
+const MAX_APPROACH_TARGET_DISTANCE_M: float = 2.15
+const MIN_APPROACH_TARGET_DISTANCE_M: float = 0.60
 
 var _controls: Dictionary = {}
 var _indicators: Dictionary = {}
@@ -100,7 +115,8 @@ func _label(parent: Node3D, name: String, value: String, offset: Vector3) -> Lab
 
 ## Validate the complete overlay before adding any new marker or visual node.
 ## C01 already owns SW_SIGN, SW_JW_BREAKER and SW_JE_BREAKER.
-func setup(world: Node3D, overlay: Dictionary, controls: Dictionary) -> bool:
+func setup(world: Node3D, overlay: Dictionary, controls: Dictionary,
+		approaches_override: Variant = null) -> bool:
 	if overlay.get("contract_id") != "C04" or controls.get("contract_id") != "C04":
 		return false
 	var markers: Node3D = world.get_node_or_null("Markers") as Node3D
@@ -191,6 +207,14 @@ func setup(world: Node3D, overlay: Dictionary, controls: Dictionary) -> bool:
 		var coords: Array = item
 		if not _valid_cm(coords):
 			return false
+	# P05: preflight the whole guide dataset while the world is still pristine.
+	# Caller-supplied malformed data must fail closed, never silently fall back.
+	var approach_source: Variant = approaches_override
+	if approach_source == null:
+		approach_source = JSON.parse_string(FileAccess.get_file_as_string(APPROACHES_PATH))
+	var approaches: Dictionary = _validate_approaches(world, markers, extra, approach_source)
+	if approaches.size() != EXPECTED_APPROACHES.size():
+		return false
 	_controls = live
 	for id: String in extra:
 		var record: Dictionary = extra[id]
@@ -201,6 +225,7 @@ func setup(world: Node3D, overlay: Dictionary, controls: Dictionary) -> bool:
 		markers.add_child(marker)
 	_build_stations(markers, extra)
 	_build_conduit(cable)
+	_build_approach_cues(approaches)
 	var sign: Node3D = markers.get_node_or_null("SIGN") as Node3D
 	if sign != null:
 		_sign_label = _label(self, "C04SignSupply", "%s\nUNKNOWN" % UiText.t("node.c01.sign"),
@@ -238,6 +263,92 @@ func _build_stations(markers: Node3D, _added: Dictionary) -> void:
 			_spur_label = indicator
 		elif _controls.has(id):
 			_indicators[id] = indicator
+
+
+## An approach cue may reference only a real authored C04 marker or the van
+## extraction zone. It never creates a host target or opens a shortcut.
+func _validate_approaches(world: Node3D, markers: Node3D,
+		extra: Dictionary, raw: Variant) -> Dictionary:
+	if not (raw is Dictionary):
+		return {}
+	var data: Dictionary = raw
+	if data.get("contract_id") != "C04" or not (data.get("approaches") is Array):
+		return {}
+	var entries: Array = data["approaches"]
+	if entries.size() != EXPECTED_APPROACHES.size():
+		return {}
+	var van: Area3D = world.get_node_or_null("Zones/ZONE_VAN") as Area3D
+	if van == null:
+		return {}
+	var accepted: Dictionary = {}
+	for item: Variant in entries:
+		if not (item is Dictionary):
+			return {}
+		var rec: Dictionary = item
+		if not (rec.get("id") is String) or not (rec.get("label_key") is String):
+			return {}
+		var id: String = rec["id"]
+		if not EXPECTED_APPROACHES.has(id) or accepted.has(id):
+			return {}
+		var expected: Dictionary = EXPECTED_APPROACHES[id]
+		if rec["label_key"] != expected["key"] or not UiText.has(rec["label_key"]):
+			return {}
+		if not (rec.get("pos_cm") is Array):
+			return {}
+		var cm: Array = rec["pos_cm"]
+		if not _valid_cm(cm):
+			return {}
+		var point: Vector3 = _point(cm)
+		if point.distance_to(expected["point"]) > MAX_APPROACH_DRIFT_M:
+			return {}
+		if point.y < 0.02 or point.y > 0.25:
+			return {}
+		if id != "ZONE_VAN":
+			var target: Vector3
+			if extra.has(id):
+				target = _point(extra[id]["coords"])
+			else:
+				var marker: Marker3D = markers.get_node_or_null(id) as Marker3D
+				if marker == null:
+					return {}
+				target = marker.position
+			var horizontal: float = Vector2(point.x - target.x, point.z - target.z).length()
+			if horizontal < MIN_APPROACH_TARGET_DISTANCE_M or horizontal > MAX_APPROACH_TARGET_DISTANCE_M:
+				return {}
+		accepted[id] = {"position": point, "label_key": str(rec["label_key"])}
+	return accepted
+
+
+## Neutral ground rings/labels are the only added guidance. No collision, power
+## emission, authority, pathfinding, mission mutation or target registration.
+func _build_approach_cues(approaches: Dictionary) -> void:
+	var root: Node3D = Node3D.new()
+	root.name = "C04ApproachCues"
+	add_child(root)
+	var paint: StandardMaterial3D = StandardMaterial3D.new()
+	paint.albedo_color = Color("#D6B66F")
+	paint.roughness = 0.95
+	for id: String in EXPECTED_APPROACHES:
+		var data: Dictionary = approaches[id]
+		var cue: Node3D = Node3D.new()
+		cue.name = id
+		cue.position = data["position"]
+		root.add_child(cue)
+		var ring: CylinderMesh = CylinderMesh.new()
+		ring.top_radius = 0.36
+		ring.bottom_radius = 0.36
+		ring.height = 0.02
+		ring.radial_segments = 20
+		var disc: MeshInstance3D = MeshInstance3D.new()
+		disc.name = "GroundCue"
+		disc.mesh = ring
+		disc.material_override = paint
+		disc.position = Vector3(0.0, 0.015, 0.0)
+		cue.add_child(disc)
+		var caption: Label3D = _label(cue, "Caption", UiText.t(data["label_key"]),
+			Vector3(0.0, 1.35, 0.0))
+		caption.rotation.y = 0.0
+		caption.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 
 
 func _build_conduit(path: Array) -> void:
