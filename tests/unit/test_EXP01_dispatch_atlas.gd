@@ -58,6 +58,16 @@ func test_EXP01_forged_runtime_authority_fails_closed_without_mutating_source() 
 	assert_eq(str((data["levels"] as Array)[0]["runtime_status"]), "DESIGN_BRIEFING_ONLY")
 
 
+func test_EXP01_fractional_json_points_are_denied_not_truncated() -> void:
+	var data: Dictionary = Atlas.load_catalog()
+	var fake: Dictionary = data.duplicate(true)
+	((fake["levels"] as Array)[0]["tasks"] as Array)[0]["field_points_preview"] = 55.25
+	var report: Dictionary = Atlas.inspect(fake)
+	assert_false(bool(report["ok"]))
+	assert_true(str(report["failures"]).contains("INVALID_PREVIEW_POINTS_JOB_001_1"))
+	assert_true(bool(Atlas.inspect(data)["ok"]), "original source still validates")
+
+
 func test_EXP01_ui_browses_source_without_creating_gameplay_session() -> void:
 	var panel: Control = AtlasPanel.new()
 	(Engine.get_main_loop() as SceneTree).root.add_child(panel)

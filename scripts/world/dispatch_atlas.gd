@@ -124,7 +124,16 @@ static func inspect(data: Dictionary) -> Dictionary:
 				failures.append("INVALID_REQUIRED_STAGE_" + task_id)
 			if required:
 				required_count += 1
-			if not task.get("field_points_preview") is int or int(task.get("field_points_preview", -1)) < 0:
+			# Godot JSON.parse_string represents JSON numeric literals as float.
+			# Accept only finite, nonnegative, exactly integral values, so 55.25
+			# cannot silently become 55 or claim a valid planned score.
+			var raw_points: Variant = task.get("field_points_preview")
+			var valid_points: bool = raw_points is int or raw_points is float
+			if valid_points:
+				var value: float = float(raw_points)
+				valid_points = not is_nan(value) and not is_inf(value) and value >= 0.0 \
+					and value <= 200.0 and value == float(int(value))
+			if not valid_points:
 				failures.append("INVALID_PREVIEW_POINTS_" + task_id)
 			task_ids[task_id] = true
 			task_descriptions[briefing] = true

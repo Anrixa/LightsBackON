@@ -23,3 +23,8 @@ The 1,000 tasks are individually identified design briefs and are **not 1,000 wi
 
 ## Resume notes
 Review the exact final commit and both Linux/Windows checks. Fix proven errors without weakening tests, merge normally after CI passes, verify independent merged-main checks, then begin EXP02 authored physical layout work.
+
+## Failed first exact-head CI retained (historical)
+- PR CI Linux run https://github.com/Anrixa/LightsBackON/actions/runs/44390422748, initial head 8997feaf0d0e6b2631a495759d5eda871202985d: **FAILED**, 770 Godot tests passed and two EXP01 tests failed. The Python generator/content validator and all C01–C12 solution replays passed.
+- Root cause: Godot JSON.parse_string converts numeric literals to float. GDScript inspect rejected all mathematically integral preview point values using an incorrect int-only type gate; therefore the UI failed closed, with an empty list.
+- Corrective source gate: accept only finite nonnegative numbers at most 200 that equal their exact integer conversion, and add a fractional-point negative case. **Do not count this corrective commit as accepted until new final-head dual-OS CI runs pass.**
