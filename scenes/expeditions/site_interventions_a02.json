@@ -1,0 +1,4169 @@
+{
+  "schema_version": 1,
+  "authority": "EXP012_A02_HOST_SITE_INTERVENTIONS",
+  "atlas_revision": "EXP01-2026-11-19",
+  "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD",
+  "authored_scope": "40 explicit location-specific site interventions; 160 remain EXP012 A01 only",
+  "entries": [
+    {
+      "level_id": "LV_001",
+      "location_id": "LOC_001",
+      "region_id": "REG_01",
+      "source_puzzle_identity": "mislabelled feeder/rain/distribution",
+      "source_title": "West Junction Arcade: Mislabelled feeder",
+      "source_risk": "flooded service trenches",
+      "source_climate": "rain",
+      "source_task_ids": [
+        "JOB_001_1",
+        "JOB_001_2",
+        "JOB_001_3",
+        "JOB_001_4",
+        "JOB_001_5"
+      ],
+      "worksite_encounter_key": "LV_001|LV_001|mislabelled feeder/rain/distribution|spur_isolation|water_ingress|164|13|site-distribution-route-spur_isolation-topology-0|phase_drift|1|5|EXP009|fork|EXP010|serial|EXP011|cascade|EXP012|distribution|1",
+      "title": "Labelled wrong at West Junction",
+      "stakes": "Resolve contradictory feeder identity before restoring the arcade; a wrong confirmation makes the spur live while its label is still false.",
+      "targets": {
+        "A": "SC_001_A",
+        "B": "SC_001_B",
+        "C": "SC_001_C"
+      },
+      "recovery_target": "SC_001_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "trace_unmarked_feeder",
+            "mode": "sample",
+            "target": "SC_001_A",
+            "support_target": "SC_001_B",
+            "dwell_ticks": 7,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "tag_true_spur",
+            "mode": "handoff",
+            "target": "SC_001_B",
+            "support_target": "SC_001_C",
+            "dwell_ticks": 8,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          },
+          {
+            "action": "energize_verified_link",
+            "mode": "pulse",
+            "target": "SC_001_C",
+            "support_target": "SC_001_A",
+            "dwell_ticks": 9,
+            "window_ticks": 140,
+            "failure": "restart"
+          },
+          {
+            "action": "record_arcade_continuity",
+            "mode": "hold",
+            "target": "SC_001_A",
+            "support_target": "SC_001_B",
+            "dwell_ticks": 10,
+            "window_ticks": 80,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "tag_true_spur_reserve",
+            "mode": "handoff",
+            "target": "SC_001_B",
+            "support_target": "SC_001_C",
+            "dwell_ticks": 8,
+            "window_ticks": 140,
+            "failure": "backtrack"
+          },
+          {
+            "action": "trace_unmarked_feeder_reserve",
+            "mode": "sample",
+            "target": "SC_001_A",
+            "support_target": "SC_001_B",
+            "dwell_ticks": 7,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "record_arcade_continuity_reserve",
+            "mode": "hold",
+            "target": "SC_001_A",
+            "support_target": "SC_001_B",
+            "dwell_ticks": 10,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "energize_verified_link_reserve",
+            "mode": "pulse",
+            "target": "SC_001_C",
+            "support_target": "SC_001_A",
+            "dwell_ticks": 9,
+            "window_ticks": 160,
+            "failure": "restart"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_002",
+      "location_id": "LOC_002",
+      "region_id": "REG_01",
+      "source_puzzle_identity": "sticking isolator/rain/transport",
+      "source_title": "Rookery Court Substation: Sticking isolator",
+      "source_risk": "flooded service trenches",
+      "source_climate": "rain",
+      "source_task_ids": [
+        "JOB_002_1",
+        "JOB_002_2",
+        "JOB_002_3",
+        "JOB_002_4",
+        "JOB_002_5"
+      ],
+      "worksite_encounter_key": "LV_002|LV_002|sticking isolator/rain/transport|stability_hold|water_ingress|173|26|site-transport-route-stability_hold-topology-1|traction_surge|2|5|EXP009|serial|EXP010|triage|EXP011|triage|EXP012|transport|1",
+      "title": "Sticking Rookery blade",
+      "stakes": "Drain trench water and free the half-seated isolator without transferring the fault onto the tram branch.",
+      "targets": {
+        "A": "SC_002_A",
+        "B": "SC_002_B",
+        "C": "SC_002_C"
+      },
+      "recovery_target": "SC_002_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "drain_isolator_well",
+            "mode": "hold",
+            "target": "SC_002_B",
+            "support_target": "SC_002_A",
+            "dwell_ticks": 8,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          },
+          {
+            "action": "backoff_stuck_blade",
+            "mode": "balance",
+            "target": "SC_002_A",
+            "support_target": "SC_002_C",
+            "dwell_ticks": 9,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "prove_open_contacts",
+            "mode": "sample",
+            "target": "SC_002_C",
+            "support_target": "SC_002_B",
+            "dwell_ticks": 10,
+            "window_ticks": 80,
+            "failure": "restart"
+          },
+          {
+            "action": "transfer_traction_feed",
+            "mode": "handoff",
+            "target": "SC_002_B",
+            "support_target": "SC_002_C",
+            "dwell_ticks": 11,
+            "window_ticks": 100,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "prove_open_contacts_reserve",
+            "mode": "sample",
+            "target": "SC_002_C",
+            "support_target": "SC_002_B",
+            "dwell_ticks": 10,
+            "window_ticks": 100,
+            "failure": "restart"
+          },
+          {
+            "action": "drain_isolator_well_reserve",
+            "mode": "hold",
+            "target": "SC_002_B",
+            "support_target": "SC_002_A",
+            "dwell_ticks": 8,
+            "window_ticks": 140,
+            "failure": "backtrack"
+          },
+          {
+            "action": "backoff_stuck_blade_reserve",
+            "mode": "balance",
+            "target": "SC_002_A",
+            "support_target": "SC_002_C",
+            "dwell_ticks": 9,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "transfer_traction_feed_reserve",
+            "mode": "handoff",
+            "target": "SC_002_B",
+            "support_target": "SC_002_C",
+            "dwell_ticks": 11,
+            "window_ticks": 120,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_003",
+      "location_id": "LOC_003",
+      "region_id": "REG_01",
+      "source_puzzle_identity": "source purity/rain/health",
+      "source_title": "Canary Street Clinic: Source purity",
+      "source_risk": "flooded service trenches",
+      "source_climate": "rain",
+      "source_task_ids": [
+        "JOB_003_1",
+        "JOB_003_2",
+        "JOB_003_3",
+        "JOB_003_4",
+        "JOB_003_5"
+      ],
+      "worksite_encounter_key": "LV_003|LV_003|source purity/rain/health|circuit_pair|water_ingress|182|39|site-health-route-circuit_pair-topology-2|sterile_pressure|3|5|EXP009|serial|EXP010|crossdock|EXP011|interlock|EXP012|health|1",
+      "title": "Clinic source purity trap",
+      "stakes": "Compare the clinic's isolated medical feed with the street bypass before authorizing sensitive equipment.",
+      "targets": {
+        "A": "SC_003_A",
+        "B": "SC_003_B",
+        "C": "SC_003_C"
+      },
+      "recovery_target": "SC_003_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "sample_clinic_supply",
+            "mode": "sample",
+            "target": "SC_003_A",
+            "support_target": "SC_003_C",
+            "dwell_ticks": 9,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "shield_critical_outlet",
+            "mode": "hold",
+            "target": "SC_003_C",
+            "support_target": "SC_003_A",
+            "dwell_ticks": 10,
+            "window_ticks": 80,
+            "failure": "backtrack"
+          },
+          {
+            "action": "trim_bypass_noise",
+            "mode": "balance",
+            "target": "SC_003_B",
+            "support_target": "SC_003_A",
+            "dwell_ticks": 11,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "handoff_clean_source",
+            "mode": "handoff",
+            "target": "SC_003_A",
+            "support_target": "SC_003_B",
+            "dwell_ticks": 12,
+            "window_ticks": 120,
+            "failure": "restart"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "shield_critical_outlet_reserve",
+            "mode": "hold",
+            "target": "SC_003_C",
+            "support_target": "SC_003_A",
+            "dwell_ticks": 10,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "trim_bypass_noise_reserve",
+            "mode": "balance",
+            "target": "SC_003_B",
+            "support_target": "SC_003_A",
+            "dwell_ticks": 11,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "sample_clinic_supply_reserve",
+            "mode": "sample",
+            "target": "SC_003_A",
+            "support_target": "SC_003_C",
+            "dwell_ticks": 9,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "handoff_clean_source_reserve",
+            "mode": "handoff",
+            "target": "SC_003_A",
+            "support_target": "SC_003_B",
+            "dwell_ticks": 12,
+            "window_ticks": 140,
+            "failure": "restart"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_004",
+      "location_id": "LOC_004",
+      "region_id": "REG_01",
+      "source_puzzle_identity": "archive power/rain/commerce",
+      "source_title": "The Blue Awning Market: Archive power",
+      "source_risk": "flooded service trenches",
+      "source_climate": "rain",
+      "source_task_ids": [
+        "JOB_004_1",
+        "JOB_004_2",
+        "JOB_004_3",
+        "JOB_004_4",
+        "JOB_004_5"
+      ],
+      "worksite_encounter_key": "LV_004|LV_004|archive power/rain/commerce|fault_trace|water_ingress|191|52|site-commerce-route-fault_trace-topology-3|load_imbalance|4|5|EXP009|fork|EXP010|serial|EXP011|cascade|EXP012|commerce|1",
+      "title": "Market archive transfer",
+      "stakes": "Preserve handwritten sales archives while rerouting wet awning power without backfeeding the cash office.",
+      "targets": {
+        "A": "SC_004_A",
+        "B": "SC_004_B",
+        "C": "SC_004_C"
+      },
+      "recovery_target": "SC_004_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "preserve_cash_ledger",
+            "mode": "handoff",
+            "target": "SC_004_C",
+            "support_target": "SC_004_B",
+            "dwell_ticks": 10,
+            "window_ticks": 80,
+            "failure": "step"
+          },
+          {
+            "action": "inspect_archival_circuit",
+            "mode": "sample",
+            "target": "SC_004_B",
+            "support_target": "SC_004_A",
+            "dwell_ticks": 11,
+            "window_ticks": 100,
+            "failure": "restart"
+          },
+          {
+            "action": "close_awning_isolation",
+            "mode": "hold",
+            "target": "SC_004_A",
+            "support_target": "SC_004_C",
+            "dwell_ticks": 12,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          },
+          {
+            "action": "restore_archive_bus",
+            "mode": "pulse",
+            "target": "SC_004_B",
+            "support_target": "SC_004_C",
+            "dwell_ticks": 6,
+            "window_ticks": 140,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "close_awning_isolation_reserve",
+            "mode": "hold",
+            "target": "SC_004_A",
+            "support_target": "SC_004_C",
+            "dwell_ticks": 12,
+            "window_ticks": 140,
+            "failure": "backtrack"
+          },
+          {
+            "action": "preserve_cash_ledger_reserve",
+            "mode": "handoff",
+            "target": "SC_004_C",
+            "support_target": "SC_004_B",
+            "dwell_ticks": 10,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "inspect_archival_circuit_reserve",
+            "mode": "sample",
+            "target": "SC_004_B",
+            "support_target": "SC_004_A",
+            "dwell_ticks": 11,
+            "window_ticks": 120,
+            "failure": "restart"
+          },
+          {
+            "action": "restore_archive_bus_reserve",
+            "mode": "pulse",
+            "target": "SC_004_B",
+            "support_target": "SC_004_C",
+            "dwell_ticks": 6,
+            "window_ticks": 160,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_005",
+      "location_id": "LOC_005",
+      "region_id": "REG_01",
+      "source_puzzle_identity": "opening-time cutoff/rain/waterworks",
+      "source_title": "Elmgate Pump House: Opening-time cutoff",
+      "source_risk": "flooded service trenches",
+      "source_climate": "rain",
+      "source_task_ids": [
+        "JOB_005_1",
+        "JOB_005_2",
+        "JOB_005_3",
+        "JOB_005_4",
+        "JOB_005_5"
+      ],
+      "worksite_encounter_key": "LV_005|LV_005|opening-time cutoff/rain/waterworks|circuit_pair|water_ingress|200|4|site-waterworks-route-circuit_pair-topology-4|backflow|5|5|EXP009|serial|EXP010|triage|EXP011|triage|EXP012|waterworks|1",
+      "title": "Elmgate opening cutoff",
+      "stakes": "Drain the service entrance before the morning pump priority circuit can safely share the startup bus.",
+      "targets": {
+        "A": "SC_005_A",
+        "B": "SC_005_B",
+        "C": "SC_005_C"
+      },
+      "recovery_target": "SC_005_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "trim_suction_pressure",
+            "mode": "balance",
+            "target": "SC_005_A",
+            "support_target": "SC_005_C",
+            "dwell_ticks": 11,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "isolate_flooded_motor",
+            "mode": "hold",
+            "target": "SC_005_C",
+            "support_target": "SC_005_B",
+            "dwell_ticks": 12,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "check_cistern_level",
+            "mode": "sample",
+            "target": "SC_005_B",
+            "support_target": "SC_005_A",
+            "dwell_ticks": 6,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "release_opening_lock",
+            "mode": "pulse",
+            "target": "SC_005_C",
+            "support_target": "SC_005_A",
+            "dwell_ticks": 7,
+            "window_ticks": 80,
+            "failure": "restart"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "isolate_flooded_motor_reserve",
+            "mode": "hold",
+            "target": "SC_005_C",
+            "support_target": "SC_005_B",
+            "dwell_ticks": 12,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "check_cistern_level_reserve",
+            "mode": "sample",
+            "target": "SC_005_B",
+            "support_target": "SC_005_A",
+            "dwell_ticks": 6,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "trim_suction_pressure_reserve",
+            "mode": "balance",
+            "target": "SC_005_A",
+            "support_target": "SC_005_C",
+            "dwell_ticks": 11,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          },
+          {
+            "action": "release_opening_lock_reserve",
+            "mode": "pulse",
+            "target": "SC_005_C",
+            "support_target": "SC_005_A",
+            "dwell_ticks": 7,
+            "window_ticks": 100,
+            "failure": "restart"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_006",
+      "location_id": "LOC_006",
+      "region_id": "REG_01",
+      "source_puzzle_identity": "storm pulse timing/rain/communications",
+      "source_title": "Copper Bell Exchange: Storm pulse timing",
+      "source_risk": "flooded service trenches",
+      "source_climate": "rain",
+      "source_task_ids": [
+        "JOB_006_1",
+        "JOB_006_2",
+        "JOB_006_3",
+        "JOB_006_4",
+        "JOB_006_5"
+      ],
+      "worksite_encounter_key": "LV_006|LV_006|storm pulse timing/rain/communications|relay_coincidence|water_ingress|209|17|site-communications-route-relay_coincidence-topology-5|signal_echo|6|6|EXP009|serial|EXP010|crossdock|EXP011|interlock|EXP012|communications|1",
+      "title": "Copper Bell pulse order",
+      "stakes": "Catch storm pulse interference in the exchange and preserve an emergency line during the switch to clean power.",
+      "targets": {
+        "A": "SC_006_A",
+        "B": "SC_006_B",
+        "C": "SC_006_C"
+      },
+      "recovery_target": "SC_006_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "trace_storm_interference",
+            "mode": "sample",
+            "target": "SC_006_C",
+            "support_target": "SC_006_A",
+            "dwell_ticks": 12,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "gate_storm_pulse",
+            "mode": "pulse",
+            "target": "SC_006_A",
+            "support_target": "SC_006_B",
+            "dwell_ticks": 6,
+            "window_ticks": 140,
+            "failure": "backtrack"
+          },
+          {
+            "action": "divert_rescue_handset",
+            "mode": "handoff",
+            "target": "SC_006_B",
+            "support_target": "SC_006_C",
+            "dwell_ticks": 7,
+            "window_ticks": 80,
+            "failure": "restart"
+          },
+          {
+            "action": "rebalance_link_clock",
+            "mode": "balance",
+            "target": "SC_006_C",
+            "support_target": "SC_006_B",
+            "dwell_ticks": 8,
+            "window_ticks": 100,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "divert_rescue_handset_reserve",
+            "mode": "handoff",
+            "target": "SC_006_B",
+            "support_target": "SC_006_C",
+            "dwell_ticks": 7,
+            "window_ticks": 100,
+            "failure": "restart"
+          },
+          {
+            "action": "trace_storm_interference_reserve",
+            "mode": "sample",
+            "target": "SC_006_C",
+            "support_target": "SC_006_A",
+            "dwell_ticks": 12,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "gate_storm_pulse_reserve",
+            "mode": "pulse",
+            "target": "SC_006_A",
+            "support_target": "SC_006_B",
+            "dwell_ticks": 6,
+            "window_ticks": 160,
+            "failure": "backtrack"
+          },
+          {
+            "action": "rebalance_link_clock_reserve",
+            "mode": "balance",
+            "target": "SC_006_C",
+            "support_target": "SC_006_B",
+            "dwell_ticks": 8,
+            "window_ticks": 120,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_007",
+      "location_id": "LOC_007",
+      "region_id": "REG_01",
+      "source_puzzle_identity": "cable splice/rain/education",
+      "source_title": "Schoolhouse Annex: Cable splice",
+      "source_risk": "flooded service trenches",
+      "source_climate": "rain",
+      "source_task_ids": [
+        "JOB_007_1",
+        "JOB_007_2",
+        "JOB_007_3",
+        "JOB_007_4",
+        "JOB_007_5"
+      ],
+      "worksite_encounter_key": "LV_007|LV_007|cable splice/rain/education|feeder_pulse|water_ingress|218|30|site-education-route-feeder_pulse-topology-6|control_mismatch|7|6|EXP009|fork|EXP010|serial|EXP011|cascade|EXP012|education|1",
+      "title": "Schoolhouse splice witness",
+      "stakes": "Inspect moisture around the classroom splice and prove that the teaching wing has an isolated return.",
+      "targets": {
+        "A": "SC_007_A",
+        "B": "SC_007_B",
+        "C": "SC_007_C"
+      },
+      "recovery_target": "SC_007_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "seal_lesson_wing",
+            "mode": "hold",
+            "target": "SC_007_C",
+            "support_target": "SC_007_B",
+            "dwell_ticks": 6,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "inspect_splice_polarity",
+            "mode": "sample",
+            "target": "SC_007_B",
+            "support_target": "SC_007_A",
+            "dwell_ticks": 7,
+            "window_ticks": 80,
+            "failure": "step"
+          },
+          {
+            "action": "place_witness_tag",
+            "mode": "handoff",
+            "target": "SC_007_A",
+            "support_target": "SC_007_C",
+            "dwell_ticks": 8,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "match_return_impedance",
+            "mode": "balance",
+            "target": "SC_007_B",
+            "support_target": "SC_007_C",
+            "dwell_ticks": 9,
+            "window_ticks": 120,
+            "failure": "restart"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "inspect_splice_polarity_reserve",
+            "mode": "sample",
+            "target": "SC_007_B",
+            "support_target": "SC_007_A",
+            "dwell_ticks": 7,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "seal_lesson_wing_reserve",
+            "mode": "hold",
+            "target": "SC_007_C",
+            "support_target": "SC_007_B",
+            "dwell_ticks": 6,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "match_return_impedance_reserve",
+            "mode": "balance",
+            "target": "SC_007_B",
+            "support_target": "SC_007_C",
+            "dwell_ticks": 9,
+            "window_ticks": 140,
+            "failure": "restart"
+          },
+          {
+            "action": "place_witness_tag_reserve",
+            "mode": "handoff",
+            "target": "SC_007_A",
+            "support_target": "SC_007_C",
+            "dwell_ticks": 8,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_008",
+      "location_id": "LOC_008",
+      "region_id": "REG_01",
+      "source_puzzle_identity": "controlled load shed/rain/shelter",
+      "source_title": "South Shelter Hall: Controlled load shed",
+      "source_risk": "flooded service trenches",
+      "source_climate": "rain",
+      "source_task_ids": [
+        "JOB_008_1",
+        "JOB_008_2",
+        "JOB_008_3",
+        "JOB_008_4",
+        "JOB_008_5"
+      ],
+      "worksite_encounter_key": "LV_008|LV_008|controlled load shed/rain/shelter|relay_coincidence|water_ingress|227|43|site-shelter-route-relay_coincidence-topology-7|reserve_brownout|8|6|EXP009|serial|EXP010|triage|EXP011|triage|EXP012|shelter|1",
+      "title": "Shelter load shed ledger",
+      "stakes": "Keep the shelter's warming room energized while releasing a stalled kitchen feeder.",
+      "targets": {
+        "A": "SC_008_A",
+        "B": "SC_008_B",
+        "C": "SC_008_C"
+      },
+      "recovery_target": "SC_008_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "budget_warming_room",
+            "mode": "balance",
+            "target": "SC_008_B",
+            "support_target": "SC_008_A",
+            "dwell_ticks": 7,
+            "window_ticks": 80,
+            "failure": "backtrack"
+          },
+          {
+            "action": "warn_kitchen_station",
+            "mode": "handoff",
+            "target": "SC_008_A",
+            "support_target": "SC_008_C",
+            "dwell_ticks": 8,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "shed_stalled_kitchen",
+            "mode": "hold",
+            "target": "SC_008_C",
+            "support_target": "SC_008_B",
+            "dwell_ticks": 9,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "reclose_refuge_feeder",
+            "mode": "pulse",
+            "target": "SC_008_A",
+            "support_target": "SC_008_B",
+            "dwell_ticks": 10,
+            "window_ticks": 140,
+            "failure": "restart"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "shed_stalled_kitchen_reserve",
+            "mode": "hold",
+            "target": "SC_008_C",
+            "support_target": "SC_008_B",
+            "dwell_ticks": 9,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "warn_kitchen_station_reserve",
+            "mode": "handoff",
+            "target": "SC_008_A",
+            "support_target": "SC_008_C",
+            "dwell_ticks": 8,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "budget_warming_room_reserve",
+            "mode": "balance",
+            "target": "SC_008_B",
+            "support_target": "SC_008_A",
+            "dwell_ticks": 7,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "reclose_refuge_feeder_reserve",
+            "mode": "pulse",
+            "target": "SC_008_A",
+            "support_target": "SC_008_B",
+            "dwell_ticks": 10,
+            "window_ticks": 160,
+            "failure": "restart"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_009",
+      "location_id": "LOC_009",
+      "region_id": "REG_02",
+      "source_puzzle_identity": "beacon continuity/sea_fog/distribution",
+      "source_title": "Harbour Bell Gantry: Beacon continuity",
+      "source_risk": "salt-contaminated switchgear",
+      "source_climate": "sea_fog",
+      "source_task_ids": [
+        "JOB_009_1",
+        "JOB_009_2",
+        "JOB_009_3",
+        "JOB_009_4",
+        "JOB_009_5"
+      ],
+      "worksite_encounter_key": "LV_009|LV_009|beacon continuity/sea_fog/distribution|relay_coincidence|equipment_condensation|155|2|site-distribution-route-relay_coincidence-topology-8|phase_drift|9|6|EXP009|serial|EXP010|crossdock|EXP011|interlock|EXP012|distribution|2",
+      "title": "Harbour beacon in salt fog",
+      "stakes": "Trace corroded beacon leads separately from the foghorn and avoid a false all-clear signal.",
+      "targets": {
+        "A": "SC_009_A",
+        "B": "SC_009_B",
+        "C": "SC_009_C"
+      },
+      "recovery_target": "SC_009_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "inspect_salt_bridge",
+            "mode": "sample",
+            "target": "SC_009_C",
+            "support_target": "SC_009_B",
+            "dwell_ticks": 8,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "isolate_foghorn_return",
+            "mode": "hold",
+            "target": "SC_009_A",
+            "support_target": "SC_009_C",
+            "dwell_ticks": 9,
+            "window_ticks": 120,
+            "failure": "restart"
+          },
+          {
+            "action": "trim_beacon_voltage",
+            "mode": "balance",
+            "target": "SC_009_B",
+            "support_target": "SC_009_A",
+            "dwell_ticks": 10,
+            "window_ticks": 140,
+            "failure": "backtrack"
+          },
+          {
+            "action": "flash_beacon_test",
+            "mode": "pulse",
+            "target": "SC_009_C",
+            "support_target": "SC_009_A",
+            "dwell_ticks": 11,
+            "window_ticks": 80,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "isolate_foghorn_return_reserve",
+            "mode": "hold",
+            "target": "SC_009_A",
+            "support_target": "SC_009_C",
+            "dwell_ticks": 9,
+            "window_ticks": 140,
+            "failure": "restart"
+          },
+          {
+            "action": "inspect_salt_bridge_reserve",
+            "mode": "sample",
+            "target": "SC_009_C",
+            "support_target": "SC_009_B",
+            "dwell_ticks": 8,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "trim_beacon_voltage_reserve",
+            "mode": "balance",
+            "target": "SC_009_B",
+            "support_target": "SC_009_A",
+            "dwell_ticks": 10,
+            "window_ticks": 160,
+            "failure": "backtrack"
+          },
+          {
+            "action": "flash_beacon_test_reserve",
+            "mode": "pulse",
+            "target": "SC_009_C",
+            "support_target": "SC_009_A",
+            "dwell_ticks": 11,
+            "window_ticks": 100,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_010",
+      "location_id": "LOC_010",
+      "region_id": "REG_02",
+      "source_puzzle_identity": "load-budget dilemma/sea_fog/transport",
+      "source_title": "Cutter Ferry Landing: Load-budget dilemma",
+      "source_risk": "salt-contaminated switchgear",
+      "source_climate": "sea_fog",
+      "source_task_ids": [
+        "JOB_010_1",
+        "JOB_010_2",
+        "JOB_010_3",
+        "JOB_010_4",
+        "JOB_010_5"
+      ],
+      "worksite_encounter_key": "LV_010|LV_010|load-budget dilemma/sea_fog/transport|post_repair_audit|equipment_condensation|164|15|site-transport-route-post_repair_audit-topology-9|traction_surge|10|6|EXP009|fork|EXP010|serial|EXP011|cascade|EXP012|transport|2",
+      "title": "Cutter ferry berth dilemma",
+      "stakes": "Reserve electrical headroom for the departing ferry while keeping the tidal landing lamps on backup.",
+      "targets": {
+        "A": "SC_010_A",
+        "B": "SC_010_B",
+        "C": "SC_010_C"
+      },
+      "recovery_target": "SC_010_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "reserve_ferry_current",
+            "mode": "balance",
+            "target": "SC_010_B",
+            "support_target": "SC_010_C",
+            "dwell_ticks": 9,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          },
+          {
+            "action": "notify_berth_master",
+            "mode": "handoff",
+            "target": "SC_010_C",
+            "support_target": "SC_010_A",
+            "dwell_ticks": 10,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "check_lamp_backfeed",
+            "mode": "sample",
+            "target": "SC_010_A",
+            "support_target": "SC_010_B",
+            "dwell_ticks": 11,
+            "window_ticks": 80,
+            "failure": "restart"
+          },
+          {
+            "action": "close_departure_transfer",
+            "mode": "pulse",
+            "target": "SC_010_C",
+            "support_target": "SC_010_B",
+            "dwell_ticks": 12,
+            "window_ticks": 100,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "check_lamp_backfeed_reserve",
+            "mode": "sample",
+            "target": "SC_010_A",
+            "support_target": "SC_010_B",
+            "dwell_ticks": 11,
+            "window_ticks": 100,
+            "failure": "restart"
+          },
+          {
+            "action": "reserve_ferry_current_reserve",
+            "mode": "balance",
+            "target": "SC_010_B",
+            "support_target": "SC_010_C",
+            "dwell_ticks": 9,
+            "window_ticks": 140,
+            "failure": "backtrack"
+          },
+          {
+            "action": "notify_berth_master_reserve",
+            "mode": "handoff",
+            "target": "SC_010_C",
+            "support_target": "SC_010_A",
+            "dwell_ticks": 10,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "close_departure_transfer_reserve",
+            "mode": "pulse",
+            "target": "SC_010_C",
+            "support_target": "SC_010_B",
+            "dwell_ticks": 12,
+            "window_ticks": 120,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_011",
+      "location_id": "LOC_011",
+      "region_id": "REG_02",
+      "source_puzzle_identity": "false fuse alarm/sea_fog/health",
+      "source_title": "The Sailors' Infirmary: False fuse alarm",
+      "source_risk": "salt-contaminated switchgear",
+      "source_climate": "sea_fog",
+      "source_task_ids": [
+        "JOB_011_1",
+        "JOB_011_2",
+        "JOB_011_3",
+        "JOB_011_4",
+        "JOB_011_5"
+      ],
+      "worksite_encounter_key": "LV_011|LV_011|false fuse alarm/sea_fog/health|load_rebalance|equipment_condensation|173|28|site-health-route-load_rebalance-topology-0|sterile_pressure|11|5|EXP009|serial|EXP010|triage|EXP011|triage|EXP012|health|2",
+      "title": "Infirmary false fuse reading",
+      "stakes": "Distinguish a moisture-induced trip indicator from a truly failed sterile-room fuse.",
+      "targets": {
+        "A": "SC_011_A",
+        "B": "SC_011_B",
+        "C": "SC_011_C"
+      },
+      "recovery_target": "SC_011_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "prove_fuse_continuity",
+            "mode": "sample",
+            "target": "SC_011_A",
+            "support_target": "SC_011_B",
+            "dwell_ticks": 10,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "compare_sterile_panel",
+            "mode": "sample",
+            "target": "SC_011_C",
+            "support_target": "SC_011_A",
+            "dwell_ticks": 11,
+            "window_ticks": 80,
+            "failure": "step"
+          },
+          {
+            "action": "seal_corroded_contact",
+            "mode": "hold",
+            "target": "SC_011_B",
+            "support_target": "SC_011_C",
+            "dwell_ticks": 12,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "release_clean_supply",
+            "mode": "handoff",
+            "target": "SC_011_A",
+            "support_target": "SC_011_C",
+            "dwell_ticks": 6,
+            "window_ticks": 120,
+            "failure": "restart"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "compare_sterile_panel_reserve",
+            "mode": "sample",
+            "target": "SC_011_C",
+            "support_target": "SC_011_A",
+            "dwell_ticks": 11,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "prove_fuse_continuity_reserve",
+            "mode": "sample",
+            "target": "SC_011_A",
+            "support_target": "SC_011_B",
+            "dwell_ticks": 10,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "seal_corroded_contact_reserve",
+            "mode": "hold",
+            "target": "SC_011_B",
+            "support_target": "SC_011_C",
+            "dwell_ticks": 12,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          },
+          {
+            "action": "release_clean_supply_reserve",
+            "mode": "handoff",
+            "target": "SC_011_A",
+            "support_target": "SC_011_C",
+            "dwell_ticks": 6,
+            "window_ticks": 140,
+            "failure": "restart"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_012",
+      "location_id": "LOC_012",
+      "region_id": "REG_02",
+      "source_puzzle_identity": "drain-level dependency/sea_fog/commerce",
+      "source_title": "Slipway Fish Exchange: Drain-level dependency",
+      "source_risk": "salt-contaminated switchgear",
+      "source_climate": "sea_fog",
+      "source_task_ids": [
+        "JOB_012_1",
+        "JOB_012_2",
+        "JOB_012_3",
+        "JOB_012_4",
+        "JOB_012_5"
+      ],
+      "worksite_encounter_key": "LV_012|LV_012|drain-level dependency/sea_fog/commerce|spur_isolation|equipment_condensation|182|41|site-commerce-route-spur_isolation-topology-1|load_imbalance|1|5|EXP009|serial|EXP010|crossdock|EXP011|interlock|EXP012|commerce|2",
+      "title": "Slipway drain dependency",
+      "stakes": "Stop the fish-chiller supply from restarting before salt water clears the transfer pit.",
+      "targets": {
+        "A": "SC_012_A",
+        "B": "SC_012_B",
+        "C": "SC_012_C"
+      },
+      "recovery_target": "SC_012_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "block_chiller_restart",
+            "mode": "hold",
+            "target": "SC_012_C",
+            "support_target": "SC_012_A",
+            "dwell_ticks": 11,
+            "window_ticks": 80,
+            "failure": "step"
+          },
+          {
+            "action": "trim_drain_pump",
+            "mode": "balance",
+            "target": "SC_012_A",
+            "support_target": "SC_012_B",
+            "dwell_ticks": 12,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "read_pit_probe",
+            "mode": "sample",
+            "target": "SC_012_B",
+            "support_target": "SC_012_C",
+            "dwell_ticks": 6,
+            "window_ticks": 120,
+            "failure": "restart"
+          },
+          {
+            "action": "rearm_slipway_chiller",
+            "mode": "pulse",
+            "target": "SC_012_C",
+            "support_target": "SC_012_B",
+            "dwell_ticks": 7,
+            "window_ticks": 140,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "trim_drain_pump_reserve",
+            "mode": "balance",
+            "target": "SC_012_A",
+            "support_target": "SC_012_B",
+            "dwell_ticks": 12,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          },
+          {
+            "action": "read_pit_probe_reserve",
+            "mode": "sample",
+            "target": "SC_012_B",
+            "support_target": "SC_012_C",
+            "dwell_ticks": 6,
+            "window_ticks": 140,
+            "failure": "restart"
+          },
+          {
+            "action": "block_chiller_restart_reserve",
+            "mode": "hold",
+            "target": "SC_012_C",
+            "support_target": "SC_012_A",
+            "dwell_ticks": 11,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "rearm_slipway_chiller_reserve",
+            "mode": "pulse",
+            "target": "SC_012_C",
+            "support_target": "SC_012_B",
+            "dwell_ticks": 7,
+            "window_ticks": 160,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_013",
+      "location_id": "LOC_013",
+      "region_id": "REG_02",
+      "source_puzzle_identity": "reversible reset/sea_fog/waterworks",
+      "source_title": "Tidewheel Pump Gallery: Reversible reset",
+      "source_risk": "salt-contaminated switchgear",
+      "source_climate": "sea_fog",
+      "source_task_ids": [
+        "JOB_013_1",
+        "JOB_013_2",
+        "JOB_013_3",
+        "JOB_013_4",
+        "JOB_013_5"
+      ],
+      "worksite_encounter_key": "LV_013|LV_013|reversible reset/sea_fog/waterworks|stability_hold|equipment_condensation|191|54|site-waterworks-route-stability_hold-topology-2|backflow|2|5|EXP009|fork|EXP010|serial|EXP011|cascade|EXP012|waterworks|2",
+      "title": "Tidewheel reversible reset",
+      "stakes": "Release the jammed tidewheel starter and demonstrate that reverse torque cannot pull the dry feeder down.",
+      "targets": {
+        "A": "SC_013_A",
+        "B": "SC_013_B",
+        "C": "SC_013_C"
+      },
+      "recovery_target": "SC_013_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "lock_starter_forward",
+            "mode": "hold",
+            "target": "SC_013_A",
+            "support_target": "SC_013_B",
+            "dwell_ticks": 12,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "test_reverse_contact",
+            "mode": "sample",
+            "target": "SC_013_B",
+            "support_target": "SC_013_C",
+            "dwell_ticks": 6,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "equalize_tidewheel_torque",
+            "mode": "balance",
+            "target": "SC_013_C",
+            "support_target": "SC_013_A",
+            "dwell_ticks": 7,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "sign_safe_reset",
+            "mode": "handoff",
+            "target": "SC_013_B",
+            "support_target": "SC_013_A",
+            "dwell_ticks": 8,
+            "window_ticks": 80,
+            "failure": "restart"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "test_reverse_contact_reserve",
+            "mode": "sample",
+            "target": "SC_013_B",
+            "support_target": "SC_013_C",
+            "dwell_ticks": 6,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "equalize_tidewheel_torque_reserve",
+            "mode": "balance",
+            "target": "SC_013_C",
+            "support_target": "SC_013_A",
+            "dwell_ticks": 7,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "lock_starter_forward_reserve",
+            "mode": "hold",
+            "target": "SC_013_A",
+            "support_target": "SC_013_B",
+            "dwell_ticks": 12,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          },
+          {
+            "action": "sign_safe_reset_reserve",
+            "mode": "handoff",
+            "target": "SC_013_B",
+            "support_target": "SC_013_A",
+            "dwell_ticks": 8,
+            "window_ticks": 100,
+            "failure": "restart"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_014",
+      "location_id": "LOC_014",
+      "region_id": "REG_02",
+      "source_puzzle_identity": "dual-route conflict/sea_fog/communications",
+      "source_title": "Signalman's Loft: Dual-route conflict",
+      "source_risk": "salt-contaminated switchgear",
+      "source_climate": "sea_fog",
+      "source_task_ids": [
+        "JOB_014_1",
+        "JOB_014_2",
+        "JOB_014_3",
+        "JOB_014_4",
+        "JOB_014_5"
+      ],
+      "worksite_encounter_key": "LV_014|LV_014|dual-route conflict/sea_fog/communications|circuit_pair|equipment_condensation|200|6|site-communications-route-circuit_pair-topology-3|signal_echo|3|5|EXP009|serial|EXP010|triage|EXP011|triage|EXP012|communications|2",
+      "title": "Signalman dual-route conflict",
+      "stakes": "Prevent the loft's redundant radio paths from energizing each other through a salt-wet jumper.",
+      "targets": {
+        "A": "SC_014_A",
+        "B": "SC_014_B",
+        "C": "SC_014_C"
+      },
+      "recovery_target": "SC_014_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "trace_dual_radio_loops",
+            "mode": "sample",
+            "target": "SC_014_B",
+            "support_target": "SC_014_A",
+            "dwell_ticks": 6,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "separate_wet_jumper",
+            "mode": "hold",
+            "target": "SC_014_A",
+            "support_target": "SC_014_C",
+            "dwell_ticks": 7,
+            "window_ticks": 140,
+            "failure": "restart"
+          },
+          {
+            "action": "transfer_coast_channel",
+            "mode": "handoff",
+            "target": "SC_014_C",
+            "support_target": "SC_014_B",
+            "dwell_ticks": 8,
+            "window_ticks": 80,
+            "failure": "backtrack"
+          },
+          {
+            "action": "align_radio_reference",
+            "mode": "balance",
+            "target": "SC_014_B",
+            "support_target": "SC_014_C",
+            "dwell_ticks": 9,
+            "window_ticks": 100,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "separate_wet_jumper_reserve",
+            "mode": "hold",
+            "target": "SC_014_A",
+            "support_target": "SC_014_C",
+            "dwell_ticks": 7,
+            "window_ticks": 160,
+            "failure": "restart"
+          },
+          {
+            "action": "trace_dual_radio_loops_reserve",
+            "mode": "sample",
+            "target": "SC_014_B",
+            "support_target": "SC_014_A",
+            "dwell_ticks": 6,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "align_radio_reference_reserve",
+            "mode": "balance",
+            "target": "SC_014_B",
+            "support_target": "SC_014_C",
+            "dwell_ticks": 9,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "transfer_coast_channel_reserve",
+            "mode": "handoff",
+            "target": "SC_014_C",
+            "support_target": "SC_014_B",
+            "dwell_ticks": 8,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_015",
+      "location_id": "LOC_015",
+      "region_id": "REG_02",
+      "source_puzzle_identity": "substation restart/sea_fog/education",
+      "source_title": "Glasshouse Boarding School: Substation restart",
+      "source_risk": "salt-contaminated switchgear",
+      "source_climate": "sea_fog",
+      "source_task_ids": [
+        "JOB_015_1",
+        "JOB_015_2",
+        "JOB_015_3",
+        "JOB_015_4",
+        "JOB_015_5"
+      ],
+      "worksite_encounter_key": "LV_015|LV_015|substation restart/sea_fog/education|fault_trace|equipment_condensation|209|19|site-education-route-fault_trace-topology-4|control_mismatch|4|5|EXP009|serial|EXP010|crossdock|EXP011|interlock|EXP012|education|2",
+      "title": "Glasshouse boarding restart",
+      "stakes": "Recover the dormitory substation without waking every appliance at once after the sea surge.",
+      "targets": {
+        "A": "SC_015_A",
+        "B": "SC_015_B",
+        "C": "SC_015_C"
+      },
+      "recovery_target": "SC_015_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "stage_dormitory_load",
+            "mode": "balance",
+            "target": "SC_015_C",
+            "support_target": "SC_015_A",
+            "dwell_ticks": 7,
+            "window_ticks": 140,
+            "failure": "backtrack"
+          },
+          {
+            "action": "isolate_common_room",
+            "mode": "hold",
+            "target": "SC_015_A",
+            "support_target": "SC_015_B",
+            "dwell_ticks": 8,
+            "window_ticks": 80,
+            "failure": "step"
+          },
+          {
+            "action": "verify_restart_bus",
+            "mode": "sample",
+            "target": "SC_015_B",
+            "support_target": "SC_015_C",
+            "dwell_ticks": 9,
+            "window_ticks": 100,
+            "failure": "restart"
+          },
+          {
+            "action": "release_boarding_wing",
+            "mode": "pulse",
+            "target": "SC_015_C",
+            "support_target": "SC_015_B",
+            "dwell_ticks": 10,
+            "window_ticks": 120,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "verify_restart_bus_reserve",
+            "mode": "sample",
+            "target": "SC_015_B",
+            "support_target": "SC_015_C",
+            "dwell_ticks": 9,
+            "window_ticks": 120,
+            "failure": "restart"
+          },
+          {
+            "action": "isolate_common_room_reserve",
+            "mode": "hold",
+            "target": "SC_015_A",
+            "support_target": "SC_015_B",
+            "dwell_ticks": 8,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "stage_dormitory_load_reserve",
+            "mode": "balance",
+            "target": "SC_015_C",
+            "support_target": "SC_015_A",
+            "dwell_ticks": 7,
+            "window_ticks": 160,
+            "failure": "backtrack"
+          },
+          {
+            "action": "release_boarding_wing_reserve",
+            "mode": "pulse",
+            "target": "SC_015_C",
+            "support_target": "SC_015_B",
+            "dwell_ticks": 10,
+            "window_ticks": 140,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_016",
+      "location_id": "LOC_016",
+      "region_id": "REG_02",
+      "source_puzzle_identity": "network loop hunt/sea_fog/shelter",
+      "source_title": "Lighthouse Relief Depot: Network loop hunt",
+      "source_risk": "salt-contaminated switchgear",
+      "source_climate": "sea_fog",
+      "source_task_ids": [
+        "JOB_016_1",
+        "JOB_016_2",
+        "JOB_016_3",
+        "JOB_016_4",
+        "JOB_016_5"
+      ],
+      "worksite_encounter_key": "LV_016|LV_016|network loop hunt/sea_fog/shelter|circuit_pair|equipment_condensation|218|32|site-shelter-route-circuit_pair-topology-5|reserve_brownout|5|6|EXP009|fork|EXP010|serial|EXP011|cascade|EXP012|shelter|2",
+      "title": "Lighthouse relief loop hunt",
+      "stakes": "Find an unnoticed loop between depot lantern charging and rescue radio feeds before reclosure.",
+      "targets": {
+        "A": "SC_016_A",
+        "B": "SC_016_B",
+        "C": "SC_016_C"
+      },
+      "recovery_target": "SC_016_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "probe_hidden_loop",
+            "mode": "sample",
+            "target": "SC_016_C",
+            "support_target": "SC_016_A",
+            "dwell_ticks": 8,
+            "window_ticks": 80,
+            "failure": "step"
+          },
+          {
+            "action": "move_relief_radio",
+            "mode": "handoff",
+            "target": "SC_016_A",
+            "support_target": "SC_016_B",
+            "dwell_ticks": 9,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "break_charger_loop",
+            "mode": "hold",
+            "target": "SC_016_B",
+            "support_target": "SC_016_C",
+            "dwell_ticks": 10,
+            "window_ticks": 120,
+            "failure": "restart"
+          },
+          {
+            "action": "restore_lighthouse_relay",
+            "mode": "pulse",
+            "target": "SC_016_A",
+            "support_target": "SC_016_C",
+            "dwell_ticks": 11,
+            "window_ticks": 140,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "move_relief_radio_reserve",
+            "mode": "handoff",
+            "target": "SC_016_A",
+            "support_target": "SC_016_B",
+            "dwell_ticks": 9,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          },
+          {
+            "action": "probe_hidden_loop_reserve",
+            "mode": "sample",
+            "target": "SC_016_C",
+            "support_target": "SC_016_A",
+            "dwell_ticks": 8,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "break_charger_loop_reserve",
+            "mode": "hold",
+            "target": "SC_016_B",
+            "support_target": "SC_016_C",
+            "dwell_ticks": 10,
+            "window_ticks": 140,
+            "failure": "restart"
+          },
+          {
+            "action": "restore_lighthouse_relay_reserve",
+            "mode": "pulse",
+            "target": "SC_016_A",
+            "support_target": "SC_016_C",
+            "dwell_ticks": 11,
+            "window_ticks": 160,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_017",
+      "location_id": "LOC_017",
+      "region_id": "REG_03",
+      "source_puzzle_identity": "pressure trip/rail_vibration/distribution",
+      "source_title": "Foundry Feed Cabinet: Pressure trip",
+      "source_risk": "track-side vibration",
+      "source_climate": "rail_vibration",
+      "source_task_ids": [
+        "JOB_017_1",
+        "JOB_017_2",
+        "JOB_017_3",
+        "JOB_017_4",
+        "JOB_017_5"
+      ],
+      "worksite_encounter_key": "LV_017|LV_017|pressure trip/rail_vibration/distribution|circuit_pair|mechanical_vibration|227|52|site-distribution-route-circuit_pair-topology-6|phase_drift|6|6|EXP009|serial|EXP010|triage|EXP011|triage|EXP012|distribution|3",
+      "title": "Foundry cabinet pressure trip",
+      "stakes": "Keep vibration-induced pressure sensing from falsely opening the foundry's incoming feeder.",
+      "targets": {
+        "A": "SC_017_A",
+        "B": "SC_017_B",
+        "C": "SC_017_C"
+      },
+      "recovery_target": "SC_017_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "check_pressure_transducer",
+            "mode": "sample",
+            "target": "SC_017_B",
+            "support_target": "SC_017_A",
+            "dwell_ticks": 9,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "trim_valve_bias",
+            "mode": "balance",
+            "target": "SC_017_C",
+            "support_target": "SC_017_B",
+            "dwell_ticks": 10,
+            "window_ticks": 120,
+            "failure": "restart"
+          },
+          {
+            "action": "clamp_vibrating_cabinet",
+            "mode": "hold",
+            "target": "SC_017_A",
+            "support_target": "SC_017_C",
+            "dwell_ticks": 11,
+            "window_ticks": 140,
+            "failure": "backtrack"
+          },
+          {
+            "action": "release_foundry_trip",
+            "mode": "pulse",
+            "target": "SC_017_C",
+            "support_target": "SC_017_A",
+            "dwell_ticks": 12,
+            "window_ticks": 80,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "clamp_vibrating_cabinet_reserve",
+            "mode": "hold",
+            "target": "SC_017_A",
+            "support_target": "SC_017_C",
+            "dwell_ticks": 11,
+            "window_ticks": 160,
+            "failure": "backtrack"
+          },
+          {
+            "action": "check_pressure_transducer_reserve",
+            "mode": "sample",
+            "target": "SC_017_B",
+            "support_target": "SC_017_A",
+            "dwell_ticks": 9,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "trim_valve_bias_reserve",
+            "mode": "balance",
+            "target": "SC_017_C",
+            "support_target": "SC_017_B",
+            "dwell_ticks": 10,
+            "window_ticks": 140,
+            "failure": "restart"
+          },
+          {
+            "action": "release_foundry_trip_reserve",
+            "mode": "pulse",
+            "target": "SC_017_C",
+            "support_target": "SC_017_A",
+            "dwell_ticks": 12,
+            "window_ticks": 100,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_018",
+      "location_id": "LOC_018",
+      "region_id": "REG_03",
+      "source_puzzle_identity": "priority dispatch/rail_vibration/transport",
+      "source_title": "Nine-Arch Transfer: Priority dispatch",
+      "source_risk": "track-side vibration",
+      "source_climate": "rail_vibration",
+      "source_task_ids": [
+        "JOB_018_1",
+        "JOB_018_2",
+        "JOB_018_3",
+        "JOB_018_4",
+        "JOB_018_5"
+      ],
+      "worksite_encounter_key": "LV_018|LV_018|priority dispatch/rail_vibration/transport|relay_coincidence|mechanical_vibration|155|4|site-transport-route-relay_coincidence-topology-7|traction_surge|7|6|EXP009|serial|EXP010|crossdock|EXP011|interlock|EXP012|transport|3",
+      "title": "Nine-Arch priority dispatch",
+      "stakes": "Route a stranded maintenance trolley without starving the evacuation signal under the viaduct.",
+      "targets": {
+        "A": "SC_018_A",
+        "B": "SC_018_B",
+        "C": "SC_018_C"
+      },
+      "recovery_target": "SC_018_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "announce_trolley_priority",
+            "mode": "handoff",
+            "target": "SC_018_A",
+            "support_target": "SC_018_B",
+            "dwell_ticks": 10,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          },
+          {
+            "action": "budget_signal_headroom",
+            "mode": "balance",
+            "target": "SC_018_B",
+            "support_target": "SC_018_C",
+            "dwell_ticks": 11,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "prove_track_return",
+            "mode": "sample",
+            "target": "SC_018_C",
+            "support_target": "SC_018_A",
+            "dwell_ticks": 12,
+            "window_ticks": 80,
+            "failure": "restart"
+          },
+          {
+            "action": "clear_maintenance_block",
+            "mode": "pulse",
+            "target": "SC_018_B",
+            "support_target": "SC_018_A",
+            "dwell_ticks": 6,
+            "window_ticks": 100,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "budget_signal_headroom_reserve",
+            "mode": "balance",
+            "target": "SC_018_B",
+            "support_target": "SC_018_C",
+            "dwell_ticks": 11,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "prove_track_return_reserve",
+            "mode": "sample",
+            "target": "SC_018_C",
+            "support_target": "SC_018_A",
+            "dwell_ticks": 12,
+            "window_ticks": 100,
+            "failure": "restart"
+          },
+          {
+            "action": "announce_trolley_priority_reserve",
+            "mode": "handoff",
+            "target": "SC_018_A",
+            "support_target": "SC_018_B",
+            "dwell_ticks": 10,
+            "window_ticks": 140,
+            "failure": "backtrack"
+          },
+          {
+            "action": "clear_maintenance_block_reserve",
+            "mode": "pulse",
+            "target": "SC_018_B",
+            "support_target": "SC_018_A",
+            "dwell_ticks": 6,
+            "window_ticks": 120,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_019",
+      "location_id": "LOC_019",
+      "region_id": "REG_03",
+      "source_puzzle_identity": "conflicting telemetry/rail_vibration/health",
+      "source_title": "Railside First Aid: Conflicting telemetry",
+      "source_risk": "track-side vibration",
+      "source_climate": "rail_vibration",
+      "source_task_ids": [
+        "JOB_019_1",
+        "JOB_019_2",
+        "JOB_019_3",
+        "JOB_019_4",
+        "JOB_019_5"
+      ],
+      "worksite_encounter_key": "LV_019|LV_019|conflicting telemetry/rail_vibration/health|feeder_pulse|mechanical_vibration|164|17|site-health-route-feeder_pulse-topology-8|sterile_pressure|8|6|EXP009|fork|EXP010|serial|EXP011|cascade|EXP012|health|3",
+      "title": "Railside telemetry contradiction",
+      "stakes": "Compare two vibration-corrupted triage readings before treating the ambulance bay as restored.",
+      "targets": {
+        "A": "SC_019_A",
+        "B": "SC_019_B",
+        "C": "SC_019_C"
+      },
+      "recovery_target": "SC_019_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "read_bay_reference",
+            "mode": "sample",
+            "target": "SC_019_A",
+            "support_target": "SC_019_C",
+            "dwell_ticks": 11,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "crosscheck_motion_probe",
+            "mode": "sample",
+            "target": "SC_019_B",
+            "support_target": "SC_019_A",
+            "dwell_ticks": 12,
+            "window_ticks": 80,
+            "failure": "backtrack"
+          },
+          {
+            "action": "isolate_shaking_sensor",
+            "mode": "hold",
+            "target": "SC_019_C",
+            "support_target": "SC_019_B",
+            "dwell_ticks": 6,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "release_triage_supply",
+            "mode": "handoff",
+            "target": "SC_019_A",
+            "support_target": "SC_019_B",
+            "dwell_ticks": 7,
+            "window_ticks": 120,
+            "failure": "restart"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "crosscheck_motion_probe_reserve",
+            "mode": "sample",
+            "target": "SC_019_B",
+            "support_target": "SC_019_A",
+            "dwell_ticks": 12,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "read_bay_reference_reserve",
+            "mode": "sample",
+            "target": "SC_019_A",
+            "support_target": "SC_019_C",
+            "dwell_ticks": 11,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "isolate_shaking_sensor_reserve",
+            "mode": "hold",
+            "target": "SC_019_C",
+            "support_target": "SC_019_B",
+            "dwell_ticks": 6,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "release_triage_supply_reserve",
+            "mode": "handoff",
+            "target": "SC_019_A",
+            "support_target": "SC_019_B",
+            "dwell_ticks": 7,
+            "window_ticks": 140,
+            "failure": "restart"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_020",
+      "location_id": "LOC_020",
+      "region_id": "REG_03",
+      "source_puzzle_identity": "access-interlock investigation/rail_vibration/commerce",
+      "source_title": "Night Platform Bazaar: Access-interlock investigation",
+      "source_risk": "track-side vibration",
+      "source_climate": "rail_vibration",
+      "source_task_ids": [
+        "JOB_020_1",
+        "JOB_020_2",
+        "JOB_020_3",
+        "JOB_020_4",
+        "JOB_020_5"
+      ],
+      "worksite_encounter_key": "LV_020|LV_020|access-interlock investigation/rail_vibration/commerce|relay_coincidence|mechanical_vibration|173|30|site-commerce-route-relay_coincidence-topology-9|load_imbalance|9|6|EXP009|serial|EXP010|triage|EXP011|triage|EXP012|commerce|3",
+      "title": "Platform bazaar access gate",
+      "stakes": "Clear an unauthorized stall interlock before energizing market shutters beside moving rail equipment.",
+      "targets": {
+        "A": "SC_020_A",
+        "B": "SC_020_B",
+        "C": "SC_020_C"
+      },
+      "recovery_target": "SC_020_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "block_shutter_motor",
+            "mode": "hold",
+            "target": "SC_020_B",
+            "support_target": "SC_020_C",
+            "dwell_ticks": 12,
+            "window_ticks": 80,
+            "failure": "backtrack"
+          },
+          {
+            "action": "inspect_access_bypass",
+            "mode": "sample",
+            "target": "SC_020_C",
+            "support_target": "SC_020_A",
+            "dwell_ticks": 6,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "warn_night_vendors",
+            "mode": "handoff",
+            "target": "SC_020_A",
+            "support_target": "SC_020_B",
+            "dwell_ticks": 7,
+            "window_ticks": 120,
+            "failure": "restart"
+          },
+          {
+            "action": "align_stall_feeds",
+            "mode": "balance",
+            "target": "SC_020_C",
+            "support_target": "SC_020_B",
+            "dwell_ticks": 8,
+            "window_ticks": 140,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "inspect_access_bypass_reserve",
+            "mode": "sample",
+            "target": "SC_020_C",
+            "support_target": "SC_020_A",
+            "dwell_ticks": 6,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "warn_night_vendors_reserve",
+            "mode": "handoff",
+            "target": "SC_020_A",
+            "support_target": "SC_020_B",
+            "dwell_ticks": 7,
+            "window_ticks": 140,
+            "failure": "restart"
+          },
+          {
+            "action": "block_shutter_motor_reserve",
+            "mode": "hold",
+            "target": "SC_020_B",
+            "support_target": "SC_020_C",
+            "dwell_ticks": 12,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "align_stall_feeds_reserve",
+            "mode": "balance",
+            "target": "SC_020_C",
+            "support_target": "SC_020_B",
+            "dwell_ticks": 8,
+            "window_ticks": 160,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_021",
+      "location_id": "LOC_021",
+      "region_id": "REG_03",
+      "source_puzzle_identity": "thermal breaker/rail_vibration/waterworks",
+      "source_title": "Viaduct Drain Vault: Thermal breaker",
+      "source_risk": "track-side vibration",
+      "source_climate": "rail_vibration",
+      "source_task_ids": [
+        "JOB_021_1",
+        "JOB_021_2",
+        "JOB_021_3",
+        "JOB_021_4",
+        "JOB_021_5"
+      ],
+      "worksite_encounter_key": "LV_021|LV_021|thermal breaker/rail_vibration/waterworks|post_repair_audit|mechanical_vibration|182|43|site-waterworks-route-post_repair_audit-topology-0|backflow|10|5|EXP009|serial|EXP010|crossdock|EXP011|interlock|EXP012|waterworks|3",
+      "title": "Viaduct drain thermal breaker",
+      "stakes": "Prevent motor overheating while pumping drainage around vibrating rail foundations.",
+      "targets": {
+        "A": "SC_021_A",
+        "B": "SC_021_B",
+        "C": "SC_021_C"
+      },
+      "recovery_target": "SC_021_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "reduce_drain_head",
+            "mode": "balance",
+            "target": "SC_021_B",
+            "support_target": "SC_021_A",
+            "dwell_ticks": 6,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "check_thermal_breaker",
+            "mode": "sample",
+            "target": "SC_021_A",
+            "support_target": "SC_021_C",
+            "dwell_ticks": 7,
+            "window_ticks": 120,
+            "failure": "restart"
+          },
+          {
+            "action": "cool_motor_contactor",
+            "mode": "hold",
+            "target": "SC_021_C",
+            "support_target": "SC_021_B",
+            "dwell_ticks": 8,
+            "window_ticks": 140,
+            "failure": "backtrack"
+          },
+          {
+            "action": "release_drain_starter",
+            "mode": "pulse",
+            "target": "SC_021_A",
+            "support_target": "SC_021_B",
+            "dwell_ticks": 9,
+            "window_ticks": 80,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "check_thermal_breaker_reserve",
+            "mode": "sample",
+            "target": "SC_021_A",
+            "support_target": "SC_021_C",
+            "dwell_ticks": 7,
+            "window_ticks": 140,
+            "failure": "restart"
+          },
+          {
+            "action": "reduce_drain_head_reserve",
+            "mode": "balance",
+            "target": "SC_021_B",
+            "support_target": "SC_021_A",
+            "dwell_ticks": 6,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "cool_motor_contactor_reserve",
+            "mode": "hold",
+            "target": "SC_021_C",
+            "support_target": "SC_021_B",
+            "dwell_ticks": 8,
+            "window_ticks": 160,
+            "failure": "backtrack"
+          },
+          {
+            "action": "release_drain_starter_reserve",
+            "mode": "pulse",
+            "target": "SC_021_A",
+            "support_target": "SC_021_B",
+            "dwell_ticks": 9,
+            "window_ticks": 100,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_022",
+      "location_id": "LOC_022",
+      "region_id": "REG_03",
+      "source_puzzle_identity": "cross-feed lock/rail_vibration/communications",
+      "source_title": "Semaphore Control Box: Cross-feed lock",
+      "source_risk": "track-side vibration",
+      "source_climate": "rail_vibration",
+      "source_task_ids": [
+        "JOB_022_1",
+        "JOB_022_2",
+        "JOB_022_3",
+        "JOB_022_4",
+        "JOB_022_5"
+      ],
+      "worksite_encounter_key": "LV_022|LV_022|cross-feed lock/rail_vibration/communications|load_rebalance|mechanical_vibration|191|56|site-communications-route-load_rebalance-topology-1|signal_echo|11|5|EXP009|fork|EXP010|serial|EXP011|cascade|EXP012|communications|3",
+      "title": "Semaphore cross-feed trap",
+      "stakes": "Prove that the upstream semaphore cannot be backfed from its neighboring emergency signal.",
+      "targets": {
+        "A": "SC_022_A",
+        "B": "SC_022_B",
+        "C": "SC_022_C"
+      },
+      "recovery_target": "SC_022_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "trace_crossfeed_cable",
+            "mode": "sample",
+            "target": "SC_022_C",
+            "support_target": "SC_022_A",
+            "dwell_ticks": 7,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "open_shared_signal_link",
+            "mode": "hold",
+            "target": "SC_022_A",
+            "support_target": "SC_022_B",
+            "dwell_ticks": 8,
+            "window_ticks": 140,
+            "failure": "backtrack"
+          },
+          {
+            "action": "trim_amber_relay",
+            "mode": "balance",
+            "target": "SC_022_B",
+            "support_target": "SC_022_C",
+            "dwell_ticks": 9,
+            "window_ticks": 80,
+            "failure": "step"
+          },
+          {
+            "action": "hand_over_clear_aspect",
+            "mode": "handoff",
+            "target": "SC_022_C",
+            "support_target": "SC_022_B",
+            "dwell_ticks": 10,
+            "window_ticks": 100,
+            "failure": "restart"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "open_shared_signal_link_reserve",
+            "mode": "hold",
+            "target": "SC_022_A",
+            "support_target": "SC_022_B",
+            "dwell_ticks": 8,
+            "window_ticks": 160,
+            "failure": "backtrack"
+          },
+          {
+            "action": "trace_crossfeed_cable_reserve",
+            "mode": "sample",
+            "target": "SC_022_C",
+            "support_target": "SC_022_A",
+            "dwell_ticks": 7,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "hand_over_clear_aspect_reserve",
+            "mode": "handoff",
+            "target": "SC_022_C",
+            "support_target": "SC_022_B",
+            "dwell_ticks": 10,
+            "window_ticks": 120,
+            "failure": "restart"
+          },
+          {
+            "action": "trim_amber_relay_reserve",
+            "mode": "balance",
+            "target": "SC_022_B",
+            "support_target": "SC_022_C",
+            "dwell_ticks": 9,
+            "window_ticks": 100,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_023",
+      "location_id": "LOC_023",
+      "region_id": "REG_03",
+      "source_puzzle_identity": "mislabelled feeder/rail_vibration/education",
+      "source_title": "Apprentice Signal School: Mislabelled feeder",
+      "source_risk": "track-side vibration",
+      "source_climate": "rail_vibration",
+      "source_task_ids": [
+        "JOB_023_1",
+        "JOB_023_2",
+        "JOB_023_3",
+        "JOB_023_4",
+        "JOB_023_5"
+      ],
+      "worksite_encounter_key": "LV_023|LV_023|mislabelled feeder/rail_vibration/education|spur_isolation|mechanical_vibration|200|8|site-education-route-spur_isolation-topology-2|control_mismatch|1|5|EXP009|serial|EXP010|triage|EXP011|triage|EXP012|education|3",
+      "title": "Apprentice signal labels",
+      "stakes": "Correct a training cabinet's swapped feeder tags before the workshop uses the demonstration panel.",
+      "targets": {
+        "A": "SC_023_A",
+        "B": "SC_023_B",
+        "C": "SC_023_C"
+      },
+      "recovery_target": "SC_023_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "compare_student_diagram",
+            "mode": "sample",
+            "target": "SC_023_B",
+            "support_target": "SC_023_C",
+            "dwell_ticks": 8,
+            "window_ticks": 140,
+            "failure": "backtrack"
+          },
+          {
+            "action": "replace_swapped_tags",
+            "mode": "handoff",
+            "target": "SC_023_C",
+            "support_target": "SC_023_A",
+            "dwell_ticks": 9,
+            "window_ticks": 80,
+            "failure": "step"
+          },
+          {
+            "action": "lock_training_feeder",
+            "mode": "hold",
+            "target": "SC_023_A",
+            "support_target": "SC_023_B",
+            "dwell_ticks": 10,
+            "window_ticks": 100,
+            "failure": "restart"
+          },
+          {
+            "action": "enable_safe_demonstration",
+            "mode": "pulse",
+            "target": "SC_023_C",
+            "support_target": "SC_023_A",
+            "dwell_ticks": 11,
+            "window_ticks": 120,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "lock_training_feeder_reserve",
+            "mode": "hold",
+            "target": "SC_023_A",
+            "support_target": "SC_023_B",
+            "dwell_ticks": 10,
+            "window_ticks": 120,
+            "failure": "restart"
+          },
+          {
+            "action": "compare_student_diagram_reserve",
+            "mode": "sample",
+            "target": "SC_023_B",
+            "support_target": "SC_023_C",
+            "dwell_ticks": 8,
+            "window_ticks": 160,
+            "failure": "backtrack"
+          },
+          {
+            "action": "replace_swapped_tags_reserve",
+            "mode": "handoff",
+            "target": "SC_023_C",
+            "support_target": "SC_023_A",
+            "dwell_ticks": 9,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "enable_safe_demonstration_reserve",
+            "mode": "pulse",
+            "target": "SC_023_C",
+            "support_target": "SC_023_A",
+            "dwell_ticks": 11,
+            "window_ticks": 140,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_024",
+      "location_id": "LOC_024",
+      "region_id": "REG_03",
+      "source_puzzle_identity": "sticking isolator/rail_vibration/shelter",
+      "source_title": "Rail Workers' Canteen: Sticking isolator",
+      "source_risk": "track-side vibration",
+      "source_climate": "rail_vibration",
+      "source_task_ids": [
+        "JOB_024_1",
+        "JOB_024_2",
+        "JOB_024_3",
+        "JOB_024_4",
+        "JOB_024_5"
+      ],
+      "worksite_encounter_key": "LV_024|LV_024|sticking isolator/rail_vibration/shelter|stability_hold|mechanical_vibration|209|21|site-shelter-route-stability_hold-topology-3|reserve_brownout|2|5|EXP009|serial|EXP010|crossdock|EXP011|interlock|EXP012|shelter|3",
+      "title": "Rail canteen stubborn isolator",
+      "stakes": "Unstick a kitchen isolator while preserving the signalman's canteen emergency lighting.",
+      "targets": {
+        "A": "SC_024_A",
+        "B": "SC_024_B",
+        "C": "SC_024_C"
+      },
+      "recovery_target": "SC_024_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "protect_canteen_lamps",
+            "mode": "hold",
+            "target": "SC_024_A",
+            "support_target": "SC_024_C",
+            "dwell_ticks": 9,
+            "window_ticks": 80,
+            "failure": "step"
+          },
+          {
+            "action": "remove_motor_torque",
+            "mode": "balance",
+            "target": "SC_024_C",
+            "support_target": "SC_024_B",
+            "dwell_ticks": 10,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "check_blade_contact",
+            "mode": "sample",
+            "target": "SC_024_B",
+            "support_target": "SC_024_A",
+            "dwell_ticks": 11,
+            "window_ticks": 120,
+            "failure": "restart"
+          },
+          {
+            "action": "return_kitchen_feed",
+            "mode": "handoff",
+            "target": "SC_024_C",
+            "support_target": "SC_024_A",
+            "dwell_ticks": 12,
+            "window_ticks": 140,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "remove_motor_torque_reserve",
+            "mode": "balance",
+            "target": "SC_024_C",
+            "support_target": "SC_024_B",
+            "dwell_ticks": 10,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          },
+          {
+            "action": "check_blade_contact_reserve",
+            "mode": "sample",
+            "target": "SC_024_B",
+            "support_target": "SC_024_A",
+            "dwell_ticks": 11,
+            "window_ticks": 140,
+            "failure": "restart"
+          },
+          {
+            "action": "protect_canteen_lamps_reserve",
+            "mode": "hold",
+            "target": "SC_024_A",
+            "support_target": "SC_024_C",
+            "dwell_ticks": 9,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "return_kitchen_feed_reserve",
+            "mode": "handoff",
+            "target": "SC_024_C",
+            "support_target": "SC_024_A",
+            "dwell_ticks": 12,
+            "window_ticks": 160,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_025",
+      "location_id": "LOC_025",
+      "region_id": "REG_04",
+      "source_puzzle_identity": "cold-chain rescue/brackish_flood/distribution",
+      "source_title": "Marshland Intake: Cold-chain rescue",
+      "source_risk": "rising brackish groundwater",
+      "source_climate": "brackish_flood",
+      "source_task_ids": [
+        "JOB_025_1",
+        "JOB_025_2",
+        "JOB_025_3",
+        "JOB_025_4",
+        "JOB_025_5"
+      ],
+      "worksite_encounter_key": "LV_025|LV_025|cold-chain rescue/brackish_flood/distribution|stability_hold|water_ingress|218|41|site-distribution-route-stability_hold-topology-4|phase_drift|3|5|EXP009|fork|EXP010|serial|EXP011|cascade|EXP012|distribution|4",
+      "title": "Marshland cold chain crossing",
+      "stakes": "Cross an inundated intake service without losing the small laboratory refrigerator circuit.",
+      "targets": {
+        "A": "SC_025_A",
+        "B": "SC_025_B",
+        "C": "SC_025_C"
+      },
+      "recovery_target": "SC_025_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "reserve_cold_chain",
+            "mode": "balance",
+            "target": "SC_025_C",
+            "support_target": "SC_025_A",
+            "dwell_ticks": 10,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "isolate_brackish_trench",
+            "mode": "hold",
+            "target": "SC_025_A",
+            "support_target": "SC_025_B",
+            "dwell_ticks": 11,
+            "window_ticks": 120,
+            "failure": "restart"
+          },
+          {
+            "action": "verify_dry_bypass",
+            "mode": "sample",
+            "target": "SC_025_B",
+            "support_target": "SC_025_C",
+            "dwell_ticks": 12,
+            "window_ticks": 140,
+            "failure": "backtrack"
+          },
+          {
+            "action": "transfer_sample_freezer",
+            "mode": "handoff",
+            "target": "SC_025_A",
+            "support_target": "SC_025_C",
+            "dwell_ticks": 6,
+            "window_ticks": 80,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "isolate_brackish_trench_reserve",
+            "mode": "hold",
+            "target": "SC_025_A",
+            "support_target": "SC_025_B",
+            "dwell_ticks": 11,
+            "window_ticks": 140,
+            "failure": "restart"
+          },
+          {
+            "action": "verify_dry_bypass_reserve",
+            "mode": "sample",
+            "target": "SC_025_B",
+            "support_target": "SC_025_C",
+            "dwell_ticks": 12,
+            "window_ticks": 160,
+            "failure": "backtrack"
+          },
+          {
+            "action": "reserve_cold_chain_reserve",
+            "mode": "balance",
+            "target": "SC_025_C",
+            "support_target": "SC_025_A",
+            "dwell_ticks": 10,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "transfer_sample_freezer_reserve",
+            "mode": "handoff",
+            "target": "SC_025_A",
+            "support_target": "SC_025_C",
+            "dwell_ticks": 6,
+            "window_ticks": 100,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_026",
+      "location_id": "LOC_026",
+      "region_id": "REG_04",
+      "source_puzzle_identity": "isolated bypass/brackish_flood/transport",
+      "source_title": "Eelboat Mooring: Isolated bypass",
+      "source_risk": "rising brackish groundwater",
+      "source_climate": "brackish_flood",
+      "source_task_ids": [
+        "JOB_026_1",
+        "JOB_026_2",
+        "JOB_026_3",
+        "JOB_026_4",
+        "JOB_026_5"
+      ],
+      "worksite_encounter_key": "LV_026|LV_026|isolated bypass/brackish_flood/transport|circuit_pair|water_ingress|227|54|site-transport-route-circuit_pair-topology-5|traction_surge|4|6|EXP009|serial|EXP010|triage|EXP011|triage|EXP012|transport|4",
+      "title": "Eelboat isolated bypass",
+      "stakes": "Prevent a grounded mooring winch from sharing a return with the ferry's emergency lights.",
+      "targets": {
+        "A": "SC_026_A",
+        "B": "SC_026_B",
+        "C": "SC_026_C"
+      },
+      "recovery_target": "SC_026_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "trace_winch_leak",
+            "mode": "sample",
+            "target": "SC_026_B",
+            "support_target": "SC_026_A",
+            "dwell_ticks": 11,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          },
+          {
+            "action": "open_mooring_link",
+            "mode": "hold",
+            "target": "SC_026_C",
+            "support_target": "SC_026_B",
+            "dwell_ticks": 12,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "move_ferry_lamps",
+            "mode": "handoff",
+            "target": "SC_026_A",
+            "support_target": "SC_026_C",
+            "dwell_ticks": 6,
+            "window_ticks": 80,
+            "failure": "restart"
+          },
+          {
+            "action": "energize_dry_bypass",
+            "mode": "pulse",
+            "target": "SC_026_B",
+            "support_target": "SC_026_C",
+            "dwell_ticks": 7,
+            "window_ticks": 100,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "open_mooring_link_reserve",
+            "mode": "hold",
+            "target": "SC_026_C",
+            "support_target": "SC_026_B",
+            "dwell_ticks": 12,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "trace_winch_leak_reserve",
+            "mode": "sample",
+            "target": "SC_026_B",
+            "support_target": "SC_026_A",
+            "dwell_ticks": 11,
+            "window_ticks": 140,
+            "failure": "backtrack"
+          },
+          {
+            "action": "move_ferry_lamps_reserve",
+            "mode": "handoff",
+            "target": "SC_026_A",
+            "support_target": "SC_026_C",
+            "dwell_ticks": 6,
+            "window_ticks": 100,
+            "failure": "restart"
+          },
+          {
+            "action": "energize_dry_bypass_reserve",
+            "mode": "pulse",
+            "target": "SC_026_B",
+            "support_target": "SC_026_C",
+            "dwell_ticks": 7,
+            "window_ticks": 120,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_027",
+      "location_id": "LOC_027",
+      "region_id": "REG_04",
+      "source_puzzle_identity": "voltage sag/brackish_flood/health",
+      "source_title": "Reedbank Medical Post: Voltage sag",
+      "source_risk": "rising brackish groundwater",
+      "source_climate": "brackish_flood",
+      "source_task_ids": [
+        "JOB_027_1",
+        "JOB_027_2",
+        "JOB_027_3",
+        "JOB_027_4",
+        "JOB_027_5"
+      ],
+      "worksite_encounter_key": "LV_027|LV_027|voltage sag/brackish_flood/health|fault_trace|water_ingress|155|6|site-health-route-fault_trace-topology-6|sterile_pressure|5|6|EXP009|serial|EXP010|crossdock|EXP011|interlock|EXP012|health|4",
+      "title": "Reedbank medical sag",
+      "stakes": "Keep the post's oxygen regulator live while restoring its low-voltage treatment sockets.",
+      "targets": {
+        "A": "SC_027_A",
+        "B": "SC_027_B",
+        "C": "SC_027_C"
+      },
+      "recovery_target": "SC_027_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "measure_treatment_sag",
+            "mode": "sample",
+            "target": "SC_027_A",
+            "support_target": "SC_027_C",
+            "dwell_ticks": 12,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "allocate_oxygen_margin",
+            "mode": "balance",
+            "target": "SC_027_C",
+            "support_target": "SC_027_B",
+            "dwell_ticks": 6,
+            "window_ticks": 80,
+            "failure": "backtrack"
+          },
+          {
+            "action": "separate_socket_return",
+            "mode": "hold",
+            "target": "SC_027_B",
+            "support_target": "SC_027_A",
+            "dwell_ticks": 7,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "transfer_post_supply",
+            "mode": "handoff",
+            "target": "SC_027_C",
+            "support_target": "SC_027_A",
+            "dwell_ticks": 8,
+            "window_ticks": 120,
+            "failure": "restart"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "allocate_oxygen_margin_reserve",
+            "mode": "balance",
+            "target": "SC_027_C",
+            "support_target": "SC_027_B",
+            "dwell_ticks": 6,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "separate_socket_return_reserve",
+            "mode": "hold",
+            "target": "SC_027_B",
+            "support_target": "SC_027_A",
+            "dwell_ticks": 7,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "measure_treatment_sag_reserve",
+            "mode": "sample",
+            "target": "SC_027_A",
+            "support_target": "SC_027_C",
+            "dwell_ticks": 12,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "transfer_post_supply_reserve",
+            "mode": "handoff",
+            "target": "SC_027_C",
+            "support_target": "SC_027_A",
+            "dwell_ticks": 8,
+            "window_ticks": 140,
+            "failure": "restart"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_028",
+      "location_id": "LOC_028",
+      "region_id": "REG_04",
+      "source_puzzle_identity": "limited cable reel/brackish_flood/commerce",
+      "source_title": "Floating Produce Market: Limited cable reel",
+      "source_risk": "rising brackish groundwater",
+      "source_climate": "brackish_flood",
+      "source_task_ids": [
+        "JOB_028_1",
+        "JOB_028_2",
+        "JOB_028_3",
+        "JOB_028_4",
+        "JOB_028_5"
+      ],
+      "worksite_encounter_key": "LV_028|LV_028|limited cable reel/brackish_flood/commerce|circuit_pair|water_ingress|164|19|site-commerce-route-circuit_pair-topology-7|load_imbalance|6|6|EXP009|fork|EXP010|serial|EXP011|cascade|EXP012|commerce|4",
+      "title": "Floating market cable reel",
+      "stakes": "Use a restricted cable span without submerging the only dry connector at the produce pontoon.",
+      "targets": {
+        "A": "SC_028_A",
+        "B": "SC_028_B",
+        "C": "SC_028_C"
+      },
+      "recovery_target": "SC_028_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "secure_dry_reel",
+            "mode": "hold",
+            "target": "SC_028_C",
+            "support_target": "SC_028_A",
+            "dwell_ticks": 6,
+            "window_ticks": 80,
+            "failure": "backtrack"
+          },
+          {
+            "action": "measure_pontoon_run",
+            "mode": "sample",
+            "target": "SC_028_A",
+            "support_target": "SC_028_B",
+            "dwell_ticks": 7,
+            "window_ticks": 100,
+            "failure": "restart"
+          },
+          {
+            "action": "meter_reel_allowance",
+            "mode": "balance",
+            "target": "SC_028_B",
+            "support_target": "SC_028_C",
+            "dwell_ticks": 8,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "land_vendor_cable",
+            "mode": "handoff",
+            "target": "SC_028_A",
+            "support_target": "SC_028_C",
+            "dwell_ticks": 9,
+            "window_ticks": 140,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "measure_pontoon_run_reserve",
+            "mode": "sample",
+            "target": "SC_028_A",
+            "support_target": "SC_028_B",
+            "dwell_ticks": 7,
+            "window_ticks": 120,
+            "failure": "restart"
+          },
+          {
+            "action": "secure_dry_reel_reserve",
+            "mode": "hold",
+            "target": "SC_028_C",
+            "support_target": "SC_028_A",
+            "dwell_ticks": 6,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "meter_reel_allowance_reserve",
+            "mode": "balance",
+            "target": "SC_028_B",
+            "support_target": "SC_028_C",
+            "dwell_ticks": 8,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "land_vendor_cable_reserve",
+            "mode": "handoff",
+            "target": "SC_028_A",
+            "support_target": "SC_028_C",
+            "dwell_ticks": 9,
+            "window_ticks": 160,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_029",
+      "location_id": "LOC_029",
+      "region_id": "REG_04",
+      "source_puzzle_identity": "staged pump sequence/brackish_flood/waterworks",
+      "source_title": "Sluice Seven: Staged pump sequence",
+      "source_risk": "rising brackish groundwater",
+      "source_climate": "brackish_flood",
+      "source_task_ids": [
+        "JOB_029_1",
+        "JOB_029_2",
+        "JOB_029_3",
+        "JOB_029_4",
+        "JOB_029_5"
+      ],
+      "worksite_encounter_key": "LV_029|LV_029|staged pump sequence/brackish_flood/waterworks|relay_coincidence|water_ingress|173|32|site-waterworks-route-relay_coincidence-topology-8|backflow|7|6|EXP009|serial|EXP010|triage|EXP011|triage|EXP012|waterworks|4",
+      "title": "Sluice Seven staged pumps",
+      "stakes": "Equalize the floodgate pressure before the auxiliary pump couples to the muddy intake.",
+      "targets": {
+        "A": "SC_029_A",
+        "B": "SC_029_B",
+        "C": "SC_029_C"
+      },
+      "recovery_target": "SC_029_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "trim_sluice_head",
+            "mode": "balance",
+            "target": "SC_029_A",
+            "support_target": "SC_029_C",
+            "dwell_ticks": 7,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "lock_second_pump",
+            "mode": "hold",
+            "target": "SC_029_C",
+            "support_target": "SC_029_B",
+            "dwell_ticks": 8,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          },
+          {
+            "action": "read_gate_differential",
+            "mode": "sample",
+            "target": "SC_029_B",
+            "support_target": "SC_029_A",
+            "dwell_ticks": 9,
+            "window_ticks": 140,
+            "failure": "restart"
+          },
+          {
+            "action": "engage_auxiliary_stage",
+            "mode": "pulse",
+            "target": "SC_029_C",
+            "support_target": "SC_029_A",
+            "dwell_ticks": 10,
+            "window_ticks": 80,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "lock_second_pump_reserve",
+            "mode": "hold",
+            "target": "SC_029_C",
+            "support_target": "SC_029_B",
+            "dwell_ticks": 8,
+            "window_ticks": 140,
+            "failure": "backtrack"
+          },
+          {
+            "action": "read_gate_differential_reserve",
+            "mode": "sample",
+            "target": "SC_029_B",
+            "support_target": "SC_029_A",
+            "dwell_ticks": 9,
+            "window_ticks": 160,
+            "failure": "restart"
+          },
+          {
+            "action": "trim_sluice_head_reserve",
+            "mode": "balance",
+            "target": "SC_029_A",
+            "support_target": "SC_029_C",
+            "dwell_ticks": 7,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "engage_auxiliary_stage_reserve",
+            "mode": "pulse",
+            "target": "SC_029_C",
+            "support_target": "SC_029_A",
+            "dwell_ticks": 10,
+            "window_ticks": 100,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_030",
+      "location_id": "LOC_030",
+      "region_id": "REG_04",
+      "source_puzzle_identity": "intermittent ground/brackish_flood/communications",
+      "source_title": "Fen Radio Mast: Intermittent ground",
+      "source_risk": "rising brackish groundwater",
+      "source_climate": "brackish_flood",
+      "source_task_ids": [
+        "JOB_030_1",
+        "JOB_030_2",
+        "JOB_030_3",
+        "JOB_030_4",
+        "JOB_030_5"
+      ],
+      "worksite_encounter_key": "LV_030|LV_030|intermittent ground/brackish_flood/communications|feeder_pulse|water_ingress|182|45|site-communications-route-feeder_pulse-topology-9|signal_echo|8|6|EXP009|serial|EXP010|crossdock|EXP011|interlock|EXP012|communications|4",
+      "title": "Fen mast intermittent ground",
+      "stakes": "Find a wet mast ground that disappears between pulses and reestablish the rescue radio reference.",
+      "targets": {
+        "A": "SC_030_A",
+        "B": "SC_030_B",
+        "C": "SC_030_C"
+      },
+      "recovery_target": "SC_030_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "observe_ground_flicker",
+            "mode": "sample",
+            "target": "SC_030_C",
+            "support_target": "SC_030_A",
+            "dwell_ticks": 8,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "inject_test_pulse",
+            "mode": "pulse",
+            "target": "SC_030_B",
+            "support_target": "SC_030_C",
+            "dwell_ticks": 9,
+            "window_ticks": 140,
+            "failure": "backtrack"
+          },
+          {
+            "action": "isolate_mast_stay",
+            "mode": "hold",
+            "target": "SC_030_A",
+            "support_target": "SC_030_B",
+            "dwell_ticks": 10,
+            "window_ticks": 80,
+            "failure": "restart"
+          },
+          {
+            "action": "trim_station_earth",
+            "mode": "balance",
+            "target": "SC_030_C",
+            "support_target": "SC_030_B",
+            "dwell_ticks": 11,
+            "window_ticks": 100,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "isolate_mast_stay_reserve",
+            "mode": "hold",
+            "target": "SC_030_A",
+            "support_target": "SC_030_B",
+            "dwell_ticks": 10,
+            "window_ticks": 100,
+            "failure": "restart"
+          },
+          {
+            "action": "observe_ground_flicker_reserve",
+            "mode": "sample",
+            "target": "SC_030_C",
+            "support_target": "SC_030_A",
+            "dwell_ticks": 8,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "inject_test_pulse_reserve",
+            "mode": "pulse",
+            "target": "SC_030_B",
+            "support_target": "SC_030_C",
+            "dwell_ticks": 9,
+            "window_ticks": 160,
+            "failure": "backtrack"
+          },
+          {
+            "action": "trim_station_earth_reserve",
+            "mode": "balance",
+            "target": "SC_030_C",
+            "support_target": "SC_030_B",
+            "dwell_ticks": 11,
+            "window_ticks": 120,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_031",
+      "location_id": "LOC_031",
+      "region_id": "REG_04",
+      "source_puzzle_identity": "beacon continuity/brackish_flood/education",
+      "source_title": "Marsh Learning Cabin: Beacon continuity",
+      "source_risk": "rising brackish groundwater",
+      "source_climate": "brackish_flood",
+      "source_task_ids": [
+        "JOB_031_1",
+        "JOB_031_2",
+        "JOB_031_3",
+        "JOB_031_4",
+        "JOB_031_5"
+      ],
+      "worksite_encounter_key": "LV_031|LV_031|beacon continuity/brackish_flood/education|relay_coincidence|water_ingress|191|58|site-education-route-relay_coincidence-topology-0|control_mismatch|9|5|EXP009|fork|EXP010|serial|EXP011|cascade|EXP012|education|4",
+      "title": "Marsh cabin beacon cable",
+      "stakes": "Repair the school warning lamp without closing the waterlogged classroom lighting return.",
+      "targets": {
+        "A": "SC_031_A",
+        "B": "SC_031_B",
+        "C": "SC_031_C"
+      },
+      "recovery_target": "SC_031_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "isolate_classroom_return",
+            "mode": "hold",
+            "target": "SC_031_B",
+            "support_target": "SC_031_C",
+            "dwell_ticks": 9,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "trace_beacon_cable",
+            "mode": "sample",
+            "target": "SC_031_A",
+            "support_target": "SC_031_B",
+            "dwell_ticks": 10,
+            "window_ticks": 80,
+            "failure": "restart"
+          },
+          {
+            "action": "report_warning_circuit",
+            "mode": "handoff",
+            "target": "SC_031_C",
+            "support_target": "SC_031_A",
+            "dwell_ticks": 11,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "flash_marsh_beacon",
+            "mode": "pulse",
+            "target": "SC_031_A",
+            "support_target": "SC_031_C",
+            "dwell_ticks": 12,
+            "window_ticks": 120,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "trace_beacon_cable_reserve",
+            "mode": "sample",
+            "target": "SC_031_A",
+            "support_target": "SC_031_B",
+            "dwell_ticks": 10,
+            "window_ticks": 100,
+            "failure": "restart"
+          },
+          {
+            "action": "isolate_classroom_return_reserve",
+            "mode": "hold",
+            "target": "SC_031_B",
+            "support_target": "SC_031_C",
+            "dwell_ticks": 9,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "report_warning_circuit_reserve",
+            "mode": "handoff",
+            "target": "SC_031_C",
+            "support_target": "SC_031_A",
+            "dwell_ticks": 11,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          },
+          {
+            "action": "flash_marsh_beacon_reserve",
+            "mode": "pulse",
+            "target": "SC_031_A",
+            "support_target": "SC_031_C",
+            "dwell_ticks": 12,
+            "window_ticks": 140,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_032",
+      "location_id": "LOC_032",
+      "region_id": "REG_04",
+      "source_puzzle_identity": "load-budget dilemma/brackish_flood/shelter",
+      "source_title": "Raised Evacuation Lodge: Load-budget dilemma",
+      "source_risk": "rising brackish groundwater",
+      "source_climate": "brackish_flood",
+      "source_task_ids": [
+        "JOB_032_1",
+        "JOB_032_2",
+        "JOB_032_3",
+        "JOB_032_4",
+        "JOB_032_5"
+      ],
+      "worksite_encounter_key": "LV_032|LV_032|load-budget dilemma/brackish_flood/shelter|post_repair_audit|water_ingress|200|10|site-shelter-route-post_repair_audit-topology-1|reserve_brownout|10|5|EXP009|serial|EXP010|triage|EXP011|triage|EXP012|shelter|4",
+      "title": "Raised lodge load-sharing",
+      "stakes": "Keep evacuees warm while reserving enough spare capacity for the raised boarding ramp.",
+      "targets": {
+        "A": "SC_032_A",
+        "B": "SC_032_B",
+        "C": "SC_032_C"
+      },
+      "recovery_target": "SC_032_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "reserve_boarding_ramp",
+            "mode": "balance",
+            "target": "SC_032_B",
+            "support_target": "SC_032_A",
+            "dwell_ticks": 10,
+            "window_ticks": 80,
+            "failure": "backtrack"
+          },
+          {
+            "action": "signal_evacuations",
+            "mode": "handoff",
+            "target": "SC_032_A",
+            "support_target": "SC_032_C",
+            "dwell_ticks": 11,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "shed_empty_kitchen",
+            "mode": "hold",
+            "target": "SC_032_C",
+            "support_target": "SC_032_B",
+            "dwell_ticks": 12,
+            "window_ticks": 120,
+            "failure": "restart"
+          },
+          {
+            "action": "release_shelter_bus",
+            "mode": "pulse",
+            "target": "SC_032_A",
+            "support_target": "SC_032_B",
+            "dwell_ticks": 6,
+            "window_ticks": 140,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "shed_empty_kitchen_reserve",
+            "mode": "hold",
+            "target": "SC_032_C",
+            "support_target": "SC_032_B",
+            "dwell_ticks": 12,
+            "window_ticks": 140,
+            "failure": "restart"
+          },
+          {
+            "action": "reserve_boarding_ramp_reserve",
+            "mode": "balance",
+            "target": "SC_032_B",
+            "support_target": "SC_032_A",
+            "dwell_ticks": 10,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "signal_evacuations_reserve",
+            "mode": "handoff",
+            "target": "SC_032_A",
+            "support_target": "SC_032_C",
+            "dwell_ticks": 11,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "release_shelter_bus_reserve",
+            "mode": "pulse",
+            "target": "SC_032_A",
+            "support_target": "SC_032_B",
+            "dwell_ticks": 6,
+            "window_ticks": 160,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_033",
+      "location_id": "LOC_033",
+      "region_id": "REG_05",
+      "source_puzzle_identity": "archive power/freezing_rain/distribution",
+      "source_title": "Quarry Ridge Relay: Archive power",
+      "source_risk": "rockfall across feeder tracks",
+      "source_climate": "freezing_rain",
+      "source_task_ids": [
+        "JOB_033_1",
+        "JOB_033_2",
+        "JOB_033_3",
+        "JOB_033_4",
+        "JOB_033_5"
+      ],
+      "worksite_encounter_key": "LV_033|LV_033|archive power/freezing_rain/distribution|post_repair_audit|equipment_condensation|209|30|site-distribution-route-post_repair_audit-topology-2|phase_drift|11|5|EXP009|serial|EXP010|crossdock|EXP011|interlock|EXP012|distribution|5",
+      "title": "Quarry relay archive shelter",
+      "stakes": "Preserve the ridge observation archive before the frozen feeder makes a second restart unsafe.",
+      "targets": {
+        "A": "SC_033_A",
+        "B": "SC_033_B",
+        "C": "SC_033_C"
+      },
+      "recovery_target": "SC_033_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "trace_frozen_archive",
+            "mode": "sample",
+            "target": "SC_033_A",
+            "support_target": "SC_033_B",
+            "dwell_ticks": 11,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "isolate_rockfall_line",
+            "mode": "hold",
+            "target": "SC_033_C",
+            "support_target": "SC_033_A",
+            "dwell_ticks": 12,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          },
+          {
+            "action": "transfer_archive_relay",
+            "mode": "handoff",
+            "target": "SC_033_B",
+            "support_target": "SC_033_C",
+            "dwell_ticks": 6,
+            "window_ticks": 140,
+            "failure": "restart"
+          },
+          {
+            "action": "balance_sheltered_bus",
+            "mode": "balance",
+            "target": "SC_033_A",
+            "support_target": "SC_033_C",
+            "dwell_ticks": 7,
+            "window_ticks": 80,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "isolate_rockfall_line_reserve",
+            "mode": "hold",
+            "target": "SC_033_C",
+            "support_target": "SC_033_A",
+            "dwell_ticks": 12,
+            "window_ticks": 140,
+            "failure": "backtrack"
+          },
+          {
+            "action": "trace_frozen_archive_reserve",
+            "mode": "sample",
+            "target": "SC_033_A",
+            "support_target": "SC_033_B",
+            "dwell_ticks": 11,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "balance_sheltered_bus_reserve",
+            "mode": "balance",
+            "target": "SC_033_A",
+            "support_target": "SC_033_C",
+            "dwell_ticks": 7,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "transfer_archive_relay_reserve",
+            "mode": "handoff",
+            "target": "SC_033_B",
+            "support_target": "SC_033_C",
+            "dwell_ticks": 6,
+            "window_ticks": 160,
+            "failure": "restart"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_034",
+      "location_id": "LOC_034",
+      "region_id": "REG_05",
+      "source_puzzle_identity": "opening-time cutoff/freezing_rain/transport",
+      "source_title": "Cliffline Funicular: Opening-time cutoff",
+      "source_risk": "rockfall across feeder tracks",
+      "source_climate": "freezing_rain",
+      "source_task_ids": [
+        "JOB_034_1",
+        "JOB_034_2",
+        "JOB_034_3",
+        "JOB_034_4",
+        "JOB_034_5"
+      ],
+      "worksite_encounter_key": "LV_034|LV_034|opening-time cutoff/freezing_rain/transport|load_rebalance|equipment_condensation|218|43|site-transport-route-load_rebalance-topology-3|traction_surge|1|5|EXP009|fork|EXP010|serial|EXP011|cascade|EXP012|transport|5",
+      "title": "Cliffline funicular cutoff",
+      "stakes": "Protect the stranded cabin before restoring traction power across the icy cliff rail.",
+      "targets": {
+        "A": "SC_034_A",
+        "B": "SC_034_B",
+        "C": "SC_034_C"
+      },
+      "recovery_target": "SC_034_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "warn_funicular_cabin",
+            "mode": "handoff",
+            "target": "SC_034_A",
+            "support_target": "SC_034_C",
+            "dwell_ticks": 12,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          },
+          {
+            "action": "lock_unstable_cable",
+            "mode": "hold",
+            "target": "SC_034_C",
+            "support_target": "SC_034_B",
+            "dwell_ticks": 6,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "inspect_traction_return",
+            "mode": "sample",
+            "target": "SC_034_B",
+            "support_target": "SC_034_A",
+            "dwell_ticks": 7,
+            "window_ticks": 80,
+            "failure": "restart"
+          },
+          {
+            "action": "release_cliffline_starter",
+            "mode": "pulse",
+            "target": "SC_034_C",
+            "support_target": "SC_034_A",
+            "dwell_ticks": 8,
+            "window_ticks": 100,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "lock_unstable_cable_reserve",
+            "mode": "hold",
+            "target": "SC_034_C",
+            "support_target": "SC_034_B",
+            "dwell_ticks": 6,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "inspect_traction_return_reserve",
+            "mode": "sample",
+            "target": "SC_034_B",
+            "support_target": "SC_034_A",
+            "dwell_ticks": 7,
+            "window_ticks": 100,
+            "failure": "restart"
+          },
+          {
+            "action": "warn_funicular_cabin_reserve",
+            "mode": "handoff",
+            "target": "SC_034_A",
+            "support_target": "SC_034_C",
+            "dwell_ticks": 12,
+            "window_ticks": 140,
+            "failure": "backtrack"
+          },
+          {
+            "action": "release_cliffline_starter_reserve",
+            "mode": "pulse",
+            "target": "SC_034_C",
+            "support_target": "SC_034_A",
+            "dwell_ticks": 8,
+            "window_ticks": 120,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_035",
+      "location_id": "LOC_035",
+      "region_id": "REG_05",
+      "source_puzzle_identity": "storm pulse timing/freezing_rain/health",
+      "source_title": "Ridge Aid Station: Storm pulse timing",
+      "source_risk": "rockfall across feeder tracks",
+      "source_climate": "freezing_rain",
+      "source_task_ids": [
+        "JOB_035_1",
+        "JOB_035_2",
+        "JOB_035_3",
+        "JOB_035_4",
+        "JOB_035_5"
+      ],
+      "worksite_encounter_key": "LV_035|LV_035|storm pulse timing/freezing_rain/health|spur_isolation|equipment_condensation|227|56|site-health-route-spur_isolation-topology-4|sterile_pressure|2|5|EXP009|serial|EXP010|triage|EXP011|triage|EXP012|health|5",
+      "title": "Ridge aid storm window",
+      "stakes": "Synchronize the isolated medical generator with a narrow storm-warning window over exposed rock.",
+      "targets": {
+        "A": "SC_035_A",
+        "B": "SC_035_B",
+        "C": "SC_035_C"
+      },
+      "recovery_target": "SC_035_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "compare_medical_reference",
+            "mode": "sample",
+            "target": "SC_035_B",
+            "support_target": "SC_035_C",
+            "dwell_ticks": 6,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "trim_generator_phase",
+            "mode": "balance",
+            "target": "SC_035_C",
+            "support_target": "SC_035_A",
+            "dwell_ticks": 7,
+            "window_ticks": 80,
+            "failure": "backtrack"
+          },
+          {
+            "action": "catch_storm_window",
+            "mode": "pulse",
+            "target": "SC_035_A",
+            "support_target": "SC_035_B",
+            "dwell_ticks": 8,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "release_ridge_care",
+            "mode": "handoff",
+            "target": "SC_035_C",
+            "support_target": "SC_035_B",
+            "dwell_ticks": 9,
+            "window_ticks": 120,
+            "failure": "restart"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "trim_generator_phase_reserve",
+            "mode": "balance",
+            "target": "SC_035_C",
+            "support_target": "SC_035_A",
+            "dwell_ticks": 7,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "compare_medical_reference_reserve",
+            "mode": "sample",
+            "target": "SC_035_B",
+            "support_target": "SC_035_C",
+            "dwell_ticks": 6,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "catch_storm_window_reserve",
+            "mode": "pulse",
+            "target": "SC_035_A",
+            "support_target": "SC_035_B",
+            "dwell_ticks": 8,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "release_ridge_care_reserve",
+            "mode": "handoff",
+            "target": "SC_035_C",
+            "support_target": "SC_035_B",
+            "dwell_ticks": 9,
+            "window_ticks": 140,
+            "failure": "restart"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_036",
+      "location_id": "LOC_036",
+      "region_id": "REG_05",
+      "source_puzzle_identity": "cable splice/freezing_rain/commerce",
+      "source_title": "Granite Traders' Yard: Cable splice",
+      "source_risk": "rockfall across feeder tracks",
+      "source_climate": "freezing_rain",
+      "source_task_ids": [
+        "JOB_036_1",
+        "JOB_036_2",
+        "JOB_036_3",
+        "JOB_036_4",
+        "JOB_036_5"
+      ],
+      "worksite_encounter_key": "LV_036|LV_036|cable splice/freezing_rain/commerce|stability_hold|equipment_condensation|155|8|site-commerce-route-stability_hold-topology-5|load_imbalance|3|6|EXP009|serial|EXP010|crossdock|EXP011|interlock|EXP012|commerce|5",
+      "title": "Granite yard splice clearance",
+      "stakes": "Protect the quarry conveyor from a damaged temporary splice before releasing trader yard lights.",
+      "targets": {
+        "A": "SC_036_A",
+        "B": "SC_036_B",
+        "C": "SC_036_C"
+      },
+      "recovery_target": "SC_036_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "isolate_quarry_belt",
+            "mode": "hold",
+            "target": "SC_036_A",
+            "support_target": "SC_036_C",
+            "dwell_ticks": 7,
+            "window_ticks": 80,
+            "failure": "backtrack"
+          },
+          {
+            "action": "inspect_cable_jacket",
+            "mode": "sample",
+            "target": "SC_036_C",
+            "support_target": "SC_036_B",
+            "dwell_ticks": 8,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "reroute_trader_lights",
+            "mode": "handoff",
+            "target": "SC_036_B",
+            "support_target": "SC_036_A",
+            "dwell_ticks": 9,
+            "window_ticks": 120,
+            "failure": "restart"
+          },
+          {
+            "action": "match_splice_return",
+            "mode": "balance",
+            "target": "SC_036_C",
+            "support_target": "SC_036_A",
+            "dwell_ticks": 10,
+            "window_ticks": 140,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "inspect_cable_jacket_reserve",
+            "mode": "sample",
+            "target": "SC_036_C",
+            "support_target": "SC_036_B",
+            "dwell_ticks": 8,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "isolate_quarry_belt_reserve",
+            "mode": "hold",
+            "target": "SC_036_A",
+            "support_target": "SC_036_C",
+            "dwell_ticks": 7,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "match_splice_return_reserve",
+            "mode": "balance",
+            "target": "SC_036_C",
+            "support_target": "SC_036_A",
+            "dwell_ticks": 10,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "reroute_trader_lights_reserve",
+            "mode": "handoff",
+            "target": "SC_036_B",
+            "support_target": "SC_036_A",
+            "dwell_ticks": 9,
+            "window_ticks": 140,
+            "failure": "restart"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_037",
+      "location_id": "LOC_037",
+      "region_id": "REG_05",
+      "source_puzzle_identity": "controlled load shed/freezing_rain/waterworks",
+      "source_title": "Mine Dewatering Shed: Controlled load shed",
+      "source_risk": "rockfall across feeder tracks",
+      "source_climate": "freezing_rain",
+      "source_task_ids": [
+        "JOB_037_1",
+        "JOB_037_2",
+        "JOB_037_3",
+        "JOB_037_4",
+        "JOB_037_5"
+      ],
+      "worksite_encounter_key": "LV_037|LV_037|controlled load shed/freezing_rain/waterworks|circuit_pair|equipment_condensation|164|21|site-waterworks-route-circuit_pair-topology-6|backflow|4|6|EXP009|fork|EXP010|serial|EXP011|cascade|EXP012|waterworks|5",
+      "title": "Mine dewatering selective shed",
+      "stakes": "Drop the flooded auxiliary winch load without interrupting the lower mine drain pump.",
+      "targets": {
+        "A": "SC_037_A",
+        "B": "SC_037_B",
+        "C": "SC_037_C"
+      },
+      "recovery_target": "SC_037_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "reserve_main_drain",
+            "mode": "balance",
+            "target": "SC_037_C",
+            "support_target": "SC_037_A",
+            "dwell_ticks": 8,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "shed_auxiliary_winch",
+            "mode": "hold",
+            "target": "SC_037_B",
+            "support_target": "SC_037_C",
+            "dwell_ticks": 9,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          },
+          {
+            "action": "prove_pump_pressure",
+            "mode": "sample",
+            "target": "SC_037_A",
+            "support_target": "SC_037_B",
+            "dwell_ticks": 10,
+            "window_ticks": 140,
+            "failure": "restart"
+          },
+          {
+            "action": "restart_dewatering_stage",
+            "mode": "pulse",
+            "target": "SC_037_C",
+            "support_target": "SC_037_B",
+            "dwell_ticks": 11,
+            "window_ticks": 80,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "shed_auxiliary_winch_reserve",
+            "mode": "hold",
+            "target": "SC_037_B",
+            "support_target": "SC_037_C",
+            "dwell_ticks": 9,
+            "window_ticks": 140,
+            "failure": "backtrack"
+          },
+          {
+            "action": "prove_pump_pressure_reserve",
+            "mode": "sample",
+            "target": "SC_037_A",
+            "support_target": "SC_037_B",
+            "dwell_ticks": 10,
+            "window_ticks": 160,
+            "failure": "restart"
+          },
+          {
+            "action": "reserve_main_drain_reserve",
+            "mode": "balance",
+            "target": "SC_037_C",
+            "support_target": "SC_037_A",
+            "dwell_ticks": 8,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "restart_dewatering_stage_reserve",
+            "mode": "pulse",
+            "target": "SC_037_C",
+            "support_target": "SC_037_B",
+            "dwell_ticks": 11,
+            "window_ticks": 100,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_038",
+      "location_id": "LOC_038",
+      "region_id": "REG_05",
+      "source_puzzle_identity": "generator trade-off/freezing_rain/communications",
+      "source_title": "Summit Telegraph Hut: Generator trade-off",
+      "source_risk": "rockfall across feeder tracks",
+      "source_climate": "freezing_rain",
+      "source_task_ids": [
+        "JOB_038_1",
+        "JOB_038_2",
+        "JOB_038_3",
+        "JOB_038_4",
+        "JOB_038_5"
+      ],
+      "worksite_encounter_key": "LV_038|LV_038|generator trade-off/freezing_rain/communications|fault_trace|equipment_condensation|173|34|site-communications-route-fault_trace-topology-7|signal_echo|5|6|EXP009|serial|EXP010|triage|EXP011|triage|EXP012|communications|5",
+      "title": "Summit telegraph generator fork",
+      "stakes": "Choose whether to hold battery reserve or trade it for a weather-warning transmission before final relay release.",
+      "targets": {
+        "A": "SC_038_A",
+        "B": "SC_038_B",
+        "C": "SC_038_C"
+      },
+      "recovery_target": "SC_038_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "measure_battery_reserve",
+            "mode": "sample",
+            "target": "SC_038_A",
+            "support_target": "SC_038_C",
+            "dwell_ticks": 9,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "notify_valley_station",
+            "mode": "handoff",
+            "target": "SC_038_B",
+            "support_target": "SC_038_A",
+            "dwell_ticks": 10,
+            "window_ticks": 140,
+            "failure": "restart"
+          },
+          {
+            "action": "allocate_tower_generation",
+            "mode": "balance",
+            "target": "SC_038_C",
+            "support_target": "SC_038_B",
+            "dwell_ticks": 11,
+            "window_ticks": 80,
+            "failure": "backtrack"
+          },
+          {
+            "action": "release_summit_signal",
+            "mode": "pulse",
+            "target": "SC_038_B",
+            "support_target": "SC_038_C",
+            "dwell_ticks": 12,
+            "window_ticks": 100,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "allocate_tower_generation_reserve",
+            "mode": "balance",
+            "target": "SC_038_C",
+            "support_target": "SC_038_B",
+            "dwell_ticks": 11,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "measure_battery_reserve_reserve",
+            "mode": "sample",
+            "target": "SC_038_A",
+            "support_target": "SC_038_C",
+            "dwell_ticks": 9,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "notify_valley_station_reserve",
+            "mode": "handoff",
+            "target": "SC_038_B",
+            "support_target": "SC_038_A",
+            "dwell_ticks": 10,
+            "window_ticks": 160,
+            "failure": "restart"
+          },
+          {
+            "action": "release_summit_signal_reserve",
+            "mode": "pulse",
+            "target": "SC_038_B",
+            "support_target": "SC_038_C",
+            "dwell_ticks": 12,
+            "window_ticks": 120,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_039",
+      "location_id": "LOC_039",
+      "region_id": "REG_05",
+      "source_puzzle_identity": "pressure trip/freezing_rain/education",
+      "source_title": "Stonecutters' Academy: Pressure trip",
+      "source_risk": "rockfall across feeder tracks",
+      "source_climate": "freezing_rain",
+      "source_task_ids": [
+        "JOB_039_1",
+        "JOB_039_2",
+        "JOB_039_3",
+        "JOB_039_4",
+        "JOB_039_5"
+      ],
+      "worksite_encounter_key": "LV_039|LV_039|pressure trip/freezing_rain/education|circuit_pair|equipment_condensation|182|47|site-education-route-circuit_pair-topology-8|control_mismatch|6|6|EXP009|serial|EXP010|crossdock|EXP011|interlock|EXP012|education|5",
+      "title": "Stonecutters academy overload",
+      "stakes": "Diagnose an ice-stiffened pressure trip and prevent the sawmill practice rig from taking the emergency bus.",
+      "targets": {
+        "A": "SC_039_A",
+        "B": "SC_039_B",
+        "C": "SC_039_C"
+      },
+      "recovery_target": "SC_039_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "lock_training_saw",
+            "mode": "hold",
+            "target": "SC_039_C",
+            "support_target": "SC_039_B",
+            "dwell_ticks": 10,
+            "window_ticks": 140,
+            "failure": "backtrack"
+          },
+          {
+            "action": "read_pressure_limit",
+            "mode": "sample",
+            "target": "SC_039_A",
+            "support_target": "SC_039_C",
+            "dwell_ticks": 11,
+            "window_ticks": 80,
+            "failure": "step"
+          },
+          {
+            "action": "trim_rock_saw_supply",
+            "mode": "balance",
+            "target": "SC_039_B",
+            "support_target": "SC_039_A",
+            "dwell_ticks": 12,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "release_classroom_power",
+            "mode": "handoff",
+            "target": "SC_039_C",
+            "support_target": "SC_039_A",
+            "dwell_ticks": 6,
+            "window_ticks": 120,
+            "failure": "restart"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "read_pressure_limit_reserve",
+            "mode": "sample",
+            "target": "SC_039_A",
+            "support_target": "SC_039_C",
+            "dwell_ticks": 11,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "lock_training_saw_reserve",
+            "mode": "hold",
+            "target": "SC_039_C",
+            "support_target": "SC_039_B",
+            "dwell_ticks": 10,
+            "window_ticks": 160,
+            "failure": "backtrack"
+          },
+          {
+            "action": "trim_rock_saw_supply_reserve",
+            "mode": "balance",
+            "target": "SC_039_B",
+            "support_target": "SC_039_A",
+            "dwell_ticks": 12,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "release_classroom_power_reserve",
+            "mode": "handoff",
+            "target": "SC_039_C",
+            "support_target": "SC_039_A",
+            "dwell_ticks": 6,
+            "window_ticks": 140,
+            "failure": "restart"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_040",
+      "location_id": "LOC_040",
+      "region_id": "REG_05",
+      "source_puzzle_identity": "priority dispatch/freezing_rain/shelter",
+      "source_title": "Overlook Refuge: Priority dispatch",
+      "source_risk": "rockfall across feeder tracks",
+      "source_climate": "freezing_rain",
+      "source_task_ids": [
+        "JOB_040_1",
+        "JOB_040_2",
+        "JOB_040_3",
+        "JOB_040_4",
+        "JOB_040_5"
+      ],
+      "worksite_encounter_key": "LV_040|LV_040|priority dispatch/freezing_rain/shelter|relay_coincidence|equipment_condensation|191|60|site-shelter-route-relay_coincidence-topology-9|reserve_brownout|7|6|EXP009|fork|EXP010|serial|EXP011|cascade|EXP012|shelter|5",
+      "title": "Overlook refuge night dispatch",
+      "stakes": "Dispatch the hilltop beacon first while keeping the warming ward on its reliable low-speed supply.",
+      "targets": {
+        "A": "SC_040_A",
+        "B": "SC_040_B",
+        "C": "SC_040_C"
+      },
+      "recovery_target": "SC_040_C",
+      "routes": {
+        "priority": [
+          {
+            "action": "send_borrowed_power_notice",
+            "mode": "handoff",
+            "target": "SC_040_A",
+            "support_target": "SC_040_B",
+            "dwell_ticks": 11,
+            "window_ticks": 80,
+            "failure": "step"
+          },
+          {
+            "action": "reserve_ward_heaters",
+            "mode": "balance",
+            "target": "SC_040_B",
+            "support_target": "SC_040_C",
+            "dwell_ticks": 12,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "shed_temporary_lighting",
+            "mode": "hold",
+            "target": "SC_040_C",
+            "support_target": "SC_040_A",
+            "dwell_ticks": 6,
+            "window_ticks": 120,
+            "failure": "restart"
+          },
+          {
+            "action": "release_refuge_beacon",
+            "mode": "pulse",
+            "target": "SC_040_B",
+            "support_target": "SC_040_A",
+            "dwell_ticks": 7,
+            "window_ticks": 140,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "reserve_ward_heaters_reserve",
+            "mode": "balance",
+            "target": "SC_040_B",
+            "support_target": "SC_040_C",
+            "dwell_ticks": 12,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          },
+          {
+            "action": "shed_temporary_lighting_reserve",
+            "mode": "hold",
+            "target": "SC_040_C",
+            "support_target": "SC_040_A",
+            "dwell_ticks": 6,
+            "window_ticks": 140,
+            "failure": "restart"
+          },
+          {
+            "action": "send_borrowed_power_notice_reserve",
+            "mode": "handoff",
+            "target": "SC_040_A",
+            "support_target": "SC_040_B",
+            "dwell_ticks": 11,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "release_refuge_beacon_reserve",
+            "mode": "pulse",
+            "target": "SC_040_B",
+            "support_target": "SC_040_A",
+            "dwell_ticks": 7,
+            "window_ticks": 160,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    }
+  ]
+}
