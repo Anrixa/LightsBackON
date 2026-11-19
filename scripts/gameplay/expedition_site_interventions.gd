@@ -322,14 +322,16 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 ## Fixed 10 Hz host tick. Missed windows and unsafe grid state reopen the
 ## encounter through an explicit recovery target; no item or save is consumed.
 func advance(facts: Dictionary) -> void:
-    if _spec.is_empty() or _route == "" or solved():
+    if _spec.is_empty() or _route == "":
         return
+    # A certified intervention must reopen when real upstream power becomes
+    # unsafe, exactly as A01 certification does. No stale solved latch.
     if not _facts_safe(facts):
         if _fault == "":
             _unsafe_events += 1
             _break_workflow("SUPPLY_LOST", "restart")
         return
-    if _fault != "":
+    if solved() or _fault != "":
         return
     _tick += 1
     if _phase == "warming":
