@@ -91,7 +91,6 @@ static func inspect(atlas: Dictionary, encounters: Dictionary, book: Dictionary)
 			errors.append("INVALID_NODES_" + level_id)
 			continue
 		var previous: Dictionary = {}
-		var signature: Array[String] = []
 		var fault_nodes: int = 0
 		var recovery_nodes: Dictionary = {}
 		for index: int in range((nodes as Array).size()):
@@ -105,7 +104,7 @@ static func inspect(atlas: Dictionary, encounters: Dictionary, book: Dictionary)
 			var evidence: String = str(node.get("requires", ""))
 			var anchor: String = str(node.get("anchor", ""))
 			var dependencies: Variant = node.get("depends_on")
-			if id != "%s_%s" % [level_id.replace("LV_", "DV_"), char(65 + index)] or \
+			if id != "%s_%s" % [level_id.replace("LV_", "DV_"), ["A", "B", "C", "D", "E", "F"][index]] or \
 					previous.has(id) or not (ACTIONS[site] as Array).has(action) or \
 					not ANCHORS.has(anchor) or not EVIDENCE.has(evidence) or \
 					not dependencies is Array:
@@ -124,8 +123,6 @@ static func inspect(atlas: Dictionary, encounters: Dictionary, book: Dictionary)
 				recovery_nodes[recovery] = true
 			previous[id] = true
 			kinds[action] = true
-			signature.append("%s:%s:%s:%s:%s" % [action, anchor, evidence,
-				",".join(dependencies), str(node.get("jam_on_early", false))])
 		if fault_nodes != 1 or not recovery_nodes.has(str((nodes as Array)[1].get("id", ""))):
 			errors.append("RECOVERY_PATH_REQUIRED_" + level_id)
 		if str((nodes as Array).back().get("requires", "")) != "west_restored":
