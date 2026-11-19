@@ -3,6 +3,7 @@ extends Control
 ## All 200 briefs are visible in-game without touching campaign saves.
 
 signal closed
+signal mission_requested(level_id: String)
 
 const Atlas := preload("res://scripts/world/dispatch_atlas.gd")
 const LayoutPlan := preload("res://scripts/world/expedition_layout_plan.gd")
@@ -16,6 +17,7 @@ var _details: RichTextLabel
 var _count: Label
 var _visible_levels: Array[Dictionary] = []
 var _close_button: Button
+var _mission_button: Button
 var _preview_viewport: SubViewport
 var _preview_root: Node3D
 var _preview_world: Node3D
@@ -123,9 +125,15 @@ func _ready() -> void:
 	light.rotation_degrees = Vector3(-55.0, -35.0, 0.0)
 	_preview_root.add_child(light)
 	var preview_note: Label = Label.new()
-	preview_note.text = "3D graybox candidate — physical traversal and gameplay still on hold"
+	preview_note.text = "EXP02 graybox — EXP03 host mission is experimental, unsaved and not physically qualified"
 	preview_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	right.add_child(preview_note)
+	_mission_button = Button.new()
+	_mission_button.name = "LaunchExperimentalMission"
+	_mission_button.text = "Enter experimental host mission (unsaved; playability untested)"
+	_mission_button.custom_minimum_size.y = 48
+	_mission_button.pressed.connect(_request_mission)
+	right.add_child(_mission_button)
 	_details = RichTextLabel.new()
 	_details.name = "LevelDetails"
 	_details.selection_enabled = true
@@ -142,6 +150,7 @@ func _ready() -> void:
 		_district.disabled = true
 		_search.editable = false
 		_list.visible = false
+		_mission_button.disabled = true
 		return
 	_refresh()
 	_close_button.grab_focus()
@@ -159,7 +168,9 @@ func _refresh() -> void:
 		_visible_levels.size(), _visible_levels.size() * 5]
 	if _visible_levels.is_empty():
 		_details.text = "No dispatch matches these filters."
+		_mission_button.disabled = true
 		return
+	_mission_button.disabled = false
 	_list.select(0)
 	_describe(0)
 
@@ -222,3 +233,17 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
 		get_viewport().set_input_as_handled()
 		closed.emit()
+
+
+## The atlas stays a non-authoritative browser. Only a source-pinned level ID
+## crosses this opt-in boundary; the mission scene independently revalidates it.
+func _request_mission() -> void:
+	if _mission_button == null or _mission_button.disabled or _list == null:
+		return
+	var selected: PackedInt32Array = _list.get_selected_items()
+	if selected.is_empty():
+		return
+	var index: int = selected[0]
+	if index < 0 or index >= _visible_levels.size():
+		return
+	mission_requested.emit(str(_visible_levels[index]["id"]))

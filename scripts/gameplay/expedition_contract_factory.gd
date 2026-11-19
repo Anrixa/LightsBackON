@@ -123,14 +123,21 @@ static func build(level: Dictionary, plan: Dictionary) -> Dictionary:
 			"entity": roles[i], "position": stations[i]["position"],
 			"required": tasks[i]["required"]
 		}
+	# The EXP02 station positions describe ground-painted plates (y=0.13).
+	# Real reticle/host targets sit at worksite height. Companion switches are
+	# separated so the reticle can distinguish their actual host entities.
+	var site1: Vector3 = stations[0]["position"] + Vector3.UP * 1.25
+	var site2: Vector3 = stations[1]["position"] + Vector3.UP * 1.25
+	var site3: Vector3 = stations[2]["position"] + Vector3.UP * 1.25
+	var site4: Vector3 = stations[3]["position"] + Vector3.UP * 1.25
 	var locations: Dictionary = {
-		"PANEL_WEST": stations[0]["position"],
-		"SW_EAST": stations[1]["position"],
-		"R_WEST": stations[2]["position"],
-		"PANEL_SPUR": stations[3]["position"],
-		"SW_GRID_SPUR": stations[3]["position"],
-		"SW_WEST_SPUR": stations[3]["position"],
-		"SW_SIGN": stations[3]["position"],
+		"PANEL_WEST": site1,
+		"SW_EAST": site2,
+		"R_WEST": site3,
+		"PANEL_SPUR": site4,
+		"SW_GRID_SPUR": site4 + Vector3(-1.15, 0.0, 1.05),
+		"SW_WEST_SPUR": site4 + Vector3(1.15, 0.0, -1.05),
+		"SW_SIGN": site4 + Vector3(1.15, 0.0, 1.05),
 		"ZONE_EXTRACT": stations[4]["position"]
 	}
 	var fingerprint: String = ("%s|%s|%s" % [level["id"],

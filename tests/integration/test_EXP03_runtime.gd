@@ -206,17 +206,21 @@ func test_EXP03_optional_unsafe_west_shortcut_overloads_and_trips_original_prote
 
 func test_EXP03_two_simultaneous_sign_routes_refused_atomically_by_grid() -> void:
 	var runtime: Runtime = _session("LV_090")
+	_stand(runtime, "PANEL_WEST")
+	_must(runtime, 1, "inspect", "PANEL_WEST")
+	_stand(runtime, "SW_EAST")
+	_must(runtime, 2, "toggle_switch", "SW_EAST", {"value": true})
+	var seq: int = _restore_west(runtime, 3)
 	_stand(runtime, "SW_GRID_SPUR")
-	_must(runtime, 1, "toggle_switch", "SW_GRID_SPUR", {"value": true})
-	_must(runtime, 2, "toggle_switch", "SW_SIGN", {"value": true})
+	_must(runtime, seq, "toggle_switch", "SW_GRID_SPUR", {"value": true})
+	_must(runtime, seq + 1, "toggle_switch", "SW_SIGN", {"value": true})
 	var before: String = runtime.state_hash()
-	var result: Dictionary = _send(runtime, 3, "toggle_switch",
+	var result: Dictionary = _send(runtime, seq + 2, "toggle_switch",
 		"SW_WEST_SPUR", {"value": true})
-	# WEST is still initially broken, so the bypass is dormant and may be
-	# preselected. After the fault is restored, the grid refuses dual supply.
-	assert_true(bool(result["ok"]))
-	assert_false(bool(runtime.grid.canonical_state()["edges"]["E_WEST_SPUR"]["energized"]))
-	assert_true(runtime.state_hash() != before)
+	assert_false(bool(result["ok"]), "two energized sign routes must be refused")
+	assert_eq(str(result.get("grid_code", "")), "DUAL_SUPPLY")
+	assert_eq(runtime.state_hash(), before, "no partial mutation on rejected route")
+	assert_false(bool(runtime.grid.canonical_state()["edges"]["E_WEST_SPUR"]["enabled"]))
 
 
 func test_EXP03_factory_rejects_forged_task_bindings_and_capacity_mutation() -> void:
