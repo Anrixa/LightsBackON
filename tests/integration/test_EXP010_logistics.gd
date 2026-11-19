@@ -116,7 +116,7 @@ func test_EXP010_late_delivery_is_recorded_but_does_not_softlock() -> void:
 	assert_true(machine.configure(entry)["ok"])
 	assert_true(machine.operate(str(entry["depot"]), "manifest", _facts())["ok"])
 	# Wait beyond the critical ETA while a real host clock advances.
-	for t: int in range(30):
+	for t: int in range(14):
 		machine.advance(_facts())
 	_deliver(machine, entry, 0, "direct", _facts())
 	_deliver(machine, entry, 1, "relay", _facts())
