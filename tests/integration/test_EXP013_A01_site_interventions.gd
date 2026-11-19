@@ -123,9 +123,9 @@ func test_EXP013_A01_host_selection_respects_opt_in_and_previous_40_sites() -> v
     assert_true(next._definitions["positions"].has("SC_041_A"), "Missing A position")
     assert_true(next._definitions["positions"].has("SC_041_B"), "Missing B position")
     assert_true(next._definitions["positions"].has("SC_041_C"), "Missing C position")
-    var old_hash: String = old.host.state_hash()
-    var new_hash: String = next.host.state_hash()
-    assert_true(old_hash != new_hash, "EXP013 host and old host hashes equal")
+    var old_hash: String = old.state_hash()
+    var new_hash: String = next.state_hash()
+    assert_true(old_hash != new_hash, "Full expedition session hashes must bind the authored source overlay")
 
     # The same opt-in never changes LV_001's original A02 source.
     var first: Runtime = Runtime.new()
