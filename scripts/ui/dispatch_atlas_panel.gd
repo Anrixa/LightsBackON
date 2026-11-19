@@ -232,14 +232,14 @@ func _describe(index: int) -> void:
 			str(task["mechanic"]), int(task["field_points_preview"])])
 		lines.append("")
 	var find: Dictionary = level["collectible"]
-	lines.append("LORE PICKUP / UNIQUE FIELD LOOT")
+	lines.append("PLANNED STORY COLLECTIBLE / EXP04 UNIQUE LORE PICKUP")
 	lines.append(str(find["name"]) + "  /  " + str(find["set"]))
 	lines.append("Personal collection: " +
 		("ACQUIRED" if (_field_profile.get("lore_finds", {}) as Dictionary).has(
 			str(find["id"])) else "NOT YET ACQUIRED"))
 	lines.append("EXP04: interact with the relic after host-confirmed optional inspection. Adds one non-spendable collection entry; never awards C01 credits or modifies the grid.")
 	lines.append("")
-	lines.append("Earlier concept preview total: %d (NOT the authoritative EXP04 score)" % Atlas.preview_points(level))
+	lines.append("Concept points for all five objectives: %d (NOT real rewards; EXP04 field score is host-verified separately)" % Atlas.preview_points(level))
 	lines.append("STATUS  •  Design-browser preview; explicit EXP04 host dispatch remains experimental")
 	_details.text = "\n".join(lines)
 	_details.scroll_to_line(0)
