@@ -10,8 +10,12 @@ import json
 import re
 from pathlib import Path
 
-from tools.validate_exp012_worksites import load_inputs
-from tools.validate_exp012_a02_sites import replay, recovery_oracle
+if __package__:
+    from tools.validate_exp012_worksites import load_inputs
+    from tools.validate_exp012_a02_sites import replay, recovery_oracle
+else:
+    from validate_exp012_worksites import load_inputs
+    from validate_exp012_a02_sites import replay, recovery_oracle
 
 ROOT = Path(__file__).resolve().parents[1]
 BOOK = ROOT / "scenes/expeditions/site_interventions_exp013.json"
