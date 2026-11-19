@@ -13,6 +13,7 @@ const TargetSelector := preload("res://scripts/interaction/target_selector.gd")
 const Visibility := preload("res://scripts/interaction/interaction_visibility.gd")
 const Interaction := preload("res://scripts/interaction/interaction_service.gd")
 const Ledger := preload("res://scripts/progression/expedition_ledger.gd")
+const Campaign := preload("res://scripts/progression/expedition_campaign.gd")
 const SaveService := preload("res://scripts/persistence/save_service.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
@@ -74,6 +75,14 @@ func _ready() -> void:
 	if level.is_empty():
 		push_error("EXP03_UNKNOWN_LEVEL: " + requested)
 		return
+	# This is a presentation-side early check, followed by the independent
+	# host-side EXP05 gate in Runtime.start(). No C01 checkpoint is touched.
+	if _expedition_account != "":
+		var access: Dictionary = Campaign.can_launch(_expedition_profile, catalog,
+			Campaign.load_routes(), requested)
+		if not bool(access.get("ok", false)):
+			push_error("EXP05_LEVEL_GATE_HOLD: " + str(access))
+			return
 	var location: Dictionary = Atlas.find_location(catalog, str(level["location_id"]))
 	var plan: Dictionary = Plan.make_plan(level, location)
 	if not bool(plan.get("ok", false)):
@@ -96,7 +105,7 @@ func _ready() -> void:
 	runtime = Runtime.new()
 	var result: Dictionary = runtime.start(
 		level_id, Callable(self, "_host_position"), Callable(self, "_world_sight"),
-		_expedition_account)
+		_expedition_account, _expedition_account != "")
 	if not bool(result.get("ok", false)):
 		push_error("EXP03_HOST_START_FAILED: " + str(result))
 		return
