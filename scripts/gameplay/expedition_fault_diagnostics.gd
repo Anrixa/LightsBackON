@@ -198,6 +198,12 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 	if action == "certify":
 		if _phase != "verified":
 			return {"ok": false, "code": "EXP08_HOLD_NOT_VERIFIED"}
+		# The last host-authoritative electrical and hazard facts must still hold.
+		if not _ready_for_stability(facts):
+			_phase = "faulted"
+			_stable_ticks = 0
+			_faults += 1
+			return {"ok": false, "code": "EXP08_STABILITY_LOST"}
 		_phase = "complete"
 		return {"ok": true, "phase": _phase, "route": _route}
 	return {"ok": false, "code": "EXP08_ACTION_INVALID"}
@@ -207,12 +213,15 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 ## Loss of either physical feeder, repair, or the hazard-safe window trips the
 ## ongoing hold and requires a new host-authorized reset. It never rewrites grid.
 func advance(facts: Dictionary) -> void:
-	if _phase != "holding":
+	if _phase != "holding" and _phase != "verified":
 		return
 	if not _ready_for_stability(facts):
+		# Also invalidate a verified but not yet certified hold if supply drops.
 		_phase = "faulted"
 		_stable_ticks = 0
 		_faults += 1
+		return
+	if _phase == "verified":
 		return
 	_stable_ticks += 1
 	var required: int = int(_spec["hold_ticks"])
