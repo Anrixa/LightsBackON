@@ -21,6 +21,9 @@ if [ -n "$PY" ]; then
   "$PY" tools/validate_dispatch_atlas.py || FAIL=1
 fi
 
+echo "== EXP06 source-pinned 200 encounters: independent safety and puzzle audit =="
+if [ -n "$PY" ]; then "$PY" tools/validate_exp06_encounters.py || FAIL=1; fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 

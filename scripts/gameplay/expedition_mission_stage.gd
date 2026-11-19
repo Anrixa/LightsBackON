@@ -42,6 +42,7 @@ var _expedition_account: String = ""
 var _expedition_saves: SaveService
 var _expedition_profile: Dictionary = {}
 var _reward_error: String = ""
+var _hazard_marker: MeshInstance3D
 
 
 func _ready() -> void:
@@ -105,12 +106,13 @@ func _ready() -> void:
 	runtime = Runtime.new()
 	var result: Dictionary = runtime.start(
 		level_id, Callable(self, "_host_position"), Callable(self, "_world_sight"),
-		_expedition_account, _expedition_account != "")
+		_expedition_account, _expedition_account != "", "", true)
 	if not bool(result.get("ok", false)):
 		push_error("EXP03_HOST_START_FAILED: " + str(result))
 		return
 	_definitions = runtime.definition_snapshot()
 	_add_host_targets()
+	_add_hazard_marker()
 	_build_overlay(level)
 	# An original Compatibility scene with no extra lights or game-state
 	# emissions. Authored graybox worksite visuals remain source-only.
@@ -181,6 +183,31 @@ func _add_host_targets() -> void:
 		marker.add_child(label)
 
 
+## A visible diagnostic marker, not a damage collider or tested path blocker.
+## Host timing and permission checks remain authoritative independently.
+func _add_hazard_marker() -> void:
+	if runtime.bespoke == null:
+		return
+	var marker: MeshInstance3D = MeshInstance3D.new()
+	marker.name = "EXP06HazardNotice"
+	var surface: CylinderMesh = CylinderMesh.new()
+	surface.top_radius = 1.8
+	surface.bottom_radius = 1.8
+	surface.height = 0.045
+	marker.mesh = surface
+	var paint: StandardMaterial3D = StandardMaterial3D.new()
+	paint.albedo_color = Color("#D89032")
+	paint.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	paint.albedo_color.a = 0.54
+	paint.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	marker.material_override = paint
+	var worksite: Vector3 = _definitions["positions"]["R_WEST"]
+	marker.position = Vector3(worksite.x, 0.045, worksite.z)
+	world.add_child(marker)
+	_hazard_marker = marker
+	marker.visible = false
+
+
 func _build_overlay(level: Dictionary) -> void:
 	var layer: CanvasLayer = CanvasLayer.new()
 	layer.name = "ExpeditionUI"
@@ -216,7 +243,7 @@ func _build_overlay(level: Dictionary) -> void:
 	_feedback.add_theme_color_override("font_color", Color("#F1D6B2"))
 	box.add_child(_feedback)
 	var controls: Label = Label.new()
-	controls.text = "WASD move • mouse aim • E interact • 1–5 tools • Esc return to atlas\nStage 4: inspect optional archive, then pick up its lore relic. Unsafe WEST bypass is hazardous."
+	controls.text = "WASD move • mouse aim • E interact • 1–5 tools • Esc return to atlas\nEXP06: Follow the puzzle instructions, watch host hazard windows. Optional archive and lore remain optional. Unsafe WEST bypass remains hazardous."
 	controls.add_theme_color_override("font_color", Color("#D9E3EC"))
 	controls.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(controls)
@@ -245,6 +272,10 @@ func _physics_process(delta: float) -> void:
 		_tick_accumulator -= HOST_STEP_SECONDS
 		runtime.tick_host()
 		_persist_rewards()
+		if runtime.bespoke != null:
+			if _hazard_marker != null:
+				_hazard_marker.visible = runtime.bespoke.hazard_active()
+			_refresh()
 	var selected: String = _aim_target()
 	if selected != _target:
 		_target = selected
@@ -413,6 +444,15 @@ func _refresh() -> void:
 		lines.append("Field progression unavailable: existing local identity not ready")
 	if _reward_error != "":
 		lines.append("EXP04 SAVE HOLD: " + _reward_error)
+	if board.has("bespoke"):
+		var status: Dictionary = board["bespoke"]
+		lines.append("EXP06 %s • PUZZLE %s" % [str(status["family"]),
+			"PASS" if status["puzzle_solved"] else "ACTIVE"])
+		lines.append("TASK: " + str(status["instruction"]))
+		lines.append("HAZARD: %s [%s] • %s • safe in %d ticks • exposure %d ticks" % [
+			str(status["hazard_kind"]), str(status["hazard_blocks"]),
+			"UNSAFE" if status["hazard_active"] else "SAFE",
+			int(status["safe_in_ticks"]), int(status["exposure_ticks"])])
 	_task_label.text = "\n".join(lines)
 	if _target_label != null:
 		_target_label.text = "Target: %s  /  tool: %s  /  host revision: %d" % [
