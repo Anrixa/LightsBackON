@@ -139,7 +139,7 @@ func test_EXP013_A01_host_selection_respects_opt_in_and_previous_40_sites() -> v
     # The next uncovered location must remain A01-only even with EXP013 enabled.
     var uncovered: Runtime = Runtime.new()
     var uncovered_start: Dictionary = uncovered.start("LV_081", Callable(self, "_host_position"),
-        Callable(), "", false, "", true, true, true, true, true, true, true, true, true)
+        Callable(), "", false, "", true, true, true, true, true, true, true, true)
     assert_true(uncovered_start["ok"], str(uncovered_start))
     if uncovered_start["ok"]:
         assert_true(uncovered.site_a02 == null, "LV_081 incorrectly matched A02")
