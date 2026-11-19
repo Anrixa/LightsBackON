@@ -105,8 +105,8 @@ func test_EXP013_A01_host_selection_respects_opt_in_and_previous_40_sites() -> v
     assert_true(earlier["ok"], str(earlier))
     if not earlier["ok"]:
         return
-    assert_true(old.site_a02 == null)
-    assert_true(old.site_exp013 == null)
+    assert_true(old.site_a02 == null, "Old LV_041 opt-in unexpectedly instantiated A02")
+    assert_true(old.site_exp013 == null, "Old LV_041 opt-in unexpectedly instantiated EXP013")
     assert_false(old.host.authoritative_state()["exp012_worksite_orders"].has("site_exp013"))
 
     var next: Runtime = Runtime.new()
@@ -115,17 +115,17 @@ func test_EXP013_A01_host_selection_respects_opt_in_and_previous_40_sites() -> v
     assert_true(started["ok"], str(started))
     if not started["ok"]:
         return
-    assert_true(next.site_a02 == null)
-    assert_true(next.site_exp013 != null)
+    assert_true(next.site_a02 == null, "New LV_041 unexpectedly matched A02")
+    assert_true(next.site_exp013 != null, "New LV_041 did not instantiate EXP013")
     assert_eq(str(next.site_exp013.definition_snapshot()["level_id"]), "LV_041")
-    assert_true(next.host.authoritative_state()["exp012_worksite_orders"].has("site_exp013"))
-    assert_true(str(started["content_revision"]).begins_with("EXP013_"))
-    assert_true(next._definitions["positions"].has("SC_041_A"))
-    assert_true(next._definitions["positions"].has("SC_041_B"))
-    assert_true(next._definitions["positions"].has("SC_041_C"))
+    assert_true(next.host.authoritative_state()["exp012_worksite_orders"].has("site_exp013"), "Host snapshot missing EXP013")
+    assert_true(str(started["content_revision"]).begins_with("EXP013_"), "EXP013 revision namespace wrong")
+    assert_true(next._definitions["positions"].has("SC_041_A"), "Missing A position")
+    assert_true(next._definitions["positions"].has("SC_041_B"), "Missing B position")
+    assert_true(next._definitions["positions"].has("SC_041_C"), "Missing C position")
     var old_hash: String = old.host.state_hash()
     var new_hash: String = next.host.state_hash()
-    assert_true(old_hash != new_hash)
+    assert_true(old_hash != new_hash, "EXP013 host and old host hashes equal")
 
     # The same opt-in never changes LV_001's original A02 source.
     var first: Runtime = Runtime.new()
@@ -133,8 +133,8 @@ func test_EXP013_A01_host_selection_respects_opt_in_and_previous_40_sites() -> v
         Callable(), "", false, "", true, true, true, true, true, true, true, true)
     assert_true(first_start["ok"], str(first_start))
     if first_start["ok"]:
-        assert_true(first.site_a02 != null)
-        assert_true(first.site_exp013 == null)
+        assert_true(first.site_a02 != null, "LV_001 A02 not active under both flags")
+        assert_true(first.site_exp013 == null, "LV_001 unexpectedly activated EXP013")
 
     # The next uncovered location must remain A01-only even with EXP013 enabled.
     var uncovered: Runtime = Runtime.new()
@@ -142,8 +142,8 @@ func test_EXP013_A01_host_selection_respects_opt_in_and_previous_40_sites() -> v
         Callable(), "", false, "", true, true, true, true, true, true, true, true, true)
     assert_true(uncovered_start["ok"], str(uncovered_start))
     if uncovered_start["ok"]:
-        assert_true(uncovered.site_a02 == null)
-        assert_true(uncovered.site_exp013 == null)
+        assert_true(uncovered.site_a02 == null, "LV_081 incorrectly matched A02")
+        assert_true(uncovered.site_exp013 == null, "LV_081 incorrectly matched EXP013")
 
 
 func test_EXP013_A01_authority_refuses_forged_commands_and_unreachable_targets() -> void:
