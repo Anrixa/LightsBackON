@@ -24,6 +24,7 @@ const Ledger := preload("res://scripts/progression/expedition_ledger.gd")
 const SaveService := preload("res://scripts/persistence/save_service.gd")
 const Campaign := preload("res://scripts/progression/expedition_campaign.gd")
 const Bespoke := preload("res://scripts/gameplay/expedition_bespoke_mechanics.gd")
+const Devices := preload("res://scripts/gameplay/expedition_device_graph.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
 
@@ -43,6 +44,7 @@ var equipment: Equipment
 var mission: Mission
 var host: Host
 var bespoke: Bespoke
+var devices: Devices
 
 var _definitions: Dictionary = {}
 var _position_source: Callable
@@ -73,9 +75,11 @@ static func _fail(code: String, details: Variant = null) -> Dictionary:
 func start(level_id: String, host_position: Callable,
 		physics_visibility: Callable = Callable(), account_key: String = "",
 		enforce_campaign: bool = false, campaign_root: String = "",
-		enable_bespoke: bool = false) -> Dictionary:
+		enable_bespoke: bool = false, enable_devices: bool = false) -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
+	if enable_devices and not enable_bespoke:
+		return _fail("EXP07_REQUIRES_EXP06")
 	if account_key != "" and not SaveService.is_valid_key(account_key):
 		return _fail("INVALID_ACCOUNT_KEY")
 	if not host_position.is_valid() or (physics_visibility.is_valid() and not host_position.is_valid()):
@@ -122,6 +126,26 @@ func start(level_id: String, host_position: Callable,
 		if not bool(activated.get("ok", false)):
 			return _fail("EXP06_CONFIG_FAILED", activated)
 		_definitions["bespoke"] = bespoke.definition_snapshot()
+	if enable_devices:
+		var device_book: Dictionary = Devices.load_book()
+		var device_audit: Dictionary = Devices.inspect(atlas, Bespoke.load_book(), device_book)
+		if not bool(device_audit.get("ok", false)):
+			return _fail("EXP07_BOOK_INVALID", device_audit)
+		var graph: Dictionary = Devices.entry_for(device_book, level, bespoke.definition_snapshot())
+		if graph.is_empty():
+			return _fail("EXP07_SOURCE_MISMATCH")
+		devices = Devices.new()
+		var config: Dictionary = devices.configure(graph)
+		if not bool(config.get("ok", false)):
+			return _fail("EXP07_DEVICE_CONFIG_FAILED", config)
+		_definitions["devices"] = devices.definition_snapshot()
+		# Five or six individually source-pinned physical targets per level.
+		# These are source-engineering markers, not route/playability certification.
+		for device: Dictionary in graph["nodes"]:
+			var anchor: String = str(device["anchor"])
+			var base: Vector3 = _definitions["positions"][anchor]
+			(_definitions["positions"] as Dictionary)[str(device["id"])] = \
+				base + Vector3(0.85, 0.0, 0.55)
 	_position_source = host_position
 	_physics_visibility = physics_visibility
 	_account_key = account_key
@@ -160,6 +184,9 @@ func start(level_id: String, host_position: Callable,
 	host.set_collectible_authority(Callable(self, "_claim_lore"), Callable(self, "_lore_state"))
 	if bespoke != null:
 		host.set_expedition_intent_guard(Callable(self, "_bespoke_guard"))
+	if devices != null:
+		host.set_expedition_device_authority(Callable(self, "_operate_device"),
+			Callable(devices, "snapshot"))
 	var accepted: Dictionary = host.admit(Host.HOST_PEER, PLAYER_ID, PROTOCOL, rev, TOOLS)
 	if not bool(accepted.get("ok", false)):
 		return _fail("ADMISSION_REFUSED", accepted)
@@ -173,6 +200,7 @@ func start(level_id: String, host_position: Callable,
 	_ready = true
 	return {"ok": true, "level_id": level_id, "session": sid, "content_revision": rev,
 		"task_count": _tasks.size(), "bespoke_active": bespoke != null,
+		"devices_active": devices != null,
 		"qualification": "AUTHORITY_SOURCE_HEADLESS_ONLY_NO_PLAYABILITY"}
 
 
@@ -181,6 +209,11 @@ func _session_id() -> String:
 
 
 func _content_revision() -> String:
+	if devices != null:
+		return "EXP07_" + ("%s|%s|%s" % [
+			str(_definitions.get("source_fingerprint", "")),
+			str(bespoke.definition_snapshot().get("encounter_key", "")),
+			str(devices.definition_snapshot().get("graph_key", ""))]).sha256_text()
 	if bespoke != null:
 		return "EXP06_" + ("%s|%s" % [
 			str(_definitions.get("source_fingerprint", "")),
@@ -229,7 +262,30 @@ func _bespoke_guard(player_id: String, kind: String, entity: String,
 		_payload: Dictionary) -> Dictionary:
 	if player_id != PLAYER_ID or bespoke == null:
 		return _fail("EXP06_INVALID_HOST_PRINCIPAL")
+	if kind == "request_extract" and devices != null and not devices.solved():
+		return _fail("EXP07_DEVICES_INCOMPLETE")
+	if kind == "operate_device":
+		if devices == null or devices.device_definition(entity).is_empty():
+			return _fail("EXP07_UNKNOWN_DEVICE")
+		if bool(devices.device_definition(entity).get("hazard_sensitive", false)) and \
+				bespoke.hazard_active():
+			return _fail("EXP07_HAZARD_LOCKOUT")
 	return bespoke.preflight(kind, entity)
+
+
+## Device progress mutates exclusively after SessionHost validates the peer,
+## sequence, dedupe, source entity and host-owned physical range / sight.
+func _operate_device(player_id: String, entity: String, action: String) -> Dictionary:
+	if player_id != PLAYER_ID or devices == null:
+		return _fail("EXP07_DEVICE_AUTHORITY_MISSING")
+	var edges: Dictionary = grid.canonical_state()["edges"]
+	var repairs: Dictionary = interaction.canonical_state()["repairs"]
+	var facts: Dictionary = {
+		"west_inspected": _observed_inspections.has("PANEL_WEST"),
+		"east_on": bool(edges["E_GRID_EAST"]["enabled"]),
+		"west_restored": str(repairs["R_WEST"]["state"]) == "restored"
+	}
+	return devices.operate(entity, action, facts)
 
 
 
@@ -408,6 +464,8 @@ func task_board() -> Dictionary:
 	}
 	if bespoke != null:
 		board["bespoke"] = bespoke.snapshot()
+	if devices != null:
+		board["devices"] = devices.snapshot()
 	return board
 
 
