@@ -25,6 +25,7 @@ const SaveService := preload("res://scripts/persistence/save_service.gd")
 const Campaign := preload("res://scripts/progression/expedition_campaign.gd")
 const Bespoke := preload("res://scripts/gameplay/expedition_bespoke_mechanics.gd")
 const Devices := preload("res://scripts/gameplay/expedition_device_graph.gd")
+const Faults := preload("res://scripts/gameplay/expedition_fault_diagnostics.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
 
@@ -45,6 +46,7 @@ var mission: Mission
 var host: Host
 var bespoke: Bespoke
 var devices: Devices
+var faults: Faults
 
 var _definitions: Dictionary = {}
 var _position_source: Callable
@@ -75,11 +77,14 @@ static func _fail(code: String, details: Variant = null) -> Dictionary:
 func start(level_id: String, host_position: Callable,
 		physics_visibility: Callable = Callable(), account_key: String = "",
 		enforce_campaign: bool = false, campaign_root: String = "",
-		enable_bespoke: bool = false, enable_devices: bool = false) -> Dictionary:
+		enable_bespoke: bool = false, enable_devices: bool = false,
+		enable_faults: bool = false) -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
 	if enable_devices and not enable_bespoke:
 		return _fail("EXP07_REQUIRES_EXP06")
+	if enable_faults and not enable_devices:
+		return _fail("EXP08_REQUIRES_EXP07")
 	if account_key != "" and not SaveService.is_valid_key(account_key):
 		return _fail("INVALID_ACCOUNT_KEY")
 	if not host_position.is_valid() or (physics_visibility.is_valid() and not host_position.is_valid()):
@@ -146,6 +151,24 @@ func start(level_id: String, host_position: Callable,
 			var base: Vector3 = _definitions["positions"][anchor]
 			(_definitions["positions"] as Dictionary)[str(device["id"])] = \
 				base + Vector3(0.85, 0.0, 0.55)
+	if enable_faults:
+		var fault_book: Dictionary = Faults.load_book()
+		var fault_audit: Dictionary = Faults.inspect(atlas, Devices.load_book(), fault_book)
+		if not bool(fault_audit.get("ok", false)):
+			return _fail("EXP08_BOOK_INVALID", fault_audit)
+		var scenario: Dictionary = Faults.entry_for(fault_book, level, devices.definition_snapshot())
+		if scenario.is_empty():
+			return _fail("EXP08_SOURCE_MISMATCH")
+		faults = Faults.new()
+		var fault_config: Dictionary = faults.configure(scenario)
+		if not bool(fault_config.get("ok", false)):
+			return _fail("EXP08_CONFIG_FAILED", fault_config)
+		_definitions["faults"] = faults.definition_snapshot()
+		for target: String in ["probe_a", "probe_b", "console"]:
+			var anchor: String = str(scenario["anchors"][target])
+			var offset: Vector3 = Vector3(-0.85, 0.0, -0.52) if target != "console" else Vector3(-0.65, 0.0, 0.70)
+			(_definitions["positions"] as Dictionary)[str(scenario[target])] = \
+				(_definitions["positions"] as Dictionary)[anchor] + offset
 	_position_source = host_position
 	_physics_visibility = physics_visibility
 	_account_key = account_key
@@ -187,6 +210,9 @@ func start(level_id: String, host_position: Callable,
 	if devices != null:
 		host.set_expedition_device_authority(Callable(self, "_operate_device"),
 			Callable(devices, "snapshot"))
+	if faults != null:
+		host.set_expedition_fault_authority(Callable(self, "_operate_fault"),
+			Callable(faults, "snapshot"), Callable(self, "_fault_tick"))
 	var accepted: Dictionary = host.admit(Host.HOST_PEER, PLAYER_ID, PROTOCOL, rev, TOOLS)
 	if not bool(accepted.get("ok", false)):
 		return _fail("ADMISSION_REFUSED", accepted)
@@ -200,7 +226,7 @@ func start(level_id: String, host_position: Callable,
 	_ready = true
 	return {"ok": true, "level_id": level_id, "session": sid, "content_revision": rev,
 		"task_count": _tasks.size(), "bespoke_active": bespoke != null,
-		"devices_active": devices != null,
+		"devices_active": devices != null, "faults_active": faults != null,
 		"qualification": "AUTHORITY_SOURCE_HEADLESS_ONLY_NO_PLAYABILITY"}
 
 
@@ -209,6 +235,11 @@ func _session_id() -> String:
 
 
 func _content_revision() -> String:
+	if faults != null:
+		return "EXP08_" + ("%s|%s|%s" % [
+			str(_definitions.get("source_fingerprint", "")),
+			str(devices.definition_snapshot().get("graph_key", "")),
+			str(faults.definition_snapshot().get("scenario_key", ""))]).sha256_text()
 	if devices != null:
 		return "EXP07_" + ("%s|%s|%s" % [
 			str(_definitions.get("source_fingerprint", "")),
@@ -264,6 +295,13 @@ func _bespoke_guard(player_id: String, kind: String, entity: String,
 		return _fail("EXP06_INVALID_HOST_PRINCIPAL")
 	if kind == "request_extract" and devices != null and not devices.solved():
 		return _fail("EXP07_DEVICES_INCOMPLETE")
+	if kind == "request_extract" and faults != null and not faults.solved():
+		return _fail("EXP08_FAULTS_INCOMPLETE")
+	if kind == "operate_fault":
+		if faults == null or not faults.target_ids().has(entity):
+			return _fail("EXP08_UNKNOWN_TARGET")
+		if devices == null or not devices.solved():
+			return _fail("EXP08_DEVICES_REQUIRED")
 	if kind == "operate_device":
 		if devices == null or devices.device_definition(entity).is_empty():
 			return _fail("EXP07_UNKNOWN_DEVICE")
@@ -287,6 +325,31 @@ func _operate_device(player_id: String, entity: String, action: String) -> Dicti
 	}
 	return devices.operate(entity, action, facts)
 
+
+
+## EXP08: facts are reconstructed solely from live host services, never from wire bytes.
+func _fault_facts() -> Dictionary:
+	var edges: Dictionary = grid.canonical_state()["edges"]
+	var repairs: Dictionary = interaction.canonical_state()["repairs"]
+	return {
+		"west_inspected": _observed_inspections.has("PANEL_WEST"),
+		"east_on": bool(edges["E_GRID_EAST"]["enabled"]),
+		"spur_on": bool(edges["E_GRID_SPUR"]["enabled"]),
+		"west_restored": str(repairs["R_WEST"]["state"]) == "restored",
+		"devices_solved": devices != null and devices.solved(),
+		"hazard_active": bespoke != null and bespoke.hazard_active()
+	}
+
+
+func _operate_fault(player_id: String, entity: String, action: String) -> Dictionary:
+	if player_id != PLAYER_ID or faults == null:
+		return _fail("EXP08_HOST_PRINCIPAL_INVALID")
+	return faults.operate(entity, action, _fault_facts())
+
+
+func _fault_tick() -> void:
+	if faults != null:
+		faults.advance(_fault_facts())
 
 
 ## Called by SessionHost ONLY after its existing transport/session/sequence,
@@ -466,6 +529,8 @@ func task_board() -> Dictionary:
 		board["bespoke"] = bespoke.snapshot()
 	if devices != null:
 		board["devices"] = devices.snapshot()
+	if faults != null:
+		board["faults"] = faults.snapshot()
 	return board
 
 

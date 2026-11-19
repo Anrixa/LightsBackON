@@ -21,7 +21,7 @@ const HOST_PEER: int = 1
 const CHUNK_ENVELOPE_BYTES: int = 96  # {"type":"snapshot_chunk","index":N,"data":"..."} around the escaped slice
 const ENVELOPE_KEYS: Array[String] = ["session", "seq", "type", "entity", "payload"]
 const INTENTS: Array[String] = ["inspect", "request_lock", "release", "heartbeat", "repair_step", "equip", "toggle_switch", "place_item",
-	"request_extract", "use_ladder", "use_route", "recover_self", "ping", "chat", "collect_lore", "operate_device"]
+	"request_extract", "use_ladder", "use_route", "recover_self", "ping", "chat", "collect_lore", "operate_device", "operate_fault"]
 const DEFERRED_INTENTS: Array[String] = ["ready"]  # lobby; refused until implemented
 const PLACE_ACTIONS: Array[String] = ["pickup", "place", "connect", "disconnect", "start", "stop", "reset_breaker", "recover", "drop"]
 
@@ -40,6 +40,9 @@ var _collectible_handler: Callable = Callable()  # optional EXP04 host-only pick
 var _collectible_state: Callable = Callable()  # optional EXP04 canonical discovered state
 var _device_handler: Callable = Callable()  # opt-in EXP07; invoked only after host range and replay checks
 var _device_state: Callable = Callable()  # host-owned EXP07 device state, part of canonical hash
+var _fault_handler: Callable = Callable()  # opt-in EXP08; never a client-defined state transition
+var _fault_state: Callable = Callable()  # canonical host-owned EXP08 state
+var _fault_tick: Callable = Callable()  # fixed host tick, not a wire timestamp
 var _expedition_intent_guard: Callable = Callable()  # optional EXP06 policy; checked after host dedupe
 var _switches: Dictionary = {}  # switch id -> {"target", "field"}
 var _members: Dictionary = {}  # transport peer id (int) -> player id
@@ -176,6 +179,9 @@ func tick(now: int) -> Array[Dictionary]:
 		events.append_array(_mission.tick(now))  # after the grid step, so latches and verification see this tick's supply
 	if _comms != null:
 		events.append_array(_comms.tick(now))
+	# EXP08 stability advances inside the original host hash/revision barrier.
+	if _fault_tick.is_valid():
+		_fault_tick.call()
 	if now - _last_checkpoint_tick >= int(_limits["checkpoint_interval_ticks"]):
 		_last_checkpoint_tick = now
 		events.append({"type": "checkpoint_due", "reason": "interval", "tick": now})
@@ -376,6 +382,18 @@ func _dispatch(player: String, msg: Dictionary) -> Dictionary:
 		if not result is Dictionary:
 			return _refuse("EXP07_INVALID_HOST_RESULT", "device authority produced invalid result", [entity])
 		return result
+	# EXP08 uses the same authorized envelope, source-bound entity range and LoS.
+	if kind == "operate_fault":
+		if not _fault_handler.is_valid():
+			return _refuse("UNSUPPORTED_INTENT", "EXP08 not active in this session", [])
+		if payload.size() != 1 or not payload.get("action") is String:
+			return _refuse("MALFORMED", "operate_fault takes exactly one action", [entity])
+		if not in_range:
+			return _refuse("NOT_IN_RANGE", "move closer to %s" % entity, [entity])
+		var fault_reply: Variant = _fault_handler.call(player, entity, str(payload["action"]))
+		if not fault_reply is Dictionary:
+			return _refuse("EXP08_INVALID_HOST_RESULT", "fault authority returned invalid result", [entity])
+		return fault_reply
 	# EXP04's optional pickup is subject to the SAME transport membership,
 	# session, sequence, rate, entity proximity and sight checks as repairs.
 	# Without an explicit server-side handler existing contracts refuse it.
@@ -493,6 +511,8 @@ func authoritative_state() -> Dictionary:
 		state["field_lore"] = _collectible_state.call()
 	if _device_state.is_valid():
 		state["exp07_devices"] = _device_state.call()
+	if _fault_state.is_valid():
+		state["exp08_faults"] = _fault_state.call()
 	return state
 
 
@@ -507,6 +527,14 @@ func set_collectible_authority(handler: Callable, state_provider: Callable) -> v
 func set_expedition_device_authority(handler: Callable, state_provider: Callable) -> void:
 	_device_handler = handler
 	_device_state = state_provider
+
+
+## Isolated EXP08 extension. Legacy hosts do not install these callbacks.
+func set_expedition_fault_authority(handler: Callable, state_provider: Callable,
+		tick_provider: Callable) -> void:
+	_fault_handler = handler
+	_fault_state = state_provider
+	_fault_tick = tick_provider
 
 
 ## Attach crew communication (V06).
