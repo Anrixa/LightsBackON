@@ -23,6 +23,7 @@ const Rewards := preload("res://scripts/progression/reward_service.gd")
 const Ledger := preload("res://scripts/progression/expedition_ledger.gd")
 const SaveService := preload("res://scripts/persistence/save_service.gd")
 const Campaign := preload("res://scripts/progression/expedition_campaign.gd")
+const Bespoke := preload("res://scripts/gameplay/expedition_bespoke_mechanics.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
 
@@ -41,6 +42,7 @@ var interaction: Interaction
 var equipment: Equipment
 var mission: Mission
 var host: Host
+var bespoke: Bespoke
 
 var _definitions: Dictionary = {}
 var _position_source: Callable
@@ -70,7 +72,8 @@ static func _fail(code: String, details: Variant = null) -> Dictionary:
 ## invalid geometry before constructing a single authority-bearing service.
 func start(level_id: String, host_position: Callable,
 		physics_visibility: Callable = Callable(), account_key: String = "",
-		enforce_campaign: bool = false, campaign_root: String = "") -> Dictionary:
+		enforce_campaign: bool = false, campaign_root: String = "",
+		enable_bespoke: bool = false) -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
 	if account_key != "" and not SaveService.is_valid_key(account_key):
@@ -106,6 +109,19 @@ func start(level_id: String, host_position: Callable,
 	_definitions = Factory.build(level, plan)
 	if not bool(_definitions.get("ok", false)):
 		return _fail("CONTRACT_FACTORY_FAILED", _definitions)
+	if enable_bespoke:
+		var book: Dictionary = Bespoke.load_book()
+		var integrity: Dictionary = Bespoke.inspect(atlas, book)
+		if not bool(integrity.get("ok", false)):
+			return _fail("EXP06_BOOK_INVALID", integrity)
+		var encounter: Dictionary = Bespoke.entry_for(book, level, location)
+		if encounter.is_empty():
+			return _fail("EXP06_ENCOUNTER_SOURCE_MISMATCH")
+		bespoke = Bespoke.new()
+		var activated: Dictionary = bespoke.configure(encounter)
+		if not bool(activated.get("ok", false)):
+			return _fail("EXP06_CONFIG_FAILED", activated)
+		_definitions["bespoke"] = bespoke.definition_snapshot()
 	_position_source = host_position
 	_physics_visibility = physics_visibility
 	_account_key = account_key
@@ -154,7 +170,7 @@ func start(level_id: String, host_position: Callable,
 			"title": str(task["title"]), "required": bool(task["required"])})
 	_ready = true
 	return {"ok": true, "level_id": level_id, "session": sid, "content_revision": rev,
-		"task_count": _tasks.size(),
+		"task_count": _tasks.size(), "bespoke_active": bespoke != null,
 		"qualification": "AUTHORITY_SOURCE_HEADLESS_ONLY_NO_PLAYABILITY"}
 
 
@@ -180,6 +196,15 @@ func definition_snapshot() -> Dictionary:
 func receive(peer_id: int, message: PackedByteArray) -> Dictionary:
 	if not _ready:
 		return _fail("SESSION_NOT_READY")
+	# EXP06 fail-closed rules apply to the exact source-pinned host envelope;
+	# they cannot replace SessionHost's own peer, sequence or range checks.
+	if bespoke != null and peer_id == Host.HOST_PEER:
+		var untrusted: Variant = JSON.parse_string(message.get_string_from_utf8())
+		if untrusted is Dictionary and untrusted.get("session") == session_id():
+			var guard: Dictionary = bespoke.preflight(
+				str(untrusted.get("type", "")), str(untrusted.get("entity", "")))
+			if not bool(guard.get("ok", false)):
+				return guard
 	var reply: Dictionary = host.receive(peer_id, message)
 	if not bool(reply.get("ok", false)) or bool(reply.get("duplicate", false)):
 		return reply
@@ -194,6 +219,10 @@ func receive(peer_id: int, message: PackedByteArray) -> Dictionary:
 			var snapshots: Dictionary = meter.canonical_state()["snapshots"]
 			if snapshots.has(panel):
 				_observed_inspections[panel] = true
+	if bespoke != null and command is Dictionary:
+		bespoke.accepted(str(command.get("type", "")),
+			str(command.get("entity", "")), command.get("payload", {}),
+			grid.canonical_state(), interaction.canonical_state()["repairs"])
 	_update_progress()
 	return reply
 
@@ -308,6 +337,10 @@ func tick_host() -> Dictionary:
 	_tick += 1
 	host.set_in_zone(PLAYER_ID, "ZONE_EXTRACT", _inside_extraction(PLAYER_ID))
 	host.tick(_tick)
+	if bespoke != null:
+		bespoke.advance(_host_position(PLAYER_ID),
+			_definitions["positions"]["R_WEST"],
+			grid.canonical_state(), interaction.canonical_state()["repairs"])
 	_update_progress()
 	return {"ok": true, "tick": _tick, "revision": host.revision,
 		"completed": mission.results().size() > 0}
@@ -357,7 +390,7 @@ func task_board() -> Dictionary:
 			"state": "done" if done else "optional" if not task["required"] else "pending",
 			"binding": (_definitions["bindings"] as Dictionary)[task["id"]]["entity"]
 		})
-	return {
+	var board: Dictionary = {
 		"ok": true, "schema": RUNTIME_SCHEMA, "level_id": _definitions["level_id"],
 		"tasks": out, "required_completed": required_done,
 		"required_total": 4, "optional_completed": _completed.has(str(_tasks[3]["id"])),
@@ -367,15 +400,25 @@ func task_board() -> Dictionary:
 		"host_revision": host.revision,
 		"not_certified": "NO_PHYSICAL_PLAYABILITY_OR_REWARD_PROMOTION"
 	}
+	if bespoke != null:
+		board["bespoke"] = bespoke.snapshot()
+	return board
 
 
 func authoritative_state() -> Dictionary:
-	return host.authoritative_state().duplicate(true) if _ready else {}
+	if not _ready:
+		return {}
+	var state: Dictionary = host.authoritative_state().duplicate(true)
+	if bespoke != null:
+		state["exp06"] = bespoke.snapshot()
+	return state
 
 
 func state_hash() -> String:
 	if not _ready:
 		return ""
+	if bespoke != null:
+		return JSON.stringify(authoritative_state()).sha256_text()
 	return host.state_hash()
 
 
