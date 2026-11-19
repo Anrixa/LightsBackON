@@ -39,6 +39,16 @@ class ExpeditionBespokeSourceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "DUPLICATE_OR_INVALID_KEY"):
             validate(self.atlas, book)
 
+    def test_source_incoherent_but_supported_families_are_denied(self) -> None:
+        book = copy.deepcopy(self.book)
+        book["entries"][0]["puzzle"]["family"] = "fault_trace"
+        with self.assertRaisesRegex(ValueError, "UNPINNED_SOURCE_MECHANIC"):
+            validate(self.atlas, book)
+        book = copy.deepcopy(self.book)
+        book["entries"][0]["hazard"]["kind"] = "thermal_spike"
+        with self.assertRaisesRegex(ValueError, "UNPINNED_SOURCE_MECHANIC"):
+            validate(self.atlas, book)
+
     def test_unsafe_no_window_schedule_is_denied(self) -> None:
         book = copy.deepcopy(self.book)
         book["entries"][0]["hazard"]["active_ticks"] = book["entries"][0]["hazard"]["period_ticks"]
