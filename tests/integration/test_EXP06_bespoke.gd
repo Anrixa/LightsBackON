@@ -158,6 +158,22 @@ func test_EXP06_all_200_encounters_pin_atlas_and_cover_eight_real_mechanic_famil
 	print("EXP06_AUTHORING PASS configurations=200 families=8 hazards=8 unique=200")
 
 
+func test_EXP06_all_200_dispatches_initialize_source_pinned_host_mechanics() -> void:
+	var atlas: Dictionary = Atlas.load_catalog()
+	var revisions: Dictionary = {}
+	for level: Dictionary in atlas["levels"]:
+		var id: String = str(level["id"])
+		var session: Runtime = _session(id)
+		var board: Dictionary = session.task_board()
+		assert_true(board.has("bespoke"), id)
+		assert_eq(board["bespoke"]["level_id"], id)
+		assert_eq(str(board["bespoke"]["hazard_risk"]), str(level["hazard"]))
+		assert_false(bool(board["bespoke"]["puzzle_solved"]))
+		revisions[session._content_revision()] = true
+	assert_eq(revisions.size(), 200)
+	print("EXP06_HOST_INITIALIZATION PASS source_pinned_sessions=200 revisions=200")
+
+
 func test_EXP06_rejects_foreign_or_tampered_source_and_invalid_hazard_parameters() -> void:
 	var atlas: Dictionary = Atlas.load_catalog()
 	var book: Dictionary = Mechanics.load_book()
@@ -176,6 +192,14 @@ func test_EXP06_rejects_foreign_or_tampered_source_and_invalid_hazard_parameters
 	forged = book.duplicate(true)
 	(forged["entries"][0] as Dictionary)["puzzle"]["family"] = "client_awards_points"
 	assert_false(bool(Mechanics.inspect(atlas, forged)["ok"]))
+	forged = book.duplicate(true)
+	(forged["entries"][0] as Dictionary)["puzzle"]["family"] = "fault_trace"
+	assert_false(bool(Mechanics.inspect(atlas, forged)["ok"]),
+		"valid family from the wrong authored task must fail source pinning")
+	forged = book.duplicate(true)
+	(forged["entries"][0] as Dictionary)["hazard"]["kind"] = "thermal_spike"
+	assert_false(bool(Mechanics.inspect(atlas, forged)["ok"]),
+		"valid hazard from the wrong climate must fail source pinning")
 
 
 func test_EXP06_authoritative_host_extraction_is_blocked_until_puzzle_is_solved() -> void:
