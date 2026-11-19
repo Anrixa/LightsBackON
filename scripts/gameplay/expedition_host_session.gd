@@ -22,6 +22,9 @@ const Host := preload("res://scripts/network/session_host.gd")
 const Rewards := preload("res://scripts/progression/reward_service.gd")
 const Ledger := preload("res://scripts/progression/expedition_ledger.gd")
 const SaveService := preload("res://scripts/persistence/save_service.gd")
+const Campaign := preload("res://scripts/progression/expedition_campaign.gd")
+const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
+const ContentHash := preload("res://scripts/network/content_hash.gd")
 
 const RUNTIME_SCHEMA: int = 1
 const PROTOCOL: int = 1
@@ -66,7 +69,8 @@ static func _fail(code: String, details: Variant = null) -> Dictionary:
 ## Only source-pinned ID selection is accepted. Reject a forged catalog or
 ## invalid geometry before constructing a single authority-bearing service.
 func start(level_id: String, host_position: Callable,
-		physics_visibility: Callable = Callable(), account_key: String = "") -> Dictionary:
+		physics_visibility: Callable = Callable(), account_key: String = "",
+		enforce_campaign: bool = false, campaign_root: String = "") -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
 	if account_key != "" and not SaveService.is_valid_key(account_key):
@@ -80,6 +84,23 @@ func start(level_id: String, host_position: Callable,
 	var level: Dictionary = Atlas.find_level(atlas, level_id)
 	if level.is_empty():
 		return _fail("UNKNOWN_LEVEL")
+	# EXP05 host-gated dispatch is opt-in; legacy source/headless sessions with
+	# no campaign requirement retain their existing EXP03/EXP04 semantics.
+	# The profile is read by the host, never supplied in the network envelope.
+	if enforce_campaign:
+		if account_key == "":
+			return _fail("CAMPAIGN_IDENTITY_REQUIRED")
+		var saves: SaveService = SaveService.new()
+		saves.configure(1, OfflinePersistence.SAVE_BUILD_ID,
+			ContentHash.content_revision(), ContentHash.rules_revision())
+		var root: String = OfflinePersistence.runtime_root() if campaign_root == "" else campaign_root
+		var loaded: Dictionary = Ledger.load_profile(saves, account_key, root)
+		if not bool(loaded.get("ok", false)):
+			return _fail("CAMPAIGN_PROFILE_HOLD", loaded)
+		var access: Dictionary = Campaign.can_launch(loaded["profile"], atlas,
+			Campaign.load_routes(), level_id)
+		if not bool(access.get("ok", false)):
+			return _fail(str(access.get("code", "CAMPAIGN_ROUTE_INVALID")), access)
 	var location: Dictionary = Atlas.find_location(atlas, str(level["location_id"]))
 	var plan: Dictionary = Plan.make_plan(level, location)
 	_definitions = Factory.build(level, plan)
