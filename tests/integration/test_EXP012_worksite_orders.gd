@@ -127,19 +127,19 @@ func test_EXP012_finite_rapid_cells_crew_capacity_and_recoverable_abort() -> voi
 	assert_true(machine.operate(first, "confirm", _facts())["ok"])
 	assert_eq(machine.snapshot()["aborts"], 1)
 	assert_eq(machine.snapshot()["states"][first]["status"], "pending")
-	assert_eq(machine.snapshot()["cells_left"], entry["cell_budget"] - 1)
+	assert_eq(machine.snapshot()["cells_left"], int(entry["cell_budget"]) - 1)
 	assert_true(machine.operate(first, "precision", _facts())["ok"])
 	for t: int in range(int(entry["checkpoints"][0]["precision_ticks"])):
 		machine.advance(_facts())
 	assert_true(machine.operate(first, "confirm", _facts())["ok"])
 	assert_true(machine.operate(second, "rapid", _facts())["ok"])
-	assert_eq(machine.snapshot()["cells_left"], entry["cell_budget"] - 2)
+	assert_eq(machine.snapshot()["cells_left"], int(entry["cell_budget"]) - 2)
 	var unsafe: Dictionary = _facts()
 	unsafe["hazard_active"] = true
 	machine.advance(unsafe)
 	assert_eq(machine.snapshot()["states"][first]["status"], "recheck")
 	assert_eq(machine.snapshot()["states"][second]["status"], "pending")
-	assert_eq(machine.snapshot()["cells_left"], entry["cell_budget"] - 2)
+	assert_eq(machine.snapshot()["cells_left"], int(entry["cell_budget"]) - 2)
 	assert_true(machine.operate(first, "recheck", _facts())["ok"])
 
 
