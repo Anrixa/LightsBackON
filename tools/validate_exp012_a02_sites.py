@@ -12,7 +12,11 @@ import json
 import re
 from pathlib import Path
 
-from tools.validate_exp012_worksites import load_inputs, validate as validate_a01
+# Executable directly by tools/run_tests.sh and importable by unittest.
+if __package__:
+    from tools.validate_exp012_worksites import load_inputs, validate as validate_a01
+else:
+    from validate_exp012_worksites import load_inputs, validate as validate_a01
 
 ROOT = Path(__file__).resolve().parents[1]
 A02 = ROOT / "scenes/expeditions/site_interventions_a02.json"
