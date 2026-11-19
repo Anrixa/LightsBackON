@@ -4,6 +4,7 @@ extends RefCounted
 ## rerouting. Interruption during the timed hold creates a recoverable fault.
 ## This is an experimental extension: no C01-C12 campaign state or rewards.
 
+const PowerGrid := preload("res://scripts/simulation/power_grid.gd")
 const BOOK_PATH: String = "res://scenes/expeditions/fault_diagnostics.json"
 const QUALIFICATION: String = "SOURCE_ONLY_NO_PHYSICAL_CONTROLLER_OR_RELEASE_CERTIFICATION"
 const FAULTS: Dictionary = {
@@ -92,7 +93,7 @@ static func inspect(atlas: Dictionary, device_book: Dictionary, book: Dictionary
 			int(entry.get("hold_ticks", 0)) - 7,
 			(graphs[lid].get("nodes", []) as Array).size()]
 		# The scenario is entirely source-bound. Uniqueness is enforced separately.
-		if key.length() < 24 or keys.has(key):
+		if key.length() < 24 or keys.has(key) or key != expected_key:
 			errors.append("SCENARIO_KEY_INVALID_" + lid)
 		keys[key] = true
 		if entry.get("probe_a") != "FD_%s_A" % idx or \
@@ -107,7 +108,7 @@ static func inspect(atlas: Dictionary, device_book: Dictionary, book: Dictionary
 			if not entry.get(field) is String or str(entry[field]).length() < 6:
 				errors.append("SENSOR_INVALID_" + lid)
 		for field: String in ["hold_ticks", "alternate_extra_ticks", "spare_relays"]:
-			if not entry.get(field) is int:
+			if PowerGrid.to_int(entry.get(field)) == null:
 				errors.append("COUNTER_TYPE_INVALID_" + lid)
 		if int(entry.get("hold_ticks", 0)) < 8 or int(entry.get("hold_ticks", 0)) > 18 \
 				or int(entry.get("alternate_extra_ticks", 0)) < 4 \
