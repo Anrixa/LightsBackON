@@ -273,10 +273,12 @@ func _describe(index: int) -> void:
 		"EXP05 ROUTE  •  " + str(route.get("route_label", "UNKNOWN")),
 		"STATUS  •  " + gate,
 		"UNLOCK  •  " + ("Chapter entry" if blockers.is_empty() else
-			"Restore ANY of " + ", ".join(blockers)),
+			"Restore ANY of " + ", ".join(PackedStringArray(blockers))),
 		str(route.get("narrative", "")), ""
 	]
-	var lines: Array[String] = route_lines + [
+	var lines: Array[String] = []
+	lines.append_array(route_lines)
+	lines.append_array([
 		str(level["title"]), "",
 		"LOCATION  •  " + str(location.get("name", "")),
 		"LANDMARK  •  " + str(location.get("hero_prop", "")),
@@ -286,7 +288,7 @@ func _describe(index: int) -> void:
 		str(level.get("mission_hook", "")),
 		"",
 		"FIVE PLANNED OBJECTIVES  (four required / one optional)", ""
-	]
+	])
 	for task: Dictionary in level["tasks"]:
 		var extra: String = "  [OPTIONAL]" if not bool(task["required"]) else ""
 		lines.append("%d. %s%s" % [int(task["ordinal"]), str(task["title"]), extra])
