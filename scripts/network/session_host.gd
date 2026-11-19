@@ -38,6 +38,7 @@ var _mission: MissionDirector = null  # optional: sessions without a contract (t
 var _comms: Comms = null  # optional; comms are ephemeral and never part of the authoritative state
 var _collectible_handler: Callable = Callable()  # optional EXP04 host-only pickup callback
 var _collectible_state: Callable = Callable()  # optional EXP04 canonical discovered state
+var _expedition_intent_guard: Callable = Callable()  # optional EXP06 policy; checked after host dedupe
 var _switches: Dictionary = {}  # switch id -> {"target", "field"}
 var _members: Dictionary = {}  # transport peer id (int) -> player id
 var _last_seq: Dictionary = {}  # peer id -> highest accepted seq
@@ -51,6 +52,12 @@ var _now: int = 0
 var _last_checkpoint_tick: int = 0
 var _published_state: Dictionary = {}  # authoritative state as of _published_revision (what clients have been sent)
 var _published_revision: int = 0
+
+
+## Optional source-engineered policy hook. Normal C01-C12 sessions leave it unset.
+## Invoked only for a validated, nonduplicate SessionHost command.
+func set_expedition_intent_guard(guard: Callable) -> void:
+	_expedition_intent_guard = guard
 
 
 func configure(limits: Dictionary, protocol_version: int, content_revision: String, new_session_id: String,
@@ -312,6 +319,14 @@ func _dispatch(player: String, msg: Dictionary) -> Dictionary:
 		return _refuse("UNSUPPORTED_INTENT", "%s is not available in this build" % kind, [])
 	if not INTENTS.has(kind):
 		return _refuse("UNKNOWN_INTENT", "unknown intent %s" % kind, [])
+	# Sequence and dedupe have already been processed. No denied command may
+	# reach a grid or repair side effect. The guard uses only host-owned state.
+	if _expedition_intent_guard.is_valid():
+		var policy_reply: Variant = _expedition_intent_guard.call(player, kind, entity, payload)
+		if not policy_reply is Dictionary or not bool(policy_reply.get("ok", false)):
+			return _refuse("EXP06_POLICY_DENIED", "expedition intent policy denied", [entity]) \
+				if not policy_reply is Dictionary else policy_reply
+
 	if kind == "ping" or kind == "chat":
 		if _comms == null:
 			return _refuse("UNSUPPORTED_INTENT", "communication is not available in this session", [])
