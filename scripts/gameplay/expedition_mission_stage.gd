@@ -44,6 +44,7 @@ var _expedition_profile: Dictionary = {}
 var _reward_error: String = ""
 var _hazard_marker: MeshInstance3D
 var _fault_route: String = "isolate"
+var _consequence_choice: String = "isolate"
 
 
 func _ready() -> void:
@@ -107,7 +108,7 @@ func _ready() -> void:
 	runtime = Runtime.new()
 	var result: Dictionary = runtime.start(
 		level_id, Callable(self, "_host_position"), Callable(self, "_world_sight"),
-		_expedition_account, _expedition_account != "", "", true, true, true)
+		_expedition_account, _expedition_account != "", "", true, true, true, true)
 	if not bool(result.get("ok", false)):
 		push_error("EXP03_HOST_START_FAILED: " + str(result))
 		return
@@ -161,6 +162,11 @@ func _add_host_targets() -> void:
 		names[str(fault["probe_a"])] = "DIAGNOSTIC PROBE A"
 		names[str(fault["probe_b"])] = "DIAGNOSTIC PROBE B"
 		names[str(fault["console"])] = "FAULT CONTROL CONSOLE"
+	if runtime.consequences != null:
+		var chain: Dictionary = runtime.consequences.definition_snapshot()
+		for node: Dictionary in chain["nodes"]:
+			names[str(node["id"])] = str(node["service"]).to_upper()
+		names[str(chain["console"])] = "CASCADE CERTIFICATION CONSOLE"
 	for id: String in _definitions["positions"]:
 		var marker: Marker3D = Marker3D.new()
 		marker.name = id
@@ -252,7 +258,7 @@ func _build_overlay(level: Dictionary) -> void:
 	_feedback.add_theme_color_override("font_color", Color("#F1D6B2"))
 	box.add_child(_feedback)
 	var controls: Label = Label.new()
-	controls.text = "WASD move • mouse aim • E interact • R switch EXP08 isolation/reroute • 1–5 tools • Esc return to atlas\nEXP06: Follow puzzle instructions and host hazard windows. EXP07: Finish equipment sequence. EXP08: Scan both probes, choose SPUR OFF isolation or SPUR ON spare-relay reroute, stabilize and certify. Optional archive and lore remain optional."
+	controls.text = "WASD move • mouse aim • E interact • R switch EXP08 isolation/reroute • T switch EXP009 isolate/divert • 1–5 tools • Esc return to atlas\nEXP06: Follow puzzle instructions and host hazard windows. EXP07: Finish equipment sequence. EXP08: Scan both probes, choose SPUR OFF isolation or SPUR ON spare-relay reroute, stabilize and certify. EXP009: Survey each linked service, T chooses isolate/divert, repair failures with SPUR OFF, certify once EXP08 is complete. Optional archive and lore remain optional."
 	controls.add_theme_color_override("font_color", Color("#D9E3EC"))
 	controls.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(controls)
@@ -352,6 +358,18 @@ func _next_repair() -> void:
 func _activate_target() -> void:
 	if _target == "":
 		return
+	if _target.begins_with("FC_") and runtime.consequences != null:
+		var chain: Dictionary = runtime.consequences.definition_snapshot()
+		var snapshot: Dictionary = runtime.consequences.snapshot()
+		if _target == str(chain["console"]):
+			_send("operate_consequence", _target, {"action": "certify"})
+		elif (snapshot["states"] as Dictionary).has(_target):
+			var node_state: Dictionary = snapshot["states"][_target]
+			var action: String = "survey"
+			if bool(node_state["surveyed"]):
+				action = "repair" if node_state["status"] == "failed" else _consequence_choice
+			_send("operate_consequence", _target, {"action": action})
+		return
 	if _target.begins_with("FD_") and runtime.faults != null:
 		var fault: Dictionary = runtime.faults.definition_snapshot()
 		var phase: String = str(runtime.faults.snapshot()["phase"])
@@ -414,6 +432,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event.is_action_pressed("ui_cancel") or event.is_action_pressed("pause"):
 		_return_to_menu()
+		get_viewport().set_input_as_handled()
+		return
+	if event is InputEventKey and event.physical_keycode == KEY_T and not event.ctrl_pressed and not event.alt_pressed:
+		_consequence_choice = "divert" if _consequence_choice == "isolate" else "isolate"
+		if _feedback != null:
+			_feedback.text = "EXP009 response selected: " + _consequence_choice.to_upper()
+		_refresh()
 		get_viewport().set_input_as_handled()
 		return
 	if event is InputEventKey and event.physical_keycode == KEY_R and not event.ctrl_pressed and not event.alt_pressed:
@@ -517,6 +542,21 @@ func _refresh() -> void:
 			lines.append("EXP08 target: %s • probes scanned %d/2 • extraction %s" % [
 				_target, (fault_status["scans"] as Dictionary).size(),
 				"READY" if fault_status["solved"] else "BLOCKED"])
+	if board.has("consequences"):
+		var consequence: Dictionary = board["consequences"]
+		lines.append("EXP009 CASCADE %s • failures %d • recovered %d • reserve %d • diversions %d • reopens %d" % [
+			"CERTIFIED" if consequence["certified"] else "ACTIVE" if consequence["started"] else "DORMANT",
+			int(consequence["failures"]), int(consequence["recoveries"]),
+			int(consequence["reserve"]), int(consequence["diversions"]), int(consequence["reopens"])])
+		for node: Dictionary in (_definitions["consequences"] as Dictionary)["nodes"]:
+			var state: Dictionary = consequence["states"][str(node["id"])]
+			lines.append("%s • %s • exposure %d/%d • %s" % [
+				str(node["service"]), str(state["status"]).to_upper(),
+				int(state["exposure"]), int(node["threshold_ticks"]),
+				str(node["impact"]) if state["status"] == "failed" else "service response required"])
+		if _target.begins_with("FC_"):
+			lines.append("EXP009 target %s • selected %s • E survey / response / repair / certify" % [
+				_target, _consequence_choice])
 	_task_label.text = "\n".join(lines)
 	if _target_label != null:
 		_target_label.text = "Target: %s  /  tool: %s  /  host revision: %d" % [
