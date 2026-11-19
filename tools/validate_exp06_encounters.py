@@ -25,6 +25,46 @@ HAZARDS = frozenset({
     "signal_interference", "mechanical_vibration", "dust_cloud",
     "equipment_condensation",
 })
+ROUTE_TO_FAMILY = {
+    "switch_isolation": "spur_isolation",
+    "generator_budget": "stability_hold",
+    "alternative_feed": "circuit_pair",
+    "route_test": "fault_trace",
+    "dual_feed_lockout": "circuit_pair",
+    "pump_sequence": "relay_coincidence",
+    "staged_restart": "feeder_pulse",
+    "transfer_route": "relay_coincidence",
+    "prioritize_service": "post_repair_audit",
+    "safe_load_shed": "load_rebalance",
+}
+CLIMATE_TO_HAZARD = {
+    "rain": "water_ingress",
+    "sea_fog": "equipment_condensation",
+    "rail_vibration": "mechanical_vibration",
+    "brackish_flood": "water_ingress",
+    "freezing_rain": "equipment_condensation",
+    "metal_dust": "dust_cloud",
+    "river_silt": "water_ingress",
+    "gate_surge": "mechanical_vibration",
+    "spray": "equipment_condensation",
+    "platform_storm": "gust_lockout",
+    "motor_heat": "thermal_spike",
+    "sea_ice": "equipment_condensation",
+    "wave_surge": "water_ingress",
+    "treefall": "gust_lockout",
+    "ash": "dust_cloud",
+    "isolation": "signal_interference",
+    "glass_condensation": "equipment_condensation",
+    "coal_seepage": "water_ingress",
+    "spillway_rain": "water_ingress",
+    "root_intrusion": "mechanical_vibration",
+    "old_wiring": "static_discharge",
+    "dye_mist": "equipment_condensation",
+    "lightning": "static_discharge",
+    "sandstorm": "dust_cloud",
+    "stairwell_flood": "water_ingress",
+}
+
 SITES = frozenset({
     "distribution", "transport", "health", "commerce", "waterworks",
     "communications", "education", "shelter",
@@ -64,6 +104,8 @@ def validate(atlas: dict[str, Any], book: dict[str, Any]) -> dict[str, Any]:
         location = locations[level["location_id"]]
         expected = {
             "location_id": level["location_id"],
+            "region_id": level["region_id"],
+            "source_climate": location["climate"],
             "source_puzzle_identity": level["puzzle_identity"],
             "title": level["title"],
             "scene": location["environment"],
@@ -85,6 +127,8 @@ def validate(atlas: dict[str, Any], book: dict[str, Any]) -> dict[str, Any]:
         hazard_kind = hazard.get("kind")
         if family not in FAMILIES or hazard_kind not in HAZARDS or entry.get("site") not in SITES:
             raise ValueError(f"UNSUPPORTED_FAMILY {level_id}")
+        if family != ROUTE_TO_FAMILY.get(level["tasks"][1]["mechanic"]) or hazard_kind != CLIMATE_TO_HAZARD.get(location["climate"]):
+            raise ValueError(f"UNPINNED_SOURCE_MECHANIC {level_id}")
         family_counts[family] += 1
         hazard_counts[hazard_kind] += 1
         if not all([
