@@ -323,9 +323,10 @@ func _dispatch(player: String, msg: Dictionary) -> Dictionary:
 	# reach a grid or repair side effect. The guard uses only host-owned state.
 	if _expedition_intent_guard.is_valid():
 		var policy_reply: Variant = _expedition_intent_guard.call(player, kind, entity, payload)
-		if not policy_reply is Dictionary or not bool(policy_reply.get("ok", false)):
-			return _refuse("EXP06_POLICY_DENIED", "expedition intent policy denied", [entity]) \
-				if not policy_reply is Dictionary else policy_reply
+		if not policy_reply is Dictionary:
+			return _refuse("EXP06_POLICY_DENIED", "expedition intent policy denied", [entity])
+		if not bool(policy_reply.get("ok", false)):
+			return policy_reply
 
 	if kind == "ping" or kind == "chat":
 		if _comms == null:
