@@ -321,6 +321,7 @@ func start(level_id: String, host_position: Callable,
 				if not exp013_case.is_empty():
 					return _fail("EXP013_OVERLAPPING_BOOKS")
 				exp013_case = matching
+				_definitions["site_exp013_phase"] = str(source_book["authority"]).split("_")[1]
 		if not exp013_case.is_empty():
 			if site_a02 != null:
 				return _fail("EXP013_OVERLAPPING_SITE_BOOKS")
