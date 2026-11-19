@@ -127,11 +127,23 @@ static func inspect(atlas: Dictionary, worksite_book: Dictionary, book: Dictiona
                         not FAILURES.has(str(step.get("failure", ""))) or \
                         not expected_targets.values().has(step.get("target")) or \
                         not expected_targets.values().has(step.get("support_target")) or \
-                        step.get("target") == step.get("support_target") or \
-                        not step.get("dwell_ticks") is int or \
-                        not step.get("window_ticks") is int or \
-                        int(step["dwell_ticks"]) < 5 or int(step["dwell_ticks"]) > 20 or \
-                        int(step["window_ticks"]) < 40 or int(step["window_ticks"]) > 240:
+                        step.get("target") == step.get("support_target"):
+                    return {"ok": false, "code": "EXP012A02_MECHANIC_INVALID"}
+                # Godot's JSON parser can decode an integer-valued JSON
+                # number as TYPE_FLOAT (7.0). Validate integral *value*
+                # without accepting bool, strings, fractions or NaN/Inf.
+                var dwell_raw: Variant = step.get("dwell_ticks")
+                var window_raw: Variant = step.get("window_ticks")
+                if not [TYPE_INT, TYPE_FLOAT].has(typeof(dwell_raw)) or \
+                        not [TYPE_INT, TYPE_FLOAT].has(typeof(window_raw)):
+                    return {"ok": false, "code": "EXP012A02_MECHANIC_INVALID"}
+                var dwell_value: float = float(dwell_raw)
+                var window_value: float = float(window_raw)
+                if not is_finite(dwell_value) or not is_finite(window_value) or \
+                        dwell_value != float(int(dwell_value)) or \
+                        window_value != float(int(window_value)) or \
+                        dwell_value < 5.0 or dwell_value > 20.0 or \
+                        window_value < 40.0 or window_value > 240.0:
                     return {"ok": false, "code": "EXP012A02_MECHANIC_INVALID"}
                 var action: String = str(step.get("action", ""))
                 if action.length() < 8 or action.length() > 45 or \
