@@ -24,6 +24,9 @@ fi
 echo "== EXP06 source-pinned 200 encounters: independent safety and puzzle audit =="
 if [ -n "$PY" ]; then "$PY" tools/validate_exp06_encounters.py || FAIL=1; fi
 
+echo "== EXP07: 200 device graphs, 1100 nodes and deterministic jam/recovery audit =="
+if [ -n "$PY" ]; then "$PY" tools/validate_exp07_device_graphs.py || FAIL=1; fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 
