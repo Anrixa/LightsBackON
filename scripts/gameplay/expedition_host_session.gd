@@ -625,7 +625,19 @@ func _operate_worksite(player_id: String, entity: String, action: String) -> Dic
 		return _fail("EXP012_HOST_PRINCIPAL_INVALID")
 	if site_a02 != null and site_a02.target_ids().has(entity):
 		return site_a02.operate(entity, action, _worksite_facts())
-	return worksite.operate(entity, action, _worksite_facts())
+	# A01 strategy selection and its A02 binding are one admitted host action.
+	# Refuse an attempted reroute once an A02 procedure has begun so neither
+	# host authority can silently drift away from the other.
+	if site_a02 != null and entity == str(worksite.definition_snapshot()["decision"]) and \
+			["priority", "resilience"].has(action) and not site_a02.can_choose_route(action):
+		return _fail("EXP012A02_ROUTE_LOCKED")
+	var reply: Dictionary = worksite.operate(entity, action, _worksite_facts())
+	if bool(reply.get("ok", false)) and site_a02 != null and \
+			entity == str(worksite.definition_snapshot()["decision"]):
+		var binding: Dictionary = site_a02.choose_route(action)
+		if not bool(binding.get("ok", false)):
+			return _fail("EXP012A02_ROUTE_SYNC_FAILED")
+	return reply
 
 
 func _worksite_tick() -> void:
