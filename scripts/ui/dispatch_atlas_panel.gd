@@ -8,8 +8,15 @@ signal mission_requested(level_id: String)
 const Atlas := preload("res://scripts/world/dispatch_atlas.gd")
 const LayoutPlan := preload("res://scripts/world/expedition_layout_plan.gd")
 const Graybox := preload("res://scripts/world/expedition_graybox.gd")
+const Ledger := preload("res://scripts/progression/expedition_ledger.gd")
+const Saves := preload("res://scripts/persistence/save_service.gd")
+const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
+const ContentHash := preload("res://scripts/network/content_hash.gd")
 
+var account_key: String = ""  # assigned by MainMenu before entering scene tree
 var _data: Dictionary = {}
+var _field_profile: Dictionary = {}
+var _field_profile_error: String = ""
 var _district: OptionButton
 var _search: LineEdit
 var _list: ItemList
@@ -25,6 +32,18 @@ var _preview_world: Node3D
 
 func _ready() -> void:
 	_data = Atlas.load_catalog()
+	# The atlas reads the experimental ledger only. No C01 legacy reward
+	# profile is loaded, rewritten or upgraded by opening this browser.
+	if account_key != "":
+		var saves: Saves = Saves.new()
+		saves.configure(1, OfflinePersistence.SAVE_BUILD_ID,
+			ContentHash.content_revision(), ContentHash.rules_revision())
+		var loaded: Dictionary = Ledger.load_profile(saves, account_key,
+			OfflinePersistence.runtime_root())
+		if loaded.get("ok", false):
+			_field_profile = loaded["profile"]
+		else:
+			_field_profile_error = str(loaded.get("code", "UNKNOWN_FIELD_PROFILE"))
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	var surface: ColorRect = ColorRect.new()
@@ -60,6 +79,19 @@ func _ready() -> void:
 	ceiling.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	ceiling.add_theme_color_override("font_color", Color("#F3D396"))
 	layout.add_child(ceiling)
+	var collection: Label = Label.new()
+	collection.name = "ExpeditionCollectionSummary"
+	collection.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	if _field_profile_error != "":
+		collection.text = "FIELD COLLECTION HOLD • unreadable expedition profile: " + _field_profile_error
+	elif _field_profile.is_empty():
+		collection.text = "FIELD COLLECTION • existing local identity not available"
+	else:
+		collection.text = "FIELD COLLECTION • %d / %d lore finds  •  %d / %d levels restored  •  %d / %d field points" % [
+			(_field_profile["lore_finds"] as Dictionary).size(), Ledger.MAX_FINDS,
+			(_field_profile["completed_levels"] as Dictionary).size(), Ledger.MAX_LEVELS,
+			int(_field_profile["field_points"]), Ledger.MAX_FIELD_POINTS]
+	layout.add_child(collection)
 
 	var halves: HSplitContainer = HSplitContainer.new()
 	halves.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -202,6 +234,9 @@ func _describe(index: int) -> void:
 	var find: Dictionary = level["collectible"]
 	lines.append("LORE PICKUP / UNIQUE FIELD LOOT")
 	lines.append(str(find["name"]) + "  /  " + str(find["set"]))
+	lines.append("Personal collection: " +
+		("ACQUIRED" if (_field_profile.get("lore_finds", {}) as Dictionary).has(
+			str(find["id"])) else "NOT YET ACQUIRED"))
 	lines.append("EXP04: interact with the relic after host-confirmed optional inspection. Adds one non-spendable collection entry; never awards C01 credits or modifies the grid.")
 	lines.append("")
 	lines.append("Earlier concept preview total: %d (NOT the authoritative EXP04 score)" % Atlas.preview_points(level))
