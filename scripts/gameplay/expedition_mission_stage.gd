@@ -112,7 +112,7 @@ func _ready() -> void:
 	runtime = Runtime.new()
 	var result: Dictionary = runtime.start(
 		level_id, Callable(self, "_host_position"), Callable(self, "_world_sight"),
-		_expedition_account, _expedition_account != "", "", true, true, true, true, true, true, true)
+		_expedition_account, _expedition_account != "", "", true, true, true, true, true, true, true, true)
 	if not bool(result.get("ok", false)):
 		push_error("EXP03_HOST_START_FAILED: " + str(result))
 		return
@@ -191,6 +191,11 @@ func _add_host_targets() -> void:
 		names[str(order["optional_target"])] = "OPTIONAL FIELD DISCOVERY"
 		for checkpoint: Dictionary in order["checkpoints"]:
 			names[str(checkpoint["id"])] = "REVIEW: " + str(checkpoint["title"]).to_upper()
+	if runtime.site_a02 != null:
+		var authored: Dictionary = runtime.site_a02.definition_snapshot()
+		names[str(authored["targets"]["A"])] = "SITE EVIDENCE / " + str(authored["title"]).to_upper()
+		names[str(authored["targets"]["B"])] = "SITE ISOLATION / " + str(authored["title"]).to_upper()
+		names[str(authored["targets"]["C"])] = "SITE HANDOFF / RECOVERY"
 	for id: String in _definitions["positions"]:
 		var marker: Marker3D = Marker3D.new()
 		marker.name = id
@@ -381,6 +386,47 @@ func _next_repair() -> void:
 
 func _activate_target() -> void:
 	if _target == "":
+		return
+	if _target.begins_with("SC_") and runtime.site_a02 != null:
+		var case_state: Dictionary = runtime.site_a02.snapshot()
+		var next: Dictionary = case_state["next"]
+		if str(case_state["fault"]) != "":
+			if _target == str(case_state["recovery_target"]):
+				_send("operate_worksite", _target, {"action": "recover"})
+		elif not bool(case_state["solved"]) and not next.is_empty():
+			var start_target: String = str(next["target"])
+			var helper: String = str(next["support_target"])
+			var phase: String = str(case_state["phase"])
+			var mode: String = str(next["mode"])
+			var count: int = int(case_state["support_count"])
+			var action: String = ""
+			if phase == "ready" and _target == start_target:
+				action = str(next["action"])
+			elif phase == "stable":
+				if mode == "hold" and _target == start_target:
+					action = "confirm"
+				elif mode == "pulse" and _target == start_target:
+					action = "pulse"
+				elif mode == "sample":
+					if _target == helper and count < 2:
+						action = "read"
+					elif _target == start_target and count == 2:
+						action = "confirm"
+				elif mode == "handoff":
+					if _target == helper and count == 0:
+						action = "transfer"
+					elif _target == start_target and count == 1:
+						action = "commit"
+				elif mode == "balance":
+					if _target == helper and count == 0:
+						action = "trim"
+					elif _target == start_target and count == 1:
+						action = "confirm"
+			if action != "":
+				_send("operate_worksite", _target, {"action": action})
+			elif _feedback != null:
+				_feedback.text = "A02: Follow host procedure %s at %s, then %s (%s)." % [
+					str(next["action"]), start_target, helper, phase]
 		return
 	if _target.begins_with("WO_") and runtime.worksite != null:
 		var order: Dictionary = runtime.worksite.definition_snapshot()
@@ -719,6 +765,26 @@ func _refresh() -> void:
 		lines.append("EXP012 route selection V: %s • method B: %s • discovery %s (optional)" % [
 			_worksite_route.to_upper(), _worksite_method.to_upper(),
 			"LOGGED" if worksite["optional_logged"] else "UNLOGGED"])
+		if worksite.has("site_a02"):
+			var authored: Dictionary = worksite["site_a02"]
+			lines.append("EXP012 A02 / %s / %s" % [
+				str(authored["title"]), str(authored["stakes"])])
+			lines.append("A02 route %s / procedure %d/%d / %s / failure %s / recovery %d" % [
+				str(authored["route"]), int(authored["step"]) + 1 if not authored["solved"] else 4,
+				int(authored["step_count"]), str(authored["phase"]),
+				str(authored["fault"]) if authored["fault"] != "" else "none",
+				int(authored["recoveries"])])
+			if not authored["solved"]:
+				var next_step: Dictionary = authored["next"]
+				if next_step.is_empty():
+					lines.append("A02: open the A01 worksite board, then select the operating strategy at its route station.")
+				else:
+					lines.append("A02: E on %s to %s / %s; support %s; %d/%d host ticks." % [
+						str(next_step["target"]), str(next_step["action"]), str(next_step["mode"]),
+						str(next_step["support_target"]), int(authored["tick"]),
+						int(authored["deadline"])])
+				if authored["fault"] != "":
+					lines.append("A02 FAULT: use E at %s to recover safely." % str(authored["recovery_target"]))
 	_task_label.text = "\n".join(lines)
 	if _target_label != null:
 		_target_label.text = "Target: %s  /  tool: %s  /  host revision: %d" % [
