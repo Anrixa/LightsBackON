@@ -105,6 +105,8 @@ func test_EXP013_expansions_opt_in_and_uncovered_levels_do_not_change_legacy() -
         assert_true(session.site_a02 == null, "EXP012 A02 overlap: " + requested)
         assert_eq(str(session.site_exp013.definition_snapshot()["level_id"]), requested)
         assert_true(str(start["content_revision"]).begins_with("EXP013_"))
+        assert_eq(str(session.definition_snapshot().get("site_exp013_phase", "")),
+            "A0%d" % (source_index + 1))
         assert_true(session.host.authoritative_state()["exp012_worksite_orders"].has("site_exp013"))
         for id: Variant in session.site_exp013.target_ids():
             assert_true(session._definitions["positions"].has(str(id)), "No host target position: " + str(id))
