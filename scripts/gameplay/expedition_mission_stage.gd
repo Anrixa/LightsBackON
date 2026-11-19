@@ -47,6 +47,8 @@ var _fault_route: String = "isolate"
 var _consequence_choice: String = "isolate"
 var _logistics_route: String = "direct"
 var _logistics_job: String = "a"
+var _worksite_route: String = "priority"
+var _worksite_method: String = "precision"
 
 
 func _ready() -> void:
@@ -110,7 +112,7 @@ func _ready() -> void:
 	runtime = Runtime.new()
 	var result: Dictionary = runtime.start(
 		level_id, Callable(self, "_host_position"), Callable(self, "_world_sight"),
-		_expedition_account, _expedition_account != "", "", true, true, true, true, true, true)
+		_expedition_account, _expedition_account != "", "", true, true, true, true, true, true, true)
 	if not bool(result.get("ok", false)):
 		push_error("EXP03_HOST_START_FAILED: " + str(result))
 		return
@@ -181,6 +183,14 @@ func _add_host_targets() -> void:
 		names[str(load_board["console"])] = "SERVICE BALANCE CERTIFICATION"
 		for service: Dictionary in load_board["services"]:
 			names[str(service["id"])] = str(service["name"]).to_upper()
+	if runtime.worksite != null:
+		var order: Dictionary = runtime.worksite.definition_snapshot()
+		names[str(order["board"])] = "WORKSITE REVIEW BOARD"
+		names[str(order["decision"])] = "WORKSITE OPERATING STRATEGY"
+		names[str(order["console"])] = "FINAL WORK ORDER CERTIFICATION"
+		names[str(order["optional_target"])] = "OPTIONAL FIELD DISCOVERY"
+		for checkpoint: Dictionary in order["checkpoints"]:
+			names[str(checkpoint["id"])] = "REVIEW: " + str(checkpoint["title"]).to_upper()
 	for id: String in _definitions["positions"]:
 		var marker: Marker3D = Marker3D.new()
 		marker.name = id
@@ -272,7 +282,7 @@ func _build_overlay(level: Dictionary) -> void:
 	_feedback.add_theme_color_override("font_color", Color("#F1D6B2"))
 	box.add_child(_feedback)
 	var controls: Label = Label.new()
-	controls.text = "WASD move • mouse aim • E interact / EXP011 energize or shed • R EXP08 route • T EXP009 response • U EXP010 direct/relay • Y EXP010 shipment A/B • K recall depot shipment • 1–5 tools • Esc atlas\nEXP06–EXP009: Complete equipment, stability and service recovery. EXP010: Open depot manifest, allocate one direct and one relay shipment from finite stocks, wait for host transit, receive each cargo, certify the logistics board. Unsafe supply pauses transit and reopens completed deliveries for recheck. EXP011: Open load board, allocate no more than 6 PU, stabilize each service through host ticks, shed and latch, then certify. Source/headless only; physical playability remains held."
+	controls.text = "WASD move • mouse aim • E interact / EXP011 energize or shed • R EXP08 route • T EXP009 response • U EXP010 direct/relay • Y EXP010 shipment A/B • K recall depot shipment • 1–5 tools • V EXP012 route • B EXP012 method • Esc atlas\nEXP06–EXP009: Complete equipment, stability and service recovery. EXP010: Open depot manifest, allocate one direct and one relay shipment from finite stocks, wait for host transit, receive each cargo, certify the logistics board. Unsafe supply pauses transit and reopens completed deliveries for recheck. EXP011: Open load board, allocate no more than 6 PU, stabilize each service through host ticks, shed and latch, then certify. EXP012: Open review board after live EXP011 certification; select priority/resilience route at strategy marker; complete source-linked checkpoint reviews using precise or finite-cell rapid sampling, then certify. Supply loss requires rechecks. Source/headless only; physical playability remains held."
 	controls.add_theme_color_override("font_color", Color("#D9E3EC"))
 	controls.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(controls)
@@ -371,6 +381,33 @@ func _next_repair() -> void:
 
 func _activate_target() -> void:
 	if _target == "":
+		return
+	if _target.begins_with("WO_") and runtime.worksite != null:
+		var order: Dictionary = runtime.worksite.definition_snapshot()
+		var state: Dictionary = runtime.worksite.snapshot()
+		if _target == str(order["board"]):
+			_send("operate_worksite", _target, {"action": "open"})
+		elif _target == str(order["decision"]):
+			_send("operate_worksite", _target, {"action": _worksite_route})
+		elif _target == str(order["console"]):
+			_send("operate_worksite", _target, {"action": "certify"})
+		elif _target == str(order["optional_target"]):
+			_send("operate_worksite", _target, {"action": "log"})
+		elif (state["states"] as Dictionary).has(_target):
+			var state_name: String = str(state["states"][_target]["status"])
+			match state_name:
+				"pending":
+					_send("operate_worksite", _target, {"action": _worksite_method})
+				"stable":
+					_send("operate_worksite", _target, {"action": "confirm"})
+				"recheck":
+					_send("operate_worksite", _target, {"action": "recheck"})
+				"warming":
+					if _feedback != null:
+						_feedback.text = "EXP012: Await host stability, then confirm this review."
+				"latched":
+					if _feedback != null:
+						_feedback.text = "EXP012: This checkpoint is already signed off."
 		return
 	if _target.begins_with("LB_") and runtime.balancing != null:
 		var board: Dictionary = runtime.balancing.definition_snapshot()
@@ -482,6 +519,20 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event.is_action_pressed("ui_cancel") or event.is_action_pressed("pause"):
 		_return_to_menu()
+		get_viewport().set_input_as_handled()
+		return
+	if event is InputEventKey and event.physical_keycode == KEY_V and not event.ctrl_pressed and not event.alt_pressed:
+		_worksite_route = "resilience" if _worksite_route == "priority" else "priority"
+		if _feedback != null:
+			_feedback.text = "EXP012 strategy: " + _worksite_route.to_upper()
+		_refresh()
+		get_viewport().set_input_as_handled()
+		return
+	if event is InputEventKey and event.physical_keycode == KEY_B and not event.ctrl_pressed and not event.alt_pressed:
+		_worksite_method = "rapid" if _worksite_method == "precision" else "precision"
+		if _feedback != null:
+			_feedback.text = "EXP012 sampling method: " + _worksite_method.to_upper()
+		_refresh()
 		get_viewport().set_input_as_handled()
 		return
 	if event is InputEventKey and event.physical_keycode == KEY_K and not event.ctrl_pressed and not event.alt_pressed:
@@ -653,6 +704,21 @@ func _refresh() -> void:
 				str(state["status"]).to_upper(), int(state["ticks"]),
 				int(service["dwell_ticks"]), int(service["deadline_ticks"])])
 		lines.append("EXP011: E on board to inspect/open; E at a circuit to energize / shed after STABLE; E at console to certify.")
+	if board.has("worksite"):
+		var worksite: Dictionary = board["worksite"]
+		lines.append("EXP012 WORKSITE %s • route %s • cells %d • active crews %d/%d • abort %d • reopens %d" % [
+			"CERTIFIED" if worksite["certified"] else "OPEN" if worksite["opened"] else "DORMANT",
+			str(worksite["route"]), int(worksite["cells_left"]),
+			int(worksite["active_crews"]), int(worksite["crew_capacity"]),
+			int(worksite["aborts"]), int(worksite["reopens"])])
+		for checkpoint: Dictionary in (_definitions["worksite"] as Dictionary)["checkpoints"]:
+			var cp: Dictionary = worksite["states"][str(checkpoint["id"])]
+			lines.append("%s • %s • method %s • %d/%d host ticks" % [
+				str(checkpoint["title"]), str(cp["status"]).to_upper(),
+				str(cp["method"]), int(cp["elapsed"]), int(cp["needed"])])
+		lines.append("EXP012 route selection V: %s • method B: %s • discovery %s (optional)" % [
+			_worksite_route.to_upper(), _worksite_method.to_upper(),
+			"LOGGED" if worksite["optional_logged"] else "UNLOGGED"])
 	_task_label.text = "\n".join(lines)
 	if _target_label != null:
 		_target_label.text = "Target: %s  /  tool: %s  /  host revision: %d" % [
