@@ -43,6 +43,7 @@ var _expedition_saves: SaveService
 var _expedition_profile: Dictionary = {}
 var _reward_error: String = ""
 var _hazard_marker: MeshInstance3D
+var _fault_route: String = "isolate"
 
 
 func _ready() -> void:
@@ -106,7 +107,7 @@ func _ready() -> void:
 	runtime = Runtime.new()
 	var result: Dictionary = runtime.start(
 		level_id, Callable(self, "_host_position"), Callable(self, "_world_sight"),
-		_expedition_account, _expedition_account != "", "", true, true)
+		_expedition_account, _expedition_account != "", "", true, true, true)
 	if not bool(result.get("ok", false)):
 		push_error("EXP03_HOST_START_FAILED: " + str(result))
 		return
@@ -155,6 +156,11 @@ func _add_host_targets() -> void:
 	if runtime.devices != null:
 		for device: Dictionary in (_definitions["devices"] as Dictionary)["nodes"]:
 			names[str(device["id"])] = str(device["action"]).replace("_", " ").to_upper()
+	if runtime.faults != null:
+		var fault: Dictionary = runtime.faults.definition_snapshot()
+		names[str(fault["probe_a"])] = "DIAGNOSTIC PROBE A"
+		names[str(fault["probe_b"])] = "DIAGNOSTIC PROBE B"
+		names[str(fault["console"])] = "FAULT CONTROL CONSOLE"
 	for id: String in _definitions["positions"]:
 		var marker: Marker3D = Marker3D.new()
 		marker.name = id
@@ -246,7 +252,7 @@ func _build_overlay(level: Dictionary) -> void:
 	_feedback.add_theme_color_override("font_color", Color("#F1D6B2"))
 	box.add_child(_feedback)
 	var controls: Label = Label.new()
-	controls.text = "WASD move • mouse aim • E interact • 1–5 tools • Esc return to atlas\nEXP06: Follow the puzzle instructions, watch host hazard windows. Optional archive and lore remain optional. Unsafe WEST bypass remains hazardous."
+	controls.text = "WASD move • mouse aim • E interact • R switch EXP08 isolation/reroute • 1–5 tools • Esc return to atlas\nEXP06: Follow puzzle instructions and host hazard windows. EXP07: Finish equipment sequence. EXP08: Scan both probes, choose SPUR OFF isolation or SPUR ON spare-relay reroute, stabilize and certify. Optional archive and lore remain optional."
 	controls.add_theme_color_override("font_color", Color("#D9E3EC"))
 	controls.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(controls)
@@ -346,6 +352,23 @@ func _next_repair() -> void:
 func _activate_target() -> void:
 	if _target == "":
 		return
+	if _target.begins_with("FD_") and runtime.faults != null:
+		var fault: Dictionary = runtime.faults.definition_snapshot()
+		var phase: String = str(runtime.faults.snapshot()["phase"])
+		if _target == str(fault["probe_a"]) or _target == str(fault["probe_b"]):
+			_send("operate_fault", _target, {"action": "scan"})
+		elif _target == str(fault["console"]):
+			var action: String = ""
+			match phase:
+				"route": action = _fault_route
+				"prepared": action = "stabilize"
+				"verified": action = "certify"
+				"faulted": action = "reset"
+			if action != "":
+				_send("operate_fault", _target, {"action": action})
+			elif _feedback != null:
+				_feedback.text = "EXP08: Complete both scans or await the host stability countdown."
+		return
 	if _target.begins_with("DV_") and runtime.devices != null:
 		var device: Dictionary = runtime.devices.device_definition(_target)
 		if not device.is_empty():
@@ -391,6 +414,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event.is_action_pressed("ui_cancel") or event.is_action_pressed("pause"):
 		_return_to_menu()
+		get_viewport().set_input_as_handled()
+		return
+	if event is InputEventKey and event.physical_keycode == KEY_R and not event.ctrl_pressed and not event.alt_pressed:
+		_fault_route = "reroute" if _fault_route == "isolate" else "isolate"
+		if _feedback != null:
+			_feedback.text = "EXP08 route selected: " + _fault_route.to_upper()
+		_refresh()
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("interact") or event.is_action_pressed("tool_primary"):
@@ -477,6 +507,16 @@ func _refresh() -> void:
 				lines.append("DEVICE %s: %s • %s • requires %s" % [
 					_target, str(current["action"]), runtime.devices.status_for(_target),
 					str(current["requires"])])
+	if board.has("faults"):
+		var fault_status: Dictionary = board["faults"]
+		lines.append("EXP08 %s • route %s (selected %s) • hold %d/%d ticks • spare %d • faults %d / resets %d" % [
+			str(fault_status["phase"]).to_upper(), str(fault_status["route"]),
+			_fault_route, int(fault_status["stable_ticks"]), int(fault_status["hold_ticks"]),
+			int(fault_status["spares"]), int(fault_status["faults"]), int(fault_status["resets"])])
+		if _target.begins_with("FD_"):
+			lines.append("EXP08 target: %s • probes scanned %d/2 • extraction %s" % [
+				_target, (fault_status["scans"] as Dictionary).size(),
+				"READY" if fault_status["solved"] else "BLOCKED"])
 	_task_label.text = "\n".join(lines)
 	if _target_label != null:
 		_target_label.text = "Target: %s  /  tool: %s  /  host revision: %d" % [
