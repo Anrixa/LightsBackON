@@ -194,11 +194,17 @@ func test_EXP06_authoritative_host_extraction_is_blocked_until_puzzle_is_solved(
 		"ZONE_EXTRACT", {"action": "start", "puzzle_solved": true})
 	assert_false(bool(denied.get("ok", true)), "client declaration cannot substitute for evidence")
 	assert_false(bool(session.task_board()["bespoke"]["puzzle_solved"]))
+	# The original mission extraction handler ignores a wire-supplied zone ID:
+	# EXP06 must therefore guard ALL request_extract intents, including "".
+	_seq = 2
+	var empty_zone: Dictionary = _wire(session, _seq, "request_extract", "",
+		{"action": "start"})
+	assert_eq(str(empty_zone.get("code", "")), "EXP06_PUZZLE_UNRESOLVED")
 	# Same numeric seq must remain idempotent even if server-owned time changes.
-	var repeated: Dictionary = _wire(session, _seq, "request_extract",
+	var repeated: Dictionary = _wire(session, 1, "request_extract",
 		"ZONE_EXTRACT", {"action": "start", "puzzle_solved": true})
 	assert_true(bool(repeated.get("duplicate", false)), str(repeated))
-	_seq = 1  # test harness action helper advances from the last wire sequence
+	_seq = 2  # test harness action helper advances from the last wire sequence
 	_solve_family(session, "post_repair_audit")
 	assert_true(bool(session.task_board()["bespoke"]["puzzle_solved"]))
 	assert_false(session.completed())
