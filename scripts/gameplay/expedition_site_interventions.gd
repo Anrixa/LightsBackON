@@ -173,6 +173,22 @@ func target_ids() -> Array[String]:
     return result
 
 
+## Synchronize with an already host-accepted A01 route decision. Only the
+## host calls this; client actions never set a strategy or a source profile.
+func can_choose_route(route: String) -> bool:
+    return ["priority", "resilience"].has(route) and (_route == "" or \
+        route == _route or (_index == 0 and _phase == "ready" and _fault == ""))
+
+
+func choose_route(route: String) -> Dictionary:
+    if not can_choose_route(route):
+        return {"ok": false, "code": "EXP012A02_ROUTE_LOCKED"}
+    if _route != route:
+        _route = route
+        _log("A01_STRATEGY_BOUND", str(_spec.get("level_id", "")))
+    return {"ok": true, "route": _route}
+
+
 func _facts_safe(facts: Dictionary) -> bool:
     return bool(facts.get("worksite_opened", false)) and \
         bool(facts.get("balancing_solved", false)) and \
@@ -249,7 +265,7 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
     if _route != "" and chosen != _route:
         return {"ok": false, "code": "EXP012A02_ROUTE_CHANGED"}
     if _route == "":
-        _route = chosen
+        return {"ok": false, "code": "EXP012A02_A01_ROUTE_NOT_SYNCED"}
     if _fault != "":
         if entity != str(_spec["recovery_target"]) or action != "recover":
             return {"ok": false, "code": "EXP012A02_RECOVERY_REQUIRED"}
