@@ -1,0 +1,2258 @@
+{
+  "schema_version": 1,
+  "authority": "EXP05_HOST_RESTORATION_ONLY",
+  "legacy_campaign_contracts_unchanged": true,
+  "branch_policy": "OR_JOIN_NON_EXCLUSIVE_REPLAYABLE",
+  "chapters": [
+    {
+      "region_id": "REG_01",
+      "chapter_title": "Alder Reach: Restoration Corridor",
+      "opening": "Power access begins at West Junction Arcade through brick terraces under wind-driven rain. The local dispatch must account for flooded service trenches.",
+      "first_fork": "Two distinct field routes diverge: stabilize Rookery Court Substation, or investigate the protected service at Canary Street Clinic. Either evidence path can open The Blue Awning Market.",
+      "second_fork": "After the The Blue Awning Market junction, restore via Elmgate Pump House or the alternative supply corridor at Copper Bell Exchange. Either route reaches Schoolhouse Annex.",
+      "finale": "Reconcile distribution at Schoolhouse Annex, then restore the Alder Reach chapter at South Shelter Hall. Finishing the chapter unlocks the next region while the unused branches stay accessible."
+    },
+    {
+      "region_id": "REG_02",
+      "chapter_title": "Glasswater Quay: Restoration Corridor",
+      "opening": "Power access begins at Harbour Bell Gantry through tidal quay hidden by fog. The local dispatch must account for salt-contaminated switchgear.",
+      "first_fork": "Two distinct field routes diverge: stabilize Cutter Ferry Landing, or investigate the protected service at The Sailors' Infirmary. Either evidence path can open Slipway Fish Exchange.",
+      "second_fork": "After the Slipway Fish Exchange junction, restore via Tidewheel Pump Gallery or the alternative supply corridor at Signalman's Loft. Either route reaches Glasshouse Boarding School.",
+      "finale": "Reconcile distribution at Glasshouse Boarding School, then restore the Glasswater Quay chapter at Lighthouse Relief Depot. Finishing the chapter unlocks the next region while the unused branches stay accessible."
+    },
+    {
+      "region_id": "REG_03",
+      "chapter_title": "Iron Viaduct: Restoration Corridor",
+      "opening": "Power access begins at Foundry Feed Cabinet through rail arches and grinding steel. The local dispatch must account for track-side vibration.",
+      "first_fork": "Two distinct field routes diverge: stabilize Nine-Arch Transfer, or investigate the protected service at Railside First Aid. Either evidence path can open Night Platform Bazaar.",
+      "second_fork": "After the Night Platform Bazaar junction, restore via Viaduct Drain Vault or the alternative supply corridor at Semaphore Control Box. Either route reaches Apprentice Signal School.",
+      "finale": "Reconcile distribution at Apprentice Signal School, then restore the Iron Viaduct chapter at Rail Workers' Canteen. Finishing the chapter unlocks the next region while the unused branches stay accessible."
+    },
+    {
+      "region_id": "REG_04",
+      "chapter_title": "Lantern Marsh: Restoration Corridor",
+      "opening": "Power access begins at Marshland Intake through reed beds after a storm surge. The local dispatch must account for rising brackish groundwater.",
+      "first_fork": "Two distinct field routes diverge: stabilize Eelboat Mooring, or investigate the protected service at Reedbank Medical Post. Either evidence path can open Floating Produce Market.",
+      "second_fork": "After the Floating Produce Market junction, restore via Sluice Seven or the alternative supply corridor at Fen Radio Mast. Either route reaches Marsh Learning Cabin.",
+      "finale": "Reconcile distribution at Marsh Learning Cabin, then restore the Lantern Marsh chapter at Raised Evacuation Lodge. Finishing the chapter unlocks the next region while the unused branches stay accessible."
+    },
+    {
+      "region_id": "REG_05",
+      "chapter_title": "Slate Ridge: Restoration Corridor",
+      "opening": "Power access begins at Quarry Ridge Relay through steep hillside in freezing rain. The local dispatch must account for rockfall across feeder tracks.",
+      "first_fork": "Two distinct field routes diverge: stabilize Cliffline Funicular, or investigate the protected service at Ridge Aid Station. Either evidence path can open Granite Traders' Yard.",
+      "second_fork": "After the Granite Traders' Yard junction, restore via Mine Dewatering Shed or the alternative supply corridor at Summit Telegraph Hut. Either route reaches Stonecutters' Academy.",
+      "finale": "Reconcile distribution at Stonecutters' Academy, then restore the Slate Ridge chapter at Overlook Refuge. Finishing the chapter unlocks the next region while the unused branches stay accessible."
+    },
+    {
+      "region_id": "REG_06",
+      "chapter_title": "Bellfoundry Quarter: Restoration Corridor",
+      "opening": "Power access begins at Hammer Street Transformer through Victorian brick workshops. The local dispatch must account for conductive metal dust.",
+      "first_fork": "Two distinct field routes diverge: stabilize Casting Tram Terminus, or investigate the protected service at Foundry Workers' Clinic. Either evidence path can open Bellmaker's Alley.",
+      "second_fork": "After the Bellmaker's Alley junction, restore via Cooling Water Station or the alternative supply corridor at Clocktower Repeater. Either route reaches Patternmakers' School.",
+      "finale": "Reconcile distribution at Patternmakers' School, then restore the Bellfoundry Quarter chapter at Guild Fire Hall. Finishing the chapter unlocks the next region while the unused branches stay accessible."
+    },
+    {
+      "region_id": "REG_07",
+      "chapter_title": "Willow Floodplain: Restoration Corridor",
+      "opening": "Power access begins at Willow Bend Feeder through riverside willow groves. The local dispatch must account for silted utility channels.",
+      "first_fork": "Two distinct field routes diverge: stabilize Riverwalk Footbridge, or investigate the protected service at Lowbank Dispensary. Either evidence path can open Orchard Cooperative.",
+      "second_fork": "After the Orchard Cooperative junction, restore via East Levee Pump Shed or the alternative supply corridor at Flood Warning Pavilion. Either route reaches Meadow Science Classroom.",
+      "finale": "Reconcile distribution at Meadow Science Classroom, then restore the Willow Floodplain chapter at Raised Community Barn. Finishing the chapter unlocks the next region while the unused branches stay accessible."
+    },
+    {
+      "region_id": "REG_08",
+      "chapter_title": "North Lock: Restoration Corridor",
+      "opening": "Power access begins at Lockkeeper Distribution through canal locks beneath thunderclouds. The local dispatch must account for jammed lock gates.",
+      "first_fork": "Two distinct field routes diverge: stabilize Towpath Lift Gate, or investigate the protected service at Barge Medic Cabin. Either evidence path can open Old Wharf Provisioner.",
+      "second_fork": "After the Old Wharf Provisioner junction, restore via Twin Chamber Pump Room or the alternative supply corridor at Signal Flag Turret. Either route reaches Navigator Training Deck.",
+      "finale": "Reconcile distribution at Navigator Training Deck, then restore the North Lock chapter at North Lock Shelter. Finishing the chapter unlocks the next region while the unused branches stay accessible."
+    },
+    {
+      "region_id": "REG_09",
+      "chapter_title": "Kestrel Falls: Restoration Corridor",
+      "opening": "Power access begins at Upper Falls Switchyard through waterfall village in dense spray. The local dispatch must account for overwet control relays.",
+      "first_fork": "Two distinct field routes diverge: stabilize Spraybridge Cableway, or investigate the protected service at Falls Rescue Clinic. Either evidence path can open Millstone Food Court.",
+      "second_fork": "After the Millstone Food Court junction, restore via Cascade Pressure House or the alternative supply corridor at Cliffside Repeater. Either route reaches Hydro Workshop School.",
+      "finale": "Reconcile distribution at Hydro Workshop School, then restore the Kestrel Falls chapter at Riverside Volunteer Hall. Finishing the chapter unlocks the next region while the unused branches stay accessible."
+    },
+    {
+      "region_id": "REG_10",
+      "chapter_title": "Rainline Terminal: Restoration Corridor",
+      "opening": "Power access begins at Terminal Intake Bay through regional transit concourse. The local dispatch must account for failed platform sequence control.",
+      "first_fork": "Two distinct field routes diverge: stabilize Rainline Departure Hall, or investigate the protected service at Platform Seven Clinic. Either evidence path can open Lost Luggage Bazaar.",
+      "second_fork": "After the Lost Luggage Bazaar junction, restore via Trackbed Drain Plant or the alternative supply corridor at Dispatch Signal Cabin. Either route reaches Driver Training Suite.",
+      "finale": "Reconcile distribution at Driver Training Suite, then restore the Rainline Terminal chapter at Night Passenger Shelter. Finishing the chapter unlocks the next region while the unused branches stay accessible."
+    },
+    {
+      "region_id": "REG_11",
+      "chapter_title": "Embermill Valley: Restoration Corridor",
+      "opening": "Power access begins at Spindle Feeder House through old textile mills and mist. The local dispatch must account for overheated legacy motors.",
+      "first_fork": "Two distinct field routes diverge: stabilize Weaver's Footbridge, or investigate the protected service at Mill Ward Clinic. Either evidence path can open Dyer's Exchange.",
+      "second_fork": "After the Dyer's Exchange junction, restore via Boiler Return Pumphouse or the alternative supply corridor at Cottonline Radio Room. Either route reaches Loomcraft Institute.",
+      "finale": "Reconcile distribution at Loomcraft Institute, then restore the Embermill Valley chapter at Factory Families' Hall. Finishing the chapter unlocks the next region while the unused branches stay accessible."
+    },
+    {
+      "region_id": "REG_12",
+      "chapter_title": "Coldharbor Point: Restoration Corridor",
+      "opening": "Power access begins at North Ice Converter through icy docks and freezing sea wind. The local dispatch must account for frost-loaded conductors.",
+      "first_fork": "Two distinct field routes diverge: stabilize Cold Chain Pier, or investigate the protected service at Seafarers' Warming Clinic. Either evidence path can open Frozen Catch Auction.",
+      "second_fork": "After the Frozen Catch Auction junction, restore via Defrost Pump Station or the alternative supply corridor at Breakwater Radio Office. Either route reaches Marine Safety School.",
+      "finale": "Reconcile distribution at Marine Safety School, then restore the Coldharbor Point chapter at Harbor Heat Shelter. Finishing the chapter unlocks the next region while the unused branches stay accessible."
+    },
+    {
+      "region_id": "REG_13",
+      "chapter_title": "Sunrise Breakwater: Restoration Corridor",
+      "opening": "Power access begins at East Breaker House through storm-battered concrete seawall. The local dispatch must account for surge shutters stuck open.",
+      "first_fork": "Two distinct field routes diverge: stabilize Wave Tram Jetty, or investigate the protected service at Coastguard Treatment Room. Either evidence path can open Seawall Provision Stall.",
+      "second_fork": "After the Seawall Provision Stall junction, restore via Surge Tunnel Works or the alternative supply corridor at Beacon Dispatch Loft. Either route reaches Tidewatch Academy.",
+      "finale": "Reconcile distribution at Tidewatch Academy, then restore the Sunrise Breakwater chapter at Breakwater Safe Room. Finishing the chapter unlocks the next region while the unused branches stay accessible."
+    },
+    {
+      "region_id": "REG_14",
+      "chapter_title": "Briar Valley: Restoration Corridor",
+      "opening": "Power access begins at Briar Subgrid Hut through overgrown hillside orchards. The local dispatch must account for fallen branches over circuits.",
+      "first_fork": "Two distinct field routes diverge: stabilize Orchard Cargo Lift, or investigate the protected service at Valley Health Cabin. Either evidence path can open Harvest Packing Hall.",
+      "second_fork": "After the Harvest Packing Hall junction, restore via Briar Spring Pump or the alternative supply corridor at Firewatch Radio Platform. Either route reaches Forester's Field School.",
+      "finale": "Reconcile distribution at Forester's Field School, then restore the Briar Valley chapter at Apple Press Meeting House. Finishing the chapter unlocks the next region while the unused branches stay accessible."
+    },
+    {
+      "region_id": "REG_15",
+      "chapter_title": "Cinder Hill: Restoration Corridor",
+      "opening": "Power access begins at Kiln Road Junction through ash-dark terraced industrial town. The local dispatch must account for ash-clogged filters.",
+      "first_fork": "Two distinct field routes diverge: stabilize Black Rail Overpass, or investigate the protected service at Hilltop Urgent Care. Either evidence path can open Cinder Night Market.",
+      "second_fork": "After the Cinder Night Market junction, restore via Ashwash Filtration Room or the alternative supply corridor at Furnace Signal Tower. Either route reaches Miners' Technical School.",
+      "finale": "Reconcile distribution at Miners' Technical School, then restore the Cinder Hill chapter at Ridge Evacuation Centre. Finishing the chapter unlocks the next region while the unused branches stay accessible."
+    },
+    {
+      "region_id": "REG_16",
+      "chapter_title": "Merrow Island: Restoration Corridor",
+      "opening": "Power access begins at Island Grid Room through isolated tidal island. The local dispatch must account for intermittent ferry supply.",
+      "first_fork": "Two distinct field routes diverge: stabilize Hollow Bay Ferry Dock, or investigate the protected service at Harbour Nurse Station. Either evidence path can open Saltbread Trading Shed.",
+      "second_fork": "After the Saltbread Trading Shed junction, restore via Tidal Cistern Pumps or the alternative supply corridor at Northwind Radio Needle. Either route reaches One-Room Island School.",
+      "finale": "Reconcile distribution at One-Room Island School, then restore the Merrow Island chapter at Old Customs Refuge. Finishing the chapter unlocks the next region while the unused branches stay accessible."
+    },
+    {
+      "region_id": "REG_17",
+      "chapter_title": "Greenhouse Quarter: Restoration Corridor",
+      "opening": "Power access begins at Hothouse Main Board through glass-roofed agricultural terraces. The local dispatch must account for condensation shorts.",
+      "first_fork": "Two distinct field routes diverge: stabilize Seed Shuttle Platform, or investigate the protected service at Botany Health Post. Either evidence path can open Midnight Flower Auction.",
+      "second_fork": "After the Midnight Flower Auction junction, restore via Irrigation Control Vault or the alternative supply corridor at Pollen Forecast Studio. Either route reaches Gardeners' Academy.",
+      "finale": "Reconcile distribution at Gardeners' Academy, then restore the Greenhouse Quarter chapter at Glass Pavilion Shelter. Finishing the chapter unlocks the next region while the unused branches stay accessible."
+    },
+    {
+      "region_id": "REG_18",
+      "chapter_title": "Blackstone Works: Restoration Corridor",
+      "opening": "Power access begins at Pithead Feeder Cabin through abandoned mine production zone. The local dispatch must account for coal-water leakage.",
+      "first_fork": "Two distinct field routes diverge: stabilize Ore Conveyor Crossing, or investigate the protected service at Mine Rescue Station. Either evidence path can open Old Canteen Bazaar.",
+      "second_fork": "After the Old Canteen Bazaar junction, restore via Blackwater Lift Pump or the alternative supply corridor at Deep Shaft Signal Hub. Either route reaches Surface Safety Training.",
+      "finale": "Reconcile distribution at Surface Safety Training, then restore the Blackstone Works chapter at Emergency Muster Yard. Finishing the chapter unlocks the next region while the unused branches stay accessible."
+    },
+    {
+      "region_id": "REG_19",
+      "chapter_title": "Crescent Reservoir: Restoration Corridor",
+      "opening": "Power access begins at Reservoir Control Gallery through dam embankment in heavy rain. The local dispatch must account for inlet overflow risk.",
+      "first_fork": "Two distinct field routes diverge: stabilize Crescent Spillway Walk, or investigate the protected service at Dam Operations Clinic. Either evidence path can open Waterside Supply Shop.",
+      "second_fork": "After the Waterside Supply Shop junction, restore via Emergency Bypass Pumps or the alternative supply corridor at Hydrology Telemetry Cabin. Either route reaches Water Engineering College.",
+      "finale": "Reconcile distribution at Water Engineering College, then restore the Crescent Reservoir chapter at Highbank Relief Pavilion. Finishing the chapter unlocks the next region while the unused branches stay accessible."
+    },
+    {
+      "region_id": "REG_20",
+      "chapter_title": "Wrenwood Heights: Restoration Corridor",
+      "opening": "Power access begins at Wrenwood Crest Board through tall wooded residential slopes. The local dispatch must account for tree-root cable intrusion.",
+      "first_fork": "Two distinct field routes diverge: stabilize Pine Tram Landing, or investigate the protected service at Hillcrest Health Studio. Either evidence path can open Fir Row Grocer.",
+      "second_fork": "After the Fir Row Grocer junction, restore via Hollow Brook Pump Hut or the alternative supply corridor at Canopy Relay Treehouse. Either route reaches Ranger Learning House.",
+      "finale": "Reconcile distribution at Ranger Learning House, then restore the Wrenwood Heights chapter at Woodland Commons Hall. Finishing the chapter unlocks the next region while the unused branches stay accessible."
+    },
+    {
+      "region_id": "REG_21",
+      "chapter_title": "Tallow Market: Restoration Corridor",
+      "opening": "Power access begins at Market Cross Switchbox through historic covered trading streets. The local dispatch must account for mixed old/new electrical wiring.",
+      "first_fork": "Two distinct field routes diverge: stabilize Lantern Cart Station, or investigate the protected service at Night Watch Dispensary. Either evidence path can open Tallow Central Arcade.",
+      "second_fork": "After the Tallow Central Arcade junction, restore via Old Well Booster or the alternative supply corridor at Clockface Message Room. Either route reaches Guild Junior Workshop.",
+      "finale": "Reconcile distribution at Guild Junior Workshop, then restore the Tallow Market chapter at Chandler's Meeting House. Finishing the chapter unlocks the next region while the unused branches stay accessible."
+    },
+    {
+      "region_id": "REG_22",
+      "chapter_title": "Foxglove Basin: Restoration Corridor",
+      "opening": "Power access begins at Basin Transfer Stack through wetland industrial basin. The local dispatch must account for toxic-looking but harmless dye leaks.",
+      "first_fork": "Two distinct field routes diverge: stabilize Rivet Ferry Causeway, or investigate the protected service at Foxglove Aid Post. Either evidence path can open Dye Works Outlet.",
+      "second_fork": "After the Dye Works Outlet junction, restore via Basin Aeration Pumps or the alternative supply corridor at Weather Balloon Shed. Either route reaches Basin Studies Lab.",
+      "finale": "Reconcile distribution at Basin Studies Lab, then restore the Foxglove Basin chapter at Millpond Evacuation Hall. Finishing the chapter unlocks the next region while the unused branches stay accessible."
+    },
+    {
+      "region_id": "REG_23",
+      "chapter_title": "Cedar Observatory: Restoration Corridor",
+      "opening": "Power access begins at Astral Feeder Vault through mountain observatory precinct. The local dispatch must account for lightning-sensitive instruments.",
+      "first_fork": "Two distinct field routes diverge: stabilize Telescope Access Rail, or investigate the protected service at Altitude Medical Room. Either evidence path can open Night-Sky Supply Booth.",
+      "second_fork": "After the Night-Sky Supply Booth junction, restore via Mirror Cooling Plant or the alternative supply corridor at Northern Tracking Array. Either route reaches Cedar Astronomy School.",
+      "finale": "Reconcile distribution at Cedar Astronomy School, then restore the Cedar Observatory chapter at Stargazer Dormitory. Finishing the chapter unlocks the next region while the unused branches stay accessible."
+    },
+    {
+      "region_id": "REG_24",
+      "chapter_title": "Hollowpoint Dunes: Restoration Corridor",
+      "opening": "Power access begins at Dunewatch Switchfield through windswept coastal sand streets. The local dispatch must account for sand-blown power connectors.",
+      "first_fork": "Two distinct field routes diverge: stabilize Sandline Transit Stop, or investigate the protected service at Dune First Response. Either evidence path can open Oasis Supply Courtyard.",
+      "second_fork": "After the Oasis Supply Courtyard junction, restore via Aquifer Pump Vault or the alternative supply corridor at Storm Flag Radio Mast. Either route reaches Desert Ecology Academy.",
+      "finale": "Reconcile distribution at Desert Ecology Academy, then restore the Hollowpoint Dunes chapter at Coastal Refuge Dome. Finishing the chapter unlocks the next region while the unused branches stay accessible."
+    },
+    {
+      "region_id": "REG_25",
+      "chapter_title": "Old Beacon Terrace: Restoration Corridor",
+      "opening": "Power access begins at Beacon Row Transformer through high-rise apartments above the bay. The local dispatch must account for stairwell flooding and antenna loss.",
+      "first_fork": "Two distinct field routes diverge: stabilize Skybridge Transit Deck, or investigate the protected service at Tower Eight Clinic. Either evidence path can open Roof Garden Market.",
+      "second_fork": "After the Roof Garden Market junction, restore via Basement Sump Plant or the alternative supply corridor at Beacon Aerial Loft. Either route reaches Terrace Evening School.",
+      "finale": "Reconcile distribution at Terrace Evening School, then restore the Old Beacon Terrace chapter at Residents' Emergency Hub. Finishing the chapter unlocks the next region while the unused branches stay accessible."
+    }
+  ],
+  "nodes": [
+    {
+      "level_id": "LV_001",
+      "region_id": "REG_01",
+      "role": "entry",
+      "requires_any": [],
+      "route_label": "ENTRY: West Junction Arcade",
+      "narrative": "West Junction Arcade — West Junction Arcade: Mislabelled feeder. flooded service trenches complicates this service area; establish chapter access."
+    },
+    {
+      "level_id": "LV_002",
+      "region_id": "REG_01",
+      "role": "first_route_a",
+      "requires_any": [
+        "LV_001"
+      ],
+      "route_label": "FIRST ROUTE A: Rookery Court Substation",
+      "narrative": "Rookery Court Substation — Rookery Court Substation: Sticking isolator. flooded service trenches complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_003",
+      "region_id": "REG_01",
+      "role": "first_route_b",
+      "requires_any": [
+        "LV_001"
+      ],
+      "route_label": "FIRST ROUTE B: Canary Street Clinic",
+      "narrative": "Canary Street Clinic — Canary Street Clinic: Source purity. flooded service trenches complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_004",
+      "region_id": "REG_01",
+      "role": "first_rejoin",
+      "requires_any": [
+        "LV_002",
+        "LV_003"
+      ],
+      "route_label": "FIRST REJOIN: The Blue Awning Market",
+      "narrative": "The Blue Awning Market — The Blue Awning Market: Archive power. flooded service trenches complicates this service area; rejoin the first field routes."
+    },
+    {
+      "level_id": "LV_005",
+      "region_id": "REG_01",
+      "role": "second_route_a",
+      "requires_any": [
+        "LV_004"
+      ],
+      "route_label": "SECOND ROUTE A: Elmgate Pump House",
+      "narrative": "Elmgate Pump House — Elmgate Pump House: Opening-time cutoff. flooded service trenches complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_006",
+      "region_id": "REG_01",
+      "role": "second_route_b",
+      "requires_any": [
+        "LV_004"
+      ],
+      "route_label": "SECOND ROUTE B: Copper Bell Exchange",
+      "narrative": "Copper Bell Exchange — Copper Bell Exchange: Storm pulse timing. flooded service trenches complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_007",
+      "region_id": "REG_01",
+      "role": "second_rejoin",
+      "requires_any": [
+        "LV_005",
+        "LV_006"
+      ],
+      "route_label": "SECOND REJOIN: Schoolhouse Annex",
+      "narrative": "Schoolhouse Annex — Schoolhouse Annex: Cable splice. flooded service trenches complicates this service area; reconcile the alternate supply corridor."
+    },
+    {
+      "level_id": "LV_008",
+      "region_id": "REG_01",
+      "role": "finale",
+      "requires_any": [
+        "LV_007"
+      ],
+      "route_label": "FINALE: South Shelter Hall",
+      "narrative": "South Shelter Hall — South Shelter Hall: Controlled load shed. flooded service trenches complicates this service area; restore the region before moving onward."
+    },
+    {
+      "level_id": "LV_009",
+      "region_id": "REG_02",
+      "role": "entry",
+      "requires_any": [
+        "LV_008"
+      ],
+      "route_label": "ENTRY: Harbour Bell Gantry",
+      "narrative": "Harbour Bell Gantry — Harbour Bell Gantry: Beacon continuity. salt-contaminated switchgear complicates this service area; establish chapter access."
+    },
+    {
+      "level_id": "LV_010",
+      "region_id": "REG_02",
+      "role": "first_route_a",
+      "requires_any": [
+        "LV_009"
+      ],
+      "route_label": "FIRST ROUTE A: Cutter Ferry Landing",
+      "narrative": "Cutter Ferry Landing — Cutter Ferry Landing: Load-budget dilemma. salt-contaminated switchgear complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_011",
+      "region_id": "REG_02",
+      "role": "first_route_b",
+      "requires_any": [
+        "LV_009"
+      ],
+      "route_label": "FIRST ROUTE B: The Sailors' Infirmary",
+      "narrative": "The Sailors' Infirmary — The Sailors' Infirmary: False fuse alarm. salt-contaminated switchgear complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_012",
+      "region_id": "REG_02",
+      "role": "first_rejoin",
+      "requires_any": [
+        "LV_010",
+        "LV_011"
+      ],
+      "route_label": "FIRST REJOIN: Slipway Fish Exchange",
+      "narrative": "Slipway Fish Exchange — Slipway Fish Exchange: Drain-level dependency. salt-contaminated switchgear complicates this service area; rejoin the first field routes."
+    },
+    {
+      "level_id": "LV_013",
+      "region_id": "REG_02",
+      "role": "second_route_a",
+      "requires_any": [
+        "LV_012"
+      ],
+      "route_label": "SECOND ROUTE A: Tidewheel Pump Gallery",
+      "narrative": "Tidewheel Pump Gallery — Tidewheel Pump Gallery: Reversible reset. salt-contaminated switchgear complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_014",
+      "region_id": "REG_02",
+      "role": "second_route_b",
+      "requires_any": [
+        "LV_012"
+      ],
+      "route_label": "SECOND ROUTE B: Signalman's Loft",
+      "narrative": "Signalman's Loft — Signalman's Loft: Dual-route conflict. salt-contaminated switchgear complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_015",
+      "region_id": "REG_02",
+      "role": "second_rejoin",
+      "requires_any": [
+        "LV_013",
+        "LV_014"
+      ],
+      "route_label": "SECOND REJOIN: Glasshouse Boarding School",
+      "narrative": "Glasshouse Boarding School — Glasshouse Boarding School: Substation restart. salt-contaminated switchgear complicates this service area; reconcile the alternate supply corridor."
+    },
+    {
+      "level_id": "LV_016",
+      "region_id": "REG_02",
+      "role": "finale",
+      "requires_any": [
+        "LV_015"
+      ],
+      "route_label": "FINALE: Lighthouse Relief Depot",
+      "narrative": "Lighthouse Relief Depot — Lighthouse Relief Depot: Network loop hunt. salt-contaminated switchgear complicates this service area; restore the region before moving onward."
+    },
+    {
+      "level_id": "LV_017",
+      "region_id": "REG_03",
+      "role": "entry",
+      "requires_any": [
+        "LV_016"
+      ],
+      "route_label": "ENTRY: Foundry Feed Cabinet",
+      "narrative": "Foundry Feed Cabinet — Foundry Feed Cabinet: Pressure trip. track-side vibration complicates this service area; establish chapter access."
+    },
+    {
+      "level_id": "LV_018",
+      "region_id": "REG_03",
+      "role": "first_route_a",
+      "requires_any": [
+        "LV_017"
+      ],
+      "route_label": "FIRST ROUTE A: Nine-Arch Transfer",
+      "narrative": "Nine-Arch Transfer — Nine-Arch Transfer: Priority dispatch. track-side vibration complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_019",
+      "region_id": "REG_03",
+      "role": "first_route_b",
+      "requires_any": [
+        "LV_017"
+      ],
+      "route_label": "FIRST ROUTE B: Railside First Aid",
+      "narrative": "Railside First Aid — Railside First Aid: Conflicting telemetry. track-side vibration complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_020",
+      "region_id": "REG_03",
+      "role": "first_rejoin",
+      "requires_any": [
+        "LV_018",
+        "LV_019"
+      ],
+      "route_label": "FIRST REJOIN: Night Platform Bazaar",
+      "narrative": "Night Platform Bazaar — Night Platform Bazaar: Access-interlock investigation. track-side vibration complicates this service area; rejoin the first field routes."
+    },
+    {
+      "level_id": "LV_021",
+      "region_id": "REG_03",
+      "role": "second_route_a",
+      "requires_any": [
+        "LV_020"
+      ],
+      "route_label": "SECOND ROUTE A: Viaduct Drain Vault",
+      "narrative": "Viaduct Drain Vault — Viaduct Drain Vault: Thermal breaker. track-side vibration complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_022",
+      "region_id": "REG_03",
+      "role": "second_route_b",
+      "requires_any": [
+        "LV_020"
+      ],
+      "route_label": "SECOND ROUTE B: Semaphore Control Box",
+      "narrative": "Semaphore Control Box — Semaphore Control Box: Cross-feed lock. track-side vibration complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_023",
+      "region_id": "REG_03",
+      "role": "second_rejoin",
+      "requires_any": [
+        "LV_021",
+        "LV_022"
+      ],
+      "route_label": "SECOND REJOIN: Apprentice Signal School",
+      "narrative": "Apprentice Signal School — Apprentice Signal School: Mislabelled feeder. track-side vibration complicates this service area; reconcile the alternate supply corridor."
+    },
+    {
+      "level_id": "LV_024",
+      "region_id": "REG_03",
+      "role": "finale",
+      "requires_any": [
+        "LV_023"
+      ],
+      "route_label": "FINALE: Rail Workers' Canteen",
+      "narrative": "Rail Workers' Canteen — Rail Workers' Canteen: Sticking isolator. track-side vibration complicates this service area; restore the region before moving onward."
+    },
+    {
+      "level_id": "LV_025",
+      "region_id": "REG_04",
+      "role": "entry",
+      "requires_any": [
+        "LV_024"
+      ],
+      "route_label": "ENTRY: Marshland Intake",
+      "narrative": "Marshland Intake — Marshland Intake: Cold-chain rescue. rising brackish groundwater complicates this service area; establish chapter access."
+    },
+    {
+      "level_id": "LV_026",
+      "region_id": "REG_04",
+      "role": "first_route_a",
+      "requires_any": [
+        "LV_025"
+      ],
+      "route_label": "FIRST ROUTE A: Eelboat Mooring",
+      "narrative": "Eelboat Mooring — Eelboat Mooring: Isolated bypass. rising brackish groundwater complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_027",
+      "region_id": "REG_04",
+      "role": "first_route_b",
+      "requires_any": [
+        "LV_025"
+      ],
+      "route_label": "FIRST ROUTE B: Reedbank Medical Post",
+      "narrative": "Reedbank Medical Post — Reedbank Medical Post: Voltage sag. rising brackish groundwater complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_028",
+      "region_id": "REG_04",
+      "role": "first_rejoin",
+      "requires_any": [
+        "LV_026",
+        "LV_027"
+      ],
+      "route_label": "FIRST REJOIN: Floating Produce Market",
+      "narrative": "Floating Produce Market — Floating Produce Market: Limited cable reel. rising brackish groundwater complicates this service area; rejoin the first field routes."
+    },
+    {
+      "level_id": "LV_029",
+      "region_id": "REG_04",
+      "role": "second_route_a",
+      "requires_any": [
+        "LV_028"
+      ],
+      "route_label": "SECOND ROUTE A: Sluice Seven",
+      "narrative": "Sluice Seven — Sluice Seven: Staged pump sequence. rising brackish groundwater complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_030",
+      "region_id": "REG_04",
+      "role": "second_route_b",
+      "requires_any": [
+        "LV_028"
+      ],
+      "route_label": "SECOND ROUTE B: Fen Radio Mast",
+      "narrative": "Fen Radio Mast — Fen Radio Mast: Intermittent ground. rising brackish groundwater complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_031",
+      "region_id": "REG_04",
+      "role": "second_rejoin",
+      "requires_any": [
+        "LV_029",
+        "LV_030"
+      ],
+      "route_label": "SECOND REJOIN: Marsh Learning Cabin",
+      "narrative": "Marsh Learning Cabin — Marsh Learning Cabin: Beacon continuity. rising brackish groundwater complicates this service area; reconcile the alternate supply corridor."
+    },
+    {
+      "level_id": "LV_032",
+      "region_id": "REG_04",
+      "role": "finale",
+      "requires_any": [
+        "LV_031"
+      ],
+      "route_label": "FINALE: Raised Evacuation Lodge",
+      "narrative": "Raised Evacuation Lodge — Raised Evacuation Lodge: Load-budget dilemma. rising brackish groundwater complicates this service area; restore the region before moving onward."
+    },
+    {
+      "level_id": "LV_033",
+      "region_id": "REG_05",
+      "role": "entry",
+      "requires_any": [
+        "LV_032"
+      ],
+      "route_label": "ENTRY: Quarry Ridge Relay",
+      "narrative": "Quarry Ridge Relay — Quarry Ridge Relay: Archive power. rockfall across feeder tracks complicates this service area; establish chapter access."
+    },
+    {
+      "level_id": "LV_034",
+      "region_id": "REG_05",
+      "role": "first_route_a",
+      "requires_any": [
+        "LV_033"
+      ],
+      "route_label": "FIRST ROUTE A: Cliffline Funicular",
+      "narrative": "Cliffline Funicular — Cliffline Funicular: Opening-time cutoff. rockfall across feeder tracks complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_035",
+      "region_id": "REG_05",
+      "role": "first_route_b",
+      "requires_any": [
+        "LV_033"
+      ],
+      "route_label": "FIRST ROUTE B: Ridge Aid Station",
+      "narrative": "Ridge Aid Station — Ridge Aid Station: Storm pulse timing. rockfall across feeder tracks complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_036",
+      "region_id": "REG_05",
+      "role": "first_rejoin",
+      "requires_any": [
+        "LV_034",
+        "LV_035"
+      ],
+      "route_label": "FIRST REJOIN: Granite Traders' Yard",
+      "narrative": "Granite Traders' Yard — Granite Traders' Yard: Cable splice. rockfall across feeder tracks complicates this service area; rejoin the first field routes."
+    },
+    {
+      "level_id": "LV_037",
+      "region_id": "REG_05",
+      "role": "second_route_a",
+      "requires_any": [
+        "LV_036"
+      ],
+      "route_label": "SECOND ROUTE A: Mine Dewatering Shed",
+      "narrative": "Mine Dewatering Shed — Mine Dewatering Shed: Controlled load shed. rockfall across feeder tracks complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_038",
+      "region_id": "REG_05",
+      "role": "second_route_b",
+      "requires_any": [
+        "LV_036"
+      ],
+      "route_label": "SECOND ROUTE B: Summit Telegraph Hut",
+      "narrative": "Summit Telegraph Hut — Summit Telegraph Hut: Generator trade-off. rockfall across feeder tracks complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_039",
+      "region_id": "REG_05",
+      "role": "second_rejoin",
+      "requires_any": [
+        "LV_037",
+        "LV_038"
+      ],
+      "route_label": "SECOND REJOIN: Stonecutters' Academy",
+      "narrative": "Stonecutters' Academy — Stonecutters' Academy: Pressure trip. rockfall across feeder tracks complicates this service area; reconcile the alternate supply corridor."
+    },
+    {
+      "level_id": "LV_040",
+      "region_id": "REG_05",
+      "role": "finale",
+      "requires_any": [
+        "LV_039"
+      ],
+      "route_label": "FINALE: Overlook Refuge",
+      "narrative": "Overlook Refuge — Overlook Refuge: Priority dispatch. rockfall across feeder tracks complicates this service area; restore the region before moving onward."
+    },
+    {
+      "level_id": "LV_041",
+      "region_id": "REG_06",
+      "role": "entry",
+      "requires_any": [
+        "LV_040"
+      ],
+      "route_label": "ENTRY: Hammer Street Transformer",
+      "narrative": "Hammer Street Transformer — Hammer Street Transformer: Drain-level dependency. conductive metal dust complicates this service area; establish chapter access."
+    },
+    {
+      "level_id": "LV_042",
+      "region_id": "REG_06",
+      "role": "first_route_a",
+      "requires_any": [
+        "LV_041"
+      ],
+      "route_label": "FIRST ROUTE A: Casting Tram Terminus",
+      "narrative": "Casting Tram Terminus — Casting Tram Terminus: Reversible reset. conductive metal dust complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_043",
+      "region_id": "REG_06",
+      "role": "first_route_b",
+      "requires_any": [
+        "LV_041"
+      ],
+      "route_label": "FIRST ROUTE B: Foundry Workers' Clinic",
+      "narrative": "Foundry Workers' Clinic — Foundry Workers' Clinic: Dual-route conflict. conductive metal dust complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_044",
+      "region_id": "REG_06",
+      "role": "first_rejoin",
+      "requires_any": [
+        "LV_042",
+        "LV_043"
+      ],
+      "route_label": "FIRST REJOIN: Bellmaker's Alley",
+      "narrative": "Bellmaker's Alley — Bellmaker's Alley: Substation restart. conductive metal dust complicates this service area; rejoin the first field routes."
+    },
+    {
+      "level_id": "LV_045",
+      "region_id": "REG_06",
+      "role": "second_route_a",
+      "requires_any": [
+        "LV_044"
+      ],
+      "route_label": "SECOND ROUTE A: Cooling Water Station",
+      "narrative": "Cooling Water Station — Cooling Water Station: Network loop hunt. conductive metal dust complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_046",
+      "region_id": "REG_06",
+      "role": "second_route_b",
+      "requires_any": [
+        "LV_044"
+      ],
+      "route_label": "SECOND ROUTE B: Clocktower Repeater",
+      "narrative": "Clocktower Repeater — Clocktower Repeater: Brief service window. conductive metal dust complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_047",
+      "region_id": "REG_06",
+      "role": "second_rejoin",
+      "requires_any": [
+        "LV_045",
+        "LV_046"
+      ],
+      "route_label": "SECOND REJOIN: Patternmakers' School",
+      "narrative": "Patternmakers' School — Patternmakers' School: Cold-chain rescue. conductive metal dust complicates this service area; reconcile the alternate supply corridor."
+    },
+    {
+      "level_id": "LV_048",
+      "region_id": "REG_06",
+      "role": "finale",
+      "requires_any": [
+        "LV_047"
+      ],
+      "route_label": "FINALE: Guild Fire Hall",
+      "narrative": "Guild Fire Hall — Guild Fire Hall: Isolated bypass. conductive metal dust complicates this service area; restore the region before moving onward."
+    },
+    {
+      "level_id": "LV_049",
+      "region_id": "REG_07",
+      "role": "entry",
+      "requires_any": [
+        "LV_048"
+      ],
+      "route_label": "ENTRY: Willow Bend Feeder",
+      "narrative": "Willow Bend Feeder — Willow Bend Feeder: Access-interlock investigation. silted utility channels complicates this service area; establish chapter access."
+    },
+    {
+      "level_id": "LV_050",
+      "region_id": "REG_07",
+      "role": "first_route_a",
+      "requires_any": [
+        "LV_049"
+      ],
+      "route_label": "FIRST ROUTE A: Riverwalk Footbridge",
+      "narrative": "Riverwalk Footbridge — Riverwalk Footbridge: Thermal breaker. silted utility channels complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_051",
+      "region_id": "REG_07",
+      "role": "first_route_b",
+      "requires_any": [
+        "LV_049"
+      ],
+      "route_label": "FIRST ROUTE B: Lowbank Dispensary",
+      "narrative": "Lowbank Dispensary — Lowbank Dispensary: Cross-feed lock. silted utility channels complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_052",
+      "region_id": "REG_07",
+      "role": "first_rejoin",
+      "requires_any": [
+        "LV_050",
+        "LV_051"
+      ],
+      "route_label": "FIRST REJOIN: Orchard Cooperative",
+      "narrative": "Orchard Cooperative — Orchard Cooperative: Mislabelled feeder. silted utility channels complicates this service area; rejoin the first field routes."
+    },
+    {
+      "level_id": "LV_053",
+      "region_id": "REG_07",
+      "role": "second_route_a",
+      "requires_any": [
+        "LV_052"
+      ],
+      "route_label": "SECOND ROUTE A: East Levee Pump Shed",
+      "narrative": "East Levee Pump Shed — East Levee Pump Shed: Sticking isolator. silted utility channels complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_054",
+      "region_id": "REG_07",
+      "role": "second_route_b",
+      "requires_any": [
+        "LV_052"
+      ],
+      "route_label": "SECOND ROUTE B: Flood Warning Pavilion",
+      "narrative": "Flood Warning Pavilion — Flood Warning Pavilion: Source purity. silted utility channels complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_055",
+      "region_id": "REG_07",
+      "role": "second_rejoin",
+      "requires_any": [
+        "LV_053",
+        "LV_054"
+      ],
+      "route_label": "SECOND REJOIN: Meadow Science Classroom",
+      "narrative": "Meadow Science Classroom — Meadow Science Classroom: Archive power. silted utility channels complicates this service area; reconcile the alternate supply corridor."
+    },
+    {
+      "level_id": "LV_056",
+      "region_id": "REG_07",
+      "role": "finale",
+      "requires_any": [
+        "LV_055"
+      ],
+      "route_label": "FINALE: Raised Community Barn",
+      "narrative": "Raised Community Barn — Raised Community Barn: Opening-time cutoff. silted utility channels complicates this service area; restore the region before moving onward."
+    },
+    {
+      "level_id": "LV_057",
+      "region_id": "REG_08",
+      "role": "entry",
+      "requires_any": [
+        "LV_056"
+      ],
+      "route_label": "ENTRY: Lockkeeper Distribution",
+      "narrative": "Lockkeeper Distribution — Lockkeeper Distribution: Limited cable reel. jammed lock gates complicates this service area; establish chapter access."
+    },
+    {
+      "level_id": "LV_058",
+      "region_id": "REG_08",
+      "role": "first_route_a",
+      "requires_any": [
+        "LV_057"
+      ],
+      "route_label": "FIRST ROUTE A: Towpath Lift Gate",
+      "narrative": "Towpath Lift Gate — Towpath Lift Gate: Staged pump sequence. jammed lock gates complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_059",
+      "region_id": "REG_08",
+      "role": "first_route_b",
+      "requires_any": [
+        "LV_057"
+      ],
+      "route_label": "FIRST ROUTE B: Barge Medic Cabin",
+      "narrative": "Barge Medic Cabin — Barge Medic Cabin: Intermittent ground. jammed lock gates complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_060",
+      "region_id": "REG_08",
+      "role": "first_rejoin",
+      "requires_any": [
+        "LV_058",
+        "LV_059"
+      ],
+      "route_label": "FIRST REJOIN: Old Wharf Provisioner",
+      "narrative": "Old Wharf Provisioner — Old Wharf Provisioner: Beacon continuity. jammed lock gates complicates this service area; rejoin the first field routes."
+    },
+    {
+      "level_id": "LV_061",
+      "region_id": "REG_08",
+      "role": "second_route_a",
+      "requires_any": [
+        "LV_060"
+      ],
+      "route_label": "SECOND ROUTE A: Twin Chamber Pump Room",
+      "narrative": "Twin Chamber Pump Room — Twin Chamber Pump Room: Load-budget dilemma. jammed lock gates complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_062",
+      "region_id": "REG_08",
+      "role": "second_route_b",
+      "requires_any": [
+        "LV_060"
+      ],
+      "route_label": "SECOND ROUTE B: Signal Flag Turret",
+      "narrative": "Signal Flag Turret — Signal Flag Turret: False fuse alarm. jammed lock gates complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_063",
+      "region_id": "REG_08",
+      "role": "second_rejoin",
+      "requires_any": [
+        "LV_061",
+        "LV_062"
+      ],
+      "route_label": "SECOND REJOIN: Navigator Training Deck",
+      "narrative": "Navigator Training Deck — Navigator Training Deck: Drain-level dependency. jammed lock gates complicates this service area; reconcile the alternate supply corridor."
+    },
+    {
+      "level_id": "LV_064",
+      "region_id": "REG_08",
+      "role": "finale",
+      "requires_any": [
+        "LV_063"
+      ],
+      "route_label": "FINALE: North Lock Shelter",
+      "narrative": "North Lock Shelter — North Lock Shelter: Reversible reset. jammed lock gates complicates this service area; restore the region before moving onward."
+    },
+    {
+      "level_id": "LV_065",
+      "region_id": "REG_09",
+      "role": "entry",
+      "requires_any": [
+        "LV_064"
+      ],
+      "route_label": "ENTRY: Upper Falls Switchyard",
+      "narrative": "Upper Falls Switchyard — Upper Falls Switchyard: Cable splice. overwet control relays complicates this service area; establish chapter access."
+    },
+    {
+      "level_id": "LV_066",
+      "region_id": "REG_09",
+      "role": "first_route_a",
+      "requires_any": [
+        "LV_065"
+      ],
+      "route_label": "FIRST ROUTE A: Spraybridge Cableway",
+      "narrative": "Spraybridge Cableway — Spraybridge Cableway: Controlled load shed. overwet control relays complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_067",
+      "region_id": "REG_09",
+      "role": "first_route_b",
+      "requires_any": [
+        "LV_065"
+      ],
+      "route_label": "FIRST ROUTE B: Falls Rescue Clinic",
+      "narrative": "Falls Rescue Clinic — Falls Rescue Clinic: Generator trade-off. overwet control relays complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_068",
+      "region_id": "REG_09",
+      "role": "first_rejoin",
+      "requires_any": [
+        "LV_066",
+        "LV_067"
+      ],
+      "route_label": "FIRST REJOIN: Millstone Food Court",
+      "narrative": "Millstone Food Court — Millstone Food Court: Pressure trip. overwet control relays complicates this service area; rejoin the first field routes."
+    },
+    {
+      "level_id": "LV_069",
+      "region_id": "REG_09",
+      "role": "second_route_a",
+      "requires_any": [
+        "LV_068"
+      ],
+      "route_label": "SECOND ROUTE A: Cascade Pressure House",
+      "narrative": "Cascade Pressure House — Cascade Pressure House: Priority dispatch. overwet control relays complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_070",
+      "region_id": "REG_09",
+      "role": "second_route_b",
+      "requires_any": [
+        "LV_068"
+      ],
+      "route_label": "SECOND ROUTE B: Cliffside Repeater",
+      "narrative": "Cliffside Repeater — Cliffside Repeater: Conflicting telemetry. overwet control relays complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_071",
+      "region_id": "REG_09",
+      "role": "second_rejoin",
+      "requires_any": [
+        "LV_069",
+        "LV_070"
+      ],
+      "route_label": "SECOND REJOIN: Hydro Workshop School",
+      "narrative": "Hydro Workshop School — Hydro Workshop School: Access-interlock investigation. overwet control relays complicates this service area; reconcile the alternate supply corridor."
+    },
+    {
+      "level_id": "LV_072",
+      "region_id": "REG_09",
+      "role": "finale",
+      "requires_any": [
+        "LV_071"
+      ],
+      "route_label": "FINALE: Riverside Volunteer Hall",
+      "narrative": "Riverside Volunteer Hall — Riverside Volunteer Hall: Thermal breaker. overwet control relays complicates this service area; restore the region before moving onward."
+    },
+    {
+      "level_id": "LV_073",
+      "region_id": "REG_10",
+      "role": "entry",
+      "requires_any": [
+        "LV_072"
+      ],
+      "route_label": "ENTRY: Terminal Intake Bay",
+      "narrative": "Terminal Intake Bay — Terminal Intake Bay: Substation restart. failed platform sequence control complicates this service area; establish chapter access."
+    },
+    {
+      "level_id": "LV_074",
+      "region_id": "REG_10",
+      "role": "first_route_a",
+      "requires_any": [
+        "LV_073"
+      ],
+      "route_label": "FIRST ROUTE A: Rainline Departure Hall",
+      "narrative": "Rainline Departure Hall — Rainline Departure Hall: Network loop hunt. failed platform sequence control complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_075",
+      "region_id": "REG_10",
+      "role": "first_route_b",
+      "requires_any": [
+        "LV_073"
+      ],
+      "route_label": "FIRST ROUTE B: Platform Seven Clinic",
+      "narrative": "Platform Seven Clinic — Platform Seven Clinic: Brief service window. failed platform sequence control complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_076",
+      "region_id": "REG_10",
+      "role": "first_rejoin",
+      "requires_any": [
+        "LV_074",
+        "LV_075"
+      ],
+      "route_label": "FIRST REJOIN: Lost Luggage Bazaar",
+      "narrative": "Lost Luggage Bazaar — Lost Luggage Bazaar: Cold-chain rescue. failed platform sequence control complicates this service area; rejoin the first field routes."
+    },
+    {
+      "level_id": "LV_077",
+      "region_id": "REG_10",
+      "role": "second_route_a",
+      "requires_any": [
+        "LV_076"
+      ],
+      "route_label": "SECOND ROUTE A: Trackbed Drain Plant",
+      "narrative": "Trackbed Drain Plant — Trackbed Drain Plant: Isolated bypass. failed platform sequence control complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_078",
+      "region_id": "REG_10",
+      "role": "second_route_b",
+      "requires_any": [
+        "LV_076"
+      ],
+      "route_label": "SECOND ROUTE B: Dispatch Signal Cabin",
+      "narrative": "Dispatch Signal Cabin — Dispatch Signal Cabin: Voltage sag. failed platform sequence control complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_079",
+      "region_id": "REG_10",
+      "role": "second_rejoin",
+      "requires_any": [
+        "LV_077",
+        "LV_078"
+      ],
+      "route_label": "SECOND REJOIN: Driver Training Suite",
+      "narrative": "Driver Training Suite — Driver Training Suite: Limited cable reel. failed platform sequence control complicates this service area; reconcile the alternate supply corridor."
+    },
+    {
+      "level_id": "LV_080",
+      "region_id": "REG_10",
+      "role": "finale",
+      "requires_any": [
+        "LV_079"
+      ],
+      "route_label": "FINALE: Night Passenger Shelter",
+      "narrative": "Night Passenger Shelter — Night Passenger Shelter: Staged pump sequence. failed platform sequence control complicates this service area; restore the region before moving onward."
+    },
+    {
+      "level_id": "LV_081",
+      "region_id": "REG_11",
+      "role": "entry",
+      "requires_any": [
+        "LV_080"
+      ],
+      "route_label": "ENTRY: Spindle Feeder House",
+      "narrative": "Spindle Feeder House — Spindle Feeder House: Mislabelled feeder. overheated legacy motors complicates this service area; establish chapter access."
+    },
+    {
+      "level_id": "LV_082",
+      "region_id": "REG_11",
+      "role": "first_route_a",
+      "requires_any": [
+        "LV_081"
+      ],
+      "route_label": "FIRST ROUTE A: Weaver's Footbridge",
+      "narrative": "Weaver's Footbridge — Weaver's Footbridge: Sticking isolator. overheated legacy motors complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_083",
+      "region_id": "REG_11",
+      "role": "first_route_b",
+      "requires_any": [
+        "LV_081"
+      ],
+      "route_label": "FIRST ROUTE B: Mill Ward Clinic",
+      "narrative": "Mill Ward Clinic — Mill Ward Clinic: Source purity. overheated legacy motors complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_084",
+      "region_id": "REG_11",
+      "role": "first_rejoin",
+      "requires_any": [
+        "LV_082",
+        "LV_083"
+      ],
+      "route_label": "FIRST REJOIN: Dyer's Exchange",
+      "narrative": "Dyer's Exchange — Dyer's Exchange: Archive power. overheated legacy motors complicates this service area; rejoin the first field routes."
+    },
+    {
+      "level_id": "LV_085",
+      "region_id": "REG_11",
+      "role": "second_route_a",
+      "requires_any": [
+        "LV_084"
+      ],
+      "route_label": "SECOND ROUTE A: Boiler Return Pumphouse",
+      "narrative": "Boiler Return Pumphouse — Boiler Return Pumphouse: Opening-time cutoff. overheated legacy motors complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_086",
+      "region_id": "REG_11",
+      "role": "second_route_b",
+      "requires_any": [
+        "LV_084"
+      ],
+      "route_label": "SECOND ROUTE B: Cottonline Radio Room",
+      "narrative": "Cottonline Radio Room — Cottonline Radio Room: Storm pulse timing. overheated legacy motors complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_087",
+      "region_id": "REG_11",
+      "role": "second_rejoin",
+      "requires_any": [
+        "LV_085",
+        "LV_086"
+      ],
+      "route_label": "SECOND REJOIN: Loomcraft Institute",
+      "narrative": "Loomcraft Institute — Loomcraft Institute: Cable splice. overheated legacy motors complicates this service area; reconcile the alternate supply corridor."
+    },
+    {
+      "level_id": "LV_088",
+      "region_id": "REG_11",
+      "role": "finale",
+      "requires_any": [
+        "LV_087"
+      ],
+      "route_label": "FINALE: Factory Families' Hall",
+      "narrative": "Factory Families' Hall — Factory Families' Hall: Controlled load shed. overheated legacy motors complicates this service area; restore the region before moving onward."
+    },
+    {
+      "level_id": "LV_089",
+      "region_id": "REG_12",
+      "role": "entry",
+      "requires_any": [
+        "LV_088"
+      ],
+      "route_label": "ENTRY: North Ice Converter",
+      "narrative": "North Ice Converter — North Ice Converter: Beacon continuity. frost-loaded conductors complicates this service area; establish chapter access."
+    },
+    {
+      "level_id": "LV_090",
+      "region_id": "REG_12",
+      "role": "first_route_a",
+      "requires_any": [
+        "LV_089"
+      ],
+      "route_label": "FIRST ROUTE A: Cold Chain Pier",
+      "narrative": "Cold Chain Pier — Cold Chain Pier: Load-budget dilemma. frost-loaded conductors complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_091",
+      "region_id": "REG_12",
+      "role": "first_route_b",
+      "requires_any": [
+        "LV_089"
+      ],
+      "route_label": "FIRST ROUTE B: Seafarers' Warming Clinic",
+      "narrative": "Seafarers' Warming Clinic — Seafarers' Warming Clinic: False fuse alarm. frost-loaded conductors complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_092",
+      "region_id": "REG_12",
+      "role": "first_rejoin",
+      "requires_any": [
+        "LV_090",
+        "LV_091"
+      ],
+      "route_label": "FIRST REJOIN: Frozen Catch Auction",
+      "narrative": "Frozen Catch Auction — Frozen Catch Auction: Drain-level dependency. frost-loaded conductors complicates this service area; rejoin the first field routes."
+    },
+    {
+      "level_id": "LV_093",
+      "region_id": "REG_12",
+      "role": "second_route_a",
+      "requires_any": [
+        "LV_092"
+      ],
+      "route_label": "SECOND ROUTE A: Defrost Pump Station",
+      "narrative": "Defrost Pump Station — Defrost Pump Station: Reversible reset. frost-loaded conductors complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_094",
+      "region_id": "REG_12",
+      "role": "second_route_b",
+      "requires_any": [
+        "LV_092"
+      ],
+      "route_label": "SECOND ROUTE B: Breakwater Radio Office",
+      "narrative": "Breakwater Radio Office — Breakwater Radio Office: Dual-route conflict. frost-loaded conductors complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_095",
+      "region_id": "REG_12",
+      "role": "second_rejoin",
+      "requires_any": [
+        "LV_093",
+        "LV_094"
+      ],
+      "route_label": "SECOND REJOIN: Marine Safety School",
+      "narrative": "Marine Safety School — Marine Safety School: Substation restart. frost-loaded conductors complicates this service area; reconcile the alternate supply corridor."
+    },
+    {
+      "level_id": "LV_096",
+      "region_id": "REG_12",
+      "role": "finale",
+      "requires_any": [
+        "LV_095"
+      ],
+      "route_label": "FINALE: Harbor Heat Shelter",
+      "narrative": "Harbor Heat Shelter — Harbor Heat Shelter: Network loop hunt. frost-loaded conductors complicates this service area; restore the region before moving onward."
+    },
+    {
+      "level_id": "LV_097",
+      "region_id": "REG_13",
+      "role": "entry",
+      "requires_any": [
+        "LV_096"
+      ],
+      "route_label": "ENTRY: East Breaker House",
+      "narrative": "East Breaker House — East Breaker House: Pressure trip. surge shutters stuck open complicates this service area; establish chapter access."
+    },
+    {
+      "level_id": "LV_098",
+      "region_id": "REG_13",
+      "role": "first_route_a",
+      "requires_any": [
+        "LV_097"
+      ],
+      "route_label": "FIRST ROUTE A: Wave Tram Jetty",
+      "narrative": "Wave Tram Jetty — Wave Tram Jetty: Priority dispatch. surge shutters stuck open complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_099",
+      "region_id": "REG_13",
+      "role": "first_route_b",
+      "requires_any": [
+        "LV_097"
+      ],
+      "route_label": "FIRST ROUTE B: Coastguard Treatment Room",
+      "narrative": "Coastguard Treatment Room — Coastguard Treatment Room: Conflicting telemetry. surge shutters stuck open complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_100",
+      "region_id": "REG_13",
+      "role": "first_rejoin",
+      "requires_any": [
+        "LV_098",
+        "LV_099"
+      ],
+      "route_label": "FIRST REJOIN: Seawall Provision Stall",
+      "narrative": "Seawall Provision Stall — Seawall Provision Stall: Access-interlock investigation. surge shutters stuck open complicates this service area; rejoin the first field routes."
+    },
+    {
+      "level_id": "LV_101",
+      "region_id": "REG_13",
+      "role": "second_route_a",
+      "requires_any": [
+        "LV_100"
+      ],
+      "route_label": "SECOND ROUTE A: Surge Tunnel Works",
+      "narrative": "Surge Tunnel Works — Surge Tunnel Works: Thermal breaker. surge shutters stuck open complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_102",
+      "region_id": "REG_13",
+      "role": "second_route_b",
+      "requires_any": [
+        "LV_100"
+      ],
+      "route_label": "SECOND ROUTE B: Beacon Dispatch Loft",
+      "narrative": "Beacon Dispatch Loft — Beacon Dispatch Loft: Cross-feed lock. surge shutters stuck open complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_103",
+      "region_id": "REG_13",
+      "role": "second_rejoin",
+      "requires_any": [
+        "LV_101",
+        "LV_102"
+      ],
+      "route_label": "SECOND REJOIN: Tidewatch Academy",
+      "narrative": "Tidewatch Academy — Tidewatch Academy: Mislabelled feeder. surge shutters stuck open complicates this service area; reconcile the alternate supply corridor."
+    },
+    {
+      "level_id": "LV_104",
+      "region_id": "REG_13",
+      "role": "finale",
+      "requires_any": [
+        "LV_103"
+      ],
+      "route_label": "FINALE: Breakwater Safe Room",
+      "narrative": "Breakwater Safe Room — Breakwater Safe Room: Sticking isolator. surge shutters stuck open complicates this service area; restore the region before moving onward."
+    },
+    {
+      "level_id": "LV_105",
+      "region_id": "REG_14",
+      "role": "entry",
+      "requires_any": [
+        "LV_104"
+      ],
+      "route_label": "ENTRY: Briar Subgrid Hut",
+      "narrative": "Briar Subgrid Hut — Briar Subgrid Hut: Cold-chain rescue. fallen branches over circuits complicates this service area; establish chapter access."
+    },
+    {
+      "level_id": "LV_106",
+      "region_id": "REG_14",
+      "role": "first_route_a",
+      "requires_any": [
+        "LV_105"
+      ],
+      "route_label": "FIRST ROUTE A: Orchard Cargo Lift",
+      "narrative": "Orchard Cargo Lift — Orchard Cargo Lift: Isolated bypass. fallen branches over circuits complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_107",
+      "region_id": "REG_14",
+      "role": "first_route_b",
+      "requires_any": [
+        "LV_105"
+      ],
+      "route_label": "FIRST ROUTE B: Valley Health Cabin",
+      "narrative": "Valley Health Cabin — Valley Health Cabin: Voltage sag. fallen branches over circuits complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_108",
+      "region_id": "REG_14",
+      "role": "first_rejoin",
+      "requires_any": [
+        "LV_106",
+        "LV_107"
+      ],
+      "route_label": "FIRST REJOIN: Harvest Packing Hall",
+      "narrative": "Harvest Packing Hall — Harvest Packing Hall: Limited cable reel. fallen branches over circuits complicates this service area; rejoin the first field routes."
+    },
+    {
+      "level_id": "LV_109",
+      "region_id": "REG_14",
+      "role": "second_route_a",
+      "requires_any": [
+        "LV_108"
+      ],
+      "route_label": "SECOND ROUTE A: Briar Spring Pump",
+      "narrative": "Briar Spring Pump — Briar Spring Pump: Staged pump sequence. fallen branches over circuits complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_110",
+      "region_id": "REG_14",
+      "role": "second_route_b",
+      "requires_any": [
+        "LV_108"
+      ],
+      "route_label": "SECOND ROUTE B: Firewatch Radio Platform",
+      "narrative": "Firewatch Radio Platform — Firewatch Radio Platform: Intermittent ground. fallen branches over circuits complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_111",
+      "region_id": "REG_14",
+      "role": "second_rejoin",
+      "requires_any": [
+        "LV_109",
+        "LV_110"
+      ],
+      "route_label": "SECOND REJOIN: Forester's Field School",
+      "narrative": "Forester's Field School — Forester's Field School: Beacon continuity. fallen branches over circuits complicates this service area; reconcile the alternate supply corridor."
+    },
+    {
+      "level_id": "LV_112",
+      "region_id": "REG_14",
+      "role": "finale",
+      "requires_any": [
+        "LV_111"
+      ],
+      "route_label": "FINALE: Apple Press Meeting House",
+      "narrative": "Apple Press Meeting House — Apple Press Meeting House: Load-budget dilemma. fallen branches over circuits complicates this service area; restore the region before moving onward."
+    },
+    {
+      "level_id": "LV_113",
+      "region_id": "REG_15",
+      "role": "entry",
+      "requires_any": [
+        "LV_112"
+      ],
+      "route_label": "ENTRY: Kiln Road Junction",
+      "narrative": "Kiln Road Junction — Kiln Road Junction: Archive power. ash-clogged filters complicates this service area; establish chapter access."
+    },
+    {
+      "level_id": "LV_114",
+      "region_id": "REG_15",
+      "role": "first_route_a",
+      "requires_any": [
+        "LV_113"
+      ],
+      "route_label": "FIRST ROUTE A: Black Rail Overpass",
+      "narrative": "Black Rail Overpass — Black Rail Overpass: Opening-time cutoff. ash-clogged filters complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_115",
+      "region_id": "REG_15",
+      "role": "first_route_b",
+      "requires_any": [
+        "LV_113"
+      ],
+      "route_label": "FIRST ROUTE B: Hilltop Urgent Care",
+      "narrative": "Hilltop Urgent Care — Hilltop Urgent Care: Storm pulse timing. ash-clogged filters complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_116",
+      "region_id": "REG_15",
+      "role": "first_rejoin",
+      "requires_any": [
+        "LV_114",
+        "LV_115"
+      ],
+      "route_label": "FIRST REJOIN: Cinder Night Market",
+      "narrative": "Cinder Night Market — Cinder Night Market: Cable splice. ash-clogged filters complicates this service area; rejoin the first field routes."
+    },
+    {
+      "level_id": "LV_117",
+      "region_id": "REG_15",
+      "role": "second_route_a",
+      "requires_any": [
+        "LV_116"
+      ],
+      "route_label": "SECOND ROUTE A: Ashwash Filtration Room",
+      "narrative": "Ashwash Filtration Room — Ashwash Filtration Room: Controlled load shed. ash-clogged filters complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_118",
+      "region_id": "REG_15",
+      "role": "second_route_b",
+      "requires_any": [
+        "LV_116"
+      ],
+      "route_label": "SECOND ROUTE B: Furnace Signal Tower",
+      "narrative": "Furnace Signal Tower — Furnace Signal Tower: Generator trade-off. ash-clogged filters complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_119",
+      "region_id": "REG_15",
+      "role": "second_rejoin",
+      "requires_any": [
+        "LV_117",
+        "LV_118"
+      ],
+      "route_label": "SECOND REJOIN: Miners' Technical School",
+      "narrative": "Miners' Technical School — Miners' Technical School: Pressure trip. ash-clogged filters complicates this service area; reconcile the alternate supply corridor."
+    },
+    {
+      "level_id": "LV_120",
+      "region_id": "REG_15",
+      "role": "finale",
+      "requires_any": [
+        "LV_119"
+      ],
+      "route_label": "FINALE: Ridge Evacuation Centre",
+      "narrative": "Ridge Evacuation Centre — Ridge Evacuation Centre: Priority dispatch. ash-clogged filters complicates this service area; restore the region before moving onward."
+    },
+    {
+      "level_id": "LV_121",
+      "region_id": "REG_16",
+      "role": "entry",
+      "requires_any": [
+        "LV_120"
+      ],
+      "route_label": "ENTRY: Island Grid Room",
+      "narrative": "Island Grid Room — Island Grid Room: Drain-level dependency. intermittent ferry supply complicates this service area; establish chapter access."
+    },
+    {
+      "level_id": "LV_122",
+      "region_id": "REG_16",
+      "role": "first_route_a",
+      "requires_any": [
+        "LV_121"
+      ],
+      "route_label": "FIRST ROUTE A: Hollow Bay Ferry Dock",
+      "narrative": "Hollow Bay Ferry Dock — Hollow Bay Ferry Dock: Reversible reset. intermittent ferry supply complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_123",
+      "region_id": "REG_16",
+      "role": "first_route_b",
+      "requires_any": [
+        "LV_121"
+      ],
+      "route_label": "FIRST ROUTE B: Harbour Nurse Station",
+      "narrative": "Harbour Nurse Station — Harbour Nurse Station: Dual-route conflict. intermittent ferry supply complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_124",
+      "region_id": "REG_16",
+      "role": "first_rejoin",
+      "requires_any": [
+        "LV_122",
+        "LV_123"
+      ],
+      "route_label": "FIRST REJOIN: Saltbread Trading Shed",
+      "narrative": "Saltbread Trading Shed — Saltbread Trading Shed: Substation restart. intermittent ferry supply complicates this service area; rejoin the first field routes."
+    },
+    {
+      "level_id": "LV_125",
+      "region_id": "REG_16",
+      "role": "second_route_a",
+      "requires_any": [
+        "LV_124"
+      ],
+      "route_label": "SECOND ROUTE A: Tidal Cistern Pumps",
+      "narrative": "Tidal Cistern Pumps — Tidal Cistern Pumps: Network loop hunt. intermittent ferry supply complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_126",
+      "region_id": "REG_16",
+      "role": "second_route_b",
+      "requires_any": [
+        "LV_124"
+      ],
+      "route_label": "SECOND ROUTE B: Northwind Radio Needle",
+      "narrative": "Northwind Radio Needle — Northwind Radio Needle: Brief service window. intermittent ferry supply complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_127",
+      "region_id": "REG_16",
+      "role": "second_rejoin",
+      "requires_any": [
+        "LV_125",
+        "LV_126"
+      ],
+      "route_label": "SECOND REJOIN: One-Room Island School",
+      "narrative": "One-Room Island School — One-Room Island School: Cold-chain rescue. intermittent ferry supply complicates this service area; reconcile the alternate supply corridor."
+    },
+    {
+      "level_id": "LV_128",
+      "region_id": "REG_16",
+      "role": "finale",
+      "requires_any": [
+        "LV_127"
+      ],
+      "route_label": "FINALE: Old Customs Refuge",
+      "narrative": "Old Customs Refuge — Old Customs Refuge: Isolated bypass. intermittent ferry supply complicates this service area; restore the region before moving onward."
+    },
+    {
+      "level_id": "LV_129",
+      "region_id": "REG_17",
+      "role": "entry",
+      "requires_any": [
+        "LV_128"
+      ],
+      "route_label": "ENTRY: Hothouse Main Board",
+      "narrative": "Hothouse Main Board — Hothouse Main Board: Access-interlock investigation. condensation shorts complicates this service area; establish chapter access."
+    },
+    {
+      "level_id": "LV_130",
+      "region_id": "REG_17",
+      "role": "first_route_a",
+      "requires_any": [
+        "LV_129"
+      ],
+      "route_label": "FIRST ROUTE A: Seed Shuttle Platform",
+      "narrative": "Seed Shuttle Platform — Seed Shuttle Platform: Thermal breaker. condensation shorts complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_131",
+      "region_id": "REG_17",
+      "role": "first_route_b",
+      "requires_any": [
+        "LV_129"
+      ],
+      "route_label": "FIRST ROUTE B: Botany Health Post",
+      "narrative": "Botany Health Post — Botany Health Post: Cross-feed lock. condensation shorts complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_132",
+      "region_id": "REG_17",
+      "role": "first_rejoin",
+      "requires_any": [
+        "LV_130",
+        "LV_131"
+      ],
+      "route_label": "FIRST REJOIN: Midnight Flower Auction",
+      "narrative": "Midnight Flower Auction — Midnight Flower Auction: Mislabelled feeder. condensation shorts complicates this service area; rejoin the first field routes."
+    },
+    {
+      "level_id": "LV_133",
+      "region_id": "REG_17",
+      "role": "second_route_a",
+      "requires_any": [
+        "LV_132"
+      ],
+      "route_label": "SECOND ROUTE A: Irrigation Control Vault",
+      "narrative": "Irrigation Control Vault — Irrigation Control Vault: Sticking isolator. condensation shorts complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_134",
+      "region_id": "REG_17",
+      "role": "second_route_b",
+      "requires_any": [
+        "LV_132"
+      ],
+      "route_label": "SECOND ROUTE B: Pollen Forecast Studio",
+      "narrative": "Pollen Forecast Studio — Pollen Forecast Studio: Source purity. condensation shorts complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_135",
+      "region_id": "REG_17",
+      "role": "second_rejoin",
+      "requires_any": [
+        "LV_133",
+        "LV_134"
+      ],
+      "route_label": "SECOND REJOIN: Gardeners' Academy",
+      "narrative": "Gardeners' Academy — Gardeners' Academy: Archive power. condensation shorts complicates this service area; reconcile the alternate supply corridor."
+    },
+    {
+      "level_id": "LV_136",
+      "region_id": "REG_17",
+      "role": "finale",
+      "requires_any": [
+        "LV_135"
+      ],
+      "route_label": "FINALE: Glass Pavilion Shelter",
+      "narrative": "Glass Pavilion Shelter — Glass Pavilion Shelter: Opening-time cutoff. condensation shorts complicates this service area; restore the region before moving onward."
+    },
+    {
+      "level_id": "LV_137",
+      "region_id": "REG_18",
+      "role": "entry",
+      "requires_any": [
+        "LV_136"
+      ],
+      "route_label": "ENTRY: Pithead Feeder Cabin",
+      "narrative": "Pithead Feeder Cabin — Pithead Feeder Cabin: Limited cable reel. coal-water leakage complicates this service area; establish chapter access."
+    },
+    {
+      "level_id": "LV_138",
+      "region_id": "REG_18",
+      "role": "first_route_a",
+      "requires_any": [
+        "LV_137"
+      ],
+      "route_label": "FIRST ROUTE A: Ore Conveyor Crossing",
+      "narrative": "Ore Conveyor Crossing — Ore Conveyor Crossing: Staged pump sequence. coal-water leakage complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_139",
+      "region_id": "REG_18",
+      "role": "first_route_b",
+      "requires_any": [
+        "LV_137"
+      ],
+      "route_label": "FIRST ROUTE B: Mine Rescue Station",
+      "narrative": "Mine Rescue Station — Mine Rescue Station: Intermittent ground. coal-water leakage complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_140",
+      "region_id": "REG_18",
+      "role": "first_rejoin",
+      "requires_any": [
+        "LV_138",
+        "LV_139"
+      ],
+      "route_label": "FIRST REJOIN: Old Canteen Bazaar",
+      "narrative": "Old Canteen Bazaar — Old Canteen Bazaar: Beacon continuity. coal-water leakage complicates this service area; rejoin the first field routes."
+    },
+    {
+      "level_id": "LV_141",
+      "region_id": "REG_18",
+      "role": "second_route_a",
+      "requires_any": [
+        "LV_140"
+      ],
+      "route_label": "SECOND ROUTE A: Blackwater Lift Pump",
+      "narrative": "Blackwater Lift Pump — Blackwater Lift Pump: Load-budget dilemma. coal-water leakage complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_142",
+      "region_id": "REG_18",
+      "role": "second_route_b",
+      "requires_any": [
+        "LV_140"
+      ],
+      "route_label": "SECOND ROUTE B: Deep Shaft Signal Hub",
+      "narrative": "Deep Shaft Signal Hub — Deep Shaft Signal Hub: False fuse alarm. coal-water leakage complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_143",
+      "region_id": "REG_18",
+      "role": "second_rejoin",
+      "requires_any": [
+        "LV_141",
+        "LV_142"
+      ],
+      "route_label": "SECOND REJOIN: Surface Safety Training",
+      "narrative": "Surface Safety Training — Surface Safety Training: Drain-level dependency. coal-water leakage complicates this service area; reconcile the alternate supply corridor."
+    },
+    {
+      "level_id": "LV_144",
+      "region_id": "REG_18",
+      "role": "finale",
+      "requires_any": [
+        "LV_143"
+      ],
+      "route_label": "FINALE: Emergency Muster Yard",
+      "narrative": "Emergency Muster Yard — Emergency Muster Yard: Reversible reset. coal-water leakage complicates this service area; restore the region before moving onward."
+    },
+    {
+      "level_id": "LV_145",
+      "region_id": "REG_19",
+      "role": "entry",
+      "requires_any": [
+        "LV_144"
+      ],
+      "route_label": "ENTRY: Reservoir Control Gallery",
+      "narrative": "Reservoir Control Gallery — Reservoir Control Gallery: Cable splice. inlet overflow risk complicates this service area; establish chapter access."
+    },
+    {
+      "level_id": "LV_146",
+      "region_id": "REG_19",
+      "role": "first_route_a",
+      "requires_any": [
+        "LV_145"
+      ],
+      "route_label": "FIRST ROUTE A: Crescent Spillway Walk",
+      "narrative": "Crescent Spillway Walk — Crescent Spillway Walk: Controlled load shed. inlet overflow risk complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_147",
+      "region_id": "REG_19",
+      "role": "first_route_b",
+      "requires_any": [
+        "LV_145"
+      ],
+      "route_label": "FIRST ROUTE B: Dam Operations Clinic",
+      "narrative": "Dam Operations Clinic — Dam Operations Clinic: Generator trade-off. inlet overflow risk complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_148",
+      "region_id": "REG_19",
+      "role": "first_rejoin",
+      "requires_any": [
+        "LV_146",
+        "LV_147"
+      ],
+      "route_label": "FIRST REJOIN: Waterside Supply Shop",
+      "narrative": "Waterside Supply Shop — Waterside Supply Shop: Pressure trip. inlet overflow risk complicates this service area; rejoin the first field routes."
+    },
+    {
+      "level_id": "LV_149",
+      "region_id": "REG_19",
+      "role": "second_route_a",
+      "requires_any": [
+        "LV_148"
+      ],
+      "route_label": "SECOND ROUTE A: Emergency Bypass Pumps",
+      "narrative": "Emergency Bypass Pumps — Emergency Bypass Pumps: Priority dispatch. inlet overflow risk complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_150",
+      "region_id": "REG_19",
+      "role": "second_route_b",
+      "requires_any": [
+        "LV_148"
+      ],
+      "route_label": "SECOND ROUTE B: Hydrology Telemetry Cabin",
+      "narrative": "Hydrology Telemetry Cabin — Hydrology Telemetry Cabin: Conflicting telemetry. inlet overflow risk complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_151",
+      "region_id": "REG_19",
+      "role": "second_rejoin",
+      "requires_any": [
+        "LV_149",
+        "LV_150"
+      ],
+      "route_label": "SECOND REJOIN: Water Engineering College",
+      "narrative": "Water Engineering College — Water Engineering College: Access-interlock investigation. inlet overflow risk complicates this service area; reconcile the alternate supply corridor."
+    },
+    {
+      "level_id": "LV_152",
+      "region_id": "REG_19",
+      "role": "finale",
+      "requires_any": [
+        "LV_151"
+      ],
+      "route_label": "FINALE: Highbank Relief Pavilion",
+      "narrative": "Highbank Relief Pavilion — Highbank Relief Pavilion: Thermal breaker. inlet overflow risk complicates this service area; restore the region before moving onward."
+    },
+    {
+      "level_id": "LV_153",
+      "region_id": "REG_20",
+      "role": "entry",
+      "requires_any": [
+        "LV_152"
+      ],
+      "route_label": "ENTRY: Wrenwood Crest Board",
+      "narrative": "Wrenwood Crest Board — Wrenwood Crest Board: Substation restart. tree-root cable intrusion complicates this service area; establish chapter access."
+    },
+    {
+      "level_id": "LV_154",
+      "region_id": "REG_20",
+      "role": "first_route_a",
+      "requires_any": [
+        "LV_153"
+      ],
+      "route_label": "FIRST ROUTE A: Pine Tram Landing",
+      "narrative": "Pine Tram Landing — Pine Tram Landing: Network loop hunt. tree-root cable intrusion complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_155",
+      "region_id": "REG_20",
+      "role": "first_route_b",
+      "requires_any": [
+        "LV_153"
+      ],
+      "route_label": "FIRST ROUTE B: Hillcrest Health Studio",
+      "narrative": "Hillcrest Health Studio — Hillcrest Health Studio: Brief service window. tree-root cable intrusion complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_156",
+      "region_id": "REG_20",
+      "role": "first_rejoin",
+      "requires_any": [
+        "LV_154",
+        "LV_155"
+      ],
+      "route_label": "FIRST REJOIN: Fir Row Grocer",
+      "narrative": "Fir Row Grocer — Fir Row Grocer: Cold-chain rescue. tree-root cable intrusion complicates this service area; rejoin the first field routes."
+    },
+    {
+      "level_id": "LV_157",
+      "region_id": "REG_20",
+      "role": "second_route_a",
+      "requires_any": [
+        "LV_156"
+      ],
+      "route_label": "SECOND ROUTE A: Hollow Brook Pump Hut",
+      "narrative": "Hollow Brook Pump Hut — Hollow Brook Pump Hut: Isolated bypass. tree-root cable intrusion complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_158",
+      "region_id": "REG_20",
+      "role": "second_route_b",
+      "requires_any": [
+        "LV_156"
+      ],
+      "route_label": "SECOND ROUTE B: Canopy Relay Treehouse",
+      "narrative": "Canopy Relay Treehouse — Canopy Relay Treehouse: Voltage sag. tree-root cable intrusion complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_159",
+      "region_id": "REG_20",
+      "role": "second_rejoin",
+      "requires_any": [
+        "LV_157",
+        "LV_158"
+      ],
+      "route_label": "SECOND REJOIN: Ranger Learning House",
+      "narrative": "Ranger Learning House — Ranger Learning House: Limited cable reel. tree-root cable intrusion complicates this service area; reconcile the alternate supply corridor."
+    },
+    {
+      "level_id": "LV_160",
+      "region_id": "REG_20",
+      "role": "finale",
+      "requires_any": [
+        "LV_159"
+      ],
+      "route_label": "FINALE: Woodland Commons Hall",
+      "narrative": "Woodland Commons Hall — Woodland Commons Hall: Staged pump sequence. tree-root cable intrusion complicates this service area; restore the region before moving onward."
+    },
+    {
+      "level_id": "LV_161",
+      "region_id": "REG_21",
+      "role": "entry",
+      "requires_any": [
+        "LV_160"
+      ],
+      "route_label": "ENTRY: Market Cross Switchbox",
+      "narrative": "Market Cross Switchbox — Market Cross Switchbox: Mislabelled feeder. mixed old/new electrical wiring complicates this service area; establish chapter access."
+    },
+    {
+      "level_id": "LV_162",
+      "region_id": "REG_21",
+      "role": "first_route_a",
+      "requires_any": [
+        "LV_161"
+      ],
+      "route_label": "FIRST ROUTE A: Lantern Cart Station",
+      "narrative": "Lantern Cart Station — Lantern Cart Station: Sticking isolator. mixed old/new electrical wiring complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_163",
+      "region_id": "REG_21",
+      "role": "first_route_b",
+      "requires_any": [
+        "LV_161"
+      ],
+      "route_label": "FIRST ROUTE B: Night Watch Dispensary",
+      "narrative": "Night Watch Dispensary — Night Watch Dispensary: Source purity. mixed old/new electrical wiring complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_164",
+      "region_id": "REG_21",
+      "role": "first_rejoin",
+      "requires_any": [
+        "LV_162",
+        "LV_163"
+      ],
+      "route_label": "FIRST REJOIN: Tallow Central Arcade",
+      "narrative": "Tallow Central Arcade — Tallow Central Arcade: Archive power. mixed old/new electrical wiring complicates this service area; rejoin the first field routes."
+    },
+    {
+      "level_id": "LV_165",
+      "region_id": "REG_21",
+      "role": "second_route_a",
+      "requires_any": [
+        "LV_164"
+      ],
+      "route_label": "SECOND ROUTE A: Old Well Booster",
+      "narrative": "Old Well Booster — Old Well Booster: Opening-time cutoff. mixed old/new electrical wiring complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_166",
+      "region_id": "REG_21",
+      "role": "second_route_b",
+      "requires_any": [
+        "LV_164"
+      ],
+      "route_label": "SECOND ROUTE B: Clockface Message Room",
+      "narrative": "Clockface Message Room — Clockface Message Room: Storm pulse timing. mixed old/new electrical wiring complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_167",
+      "region_id": "REG_21",
+      "role": "second_rejoin",
+      "requires_any": [
+        "LV_165",
+        "LV_166"
+      ],
+      "route_label": "SECOND REJOIN: Guild Junior Workshop",
+      "narrative": "Guild Junior Workshop — Guild Junior Workshop: Cable splice. mixed old/new electrical wiring complicates this service area; reconcile the alternate supply corridor."
+    },
+    {
+      "level_id": "LV_168",
+      "region_id": "REG_21",
+      "role": "finale",
+      "requires_any": [
+        "LV_167"
+      ],
+      "route_label": "FINALE: Chandler's Meeting House",
+      "narrative": "Chandler's Meeting House — Chandler's Meeting House: Controlled load shed. mixed old/new electrical wiring complicates this service area; restore the region before moving onward."
+    },
+    {
+      "level_id": "LV_169",
+      "region_id": "REG_22",
+      "role": "entry",
+      "requires_any": [
+        "LV_168"
+      ],
+      "route_label": "ENTRY: Basin Transfer Stack",
+      "narrative": "Basin Transfer Stack — Basin Transfer Stack: Beacon continuity. toxic-looking but harmless dye leaks complicates this service area; establish chapter access."
+    },
+    {
+      "level_id": "LV_170",
+      "region_id": "REG_22",
+      "role": "first_route_a",
+      "requires_any": [
+        "LV_169"
+      ],
+      "route_label": "FIRST ROUTE A: Rivet Ferry Causeway",
+      "narrative": "Rivet Ferry Causeway — Rivet Ferry Causeway: Load-budget dilemma. toxic-looking but harmless dye leaks complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_171",
+      "region_id": "REG_22",
+      "role": "first_route_b",
+      "requires_any": [
+        "LV_169"
+      ],
+      "route_label": "FIRST ROUTE B: Foxglove Aid Post",
+      "narrative": "Foxglove Aid Post — Foxglove Aid Post: False fuse alarm. toxic-looking but harmless dye leaks complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_172",
+      "region_id": "REG_22",
+      "role": "first_rejoin",
+      "requires_any": [
+        "LV_170",
+        "LV_171"
+      ],
+      "route_label": "FIRST REJOIN: Dye Works Outlet",
+      "narrative": "Dye Works Outlet — Dye Works Outlet: Drain-level dependency. toxic-looking but harmless dye leaks complicates this service area; rejoin the first field routes."
+    },
+    {
+      "level_id": "LV_173",
+      "region_id": "REG_22",
+      "role": "second_route_a",
+      "requires_any": [
+        "LV_172"
+      ],
+      "route_label": "SECOND ROUTE A: Basin Aeration Pumps",
+      "narrative": "Basin Aeration Pumps — Basin Aeration Pumps: Reversible reset. toxic-looking but harmless dye leaks complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_174",
+      "region_id": "REG_22",
+      "role": "second_route_b",
+      "requires_any": [
+        "LV_172"
+      ],
+      "route_label": "SECOND ROUTE B: Weather Balloon Shed",
+      "narrative": "Weather Balloon Shed — Weather Balloon Shed: Dual-route conflict. toxic-looking but harmless dye leaks complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_175",
+      "region_id": "REG_22",
+      "role": "second_rejoin",
+      "requires_any": [
+        "LV_173",
+        "LV_174"
+      ],
+      "route_label": "SECOND REJOIN: Basin Studies Lab",
+      "narrative": "Basin Studies Lab — Basin Studies Lab: Substation restart. toxic-looking but harmless dye leaks complicates this service area; reconcile the alternate supply corridor."
+    },
+    {
+      "level_id": "LV_176",
+      "region_id": "REG_22",
+      "role": "finale",
+      "requires_any": [
+        "LV_175"
+      ],
+      "route_label": "FINALE: Millpond Evacuation Hall",
+      "narrative": "Millpond Evacuation Hall — Millpond Evacuation Hall: Network loop hunt. toxic-looking but harmless dye leaks complicates this service area; restore the region before moving onward."
+    },
+    {
+      "level_id": "LV_177",
+      "region_id": "REG_23",
+      "role": "entry",
+      "requires_any": [
+        "LV_176"
+      ],
+      "route_label": "ENTRY: Astral Feeder Vault",
+      "narrative": "Astral Feeder Vault — Astral Feeder Vault: Pressure trip. lightning-sensitive instruments complicates this service area; establish chapter access."
+    },
+    {
+      "level_id": "LV_178",
+      "region_id": "REG_23",
+      "role": "first_route_a",
+      "requires_any": [
+        "LV_177"
+      ],
+      "route_label": "FIRST ROUTE A: Telescope Access Rail",
+      "narrative": "Telescope Access Rail — Telescope Access Rail: Priority dispatch. lightning-sensitive instruments complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_179",
+      "region_id": "REG_23",
+      "role": "first_route_b",
+      "requires_any": [
+        "LV_177"
+      ],
+      "route_label": "FIRST ROUTE B: Altitude Medical Room",
+      "narrative": "Altitude Medical Room — Altitude Medical Room: Conflicting telemetry. lightning-sensitive instruments complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_180",
+      "region_id": "REG_23",
+      "role": "first_rejoin",
+      "requires_any": [
+        "LV_178",
+        "LV_179"
+      ],
+      "route_label": "FIRST REJOIN: Night-Sky Supply Booth",
+      "narrative": "Night-Sky Supply Booth — Night-Sky Supply Booth: Access-interlock investigation. lightning-sensitive instruments complicates this service area; rejoin the first field routes."
+    },
+    {
+      "level_id": "LV_181",
+      "region_id": "REG_23",
+      "role": "second_route_a",
+      "requires_any": [
+        "LV_180"
+      ],
+      "route_label": "SECOND ROUTE A: Mirror Cooling Plant",
+      "narrative": "Mirror Cooling Plant — Mirror Cooling Plant: Thermal breaker. lightning-sensitive instruments complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_182",
+      "region_id": "REG_23",
+      "role": "second_route_b",
+      "requires_any": [
+        "LV_180"
+      ],
+      "route_label": "SECOND ROUTE B: Northern Tracking Array",
+      "narrative": "Northern Tracking Array — Northern Tracking Array: Cross-feed lock. lightning-sensitive instruments complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_183",
+      "region_id": "REG_23",
+      "role": "second_rejoin",
+      "requires_any": [
+        "LV_181",
+        "LV_182"
+      ],
+      "route_label": "SECOND REJOIN: Cedar Astronomy School",
+      "narrative": "Cedar Astronomy School — Cedar Astronomy School: Mislabelled feeder. lightning-sensitive instruments complicates this service area; reconcile the alternate supply corridor."
+    },
+    {
+      "level_id": "LV_184",
+      "region_id": "REG_23",
+      "role": "finale",
+      "requires_any": [
+        "LV_183"
+      ],
+      "route_label": "FINALE: Stargazer Dormitory",
+      "narrative": "Stargazer Dormitory — Stargazer Dormitory: Sticking isolator. lightning-sensitive instruments complicates this service area; restore the region before moving onward."
+    },
+    {
+      "level_id": "LV_185",
+      "region_id": "REG_24",
+      "role": "entry",
+      "requires_any": [
+        "LV_184"
+      ],
+      "route_label": "ENTRY: Dunewatch Switchfield",
+      "narrative": "Dunewatch Switchfield — Dunewatch Switchfield: Cold-chain rescue. sand-blown power connectors complicates this service area; establish chapter access."
+    },
+    {
+      "level_id": "LV_186",
+      "region_id": "REG_24",
+      "role": "first_route_a",
+      "requires_any": [
+        "LV_185"
+      ],
+      "route_label": "FIRST ROUTE A: Sandline Transit Stop",
+      "narrative": "Sandline Transit Stop — Sandline Transit Stop: Isolated bypass. sand-blown power connectors complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_187",
+      "region_id": "REG_24",
+      "role": "first_route_b",
+      "requires_any": [
+        "LV_185"
+      ],
+      "route_label": "FIRST ROUTE B: Dune First Response",
+      "narrative": "Dune First Response — Dune First Response: Voltage sag. sand-blown power connectors complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_188",
+      "region_id": "REG_24",
+      "role": "first_rejoin",
+      "requires_any": [
+        "LV_186",
+        "LV_187"
+      ],
+      "route_label": "FIRST REJOIN: Oasis Supply Courtyard",
+      "narrative": "Oasis Supply Courtyard — Oasis Supply Courtyard: Limited cable reel. sand-blown power connectors complicates this service area; rejoin the first field routes."
+    },
+    {
+      "level_id": "LV_189",
+      "region_id": "REG_24",
+      "role": "second_route_a",
+      "requires_any": [
+        "LV_188"
+      ],
+      "route_label": "SECOND ROUTE A: Aquifer Pump Vault",
+      "narrative": "Aquifer Pump Vault — Aquifer Pump Vault: Staged pump sequence. sand-blown power connectors complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_190",
+      "region_id": "REG_24",
+      "role": "second_route_b",
+      "requires_any": [
+        "LV_188"
+      ],
+      "route_label": "SECOND ROUTE B: Storm Flag Radio Mast",
+      "narrative": "Storm Flag Radio Mast — Storm Flag Radio Mast: Intermittent ground. sand-blown power connectors complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_191",
+      "region_id": "REG_24",
+      "role": "second_rejoin",
+      "requires_any": [
+        "LV_189",
+        "LV_190"
+      ],
+      "route_label": "SECOND REJOIN: Desert Ecology Academy",
+      "narrative": "Desert Ecology Academy — Desert Ecology Academy: Beacon continuity. sand-blown power connectors complicates this service area; reconcile the alternate supply corridor."
+    },
+    {
+      "level_id": "LV_192",
+      "region_id": "REG_24",
+      "role": "finale",
+      "requires_any": [
+        "LV_191"
+      ],
+      "route_label": "FINALE: Coastal Refuge Dome",
+      "narrative": "Coastal Refuge Dome — Coastal Refuge Dome: Load-budget dilemma. sand-blown power connectors complicates this service area; restore the region before moving onward."
+    },
+    {
+      "level_id": "LV_193",
+      "region_id": "REG_25",
+      "role": "entry",
+      "requires_any": [
+        "LV_192"
+      ],
+      "route_label": "ENTRY: Beacon Row Transformer",
+      "narrative": "Beacon Row Transformer — Beacon Row Transformer: Archive power. stairwell flooding and antenna loss complicates this service area; establish chapter access."
+    },
+    {
+      "level_id": "LV_194",
+      "region_id": "REG_25",
+      "role": "first_route_a",
+      "requires_any": [
+        "LV_193"
+      ],
+      "route_label": "FIRST ROUTE A: Skybridge Transit Deck",
+      "narrative": "Skybridge Transit Deck — Skybridge Transit Deck: Opening-time cutoff. stairwell flooding and antenna loss complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_195",
+      "region_id": "REG_25",
+      "role": "first_route_b",
+      "requires_any": [
+        "LV_193"
+      ],
+      "route_label": "FIRST ROUTE B: Tower Eight Clinic",
+      "narrative": "Tower Eight Clinic — Tower Eight Clinic: Storm pulse timing. stairwell flooding and antenna loss complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_196",
+      "region_id": "REG_25",
+      "role": "first_rejoin",
+      "requires_any": [
+        "LV_194",
+        "LV_195"
+      ],
+      "route_label": "FIRST REJOIN: Roof Garden Market",
+      "narrative": "Roof Garden Market — Roof Garden Market: Cable splice. stairwell flooding and antenna loss complicates this service area; rejoin the first field routes."
+    },
+    {
+      "level_id": "LV_197",
+      "region_id": "REG_25",
+      "role": "second_route_a",
+      "requires_any": [
+        "LV_196"
+      ],
+      "route_label": "SECOND ROUTE A: Basement Sump Plant",
+      "narrative": "Basement Sump Plant — Basement Sump Plant: Controlled load shed. stairwell flooding and antenna loss complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_198",
+      "region_id": "REG_25",
+      "role": "second_route_b",
+      "requires_any": [
+        "LV_196"
+      ],
+      "route_label": "SECOND ROUTE B: Beacon Aerial Loft",
+      "narrative": "Beacon Aerial Loft — Beacon Aerial Loft: Generator trade-off. stairwell flooding and antenna loss complicates this service area; this branch remains optional and replayable."
+    },
+    {
+      "level_id": "LV_199",
+      "region_id": "REG_25",
+      "role": "second_rejoin",
+      "requires_any": [
+        "LV_197",
+        "LV_198"
+      ],
+      "route_label": "SECOND REJOIN: Terrace Evening School",
+      "narrative": "Terrace Evening School — Terrace Evening School: Pressure trip. stairwell flooding and antenna loss complicates this service area; reconcile the alternate supply corridor."
+    },
+    {
+      "level_id": "LV_200",
+      "region_id": "REG_25",
+      "role": "finale",
+      "requires_any": [
+        "LV_199"
+      ],
+      "route_label": "FINALE: Residents' Emergency Hub",
+      "narrative": "Residents' Emergency Hub — Residents' Emergency Hub: Priority dispatch. stairwell flooding and antenna loss complicates this service area; restore the region before moving onward."
+    }
+  ]
+}
