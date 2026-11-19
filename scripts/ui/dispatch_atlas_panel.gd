@@ -9,6 +9,7 @@ const Atlas := preload("res://scripts/world/dispatch_atlas.gd")
 const LayoutPlan := preload("res://scripts/world/expedition_layout_plan.gd")
 const Graybox := preload("res://scripts/world/expedition_graybox.gd")
 const Ledger := preload("res://scripts/progression/expedition_ledger.gd")
+const Campaign := preload("res://scripts/progression/expedition_campaign.gd")
 const Saves := preload("res://scripts/persistence/save_service.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
@@ -17,6 +18,9 @@ var account_key: String = ""  # assigned by MainMenu before entering scene tree
 var _data: Dictionary = {}
 var _field_profile: Dictionary = {}
 var _field_profile_error: String = ""
+var _campaign_board: Dictionary = {}
+var _campaign_error: String = ""
+var _status_filter: OptionButton
 var _district: OptionButton
 var _search: LineEdit
 var _list: ItemList
@@ -44,6 +48,15 @@ func _ready() -> void:
 			_field_profile = loaded["profile"]
 		else:
 			_field_profile_error = str(loaded.get("code", "UNKNOWN_FIELD_PROFILE"))
+	# EXP05 restores are derived from saved EXP04 receipts. Browsing never
+	# grants unlocks, applies inbox entries, or changes the original profile.
+	var view_profile: Dictionary = _field_profile
+	if account_key == "":
+		view_profile = Ledger.new_profile("exp05_guest_preview")
+	if _field_profile_error == "":
+		_campaign_board = Campaign.evaluate(view_profile, _data, Campaign.load_routes())
+		if not bool(_campaign_board.get("ok", false)):
+			_campaign_error = str(_campaign_board.get("code", "BAD_CAMPAIGN"))
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	var surface: ColorRect = ColorRect.new()
@@ -92,6 +105,19 @@ func _ready() -> void:
 			(_field_profile["completed_levels"] as Dictionary).size(), Ledger.MAX_LEVELS,
 			int(_field_profile["field_points"]), Ledger.MAX_FIELD_POINTS]
 	layout.add_child(collection)
+	var campaign_summary: Label = Label.new()
+	campaign_summary.name = "CampaignProgressionSummary"
+	campaign_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	if _field_profile_error != "" or _campaign_error != "":
+		campaign_summary.text = "EXP05 CAMPAIGN HOLD: " + (
+			_field_profile_error if _field_profile_error != "" else _campaign_error)
+	elif account_key == "":
+		campaign_summary.text = "EXP05 • Guest preview only; no saved regional unlocks or field points"
+	else:
+		campaign_summary.text = "EXP05 • %d / 200 restored  •  %d available  •  %d locked  •  %d / 25 regions cleared" % [
+			int(_campaign_board["restored"]), int(_campaign_board["available"]),
+			int(_campaign_board["locked"]), int(_campaign_board["cleared_regions"])]
+	layout.add_child(campaign_summary)
 
 	var halves: HSplitContainer = HSplitContainer.new()
 	halves.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -109,6 +135,13 @@ func _ready() -> void:
 		_district.set_item_metadata(_district.item_count - 1, str(region.get("id", "")))
 	left.add_child(_district)
 	_district.item_selected.connect(func(_index: int) -> void: _refresh())
+	_status_filter = OptionButton.new()
+	_status_filter.name = "CampaignStatusFilter"
+	_status_filter.custom_minimum_size.y = 42
+	for label_text: String in ["All campaign levels", "Available", "Restored", "Locked"]:
+		_status_filter.add_item(label_text)
+	left.add_child(_status_filter)
+	_status_filter.item_selected.connect(func(_index: int) -> void: _refresh())
 	_search = LineEdit.new()
 	_search.name = "DispatchSearch"
 	_search.placeholder_text = "Search level, location or story"
@@ -192,17 +225,31 @@ func _refresh() -> void:
 	if _list == null or _district == null:
 		return
 	var region_id: String = str(_district.get_item_metadata(_district.selected))
-	_visible_levels = Atlas.search_levels(_data, region_id, _search.text)
+	var candidates: Array[Dictionary] = Atlas.search_levels(_data, region_id, _search.text)
+	_visible_levels.clear()
+	var filter: int = _status_filter.selected if _status_filter != null else 0
+	var states: Dictionary = _campaign_board.get("states", {})
+	for level: Dictionary in candidates:
+		var id: String = str(level["id"])
+		var status: String = str((states.get(id, {}) as Dictionary).get("status", "LOCKED"))
+		if filter == 1 and status != "AVAILABLE":
+			continue
+		if filter == 2 and status != "RESTORED":
+			continue
+		if filter == 3 and status != "LOCKED":
+			continue
+		_visible_levels.append(level)
 	_list.clear()
 	for level: Dictionary in _visible_levels:
-		_list.add_item("%s  %s" % [level["id"], level["title"]])
+		var id: String = str(level["id"])
+		var status: String = str((states.get(id, {}) as Dictionary).get("status", "PREVIEW"))
+		_list.add_item("[%s]  %s  %s" % [status, id, level["title"]])
 	_count.text = "%d levels  /  %d planned objectives" % [
 		_visible_levels.size(), _visible_levels.size() * 5]
 	if _visible_levels.is_empty():
 		_details.text = "No dispatch matches these filters."
 		_mission_button.disabled = true
 		return
-	_mission_button.disabled = false
 	_list.select(0)
 	_describe(0)
 
@@ -213,7 +260,23 @@ func _describe(index: int) -> void:
 	var level: Dictionary = _visible_levels[index]
 	var location: Dictionary = Atlas.find_location(_data, str(level["location_id"]))
 	_update_schematic(level, location)
-	var lines: Array[String] = [
+	var route: Dictionary = (_campaign_board.get("states", {}) as Dictionary).get(
+		str(level["id"]), {})
+	var gate: String = str(route.get("status", "HOLD"))
+	_mission_button.disabled = _field_profile_error != "" or _campaign_error != "" or (
+		account_key != "" and gate == "LOCKED")
+	_mission_button.text = "Launch restored/replayable dispatch" if gate == "RESTORED" else (
+		"Enter EXP05 dispatch (experimental; untested)" if not _mission_button.disabled else
+		"Locked: complete one prerequisite restoration")
+	var blockers: Array = route.get("requires_any", [])
+	var route_lines: Array[String] = [
+		"EXP05 ROUTE  •  " + str(route.get("route_label", "UNKNOWN")),
+		"STATUS  •  " + gate,
+		"UNLOCK  •  " + ("Chapter entry" if blockers.is_empty() else
+			"Restore ANY of " + ", ".join(blockers)),
+		str(route.get("narrative", "")), ""
+	]
+	var lines: Array[String] = route_lines + [
 		str(level["title"]), "",
 		"LOCATION  •  " + str(location.get("name", "")),
 		"LANDMARK  •  " + str(location.get("hero_prop", "")),
@@ -281,4 +344,10 @@ func _request_mission() -> void:
 	var index: int = selected[0]
 	if index < 0 or index >= _visible_levels.size():
 		return
-	mission_requested.emit(str(_visible_levels[index]["id"]))
+	var chosen: String = str(_visible_levels[index]["id"])
+	if account_key != "":
+		var access: Dictionary = Campaign.can_launch(_field_profile, _data,
+			Campaign.load_routes(), chosen)
+		if not bool(access.get("ok", false)):
+			return
+	mission_requested.emit(chosen)
