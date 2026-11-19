@@ -153,11 +153,11 @@ func _ready() -> void:
 	c04_preview_button.pressed.connect(_launch_c04_preview)
 	layout.add_child(c04_preview_button)
 
-	# EXP01 read-only design catalogue: never launches unbuilt levels, awards points
-	# or replaces the production C01 checkpoint.
+	# EXP04: read-only atlas with an explicit opt-in host mission; any field
+	# score and lore are isolated from the production C01 checkpoint.
 	dispatch_atlas_button = Button.new()
 	dispatch_atlas_button.name = "DispatchAtlasButton"
-	dispatch_atlas_button.text = "Explore 200 planned dispatches (preview)"
+	dispatch_atlas_button.text = "Explore 200 experimental dispatch missions"
 	dispatch_atlas_button.custom_minimum_size.y = 56.0
 	dispatch_atlas_button.pressed.connect(_open_dispatch_atlas)
 	layout.add_child(dispatch_atlas_button)
@@ -334,8 +334,8 @@ func _open_dispatch_atlas() -> void:
 	_dispatch_atlas_panel.mission_requested.connect(_launch_experimental_dispatch)
 
 
-## EXP03 experiments use a brand-new ephemeral scene. This does not change
-## the offline_resume flag or touch the C01 save/profile directories.
+## EXP04 missions use a separate source scene/profile ledger. This does not
+## change offline_resume or write the original C01 checkpoint/credit profile.
 func _launch_experimental_dispatch(level_id: String) -> void:
 	if _dispatch_atlas_panel == null or _loading_card != null:
 		return
