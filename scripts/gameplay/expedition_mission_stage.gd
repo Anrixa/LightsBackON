@@ -110,7 +110,7 @@ func _ready() -> void:
 	runtime = Runtime.new()
 	var result: Dictionary = runtime.start(
 		level_id, Callable(self, "_host_position"), Callable(self, "_world_sight"),
-		_expedition_account, _expedition_account != "", "", true, true, true, true, true)
+		_expedition_account, _expedition_account != "", "", true, true, true, true, true, true)
 	if not bool(result.get("ok", false)):
 		push_error("EXP03_HOST_START_FAILED: " + str(result))
 		return
@@ -175,6 +175,12 @@ func _add_host_targets() -> void:
 		names[str(manifest["console"])] = "LOGISTICS CERTIFICATION"
 		for job: Dictionary in manifest["jobs"]:
 			names[str(job["id"])] = str(job["cargo"]).to_upper()
+	if runtime.balancing != null:
+		var load_board: Dictionary = runtime.balancing.definition_snapshot()
+		names[str(load_board["board"])] = "CRITICAL LOAD CONTROL BOARD"
+		names[str(load_board["console"])] = "SERVICE BALANCE CERTIFICATION"
+		for service: Dictionary in load_board["services"]:
+			names[str(service["id"])] = str(service["name"]).to_upper()
 	for id: String in _definitions["positions"]:
 		var marker: Marker3D = Marker3D.new()
 		marker.name = id
@@ -266,7 +272,7 @@ func _build_overlay(level: Dictionary) -> void:
 	_feedback.add_theme_color_override("font_color", Color("#F1D6B2"))
 	box.add_child(_feedback)
 	var controls: Label = Label.new()
-	controls.text = "WASD move • mouse aim • E interact • R EXP08 route • T EXP009 response • U EXP010 direct/relay • Y EXP010 shipment A/B • K recall depot shipment • 1–5 tools • Esc atlas\nEXP06–EXP009: Complete equipment, stability and service recovery. EXP010: Open depot manifest, allocate one direct and one relay shipment from finite stocks, wait for host transit, receive each cargo, certify the logistics board. Unsafe supply pauses transit and reopens completed deliveries for recheck. Source/headless only; physical playability remains held."
+	controls.text = "WASD move • mouse aim • E interact / EXP011 energize or shed • R EXP08 route • T EXP009 response • U EXP010 direct/relay • Y EXP010 shipment A/B • K recall depot shipment • 1–5 tools • Esc atlas\nEXP06–EXP009: Complete equipment, stability and service recovery. EXP010: Open depot manifest, allocate one direct and one relay shipment from finite stocks, wait for host transit, receive each cargo, certify the logistics board. Unsafe supply pauses transit and reopens completed deliveries for recheck. EXP011: Open load board, allocate no more than 6 PU, stabilize each service through host ticks, shed and latch, then certify. Source/headless only; physical playability remains held."
 	controls.add_theme_color_override("font_color", Color("#D9E3EC"))
 	controls.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(controls)
@@ -365,6 +371,25 @@ func _next_repair() -> void:
 
 func _activate_target() -> void:
 	if _target == "":
+		return
+	if _target.begins_with("LB_") and runtime.balancing != null:
+		var board: Dictionary = runtime.balancing.definition_snapshot()
+		var status: Dictionary = runtime.balancing.snapshot()
+		if _target == str(board["board"]):
+			_send("operate_balance", _target, {"action": "open"})
+		elif _target == str(board["console"]):
+			_send("operate_balance", _target, {"action": "certify"})
+		elif (status["circuits"] as Dictionary).has(_target):
+			var circuit: String = str(status["circuits"][_target]["status"])
+			var action: String = ""
+			match circuit:
+				"pending": action = "energize"
+				"warming", "stable": action = "shed"
+				"recheck": action = "recheck"
+			if action != "":
+				_send("operate_balance", _target, {"action": action})
+			elif _feedback != null:
+				_feedback.text = "EXP011 circuit is already latched."
 		return
 	if _target.begins_with("LG_") and runtime.logistics != null:
 		var manifest: Dictionary = runtime.logistics.definition_snapshot()
@@ -615,6 +640,19 @@ func _refresh() -> void:
 			var active: Dictionary = logistics["active"]
 			lines.append("SUPPLY IN TRANSIT: %s / %s • %d/%d host ticks" % [
 				str(active["job"]), str(active["route"]), int(active["elapsed"]), int(active["duration"])])
+	if board.has("balancing"):
+		var loads: Dictionary = board["balancing"]
+		lines.append("EXP011 CRITICAL LOADS %s • %d/%d PU • tick %d • late %d • abort %d • reopens %d • mode %s" % [
+			"CERTIFIED" if loads["certified"] else "OPEN" if loads["opened"] else "DORMANT",
+			int(loads["used_pu"]), int(loads["capacity_pu"]), int(loads["tick"]),
+			int(loads["late"]), int(loads["aborts"]), int(loads["reopens"]), str(loads["mode"])])
+		for service: Dictionary in (_definitions["balancing"] as Dictionary)["services"]:
+			var state: Dictionary = loads["circuits"][str(service["id"])]
+			lines.append("%s • %s • %d PU • %s • %d/%d host ticks • deadline %d" % [
+				str(service["id"]), str(service["name"]), int(service["demand_pu"]),
+				str(state["status"]).to_upper(), int(state["ticks"]),
+				int(service["dwell_ticks"]), int(service["deadline_ticks"])])
+		lines.append("EXP011: E on board to inspect/open; E at a circuit to energize / shed after STABLE; E at console to certify.")
 	_task_label.text = "\n".join(lines)
 	if _target_label != null:
 		_target_label.text = "Target: %s  /  tool: %s  /  host revision: %d" % [

@@ -28,6 +28,7 @@ const Devices := preload("res://scripts/gameplay/expedition_device_graph.gd")
 const Faults := preload("res://scripts/gameplay/expedition_fault_diagnostics.gd")
 const Consequences := preload("res://scripts/gameplay/expedition_consequences.gd")
 const Logistics := preload("res://scripts/gameplay/expedition_emergency_logistics.gd")
+const Balancing := preload("res://scripts/gameplay/expedition_critical_loads.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
 
@@ -51,6 +52,7 @@ var devices: Devices
 var faults: Faults
 var consequences: Consequences
 var logistics: Logistics
+var balancing: Balancing
 
 var _definitions: Dictionary = {}
 var _position_source: Callable
@@ -83,7 +85,7 @@ func start(level_id: String, host_position: Callable,
 		enforce_campaign: bool = false, campaign_root: String = "",
 		enable_bespoke: bool = false, enable_devices: bool = false,
 		enable_faults: bool = false, enable_consequences: bool = false,
-		enable_logistics: bool = false) -> Dictionary:
+		enable_logistics: bool = false, enable_balance: bool = false) -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
 	if enable_devices and not enable_bespoke:
@@ -94,6 +96,8 @@ func start(level_id: String, host_position: Callable,
 		return _fail("EXP009_REQUIRES_EXP08")
 	if enable_logistics and not enable_consequences:
 		return _fail("EXP010_REQUIRES_EXP009")
+	if enable_balance and not enable_logistics:
+		return _fail("EXP011_REQUIRES_EXP010")
 	if account_key != "" and not SaveService.is_valid_key(account_key):
 		return _fail("INVALID_ACCOUNT_KEY")
 	if not host_position.is_valid() or (physics_visibility.is_valid() and not host_position.is_valid()):
@@ -216,6 +220,27 @@ func start(level_id: String, host_position: Callable,
 		positions[str(manifest["console"])] = positions[str(manifest["console_anchor"])] + Vector3(1.35, 0.0, -0.75)
 		for job: Dictionary in manifest["jobs"]:
 			positions[str(job["id"])] = positions[str(job["anchor"])] + Vector3(-1.25, 0.0, 0.70)
+	if enable_balance:
+		var balance_book: Dictionary = Balancing.load_book()
+		var balance_audit: Dictionary = Balancing.inspect(atlas, Logistics.load_book(), balance_book)
+		if not bool(balance_audit.get("ok", false)):
+			return _fail("EXP011_BOOK_INVALID", balance_audit)
+		var board: Dictionary = Balancing.entry_for(balance_book, level, logistics.definition_snapshot())
+		if board.is_empty():
+			return _fail("EXP011_SOURCE_MISMATCH")
+		balancing = Balancing.new()
+		var balanced: Dictionary = balancing.configure(board)
+		if not bool(balanced.get("ok", false)):
+			return _fail("EXP011_CONFIG_FAILED", balanced)
+		_definitions["balancing"] = balancing.definition_snapshot()
+		var load_positions: Dictionary = _definitions["positions"]
+		load_positions[str(board["board"])] = load_positions[str(board["board_anchor"])] + Vector3(1.65, 0.0, -0.75)
+		load_positions[str(board["console"])] = load_positions[str(board["console_anchor"])] + Vector3(-1.65, 0.0, -0.75)
+		for j: int in range(3):
+			var service: Dictionary = board["services"][j]
+			var offset: Vector3 = [Vector3(1.45, 0.0, 0.60), Vector3(-1.45, 0.0, 0.60),
+				Vector3(-1.50, 0.0, 0.75)][j]
+			load_positions[str(service["id"])] = load_positions[str(service["anchor"])] + offset
 	_position_source = host_position
 	_physics_visibility = physics_visibility
 	_account_key = account_key
@@ -266,6 +291,9 @@ func start(level_id: String, host_position: Callable,
 	if logistics != null:
 		host.set_expedition_logistics_authority(Callable(self, "_operate_logistics"),
 			Callable(logistics, "snapshot"), Callable(self, "_logistics_tick"))
+	if balancing != null:
+		host.set_expedition_balance_authority(Callable(self, "_operate_balance"),
+			Callable(balancing, "snapshot"), Callable(self, "_balance_tick"))
 	var accepted: Dictionary = host.admit(Host.HOST_PEER, PLAYER_ID, PROTOCOL, rev, TOOLS)
 	if not bool(accepted.get("ok", false)):
 		return _fail("ADMISSION_REFUSED", accepted)
@@ -281,7 +309,7 @@ func start(level_id: String, host_position: Callable,
 		"task_count": _tasks.size(), "bespoke_active": bespoke != null,
 		"devices_active": devices != null, "faults_active": faults != null,
 		"consequences_active": consequences != null,
-		"logistics_active": logistics != null,
+		"logistics_active": logistics != null, "balance_active": balancing != null,
 		"qualification": "AUTHORITY_SOURCE_HEADLESS_ONLY_NO_PLAYABILITY"}
 
 
@@ -290,6 +318,14 @@ func _session_id() -> String:
 
 
 func _content_revision() -> String:
+	if balancing != null:
+		return "EXP011_" + ("%s|%s|%s|%s|%s|%s" % [
+			str(_definitions.get("source_fingerprint", "")),
+			str(devices.definition_snapshot().get("graph_key", "")),
+			str(faults.definition_snapshot().get("scenario_key", "")),
+			str(consequences.definition_snapshot().get("chain_key", "")),
+			str(logistics.definition_snapshot().get("logistics_key", "")),
+			str(balancing.definition_snapshot().get("load_key", ""))]).sha256_text()
 	if logistics != null:
 		return "EXP010_" + ("%s|%s|%s|%s|%s" % [
 			str(_definitions.get("source_fingerprint", "")),
@@ -369,6 +405,11 @@ func _bespoke_guard(player_id: String, kind: String, entity: String,
 		return _fail("EXP009_CONSEQUENCES_INCOMPLETE")
 	if kind == "request_extract" and logistics != null and not logistics.solved():
 		return _fail("EXP010_LOGISTICS_INCOMPLETE")
+	if kind == "request_extract" and balancing != null and not balancing.solved():
+		return _fail("EXP011_BALANCING_INCOMPLETE")
+	if kind == "operate_balance":
+		if balancing == null or not balancing.target_ids().has(entity):
+			return _fail("EXP011_UNKNOWN_TARGET")
 	if kind == "operate_logistics":
 		if logistics == null or not logistics.target_ids().has(entity):
 			return _fail("EXP010_UNKNOWN_TARGET")
@@ -464,6 +505,24 @@ func _operate_logistics(player_id: String, entity: String, action: String) -> Di
 func _logistics_tick() -> void:
 	if logistics != null:
 		logistics.advance(_logistics_facts())
+
+
+## EXP011 derives downstream safety from the same current host services.
+func _balance_facts() -> Dictionary:
+	var facts: Dictionary = _logistics_facts()
+	facts["logistics_solved"] = logistics != null and logistics.solved()
+	return facts
+
+
+func _operate_balance(player_id: String, entity: String, action: String) -> Dictionary:
+	if player_id != PLAYER_ID or balancing == null:
+		return _fail("EXP011_HOST_PRINCIPAL_INVALID")
+	return balancing.operate(entity, action, _balance_facts())
+
+
+func _balance_tick() -> void:
+	if balancing != null:
+		balancing.advance(_balance_facts())
 
 
 ## Called by SessionHost ONLY after its existing transport/session/sequence,
@@ -649,6 +708,8 @@ func task_board() -> Dictionary:
 		board["consequences"] = consequences.snapshot()
 	if logistics != null:
 		board["logistics"] = logistics.snapshot()
+	if balancing != null:
+		board["balancing"] = balancing.snapshot()
 	return board
 
 

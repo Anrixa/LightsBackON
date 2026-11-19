@@ -21,7 +21,7 @@ const HOST_PEER: int = 1
 const CHUNK_ENVELOPE_BYTES: int = 96  # {"type":"snapshot_chunk","index":N,"data":"..."} around the escaped slice
 const ENVELOPE_KEYS: Array[String] = ["session", "seq", "type", "entity", "payload"]
 const INTENTS: Array[String] = ["inspect", "request_lock", "release", "heartbeat", "repair_step", "equip", "toggle_switch", "place_item",
-	"request_extract", "use_ladder", "use_route", "recover_self", "ping", "chat", "collect_lore", "operate_device", "operate_fault", "operate_consequence", "operate_logistics"]
+	"request_extract", "use_ladder", "use_route", "recover_self", "ping", "chat", "collect_lore", "operate_device", "operate_fault", "operate_consequence", "operate_logistics", "operate_balance"]
 const DEFERRED_INTENTS: Array[String] = ["ready"]  # lobby; refused until implemented
 const PLACE_ACTIONS: Array[String] = ["pickup", "place", "connect", "disconnect", "start", "stop", "reset_breaker", "recover", "drop"]
 
@@ -49,6 +49,9 @@ var _consequence_tick: Callable = Callable()  # after EXP08 state advances
 var _logistics_handler: Callable = Callable()  # EXP010 stock, deliveries, recall
 var _logistics_state: Callable = Callable()  # canonical host hash
 var _logistics_tick: Callable = Callable()  # after EXP009 consequence tick
+var _balance_handler: Callable = Callable()  # EXP011 finite critical-load operations
+var _balance_state: Callable = Callable()  # authoritative EXP011 hash state
+var _balance_tick: Callable = Callable()  # after EXP010 logistics host tick
 var _expedition_intent_guard: Callable = Callable()  # optional EXP06 policy; checked after host dedupe
 var _switches: Dictionary = {}  # switch id -> {"target", "field"}
 var _members: Dictionary = {}  # transport peer id (int) -> player id
@@ -193,6 +196,8 @@ func tick(now: int) -> Array[Dictionary]:
 		_consequence_tick.call()
 	if _logistics_tick.is_valid():
 		_logistics_tick.call()
+	if _balance_tick.is_valid():
+		_balance_tick.call()
 	if now - _last_checkpoint_tick >= int(_limits["checkpoint_interval_ticks"]):
 		_last_checkpoint_tick = now
 		events.append({"type": "checkpoint_due", "reason": "interval", "tick": now})
@@ -429,6 +434,18 @@ func _dispatch(player: String, msg: Dictionary) -> Dictionary:
 		if not logistics_reply is Dictionary:
 			return _refuse("EXP010_INVALID_HOST_RESULT", "logistics authority returned invalid result", [entity])
 		return logistics_reply
+	# EXP011: host-owned temporary grid capacity and service stabilization.
+	if kind == "operate_balance":
+		if not _balance_handler.is_valid():
+			return _refuse("UNSUPPORTED_INTENT", "EXP011 not active in this session", [])
+		if payload.size() != 1 or not payload.get("action") is String:
+			return _refuse("MALFORMED", "operate_balance takes exactly one action", [entity])
+		if not in_range:
+			return _refuse("NOT_IN_RANGE", "move closer to %s" % entity, [entity])
+		var balance_reply: Variant = _balance_handler.call(player, entity, str(payload["action"]))
+		if not balance_reply is Dictionary:
+			return _refuse("EXP011_INVALID_HOST_RESULT", "load authority returned invalid result", [entity])
+		return balance_reply
 	# EXP04's optional pickup is subject to the SAME transport membership,
 	# session, sequence, rate, entity proximity and sight checks as repairs.
 	# Without an explicit server-side handler existing contracts refuse it.
@@ -552,6 +569,8 @@ func authoritative_state() -> Dictionary:
 		state["exp009_consequences"] = _consequence_state.call()
 	if _logistics_state.is_valid():
 		state["exp010_logistics"] = _logistics_state.call()
+	if _balance_state.is_valid():
+		state["exp011_critical_loads"] = _balance_state.call()
 	return state
 
 
@@ -590,6 +609,14 @@ func set_expedition_logistics_authority(handler: Callable, state_provider: Calla
 	_logistics_handler = handler
 	_logistics_state = state_provider
 	_logistics_tick = tick_provider
+
+
+## EXP011 is explicitly opt-in; no original campaign or earlier EXP session binds it.
+func set_expedition_balance_authority(handler: Callable, state_provider: Callable,
+		tick_provider: Callable) -> void:
+	_balance_handler = handler
+	_balance_state = state_provider
+	_balance_tick = tick_provider
 
 
 ## Attach crew communication (V06).

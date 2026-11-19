@@ -36,6 +36,9 @@ if [ -n "$PY" ]; then "$PY" tools/validate_exp009_consequences.py || FAIL=1; fi
 echo "== EXP010: 200 emergency logistics manifests, 400 jobs and finite stock oracle =="
 if [ -n "$PY" ]; then "$PY" tools/validate_exp010_logistics.py || FAIL=1; fi
 
+echo "== EXP011: 200 critical load boards, 600 circuits and capacity recovery oracle =="
+if [ -n "$PY" ]; then "$PY" tools/validate_exp011_loads.py || FAIL=1; fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 
