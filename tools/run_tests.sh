@@ -30,6 +30,9 @@ if [ -n "$PY" ]; then "$PY" tools/validate_exp07_device_graphs.py || FAIL=1; fi
 echo "== EXP08: 200 source-pinned diagnoses, 400 sensors, dual routes and recovery ==" 
 if [ -n "$PY" ]; then "$PY" tools/validate_exp08_faults.py || FAIL=1; fi
 
+echo "== EXP009: 200 source-validated consequence graphs, 600 linked services and recovery =="
+if [ -n "$PY" ]; then "$PY" tools/validate_exp009_consequences.py || FAIL=1; fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 

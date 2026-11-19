@@ -26,6 +26,7 @@ const Campaign := preload("res://scripts/progression/expedition_campaign.gd")
 const Bespoke := preload("res://scripts/gameplay/expedition_bespoke_mechanics.gd")
 const Devices := preload("res://scripts/gameplay/expedition_device_graph.gd")
 const Faults := preload("res://scripts/gameplay/expedition_fault_diagnostics.gd")
+const Consequences := preload("res://scripts/gameplay/expedition_consequences.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
 
@@ -47,6 +48,7 @@ var host: Host
 var bespoke: Bespoke
 var devices: Devices
 var faults: Faults
+var consequences: Consequences
 
 var _definitions: Dictionary = {}
 var _position_source: Callable
@@ -78,13 +80,15 @@ func start(level_id: String, host_position: Callable,
 		physics_visibility: Callable = Callable(), account_key: String = "",
 		enforce_campaign: bool = false, campaign_root: String = "",
 		enable_bespoke: bool = false, enable_devices: bool = false,
-		enable_faults: bool = false) -> Dictionary:
+		enable_faults: bool = false, enable_consequences: bool = false) -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
 	if enable_devices and not enable_bespoke:
 		return _fail("EXP07_REQUIRES_EXP06")
 	if enable_faults and not enable_devices:
 		return _fail("EXP08_REQUIRES_EXP07")
+	if enable_consequences and not enable_faults:
+		return _fail("EXP009_REQUIRES_EXP08")
 	if account_key != "" and not SaveService.is_valid_key(account_key):
 		return _fail("INVALID_ACCOUNT_KEY")
 	if not host_position.is_valid() or (physics_visibility.is_valid() and not host_position.is_valid()):
@@ -169,6 +173,25 @@ func start(level_id: String, host_position: Callable,
 			var offset: Vector3 = Vector3(-0.85, 0.0, -0.52) if target != "console" else Vector3(-0.65, 0.0, 0.70)
 			(_definitions["positions"] as Dictionary)[str(scenario[target])] = \
 				(_definitions["positions"] as Dictionary)[anchor] + offset
+	if enable_consequences:
+		var chain_book: Dictionary = Consequences.load_book()
+		var chain_audit: Dictionary = Consequences.inspect(atlas, Faults.load_book(), chain_book)
+		if not bool(chain_audit.get("ok", false)):
+			return _fail("EXP009_BOOK_INVALID", chain_audit)
+		var chain: Dictionary = Consequences.entry_for(chain_book, level, faults.definition_snapshot())
+		if chain.is_empty():
+			return _fail("EXP009_SOURCE_MISMATCH")
+		consequences = Consequences.new()
+		var chain_config: Dictionary = consequences.configure(chain)
+		if not bool(chain_config.get("ok", false)):
+			return _fail("EXP009_CONFIG_FAILED", chain_config)
+		_definitions["consequences"] = consequences.definition_snapshot()
+		for node: Dictionary in chain["nodes"]:
+			var anchor: String = str(node["anchor"])
+			(_definitions["positions"] as Dictionary)[str(node["id"])] = \
+				(_definitions["positions"] as Dictionary)[anchor] + Vector3(0.0, 0.0, -0.9)
+		(_definitions["positions"] as Dictionary)[str(chain["console"])] = \
+			(_definitions["positions"] as Dictionary)[str(chain["console_anchor"])] + Vector3(0.70, 0.0, 0.60)
 	_position_source = host_position
 	_physics_visibility = physics_visibility
 	_account_key = account_key
@@ -213,6 +236,9 @@ func start(level_id: String, host_position: Callable,
 	if faults != null:
 		host.set_expedition_fault_authority(Callable(self, "_operate_fault"),
 			Callable(faults, "snapshot"), Callable(self, "_fault_tick"))
+	if consequences != null:
+		host.set_expedition_consequence_authority(Callable(self, "_operate_consequence"),
+			Callable(consequences, "snapshot"), Callable(self, "_consequence_tick"))
 	var accepted: Dictionary = host.admit(Host.HOST_PEER, PLAYER_ID, PROTOCOL, rev, TOOLS)
 	if not bool(accepted.get("ok", false)):
 		return _fail("ADMISSION_REFUSED", accepted)
@@ -227,6 +253,7 @@ func start(level_id: String, host_position: Callable,
 	return {"ok": true, "level_id": level_id, "session": sid, "content_revision": rev,
 		"task_count": _tasks.size(), "bespoke_active": bespoke != null,
 		"devices_active": devices != null, "faults_active": faults != null,
+		"consequences_active": consequences != null,
 		"qualification": "AUTHORITY_SOURCE_HEADLESS_ONLY_NO_PLAYABILITY"}
 
 
@@ -235,6 +262,12 @@ func _session_id() -> String:
 
 
 func _content_revision() -> String:
+	if consequences != null:
+		return "EXP009_" + ("%s|%s|%s|%s" % [
+			str(_definitions.get("source_fingerprint", "")),
+			str(devices.definition_snapshot().get("graph_key", "")),
+			str(faults.definition_snapshot().get("scenario_key", "")),
+			str(consequences.definition_snapshot().get("chain_key", ""))]).sha256_text()
 	if faults != null:
 		return "EXP08_" + ("%s|%s|%s" % [
 			str(_definitions.get("source_fingerprint", "")),
@@ -297,6 +330,11 @@ func _bespoke_guard(player_id: String, kind: String, entity: String,
 		return _fail("EXP07_DEVICES_INCOMPLETE")
 	if kind == "request_extract" and faults != null and not faults.solved():
 		return _fail("EXP08_FAULTS_INCOMPLETE")
+	if kind == "request_extract" and consequences != null and not consequences.solved():
+		return _fail("EXP009_CONSEQUENCES_INCOMPLETE")
+	if kind == "operate_consequence":
+		if consequences == null or not consequences.target_ids().has(entity):
+			return _fail("EXP009_UNKNOWN_TARGET")
 	if kind == "operate_fault":
 		if faults == null or not faults.target_ids().has(entity):
 			return _fail("EXP08_UNKNOWN_TARGET")
@@ -350,6 +388,24 @@ func _operate_fault(player_id: String, entity: String, action: String) -> Dictio
 func _fault_tick() -> void:
 	if faults != null:
 		faults.advance(_fault_facts())
+
+
+func _consequence_facts() -> Dictionary:
+	var facts: Dictionary = _fault_facts()
+	facts["fault_phase"] = str(faults.snapshot().get("phase", "")) if faults != null else ""
+	facts["faults_solved"] = faults != null and faults.solved()
+	return facts
+
+
+func _operate_consequence(player_id: String, entity: String, action: String) -> Dictionary:
+	if player_id != PLAYER_ID or consequences == null:
+		return _fail("EXP009_HOST_PRINCIPAL_INVALID")
+	return consequences.operate(entity, action, _consequence_facts())
+
+
+func _consequence_tick() -> void:
+	if consequences != null:
+		consequences.advance(_consequence_facts())
 
 
 ## Called by SessionHost ONLY after its existing transport/session/sequence,
@@ -531,6 +587,8 @@ func task_board() -> Dictionary:
 		board["devices"] = devices.snapshot()
 	if faults != null:
 		board["faults"] = faults.snapshot()
+	if consequences != null:
+		board["consequences"] = consequences.snapshot()
 	return board
 
 
