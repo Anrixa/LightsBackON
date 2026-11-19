@@ -43,6 +43,12 @@ func test_EXP009_source_pins_and_all_200_clean_cascades() -> void:
 		var machine: Chains = Chains.new()
 		assert_true(machine.configure(chain)["ok"])
 		var facts: Dictionary = _facts()
+		var dormant: String = JSON.stringify(machine.snapshot())
+		facts["fault_phase"] = "diagnose"
+		for t: int in range(15):
+			machine.advance(facts)
+		assert_eq(JSON.stringify(machine.snapshot()), dormant)
+		facts["fault_phase"] = "route"
 		machine.advance(facts)
 		for node: Dictionary in chain["nodes"]:
 			var id: String = str(node["id"])
@@ -54,6 +60,11 @@ func test_EXP009_source_pins_and_all_200_clean_cascades() -> void:
 		assert_true(machine.operate(str(chain["console"]), "certify", facts)["ok"])
 		assert_true(machine.solved())
 		assert_eq(machine.snapshot()["failures"], 0)
+		var certified: String = JSON.stringify(machine.snapshot())
+		for t: int in range(15):
+			machine.advance(facts)
+		assert_eq(JSON.stringify(machine.snapshot()), certified)
+		assert_false(machine.operate(str(chain["console"]), "certify", facts)["ok"])
 
 
 func test_EXP009_failure_propagation_and_three_stage_recovery() -> void:
