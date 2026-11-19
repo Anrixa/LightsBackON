@@ -188,6 +188,7 @@ func _build_overlay(level: Dictionary) -> void:
 func _return_to_menu() -> void:
 	if DisplayServer.get_name() != "headless":
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	get_tree().set_meta("expedition_reopen_atlas", true)
 	get_tree().change_scene_to_file(MENU_PATH)
 
 

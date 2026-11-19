@@ -178,6 +178,10 @@ func _ready() -> void:
 	_layout_for_size(size)
 	_apply_save_status(save_status)
 	(continue_button if _save_available else start_button if _save_ready else quit_button).grab_focus()
+	# Returning from an ephemeral dispatch resumes the atlas, not a C01 save.
+	if bool(get_tree().get_meta("expedition_reopen_atlas", false)):
+		get_tree().remove_meta("expedition_reopen_atlas")
+		call_deferred("_open_dispatch_atlas")
 
 
 ## Treat 620 px as a maximum, not a fixed minimum. Preserve a safe border

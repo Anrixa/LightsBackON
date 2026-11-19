@@ -74,3 +74,30 @@ func test_EXP03_staged_host_position_is_not_claimed_as_completed_gameplay() -> v
 		"NO_PHYSICAL_PLAYABILITY_OR_REWARD_PROMOTION")
 	assert_true(stage.get_node_or_null("ExpeditionWorld/Stations/Station01") != null)
 	assert_true(stage.get_node_or_null("ExpeditionWorld/Stations/Station05") != null)
+
+
+func test_EXP03_dispatch_atlas_is_included_in_both_windows_export_presets() -> void:
+	var source: String = FileAccess.get_file_as_string("res://export_presets.cfg")
+	assert_eq(source.count("scenes/expeditions/atlas.json"), 2,
+		"the dispatcher must remain available in both shipped and internal builds")
+
+
+func test_EXP03_live_3d_stage_sends_real_host_inspection_and_denies_distant_player() -> void:
+	var stage: Node3D = Scene.instantiate()
+	stage.set("level_id", "LV_055")
+	_holder.add_child(stage)
+	var session: Runtime = stage.get("runtime") as Runtime
+	var player: CharacterBody3D = stage.get_node("Player") as CharacterBody3D
+	var panel: Vector3 = session.definition_snapshot()["positions"]["PANEL_WEST"]
+	player.global_position = Vector3(2.0, 0.90, 2.0)
+	var before: String = session.state_hash()
+	var denied: Dictionary = stage.call("_send", "inspect", "PANEL_WEST", {})
+	assert_false(bool(denied.get("ok", true)))
+	assert_eq(str(denied.get("code", "")), "NOT_IN_RANGE")
+	assert_eq(session.state_hash(), before)
+	player.global_position = Vector3(panel.x, 0.90, panel.z + 1.40)
+	var accepted: Dictionary = stage.call("_send", "inspect", "PANEL_WEST", {})
+	assert_true(bool(accepted.get("ok", false)), str(accepted))
+	assert_eq(int(session.task_board()["required_completed"]), 1)
+	assert_true((stage.find_child("TaskStatuses", true, false) as Label).text.contains("DONE"))
+	assert_true(stage.get_node_or_null("ExpeditionWorld/HostTargets/PANEL_WEST") != null)

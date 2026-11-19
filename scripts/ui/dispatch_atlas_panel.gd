@@ -56,7 +56,7 @@ func _ready() -> void:
 	header.add_child(_close_button)
 
 	var ceiling: Label = Label.new()
-	ceiling.text = "DESIGN PREVIEW ONLY  •  No mission launch, collectible pickup, save change, or credit award."
+	ceiling.text = "Atlas browsing is read-only. EXP03 launch is opt-in, experimental and unsaved; no collectibles, credits or playability certification."
 	ceiling.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	ceiling.add_theme_color_override("font_color", Color("#F3D396"))
 	layout.add_child(ceiling)

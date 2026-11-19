@@ -214,6 +214,7 @@ func test_EXP03_two_simultaneous_sign_routes_refused_atomically_by_grid() -> voi
 	_stand(runtime, "SW_GRID_SPUR")
 	_must(runtime, seq, "toggle_switch", "SW_GRID_SPUR", {"value": true})
 	_must(runtime, seq + 1, "toggle_switch", "SW_SIGN", {"value": true})
+	_stand(runtime, "SW_WEST_SPUR")
 	var before: String = runtime.state_hash()
 	var result: Dictionary = _send(runtime, seq + 2, "toggle_switch",
 		"SW_WEST_SPUR", {"value": true})
