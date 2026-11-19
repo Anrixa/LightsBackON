@@ -4657,7 +4657,7 @@
             "failure": "step"
           },
           {
-            "action": "isolate_heater_branch",
+            "action": "isolate_woodland_heater",
             "mode": "handoff",
             "target": "SC_160_B",
             "support_target": "SC_160_C",
@@ -4686,7 +4686,7 @@
         ],
         "resilience": [
           {
-            "action": "isolate_heater_branch_reserve",
+            "action": "isolate_woodland_heater_reserve",
             "mode": "handoff",
             "target": "SC_160_B",
             "support_target": "SC_160_C",
