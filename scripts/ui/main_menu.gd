@@ -328,6 +328,8 @@ func _open_dispatch_atlas() -> void:
 	if _dispatch_atlas_panel != null or _loading_card != null:
 		return
 	_dispatch_atlas_panel = DispatchAtlasPanel.new()
+	_dispatch_atlas_panel.set("account_key",
+		_store.account_key if _save_ready and _store != null else "")
 	_dispatch_atlas_panel.name = "DispatchAtlasOverlay"
 	add_child(_dispatch_atlas_panel)
 	_dispatch_atlas_panel.closed.connect(_close_dispatch_atlas)
