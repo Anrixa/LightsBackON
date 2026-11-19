@@ -72,8 +72,16 @@ class EXP013ExpansionTests(unittest.TestCase):
         self._deny(downgrade, "EXP013_EXTENSION_COSMETIC_STRATEGY")
 
     def test_both_windows_export_memberships_required(self):
+        # Keep the parent A01's membership valid so this negative test
+        # specifically exercises the A02 extension export gate.
+        from tools.validate_exp013_expansions import ROOT
+        presets = (ROOT / "export_presets.cfg").read_text(encoding="utf-8")
+        missing_extension = presets.replace(
+            "scenes/expeditions/site_interventions_exp013_a02.json", ""
+        )
+        self.assertNotEqual(missing_extension, presets)
         with self.assertRaisesRegex(ValueError, "EXP013_EXTENSION_EXPORT_MISSING"):
-            validate(self.atlas, self.orders, self.books, presets="")
+            validate(self.atlas, self.orders, self.books, presets=missing_extension)
 
 
 if __name__ == "__main__":
