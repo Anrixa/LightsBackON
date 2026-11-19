@@ -1,0 +1,4729 @@
+{
+  "schema_version": 1,
+  "authority": "EXP013_A04_HOST_SITE_INTERVENTIONS",
+  "atlas_revision": "EXP01-2026-11-19",
+  "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD",
+  "authored_scope": "EXP013 A04 final 40 explicitly scripted locations LV_161-LV_200, cumulative 200/200 source-scripted",
+  "entries": [
+    {
+      "level_id": "LV_161",
+      "location_id": "LOC_161",
+      "region_id": "REG_21",
+      "source_puzzle_identity": "mislabelled feeder/old_wiring/distribution",
+      "source_title": "Market Cross Switchbox: Mislabelled feeder",
+      "source_risk": "mixed old/new electrical wiring",
+      "source_climate": "old_wiring",
+      "source_task_ids": [
+        "JOB_161_1",
+        "JOB_161_2",
+        "JOB_161_3",
+        "JOB_161_4",
+        "JOB_161_5"
+      ],
+      "worksite_encounter_key": "LV_161|LV_161|mislabelled feeder/old_wiring/distribution|spur_isolation|static_discharge|227|37|site-distribution-route-spur_isolation-topology-0|phase_drift|7|5|EXP009|serial|EXP010|triage|EXP011|triage|EXP012|distribution|21",
+      "title": "Market cross mislabelled trunk",
+      "stakes": "The Market Cross Switchbox mixes cloth-insulated legacy wires with a new market distribution ring. Identify the true feeder before vendors reconnect their equipment.",
+      "targets": {
+        "A": "SC_161_A",
+        "B": "SC_161_B",
+        "C": "SC_161_C"
+      },
+      "recovery_target": "SC_161_C",
+      "station_offsets_cm": {
+        "A": [
+          152,
+          195
+        ],
+        "B": [
+          -140,
+          125
+        ],
+        "C": [
+          -180,
+          211
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "trace_old_color_codes",
+            "mode": "sample",
+            "target": "SC_161_A",
+            "support_target": "SC_161_B",
+            "dwell_ticks": 14,
+            "window_ticks": 80,
+            "failure": "backtrack"
+          },
+          {
+            "action": "sample_new_bus_return",
+            "mode": "sample",
+            "target": "SC_161_B",
+            "support_target": "SC_161_C",
+            "dwell_ticks": 17,
+            "window_ticks": 100,
+            "failure": "restart"
+          },
+          {
+            "action": "retag_market_trunk",
+            "mode": "handoff",
+            "target": "SC_161_C",
+            "support_target": "SC_161_A",
+            "dwell_ticks": 9,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "prove_dry_stall_rail",
+            "mode": "hold",
+            "target": "SC_161_A",
+            "support_target": "SC_161_C",
+            "dwell_ticks": 12,
+            "window_ticks": 140,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "sample_new_bus_return_reserve",
+            "mode": "sample",
+            "target": "SC_161_B",
+            "support_target": "SC_161_C",
+            "dwell_ticks": 17,
+            "window_ticks": 120,
+            "failure": "restart"
+          },
+          {
+            "action": "trace_old_color_codes_reserve",
+            "mode": "sample",
+            "target": "SC_161_A",
+            "support_target": "SC_161_B",
+            "dwell_ticks": 14,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "retag_market_trunk_reserve",
+            "mode": "handoff",
+            "target": "SC_161_C",
+            "support_target": "SC_161_A",
+            "dwell_ticks": 9,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "prove_dry_stall_rail_reserve",
+            "mode": "hold",
+            "target": "SC_161_A",
+            "support_target": "SC_161_C",
+            "dwell_ticks": 12,
+            "window_ticks": 160,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_162",
+      "location_id": "LOC_162",
+      "region_id": "REG_21",
+      "source_puzzle_identity": "sticking isolator/old_wiring/transport",
+      "source_title": "Lantern Cart Station: Sticking isolator",
+      "source_risk": "mixed old/new electrical wiring",
+      "source_climate": "old_wiring",
+      "source_task_ids": [
+        "JOB_162_1",
+        "JOB_162_2",
+        "JOB_162_3",
+        "JOB_162_4",
+        "JOB_162_5"
+      ],
+      "worksite_encounter_key": "LV_162|LV_162|sticking isolator/old_wiring/transport|stability_hold|static_discharge|155|50|site-transport-route-stability_hold-topology-1|traction_surge|8|5|EXP009|serial|EXP010|crossdock|EXP011|interlock|EXP012|transport|21",
+      "title": "Lantern cart seized transfer",
+      "stakes": "An aged isolator in the Lantern Cart Station sticks between old and new wiring. Keep the cart charger isolated while the transfer blade is reseated.",
+      "targets": {
+        "A": "SC_162_A",
+        "B": "SC_162_B",
+        "C": "SC_162_C"
+      },
+      "recovery_target": "SC_162_C",
+      "station_offsets_cm": {
+        "A": [
+          161,
+          208
+        ],
+        "B": [
+          -149,
+          142
+        ],
+        "C": [
+          -190,
+          115
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "read_cart_charger",
+            "mode": "sample",
+            "target": "SC_162_A",
+            "support_target": "SC_162_B",
+            "dwell_ticks": 15,
+            "window_ticks": 100,
+            "failure": "restart"
+          },
+          {
+            "action": "identify_legacy_return",
+            "mode": "sample",
+            "target": "SC_162_B",
+            "support_target": "SC_162_C",
+            "dwell_ticks": 7,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "release_lantern_blade",
+            "mode": "balance",
+            "target": "SC_162_C",
+            "support_target": "SC_162_A",
+            "dwell_ticks": 10,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "confirm_cart_brakes",
+            "mode": "hold",
+            "target": "SC_162_A",
+            "support_target": "SC_162_C",
+            "dwell_ticks": 13,
+            "window_ticks": 160,
+            "failure": "backtrack"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "identify_legacy_return_reserve",
+            "mode": "sample",
+            "target": "SC_162_B",
+            "support_target": "SC_162_C",
+            "dwell_ticks": 7,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "read_cart_charger_reserve",
+            "mode": "sample",
+            "target": "SC_162_A",
+            "support_target": "SC_162_B",
+            "dwell_ticks": 15,
+            "window_ticks": 120,
+            "failure": "restart"
+          },
+          {
+            "action": "release_lantern_blade_reserve",
+            "mode": "balance",
+            "target": "SC_162_C",
+            "support_target": "SC_162_A",
+            "dwell_ticks": 10,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "confirm_cart_brakes_reserve",
+            "mode": "hold",
+            "target": "SC_162_A",
+            "support_target": "SC_162_C",
+            "dwell_ticks": 13,
+            "window_ticks": 180,
+            "failure": "backtrack"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_163",
+      "location_id": "LOC_163",
+      "region_id": "REG_21",
+      "source_puzzle_identity": "source purity/old_wiring/health",
+      "source_title": "Night Watch Dispensary: Source purity",
+      "source_risk": "mixed old/new electrical wiring",
+      "source_climate": "old_wiring",
+      "source_task_ids": [
+        "JOB_163_1",
+        "JOB_163_2",
+        "JOB_163_3",
+        "JOB_163_4",
+        "JOB_163_5"
+      ],
+      "worksite_encounter_key": "LV_163|LV_163|source purity/old_wiring/health|circuit_pair|static_discharge|164|2|site-health-route-circuit_pair-topology-2|sterile_pressure|9|5|EXP009|fork|EXP010|serial|EXP011|cascade|EXP012|health|21",
+      "title": "Night watch pure clinical rail",
+      "stakes": "An undocumented old wire runs alongside the new Night Watch Dispensary supply. Distinguish clean medicine refrigeration from a phantom shared neutral.",
+      "targets": {
+        "A": "SC_163_A",
+        "B": "SC_163_B",
+        "C": "SC_163_C"
+      },
+      "recovery_target": "SC_163_C",
+      "station_offsets_cm": {
+        "A": [
+          170,
+          221
+        ],
+        "B": [
+          -158,
+          159
+        ],
+        "C": [
+          -200,
+          127
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "sample_clinic_neutral",
+            "mode": "sample",
+            "target": "SC_163_A",
+            "support_target": "SC_163_B",
+            "dwell_ticks": 16,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "trace_aged_junction",
+            "mode": "sample",
+            "target": "SC_163_B",
+            "support_target": "SC_163_C",
+            "dwell_ticks": 8,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "trim_medicine_rail",
+            "mode": "balance",
+            "target": "SC_163_C",
+            "support_target": "SC_163_A",
+            "dwell_ticks": 11,
+            "window_ticks": 160,
+            "failure": "backtrack"
+          },
+          {
+            "action": "certify_night_care",
+            "mode": "hold",
+            "target": "SC_163_A",
+            "support_target": "SC_163_C",
+            "dwell_ticks": 14,
+            "window_ticks": 180,
+            "failure": "restart"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "trace_aged_junction_reserve",
+            "mode": "sample",
+            "target": "SC_163_B",
+            "support_target": "SC_163_C",
+            "dwell_ticks": 8,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "sample_clinic_neutral_reserve",
+            "mode": "sample",
+            "target": "SC_163_A",
+            "support_target": "SC_163_B",
+            "dwell_ticks": 16,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "trim_medicine_rail_reserve",
+            "mode": "balance",
+            "target": "SC_163_C",
+            "support_target": "SC_163_A",
+            "dwell_ticks": 11,
+            "window_ticks": 180,
+            "failure": "backtrack"
+          },
+          {
+            "action": "certify_night_care_reserve",
+            "mode": "hold",
+            "target": "SC_163_A",
+            "support_target": "SC_163_C",
+            "dwell_ticks": 14,
+            "window_ticks": 200,
+            "failure": "restart"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_164",
+      "location_id": "LOC_164",
+      "region_id": "REG_21",
+      "source_puzzle_identity": "archive power/old_wiring/commerce",
+      "source_title": "Tallow Central Arcade: Archive power",
+      "source_risk": "mixed old/new electrical wiring",
+      "source_climate": "old_wiring",
+      "source_task_ids": [
+        "JOB_164_1",
+        "JOB_164_2",
+        "JOB_164_3",
+        "JOB_164_4",
+        "JOB_164_5"
+      ],
+      "worksite_encounter_key": "LV_164|LV_164|archive power/old_wiring/commerce|fault_trace|static_discharge|173|15|site-commerce-route-fault_trace-topology-3|load_imbalance|10|5|EXP009|serial|EXP010|triage|EXP011|triage|EXP012|commerce|21",
+      "title": "Tallow arcade archive transfer",
+      "stakes": "The Tallow Central Arcade archive computer still uses a brittle cloth-sheathed feeder. Transfer records to the new rail without powering its obsolete heater.",
+      "targets": {
+        "A": "SC_164_A",
+        "B": "SC_164_B",
+        "C": "SC_164_C"
+      },
+      "recovery_target": "SC_164_C",
+      "station_offsets_cm": {
+        "A": [
+          179,
+          234
+        ],
+        "B": [
+          -167,
+          176
+        ],
+        "C": [
+          -210,
+          139
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "read_archive_backup",
+            "mode": "sample",
+            "target": "SC_164_A",
+            "support_target": "SC_164_B",
+            "dwell_ticks": 17,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "isolate_cloth_heater",
+            "mode": "handoff",
+            "target": "SC_164_B",
+            "support_target": "SC_164_C",
+            "dwell_ticks": 9,
+            "window_ticks": 160,
+            "failure": "backtrack"
+          },
+          {
+            "action": "trim_modern_rail",
+            "mode": "balance",
+            "target": "SC_164_C",
+            "support_target": "SC_164_A",
+            "dwell_ticks": 12,
+            "window_ticks": 180,
+            "failure": "restart"
+          },
+          {
+            "action": "confirm_tallow_records",
+            "mode": "hold",
+            "target": "SC_164_A",
+            "support_target": "SC_164_C",
+            "dwell_ticks": 15,
+            "window_ticks": 200,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "isolate_cloth_heater_reserve",
+            "mode": "handoff",
+            "target": "SC_164_B",
+            "support_target": "SC_164_C",
+            "dwell_ticks": 9,
+            "window_ticks": 180,
+            "failure": "backtrack"
+          },
+          {
+            "action": "read_archive_backup_reserve",
+            "mode": "sample",
+            "target": "SC_164_A",
+            "support_target": "SC_164_B",
+            "dwell_ticks": 17,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "trim_modern_rail_reserve",
+            "mode": "balance",
+            "target": "SC_164_C",
+            "support_target": "SC_164_A",
+            "dwell_ticks": 12,
+            "window_ticks": 200,
+            "failure": "restart"
+          },
+          {
+            "action": "confirm_tallow_records_reserve",
+            "mode": "hold",
+            "target": "SC_164_A",
+            "support_target": "SC_164_C",
+            "dwell_ticks": 15,
+            "window_ticks": 220,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_165",
+      "location_id": "LOC_165",
+      "region_id": "REG_21",
+      "source_puzzle_identity": "opening-time cutoff/old_wiring/waterworks",
+      "source_title": "Old Well Booster: Opening-time cutoff",
+      "source_risk": "mixed old/new electrical wiring",
+      "source_climate": "old_wiring",
+      "source_task_ids": [
+        "JOB_165_1",
+        "JOB_165_2",
+        "JOB_165_3",
+        "JOB_165_4",
+        "JOB_165_5"
+      ],
+      "worksite_encounter_key": "LV_165|LV_165|opening-time cutoff/old_wiring/waterworks|circuit_pair|static_discharge|182|28|site-waterworks-route-circuit_pair-topology-4|backflow|11|5|EXP009|serial|EXP010|crossdock|EXP011|interlock|EXP012|waterworks|21",
+      "title": "Well booster market opening",
+      "stakes": "An old booster wire joins the well pump starter at a mixed-era switchboard. Stage clean-water pressure before reopening market taps at the fixed deadline.",
+      "targets": {
+        "A": "SC_165_A",
+        "B": "SC_165_B",
+        "C": "SC_165_C"
+      },
+      "recovery_target": "SC_165_C",
+      "station_offsets_cm": {
+        "A": [
+          188,
+          104
+        ],
+        "B": [
+          -176,
+          193
+        ],
+        "C": [
+          -110,
+          151
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "sample_well_pressure",
+            "mode": "sample",
+            "target": "SC_165_A",
+            "support_target": "SC_165_B",
+            "dwell_ticks": 7,
+            "window_ticks": 160,
+            "failure": "backtrack"
+          },
+          {
+            "action": "secure_old_starter",
+            "mode": "handoff",
+            "target": "SC_165_B",
+            "support_target": "SC_165_C",
+            "dwell_ticks": 10,
+            "window_ticks": 180,
+            "failure": "restart"
+          },
+          {
+            "action": "prime_market_booster",
+            "mode": "hold",
+            "target": "SC_165_C",
+            "support_target": "SC_165_A",
+            "dwell_ticks": 13,
+            "window_ticks": 200,
+            "failure": "step"
+          },
+          {
+            "action": "pulse_tallow_taps",
+            "mode": "pulse",
+            "target": "SC_165_A",
+            "support_target": "SC_165_C",
+            "dwell_ticks": 16,
+            "window_ticks": 80,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "secure_old_starter_reserve",
+            "mode": "handoff",
+            "target": "SC_165_B",
+            "support_target": "SC_165_C",
+            "dwell_ticks": 10,
+            "window_ticks": 200,
+            "failure": "restart"
+          },
+          {
+            "action": "sample_well_pressure_reserve",
+            "mode": "sample",
+            "target": "SC_165_A",
+            "support_target": "SC_165_B",
+            "dwell_ticks": 7,
+            "window_ticks": 180,
+            "failure": "backtrack"
+          },
+          {
+            "action": "prime_market_booster_reserve",
+            "mode": "hold",
+            "target": "SC_165_C",
+            "support_target": "SC_165_A",
+            "dwell_ticks": 13,
+            "window_ticks": 220,
+            "failure": "step"
+          },
+          {
+            "action": "pulse_tallow_taps_reserve",
+            "mode": "pulse",
+            "target": "SC_165_A",
+            "support_target": "SC_165_C",
+            "dwell_ticks": 16,
+            "window_ticks": 100,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_166",
+      "location_id": "LOC_166",
+      "region_id": "REG_21",
+      "source_puzzle_identity": "storm pulse timing/old_wiring/communications",
+      "source_title": "Clockface Message Room: Storm pulse timing",
+      "source_risk": "mixed old/new electrical wiring",
+      "source_climate": "old_wiring",
+      "source_task_ids": [
+        "JOB_166_1",
+        "JOB_166_2",
+        "JOB_166_3",
+        "JOB_166_4",
+        "JOB_166_5"
+      ],
+      "worksite_encounter_key": "LV_166|LV_166|storm pulse timing/old_wiring/communications|relay_coincidence|static_discharge|191|41|site-communications-route-relay_coincidence-topology-5|signal_echo|1|6|EXP009|fork|EXP010|serial|EXP011|cascade|EXP012|communications|21",
+      "title": "Clockface pulse sequencing",
+      "stakes": "A legacy clock wire is coupled to the new message transmitter. Use a timed pulse to synchronize the market announcement without backfeeding the clock motor.",
+      "targets": {
+        "A": "SC_166_A",
+        "B": "SC_166_B",
+        "C": "SC_166_C"
+      },
+      "recovery_target": "SC_166_C",
+      "station_offsets_cm": {
+        "A": [
+          197,
+          117
+        ],
+        "B": [
+          -185,
+          210
+        ],
+        "C": [
+          -120,
+          163
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "read_clock_return",
+            "mode": "sample",
+            "target": "SC_166_A",
+            "support_target": "SC_166_B",
+            "dwell_ticks": 8,
+            "window_ticks": 180,
+            "failure": "restart"
+          },
+          {
+            "action": "isolate_message_loop",
+            "mode": "handoff",
+            "target": "SC_166_B",
+            "support_target": "SC_166_C",
+            "dwell_ticks": 11,
+            "window_ticks": 200,
+            "failure": "step"
+          },
+          {
+            "action": "pulse_hour_signal",
+            "mode": "pulse",
+            "target": "SC_166_C",
+            "support_target": "SC_166_A",
+            "dwell_ticks": 14,
+            "window_ticks": 80,
+            "failure": "step"
+          },
+          {
+            "action": "confirm_public_chime",
+            "mode": "hold",
+            "target": "SC_166_A",
+            "support_target": "SC_166_C",
+            "dwell_ticks": 17,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "isolate_message_loop_reserve",
+            "mode": "handoff",
+            "target": "SC_166_B",
+            "support_target": "SC_166_C",
+            "dwell_ticks": 11,
+            "window_ticks": 220,
+            "failure": "step"
+          },
+          {
+            "action": "read_clock_return_reserve",
+            "mode": "sample",
+            "target": "SC_166_A",
+            "support_target": "SC_166_B",
+            "dwell_ticks": 8,
+            "window_ticks": 200,
+            "failure": "restart"
+          },
+          {
+            "action": "pulse_hour_signal_reserve",
+            "mode": "pulse",
+            "target": "SC_166_C",
+            "support_target": "SC_166_A",
+            "dwell_ticks": 14,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "confirm_public_chime_reserve",
+            "mode": "hold",
+            "target": "SC_166_A",
+            "support_target": "SC_166_C",
+            "dwell_ticks": 17,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_167",
+      "location_id": "LOC_167",
+      "region_id": "REG_21",
+      "source_puzzle_identity": "cable splice/old_wiring/education",
+      "source_title": "Guild Junior Workshop: Cable splice",
+      "source_risk": "mixed old/new electrical wiring",
+      "source_climate": "old_wiring",
+      "source_task_ids": [
+        "JOB_167_1",
+        "JOB_167_2",
+        "JOB_167_3",
+        "JOB_167_4",
+        "JOB_167_5"
+      ],
+      "worksite_encounter_key": "LV_167|LV_167|cable splice/old_wiring/education|feeder_pulse|static_discharge|200|54|site-education-route-feeder_pulse-topology-6|control_mismatch|2|6|EXP009|serial|EXP010|triage|EXP011|triage|EXP012|education|21",
+      "title": "Guild junior cable conversion",
+      "stakes": "Students at Guild Junior Workshop cannot safely use modern tools on a patched legacy cable. Test isolation and remake the transition splice before class starts.",
+      "targets": {
+        "A": "SC_167_A",
+        "B": "SC_167_B",
+        "C": "SC_167_C"
+      },
+      "recovery_target": "SC_167_C",
+      "station_offsets_cm": {
+        "A": [
+          206,
+          130
+        ],
+        "B": [
+          -194,
+          227
+        ],
+        "C": [
+          -130,
+          175
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "inspect_cloth_insulation",
+            "mode": "sample",
+            "target": "SC_167_A",
+            "support_target": "SC_167_B",
+            "dwell_ticks": 9,
+            "window_ticks": 200,
+            "failure": "step"
+          },
+          {
+            "action": "lock_student_outlets",
+            "mode": "handoff",
+            "target": "SC_167_B",
+            "support_target": "SC_167_C",
+            "dwell_ticks": 12,
+            "window_ticks": 80,
+            "failure": "step"
+          },
+          {
+            "action": "crimp_new_joint",
+            "mode": "balance",
+            "target": "SC_167_C",
+            "support_target": "SC_167_A",
+            "dwell_ticks": 15,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "prove_guild_benches",
+            "mode": "hold",
+            "target": "SC_167_A",
+            "support_target": "SC_167_C",
+            "dwell_ticks": 7,
+            "window_ticks": 120,
+            "failure": "restart"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "lock_student_outlets_reserve",
+            "mode": "handoff",
+            "target": "SC_167_B",
+            "support_target": "SC_167_C",
+            "dwell_ticks": 12,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "inspect_cloth_insulation_reserve",
+            "mode": "sample",
+            "target": "SC_167_A",
+            "support_target": "SC_167_B",
+            "dwell_ticks": 9,
+            "window_ticks": 220,
+            "failure": "step"
+          },
+          {
+            "action": "crimp_new_joint_reserve",
+            "mode": "balance",
+            "target": "SC_167_C",
+            "support_target": "SC_167_A",
+            "dwell_ticks": 15,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          },
+          {
+            "action": "prove_guild_benches_reserve",
+            "mode": "hold",
+            "target": "SC_167_A",
+            "support_target": "SC_167_C",
+            "dwell_ticks": 7,
+            "window_ticks": 140,
+            "failure": "restart"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_168",
+      "location_id": "LOC_168",
+      "region_id": "REG_21",
+      "source_puzzle_identity": "controlled load shed/old_wiring/shelter",
+      "source_title": "Chandler's Meeting House: Controlled load shed",
+      "source_risk": "mixed old/new electrical wiring",
+      "source_climate": "old_wiring",
+      "source_task_ids": [
+        "JOB_168_1",
+        "JOB_168_2",
+        "JOB_168_3",
+        "JOB_168_4",
+        "JOB_168_5"
+      ],
+      "worksite_encounter_key": "LV_168|LV_168|controlled load shed/old_wiring/shelter|relay_coincidence|static_discharge|209|6|site-shelter-route-relay_coincidence-topology-7|reserve_brownout|3|6|EXP009|serial|EXP010|crossdock|EXP011|interlock|EXP012|shelter|21",
+      "title": "Chandler hall priority shed",
+      "stakes": "The Chandlers Meeting House old candle-warming circuit consumes power intended for evacuation lights. Shed heating and prove the new safety rail separately.",
+      "targets": {
+        "A": "SC_168_A",
+        "B": "SC_168_B",
+        "C": "SC_168_C"
+      },
+      "recovery_target": "SC_168_C",
+      "station_offsets_cm": {
+        "A": [
+          215,
+          143
+        ],
+        "B": [
+          -203,
+          125
+        ],
+        "C": [
+          -140,
+          187
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "measure_hall_old_load",
+            "mode": "sample",
+            "target": "SC_168_A",
+            "support_target": "SC_168_B",
+            "dwell_ticks": 10,
+            "window_ticks": 80,
+            "failure": "step"
+          },
+          {
+            "action": "isolate_wax_heater",
+            "mode": "handoff",
+            "target": "SC_168_B",
+            "support_target": "SC_168_C",
+            "dwell_ticks": 13,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "trim_safety_feed",
+            "mode": "balance",
+            "target": "SC_168_C",
+            "support_target": "SC_168_A",
+            "dwell_ticks": 16,
+            "window_ticks": 120,
+            "failure": "restart"
+          },
+          {
+            "action": "certify_meeting_exit",
+            "mode": "hold",
+            "target": "SC_168_A",
+            "support_target": "SC_168_C",
+            "dwell_ticks": 8,
+            "window_ticks": 140,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "isolate_wax_heater_reserve",
+            "mode": "handoff",
+            "target": "SC_168_B",
+            "support_target": "SC_168_C",
+            "dwell_ticks": 13,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          },
+          {
+            "action": "measure_hall_old_load_reserve",
+            "mode": "sample",
+            "target": "SC_168_A",
+            "support_target": "SC_168_B",
+            "dwell_ticks": 10,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "trim_safety_feed_reserve",
+            "mode": "balance",
+            "target": "SC_168_C",
+            "support_target": "SC_168_A",
+            "dwell_ticks": 16,
+            "window_ticks": 140,
+            "failure": "restart"
+          },
+          {
+            "action": "certify_meeting_exit_reserve",
+            "mode": "hold",
+            "target": "SC_168_A",
+            "support_target": "SC_168_C",
+            "dwell_ticks": 8,
+            "window_ticks": 160,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_169",
+      "location_id": "LOC_169",
+      "region_id": "REG_22",
+      "source_puzzle_identity": "beacon continuity/dye_mist/distribution",
+      "source_title": "Basin Transfer Stack: Beacon continuity",
+      "source_risk": "toxic-looking but harmless dye leaks",
+      "source_climate": "dye_mist",
+      "source_task_ids": [
+        "JOB_169_1",
+        "JOB_169_2",
+        "JOB_169_3",
+        "JOB_169_4",
+        "JOB_169_5"
+      ],
+      "worksite_encounter_key": "LV_169|LV_169|beacon continuity/dye_mist/distribution|relay_coincidence|equipment_condensation|218|26|site-distribution-route-relay_coincidence-topology-8|phase_drift|4|6|EXP009|fork|EXP010|serial|EXP011|cascade|EXP012|distribution|22",
+      "title": "Basin stack beacon return",
+      "stakes": "A harmless dye mist makes Basin Transfer Stack contacts appear damaged, but the warning beacon has a real open return. Distinguish residue from missing continuity.",
+      "targets": {
+        "A": "SC_169_A",
+        "B": "SC_169_B",
+        "C": "SC_169_C"
+      },
+      "recovery_target": "SC_169_C",
+      "station_offsets_cm": {
+        "A": [
+          224,
+          156
+        ],
+        "B": [
+          -95,
+          142
+        ],
+        "C": [
+          -150,
+          199
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "read_stack_beacon",
+            "mode": "sample",
+            "target": "SC_169_A",
+            "support_target": "SC_169_B",
+            "dwell_ticks": 11,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "inspect_colored_residue",
+            "mode": "sample",
+            "target": "SC_169_B",
+            "support_target": "SC_169_C",
+            "dwell_ticks": 14,
+            "window_ticks": 120,
+            "failure": "restart"
+          },
+          {
+            "action": "bridge_signal_return",
+            "mode": "balance",
+            "target": "SC_169_C",
+            "support_target": "SC_169_A",
+            "dwell_ticks": 17,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "prove_basin_warning",
+            "mode": "hold",
+            "target": "SC_169_A",
+            "support_target": "SC_169_C",
+            "dwell_ticks": 9,
+            "window_ticks": 160,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "inspect_colored_residue_reserve",
+            "mode": "sample",
+            "target": "SC_169_B",
+            "support_target": "SC_169_C",
+            "dwell_ticks": 14,
+            "window_ticks": 140,
+            "failure": "restart"
+          },
+          {
+            "action": "read_stack_beacon_reserve",
+            "mode": "sample",
+            "target": "SC_169_A",
+            "support_target": "SC_169_B",
+            "dwell_ticks": 11,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          },
+          {
+            "action": "bridge_signal_return_reserve",
+            "mode": "balance",
+            "target": "SC_169_C",
+            "support_target": "SC_169_A",
+            "dwell_ticks": 17,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "prove_basin_warning_reserve",
+            "mode": "hold",
+            "target": "SC_169_A",
+            "support_target": "SC_169_C",
+            "dwell_ticks": 9,
+            "window_ticks": 180,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_170",
+      "location_id": "LOC_170",
+      "region_id": "REG_22",
+      "source_puzzle_identity": "load-budget dilemma/dye_mist/transport",
+      "source_title": "Rivet Ferry Causeway: Load-budget dilemma",
+      "source_risk": "toxic-looking but harmless dye leaks",
+      "source_climate": "dye_mist",
+      "source_task_ids": [
+        "JOB_170_1",
+        "JOB_170_2",
+        "JOB_170_3",
+        "JOB_170_4",
+        "JOB_170_5"
+      ],
+      "worksite_encounter_key": "LV_170|LV_170|load-budget dilemma/dye_mist/transport|post_repair_audit|equipment_condensation|227|39|site-transport-route-post_repair_audit-topology-9|traction_surge|5|6|EXP009|serial|EXP010|triage|EXP011|triage|EXP012|transport|22",
+      "title": "Rivet causeway ferry budget",
+      "stakes": "Colored mist obscures the Rivet Ferry Causeway load markings. Prioritize safe dock lights over the cargo hoist without cutting the ferry navigation beacon.",
+      "targets": {
+        "A": "SC_170_A",
+        "B": "SC_170_B",
+        "C": "SC_170_C"
+      },
+      "recovery_target": "SC_170_C",
+      "station_offsets_cm": {
+        "A": [
+          80,
+          169
+        ],
+        "B": [
+          -104,
+          159
+        ],
+        "C": [
+          -160,
+          211
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "sample_causeway_draw",
+            "mode": "sample",
+            "target": "SC_170_A",
+            "support_target": "SC_170_B",
+            "dwell_ticks": 12,
+            "window_ticks": 120,
+            "failure": "restart"
+          },
+          {
+            "action": "trace_dye_stained_tag",
+            "mode": "sample",
+            "target": "SC_170_B",
+            "support_target": "SC_170_C",
+            "dwell_ticks": 15,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "trim_ferry_allocation",
+            "mode": "balance",
+            "target": "SC_170_C",
+            "support_target": "SC_170_A",
+            "dwell_ticks": 7,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "confirm_navigation_lights",
+            "mode": "hold",
+            "target": "SC_170_A",
+            "support_target": "SC_170_C",
+            "dwell_ticks": 10,
+            "window_ticks": 180,
+            "failure": "backtrack"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "trace_dye_stained_tag_reserve",
+            "mode": "sample",
+            "target": "SC_170_B",
+            "support_target": "SC_170_C",
+            "dwell_ticks": 15,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "sample_causeway_draw_reserve",
+            "mode": "sample",
+            "target": "SC_170_A",
+            "support_target": "SC_170_B",
+            "dwell_ticks": 12,
+            "window_ticks": 140,
+            "failure": "restart"
+          },
+          {
+            "action": "trim_ferry_allocation_reserve",
+            "mode": "balance",
+            "target": "SC_170_C",
+            "support_target": "SC_170_A",
+            "dwell_ticks": 7,
+            "window_ticks": 180,
+            "failure": "step"
+          },
+          {
+            "action": "confirm_navigation_lights_reserve",
+            "mode": "hold",
+            "target": "SC_170_A",
+            "support_target": "SC_170_C",
+            "dwell_ticks": 10,
+            "window_ticks": 200,
+            "failure": "backtrack"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_171",
+      "location_id": "LOC_171",
+      "region_id": "REG_22",
+      "source_puzzle_identity": "false fuse alarm/dye_mist/health",
+      "source_title": "Foxglove Aid Post: False fuse alarm",
+      "source_risk": "toxic-looking but harmless dye leaks",
+      "source_climate": "dye_mist",
+      "source_task_ids": [
+        "JOB_171_1",
+        "JOB_171_2",
+        "JOB_171_3",
+        "JOB_171_4",
+        "JOB_171_5"
+      ],
+      "worksite_encounter_key": "LV_171|LV_171|false fuse alarm/dye_mist/health|load_rebalance|equipment_condensation|155|52|site-health-route-load_rebalance-topology-0|sterile_pressure|6|5|EXP009|serial|EXP010|crossdock|EXP011|interlock|EXP012|health|22",
+      "title": "Foxglove false fuse dye leak",
+      "stakes": "The Foxglove Aid Post fuse flag is stained by harmless dye, but an actual feeder trip may still be hidden. Separate visual contamination from electrical measurements.",
+      "targets": {
+        "A": "SC_171_A",
+        "B": "SC_171_B",
+        "C": "SC_171_C"
+      },
+      "recovery_target": "SC_171_C",
+      "station_offsets_cm": {
+        "A": [
+          89,
+          182
+        ],
+        "B": [
+          -113,
+          176
+        ],
+        "C": [
+          -170,
+          115
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "measure_aid_fuse",
+            "mode": "sample",
+            "target": "SC_171_A",
+            "support_target": "SC_171_B",
+            "dwell_ticks": 13,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "inspect_dye_patch",
+            "mode": "sample",
+            "target": "SC_171_B",
+            "support_target": "SC_171_C",
+            "dwell_ticks": 16,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "isolate_phantom_alarm",
+            "mode": "handoff",
+            "target": "SC_171_C",
+            "support_target": "SC_171_A",
+            "dwell_ticks": 8,
+            "window_ticks": 180,
+            "failure": "backtrack"
+          },
+          {
+            "action": "prove_foxglove_care",
+            "mode": "hold",
+            "target": "SC_171_A",
+            "support_target": "SC_171_C",
+            "dwell_ticks": 11,
+            "window_ticks": 200,
+            "failure": "restart"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "inspect_dye_patch_reserve",
+            "mode": "sample",
+            "target": "SC_171_B",
+            "support_target": "SC_171_C",
+            "dwell_ticks": 16,
+            "window_ticks": 180,
+            "failure": "step"
+          },
+          {
+            "action": "measure_aid_fuse_reserve",
+            "mode": "sample",
+            "target": "SC_171_A",
+            "support_target": "SC_171_B",
+            "dwell_ticks": 13,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "isolate_phantom_alarm_reserve",
+            "mode": "handoff",
+            "target": "SC_171_C",
+            "support_target": "SC_171_A",
+            "dwell_ticks": 8,
+            "window_ticks": 200,
+            "failure": "backtrack"
+          },
+          {
+            "action": "prove_foxglove_care_reserve",
+            "mode": "hold",
+            "target": "SC_171_A",
+            "support_target": "SC_171_C",
+            "dwell_ticks": 11,
+            "window_ticks": 220,
+            "failure": "restart"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_172",
+      "location_id": "LOC_172",
+      "region_id": "REG_22",
+      "source_puzzle_identity": "drain-level dependency/dye_mist/commerce",
+      "source_title": "Dye Works Outlet: Drain-level dependency",
+      "source_risk": "toxic-looking but harmless dye leaks",
+      "source_climate": "dye_mist",
+      "source_task_ids": [
+        "JOB_172_1",
+        "JOB_172_2",
+        "JOB_172_3",
+        "JOB_172_4",
+        "JOB_172_5"
+      ],
+      "worksite_encounter_key": "LV_172|LV_172|drain-level dependency/dye_mist/commerce|spur_isolation|equipment_condensation|164|4|site-commerce-route-spur_isolation-topology-1|load_imbalance|7|5|EXP009|fork|EXP010|serial|EXP011|cascade|EXP012|commerce|22",
+      "title": "Dye outlet drainage dependency",
+      "stakes": "A bright but harmless dye leak obscures the Dye Works Outlet sump-level gauge. Prove the real drain depth before permitting the market conveyor restart.",
+      "targets": {
+        "A": "SC_172_A",
+        "B": "SC_172_B",
+        "C": "SC_172_C"
+      },
+      "recovery_target": "SC_172_C",
+      "station_offsets_cm": {
+        "A": [
+          98,
+          195
+        ],
+        "B": [
+          -122,
+          193
+        ],
+        "C": [
+          -180,
+          127
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "read_outlet_depth",
+            "mode": "sample",
+            "target": "SC_172_A",
+            "support_target": "SC_172_B",
+            "dwell_ticks": 14,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "clear_dye_viewport",
+            "mode": "hold",
+            "target": "SC_172_B",
+            "support_target": "SC_172_C",
+            "dwell_ticks": 17,
+            "window_ticks": 180,
+            "failure": "backtrack"
+          },
+          {
+            "action": "prime_outlet_sump",
+            "mode": "balance",
+            "target": "SC_172_C",
+            "support_target": "SC_172_A",
+            "dwell_ticks": 9,
+            "window_ticks": 200,
+            "failure": "restart"
+          },
+          {
+            "action": "confirm_dry_transfer",
+            "mode": "handoff",
+            "target": "SC_172_A",
+            "support_target": "SC_172_C",
+            "dwell_ticks": 12,
+            "window_ticks": 80,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "clear_dye_viewport_reserve",
+            "mode": "hold",
+            "target": "SC_172_B",
+            "support_target": "SC_172_C",
+            "dwell_ticks": 17,
+            "window_ticks": 200,
+            "failure": "backtrack"
+          },
+          {
+            "action": "read_outlet_depth_reserve",
+            "mode": "sample",
+            "target": "SC_172_A",
+            "support_target": "SC_172_B",
+            "dwell_ticks": 14,
+            "window_ticks": 180,
+            "failure": "step"
+          },
+          {
+            "action": "prime_outlet_sump_reserve",
+            "mode": "balance",
+            "target": "SC_172_C",
+            "support_target": "SC_172_A",
+            "dwell_ticks": 9,
+            "window_ticks": 220,
+            "failure": "restart"
+          },
+          {
+            "action": "confirm_dry_transfer_reserve",
+            "mode": "handoff",
+            "target": "SC_172_A",
+            "support_target": "SC_172_C",
+            "dwell_ticks": 12,
+            "window_ticks": 100,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_173",
+      "location_id": "LOC_173",
+      "region_id": "REG_22",
+      "source_puzzle_identity": "reversible reset/dye_mist/waterworks",
+      "source_title": "Basin Aeration Pumps: Reversible reset",
+      "source_risk": "toxic-looking but harmless dye leaks",
+      "source_climate": "dye_mist",
+      "source_task_ids": [
+        "JOB_173_1",
+        "JOB_173_2",
+        "JOB_173_3",
+        "JOB_173_4",
+        "JOB_173_5"
+      ],
+      "worksite_encounter_key": "LV_173|LV_173|reversible reset/dye_mist/waterworks|stability_hold|equipment_condensation|173|17|site-waterworks-route-stability_hold-topology-2|backflow|8|5|EXP009|serial|EXP010|triage|EXP011|triage|EXP012|waterworks|22",
+      "title": "Basin aerator safe reset",
+      "stakes": "Basin Aeration Pumps have latched after a dye-stained sensor signalled an imaginary contamination event. Reset only after confirming true dissolved-air circulation.",
+      "targets": {
+        "A": "SC_173_A",
+        "B": "SC_173_B",
+        "C": "SC_173_C"
+      },
+      "recovery_target": "SC_173_C",
+      "station_offsets_cm": {
+        "A": [
+          107,
+          208
+        ],
+        "B": [
+          -131,
+          210
+        ],
+        "C": [
+          -190,
+          139
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "sample_aeration_flow",
+            "mode": "sample",
+            "target": "SC_173_A",
+            "support_target": "SC_173_B",
+            "dwell_ticks": 15,
+            "window_ticks": 180,
+            "failure": "backtrack"
+          },
+          {
+            "action": "verify_harmless_dye",
+            "mode": "sample",
+            "target": "SC_173_B",
+            "support_target": "SC_173_C",
+            "dwell_ticks": 7,
+            "window_ticks": 200,
+            "failure": "restart"
+          },
+          {
+            "action": "stage_aerator_reset",
+            "mode": "balance",
+            "target": "SC_173_C",
+            "support_target": "SC_173_A",
+            "dwell_ticks": 10,
+            "window_ticks": 80,
+            "failure": "step"
+          },
+          {
+            "action": "prove_basin_oxygen",
+            "mode": "hold",
+            "target": "SC_173_A",
+            "support_target": "SC_173_C",
+            "dwell_ticks": 13,
+            "window_ticks": 100,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "verify_harmless_dye_reserve",
+            "mode": "sample",
+            "target": "SC_173_B",
+            "support_target": "SC_173_C",
+            "dwell_ticks": 7,
+            "window_ticks": 220,
+            "failure": "restart"
+          },
+          {
+            "action": "sample_aeration_flow_reserve",
+            "mode": "sample",
+            "target": "SC_173_A",
+            "support_target": "SC_173_B",
+            "dwell_ticks": 15,
+            "window_ticks": 200,
+            "failure": "backtrack"
+          },
+          {
+            "action": "stage_aerator_reset_reserve",
+            "mode": "balance",
+            "target": "SC_173_C",
+            "support_target": "SC_173_A",
+            "dwell_ticks": 10,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "prove_basin_oxygen_reserve",
+            "mode": "hold",
+            "target": "SC_173_A",
+            "support_target": "SC_173_C",
+            "dwell_ticks": 13,
+            "window_ticks": 120,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_174",
+      "location_id": "LOC_174",
+      "region_id": "REG_22",
+      "source_puzzle_identity": "dual-route conflict/dye_mist/communications",
+      "source_title": "Weather Balloon Shed: Dual-route conflict",
+      "source_risk": "toxic-looking but harmless dye leaks",
+      "source_climate": "dye_mist",
+      "source_task_ids": [
+        "JOB_174_1",
+        "JOB_174_2",
+        "JOB_174_3",
+        "JOB_174_4",
+        "JOB_174_5"
+      ],
+      "worksite_encounter_key": "LV_174|LV_174|dual-route conflict/dye_mist/communications|circuit_pair|equipment_condensation|182|30|site-communications-route-circuit_pair-topology-3|signal_echo|9|5|EXP009|serial|EXP010|crossdock|EXP011|interlock|EXP012|communications|22",
+      "title": "Weather balloon split telemetry",
+      "stakes": "Weather Balloon Shed has two redundant aerial power feeds, one painted by dye mist. Compare return paths before reconnecting the storm forecast transmitter.",
+      "targets": {
+        "A": "SC_174_A",
+        "B": "SC_174_B",
+        "C": "SC_174_C"
+      },
+      "recovery_target": "SC_174_C",
+      "station_offsets_cm": {
+        "A": [
+          116,
+          221
+        ],
+        "B": [
+          -140,
+          227
+        ],
+        "C": [
+          -200,
+          151
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "sample_balloon_west",
+            "mode": "sample",
+            "target": "SC_174_A",
+            "support_target": "SC_174_B",
+            "dwell_ticks": 16,
+            "window_ticks": 200,
+            "failure": "restart"
+          },
+          {
+            "action": "sample_balloon_east",
+            "mode": "sample",
+            "target": "SC_174_B",
+            "support_target": "SC_174_C",
+            "dwell_ticks": 8,
+            "window_ticks": 80,
+            "failure": "step"
+          },
+          {
+            "action": "separate_aerial_branch",
+            "mode": "handoff",
+            "target": "SC_174_C",
+            "support_target": "SC_174_A",
+            "dwell_ticks": 11,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "certify_weather_link",
+            "mode": "hold",
+            "target": "SC_174_A",
+            "support_target": "SC_174_C",
+            "dwell_ticks": 14,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "sample_balloon_east_reserve",
+            "mode": "sample",
+            "target": "SC_174_B",
+            "support_target": "SC_174_C",
+            "dwell_ticks": 8,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "sample_balloon_west_reserve",
+            "mode": "sample",
+            "target": "SC_174_A",
+            "support_target": "SC_174_B",
+            "dwell_ticks": 16,
+            "window_ticks": 220,
+            "failure": "restart"
+          },
+          {
+            "action": "separate_aerial_branch_reserve",
+            "mode": "handoff",
+            "target": "SC_174_C",
+            "support_target": "SC_174_A",
+            "dwell_ticks": 11,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "certify_weather_link_reserve",
+            "mode": "hold",
+            "target": "SC_174_A",
+            "support_target": "SC_174_C",
+            "dwell_ticks": 14,
+            "window_ticks": 140,
+            "failure": "backtrack"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_175",
+      "location_id": "LOC_175",
+      "region_id": "REG_22",
+      "source_puzzle_identity": "substation restart/dye_mist/education",
+      "source_title": "Basin Studies Lab: Substation restart",
+      "source_risk": "toxic-looking but harmless dye leaks",
+      "source_climate": "dye_mist",
+      "source_task_ids": [
+        "JOB_175_1",
+        "JOB_175_2",
+        "JOB_175_3",
+        "JOB_175_4",
+        "JOB_175_5"
+      ],
+      "worksite_encounter_key": "LV_175|LV_175|substation restart/dye_mist/education|fault_trace|equipment_condensation|191|43|site-education-route-fault_trace-topology-4|control_mismatch|10|5|EXP009|fork|EXP010|serial|EXP011|cascade|EXP012|education|22",
+      "title": "Basin lab substation restart",
+      "stakes": "A false dye alarm has kept the Basin Studies Lab's substation locked. Ensure sensor reference is clean before restoring microscope and sampling benches.",
+      "targets": {
+        "A": "SC_175_A",
+        "B": "SC_175_B",
+        "C": "SC_175_C"
+      },
+      "recovery_target": "SC_175_C",
+      "station_offsets_cm": {
+        "A": [
+          125,
+          234
+        ],
+        "B": [
+          -149,
+          125
+        ],
+        "C": [
+          -210,
+          163
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "measure_lab_reference",
+            "mode": "sample",
+            "target": "SC_175_A",
+            "support_target": "SC_175_B",
+            "dwell_ticks": 17,
+            "window_ticks": 80,
+            "failure": "step"
+          },
+          {
+            "action": "isolate_stained_sensor",
+            "mode": "handoff",
+            "target": "SC_175_B",
+            "support_target": "SC_175_C",
+            "dwell_ticks": 9,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "pulse_lab_restart",
+            "mode": "pulse",
+            "target": "SC_175_C",
+            "support_target": "SC_175_A",
+            "dwell_ticks": 12,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          },
+          {
+            "action": "confirm_basin_science",
+            "mode": "hold",
+            "target": "SC_175_A",
+            "support_target": "SC_175_C",
+            "dwell_ticks": 15,
+            "window_ticks": 140,
+            "failure": "restart"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "isolate_stained_sensor_reserve",
+            "mode": "handoff",
+            "target": "SC_175_B",
+            "support_target": "SC_175_C",
+            "dwell_ticks": 9,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "measure_lab_reference_reserve",
+            "mode": "sample",
+            "target": "SC_175_A",
+            "support_target": "SC_175_B",
+            "dwell_ticks": 17,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "pulse_lab_restart_reserve",
+            "mode": "pulse",
+            "target": "SC_175_C",
+            "support_target": "SC_175_A",
+            "dwell_ticks": 12,
+            "window_ticks": 140,
+            "failure": "backtrack"
+          },
+          {
+            "action": "confirm_basin_science_reserve",
+            "mode": "hold",
+            "target": "SC_175_A",
+            "support_target": "SC_175_C",
+            "dwell_ticks": 15,
+            "window_ticks": 160,
+            "failure": "restart"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_176",
+      "location_id": "LOC_176",
+      "region_id": "REG_22",
+      "source_puzzle_identity": "network loop hunt/dye_mist/shelter",
+      "source_title": "Millpond Evacuation Hall: Network loop hunt",
+      "source_risk": "toxic-looking but harmless dye leaks",
+      "source_climate": "dye_mist",
+      "source_task_ids": [
+        "JOB_176_1",
+        "JOB_176_2",
+        "JOB_176_3",
+        "JOB_176_4",
+        "JOB_176_5"
+      ],
+      "worksite_encounter_key": "LV_176|LV_176|network loop hunt/dye_mist/shelter|circuit_pair|equipment_condensation|200|56|site-shelter-route-circuit_pair-topology-5|reserve_brownout|11|6|EXP009|serial|EXP010|triage|EXP011|triage|EXP012|shelter|22",
+      "title": "Millpond hall hidden feedback",
+      "stakes": "Colored residue hides a feedback jumper in Millpond Evacuation Hall's water alarm controller. Break the actual electrical loop before declaring a safe refuge.",
+      "targets": {
+        "A": "SC_176_A",
+        "B": "SC_176_B",
+        "C": "SC_176_C"
+      },
+      "recovery_target": "SC_176_C",
+      "station_offsets_cm": {
+        "A": [
+          134,
+          104
+        ],
+        "B": [
+          -158,
+          142
+        ],
+        "C": [
+          -110,
+          175
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "trace_millpond_feedback",
+            "mode": "sample",
+            "target": "SC_176_A",
+            "support_target": "SC_176_B",
+            "dwell_ticks": 7,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "inspect_dye_splashes",
+            "mode": "sample",
+            "target": "SC_176_B",
+            "support_target": "SC_176_C",
+            "dwell_ticks": 10,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          },
+          {
+            "action": "isolate_feedback_jumper",
+            "mode": "handoff",
+            "target": "SC_176_C",
+            "support_target": "SC_176_A",
+            "dwell_ticks": 13,
+            "window_ticks": 140,
+            "failure": "restart"
+          },
+          {
+            "action": "prove_refuge_sirens",
+            "mode": "hold",
+            "target": "SC_176_A",
+            "support_target": "SC_176_C",
+            "dwell_ticks": 16,
+            "window_ticks": 160,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "inspect_dye_splashes_reserve",
+            "mode": "sample",
+            "target": "SC_176_B",
+            "support_target": "SC_176_C",
+            "dwell_ticks": 10,
+            "window_ticks": 140,
+            "failure": "backtrack"
+          },
+          {
+            "action": "trace_millpond_feedback_reserve",
+            "mode": "sample",
+            "target": "SC_176_A",
+            "support_target": "SC_176_B",
+            "dwell_ticks": 7,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "isolate_feedback_jumper_reserve",
+            "mode": "handoff",
+            "target": "SC_176_C",
+            "support_target": "SC_176_A",
+            "dwell_ticks": 13,
+            "window_ticks": 160,
+            "failure": "restart"
+          },
+          {
+            "action": "prove_refuge_sirens_reserve",
+            "mode": "hold",
+            "target": "SC_176_A",
+            "support_target": "SC_176_C",
+            "dwell_ticks": 16,
+            "window_ticks": 180,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_177",
+      "location_id": "LOC_177",
+      "region_id": "REG_23",
+      "source_puzzle_identity": "pressure trip/lightning/distribution",
+      "source_title": "Astral Feeder Vault: Pressure trip",
+      "source_risk": "lightning-sensitive instruments",
+      "source_climate": "lightning",
+      "source_task_ids": [
+        "JOB_177_1",
+        "JOB_177_2",
+        "JOB_177_3",
+        "JOB_177_4",
+        "JOB_177_5"
+      ],
+      "worksite_encounter_key": "LV_177|LV_177|pressure trip/lightning/distribution|circuit_pair|static_discharge|209|15|site-distribution-route-circuit_pair-topology-6|phase_drift|1|6|EXP009|serial|EXP010|crossdock|EXP011|interlock|EXP012|distribution|23",
+      "title": "Astral feeder pressure arrest",
+      "stakes": "Lightning has struck the Astral Feeder Vault and tripped a pneumatic cable-pressure monitor. Prove the conductor insulation before bleeding the false overpressure latch.",
+      "targets": {
+        "A": "SC_177_A",
+        "B": "SC_177_B",
+        "C": "SC_177_C"
+      },
+      "recovery_target": "SC_177_C",
+      "station_offsets_cm": {
+        "A": [
+          143,
+          117
+        ],
+        "B": [
+          -167,
+          159
+        ],
+        "C": [
+          -120,
+          187
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "read_lightning_counter",
+            "mode": "sample",
+            "target": "SC_177_A",
+            "support_target": "SC_177_B",
+            "dwell_ticks": 8,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          },
+          {
+            "action": "measure_cable_pressure",
+            "mode": "sample",
+            "target": "SC_177_B",
+            "support_target": "SC_177_C",
+            "dwell_ticks": 11,
+            "window_ticks": 140,
+            "failure": "restart"
+          },
+          {
+            "action": "vent_vault_trip",
+            "mode": "hold",
+            "target": "SC_177_C",
+            "support_target": "SC_177_A",
+            "dwell_ticks": 14,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "confirm_clean_feeder",
+            "mode": "pulse",
+            "target": "SC_177_A",
+            "support_target": "SC_177_C",
+            "dwell_ticks": 17,
+            "window_ticks": 180,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "measure_cable_pressure_reserve",
+            "mode": "sample",
+            "target": "SC_177_B",
+            "support_target": "SC_177_C",
+            "dwell_ticks": 11,
+            "window_ticks": 160,
+            "failure": "restart"
+          },
+          {
+            "action": "read_lightning_counter_reserve",
+            "mode": "sample",
+            "target": "SC_177_A",
+            "support_target": "SC_177_B",
+            "dwell_ticks": 8,
+            "window_ticks": 140,
+            "failure": "backtrack"
+          },
+          {
+            "action": "vent_vault_trip_reserve",
+            "mode": "hold",
+            "target": "SC_177_C",
+            "support_target": "SC_177_A",
+            "dwell_ticks": 14,
+            "window_ticks": 180,
+            "failure": "step"
+          },
+          {
+            "action": "confirm_clean_feeder_reserve",
+            "mode": "pulse",
+            "target": "SC_177_A",
+            "support_target": "SC_177_C",
+            "dwell_ticks": 17,
+            "window_ticks": 200,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_178",
+      "location_id": "LOC_178",
+      "region_id": "REG_23",
+      "source_puzzle_identity": "priority dispatch/lightning/transport",
+      "source_title": "Telescope Access Rail: Priority dispatch",
+      "source_risk": "lightning-sensitive instruments",
+      "source_climate": "lightning",
+      "source_task_ids": [
+        "JOB_178_1",
+        "JOB_178_2",
+        "JOB_178_3",
+        "JOB_178_4",
+        "JOB_178_5"
+      ],
+      "worksite_encounter_key": "LV_178|LV_178|priority dispatch/lightning/transport|relay_coincidence|static_discharge|218|28|site-transport-route-relay_coincidence-topology-7|traction_surge|2|6|EXP009|fork|EXP010|serial|EXP011|cascade|EXP012|transport|23",
+      "title": "Telescope rail critical dispatch",
+      "stakes": "The telescope access rail and instrument surge arresters compete for post-strike reserve power. Protect research sensors before moving the observation lift.",
+      "targets": {
+        "A": "SC_178_A",
+        "B": "SC_178_B",
+        "C": "SC_178_C"
+      },
+      "recovery_target": "SC_178_C",
+      "station_offsets_cm": {
+        "A": [
+          152,
+          130
+        ],
+        "B": [
+          -176,
+          176
+        ],
+        "C": [
+          -130,
+          199
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "measure_lift_demand",
+            "mode": "sample",
+            "target": "SC_178_A",
+            "support_target": "SC_178_B",
+            "dwell_ticks": 9,
+            "window_ticks": 140,
+            "failure": "restart"
+          },
+          {
+            "action": "verify_surge_arresters",
+            "mode": "sample",
+            "target": "SC_178_B",
+            "support_target": "SC_178_C",
+            "dwell_ticks": 12,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "trim_rail_priority",
+            "mode": "balance",
+            "target": "SC_178_C",
+            "support_target": "SC_178_A",
+            "dwell_ticks": 15,
+            "window_ticks": 180,
+            "failure": "step"
+          },
+          {
+            "action": "certify_observer_route",
+            "mode": "hold",
+            "target": "SC_178_A",
+            "support_target": "SC_178_C",
+            "dwell_ticks": 7,
+            "window_ticks": 200,
+            "failure": "backtrack"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "verify_surge_arresters_reserve",
+            "mode": "sample",
+            "target": "SC_178_B",
+            "support_target": "SC_178_C",
+            "dwell_ticks": 12,
+            "window_ticks": 180,
+            "failure": "step"
+          },
+          {
+            "action": "measure_lift_demand_reserve",
+            "mode": "sample",
+            "target": "SC_178_A",
+            "support_target": "SC_178_B",
+            "dwell_ticks": 9,
+            "window_ticks": 160,
+            "failure": "restart"
+          },
+          {
+            "action": "trim_rail_priority_reserve",
+            "mode": "balance",
+            "target": "SC_178_C",
+            "support_target": "SC_178_A",
+            "dwell_ticks": 15,
+            "window_ticks": 200,
+            "failure": "step"
+          },
+          {
+            "action": "certify_observer_route_reserve",
+            "mode": "hold",
+            "target": "SC_178_A",
+            "support_target": "SC_178_C",
+            "dwell_ticks": 7,
+            "window_ticks": 220,
+            "failure": "backtrack"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_179",
+      "location_id": "LOC_179",
+      "region_id": "REG_23",
+      "source_puzzle_identity": "conflicting telemetry/lightning/health",
+      "source_title": "Altitude Medical Room: Conflicting telemetry",
+      "source_risk": "lightning-sensitive instruments",
+      "source_climate": "lightning",
+      "source_task_ids": [
+        "JOB_179_1",
+        "JOB_179_2",
+        "JOB_179_3",
+        "JOB_179_4",
+        "JOB_179_5"
+      ],
+      "worksite_encounter_key": "LV_179|LV_179|conflicting telemetry/lightning/health|feeder_pulse|static_discharge|227|41|site-health-route-feeder_pulse-topology-8|sterile_pressure|3|6|EXP009|serial|EXP010|triage|EXP011|triage|EXP012|health|23",
+      "title": "Altitude clinic telemetry conflict",
+      "stakes": "Storm echoes make Altitude Medical Room report conflicting supply and patient-monitor readings. Cross-check the isolated clinical reference before switching sources.",
+      "targets": {
+        "A": "SC_179_A",
+        "B": "SC_179_B",
+        "C": "SC_179_C"
+      },
+      "recovery_target": "SC_179_C",
+      "station_offsets_cm": {
+        "A": [
+          161,
+          143
+        ],
+        "B": [
+          -185,
+          193
+        ],
+        "C": [
+          -140,
+          211
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "sample_patient_reference",
+            "mode": "sample",
+            "target": "SC_179_A",
+            "support_target": "SC_179_B",
+            "dwell_ticks": 10,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "sample_lightning_sensor",
+            "mode": "sample",
+            "target": "SC_179_B",
+            "support_target": "SC_179_C",
+            "dwell_ticks": 13,
+            "window_ticks": 180,
+            "failure": "step"
+          },
+          {
+            "action": "isolate_false_telemetry",
+            "mode": "handoff",
+            "target": "SC_179_C",
+            "support_target": "SC_179_A",
+            "dwell_ticks": 16,
+            "window_ticks": 200,
+            "failure": "backtrack"
+          },
+          {
+            "action": "confirm_altitude_care",
+            "mode": "hold",
+            "target": "SC_179_A",
+            "support_target": "SC_179_C",
+            "dwell_ticks": 8,
+            "window_ticks": 80,
+            "failure": "restart"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "sample_lightning_sensor_reserve",
+            "mode": "sample",
+            "target": "SC_179_B",
+            "support_target": "SC_179_C",
+            "dwell_ticks": 13,
+            "window_ticks": 200,
+            "failure": "step"
+          },
+          {
+            "action": "sample_patient_reference_reserve",
+            "mode": "sample",
+            "target": "SC_179_A",
+            "support_target": "SC_179_B",
+            "dwell_ticks": 10,
+            "window_ticks": 180,
+            "failure": "step"
+          },
+          {
+            "action": "isolate_false_telemetry_reserve",
+            "mode": "handoff",
+            "target": "SC_179_C",
+            "support_target": "SC_179_A",
+            "dwell_ticks": 16,
+            "window_ticks": 220,
+            "failure": "backtrack"
+          },
+          {
+            "action": "confirm_altitude_care_reserve",
+            "mode": "hold",
+            "target": "SC_179_A",
+            "support_target": "SC_179_C",
+            "dwell_ticks": 8,
+            "window_ticks": 100,
+            "failure": "restart"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_180",
+      "location_id": "LOC_180",
+      "region_id": "REG_23",
+      "source_puzzle_identity": "access-interlock investigation/lightning/commerce",
+      "source_title": "Night-Sky Supply Booth: Access-interlock investigation",
+      "source_risk": "lightning-sensitive instruments",
+      "source_climate": "lightning",
+      "source_task_ids": [
+        "JOB_180_1",
+        "JOB_180_2",
+        "JOB_180_3",
+        "JOB_180_4",
+        "JOB_180_5"
+      ],
+      "worksite_encounter_key": "LV_180|LV_180|access-interlock investigation/lightning/commerce|relay_coincidence|static_discharge|155|54|site-commerce-route-relay_coincidence-topology-9|load_imbalance|4|6|EXP009|serial|EXP010|crossdock|EXP011|interlock|EXP012|commerce|23",
+      "title": "Night sky booth access lock",
+      "stakes": "The Night-Sky Supply Booth access key can energize a lightning-exposed dome conduit. Prove surge arrestor isolation before letting staff open the service cabinet.",
+      "targets": {
+        "A": "SC_180_A",
+        "B": "SC_180_B",
+        "C": "SC_180_C"
+      },
+      "recovery_target": "SC_180_C",
+      "station_offsets_cm": {
+        "A": [
+          170,
+          156
+        ],
+        "B": [
+          -194,
+          210
+        ],
+        "C": [
+          -150,
+          115
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "read_surge_earth",
+            "mode": "sample",
+            "target": "SC_180_A",
+            "support_target": "SC_180_B",
+            "dwell_ticks": 11,
+            "window_ticks": 180,
+            "failure": "step"
+          },
+          {
+            "action": "inspect_booth_latch",
+            "mode": "sample",
+            "target": "SC_180_B",
+            "support_target": "SC_180_C",
+            "dwell_ticks": 14,
+            "window_ticks": 200,
+            "failure": "backtrack"
+          },
+          {
+            "action": "secure_dome_disconnect",
+            "mode": "handoff",
+            "target": "SC_180_C",
+            "support_target": "SC_180_A",
+            "dwell_ticks": 17,
+            "window_ticks": 80,
+            "failure": "restart"
+          },
+          {
+            "action": "prove_safe_counter",
+            "mode": "hold",
+            "target": "SC_180_A",
+            "support_target": "SC_180_C",
+            "dwell_ticks": 9,
+            "window_ticks": 100,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "inspect_booth_latch_reserve",
+            "mode": "sample",
+            "target": "SC_180_B",
+            "support_target": "SC_180_C",
+            "dwell_ticks": 14,
+            "window_ticks": 220,
+            "failure": "backtrack"
+          },
+          {
+            "action": "read_surge_earth_reserve",
+            "mode": "sample",
+            "target": "SC_180_A",
+            "support_target": "SC_180_B",
+            "dwell_ticks": 11,
+            "window_ticks": 200,
+            "failure": "step"
+          },
+          {
+            "action": "secure_dome_disconnect_reserve",
+            "mode": "handoff",
+            "target": "SC_180_C",
+            "support_target": "SC_180_A",
+            "dwell_ticks": 17,
+            "window_ticks": 100,
+            "failure": "restart"
+          },
+          {
+            "action": "prove_safe_counter_reserve",
+            "mode": "hold",
+            "target": "SC_180_A",
+            "support_target": "SC_180_C",
+            "dwell_ticks": 9,
+            "window_ticks": 120,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_181",
+      "location_id": "LOC_181",
+      "region_id": "REG_23",
+      "source_puzzle_identity": "thermal breaker/lightning/waterworks",
+      "source_title": "Mirror Cooling Plant: Thermal breaker",
+      "source_risk": "lightning-sensitive instruments",
+      "source_climate": "lightning",
+      "source_task_ids": [
+        "JOB_181_1",
+        "JOB_181_2",
+        "JOB_181_3",
+        "JOB_181_4",
+        "JOB_181_5"
+      ],
+      "worksite_encounter_key": "LV_181|LV_181|thermal breaker/lightning/waterworks|post_repair_audit|static_discharge|164|6|site-waterworks-route-post_repair_audit-topology-0|backflow|5|5|EXP009|fork|EXP010|serial|EXP011|cascade|EXP012|waterworks|23",
+      "title": "Mirror cooling thermal latch",
+      "stakes": "A lightning surge has overheated the Mirror Cooling Plant breaker near the telescope optics. Cool the thermal element without cycling the sensitive mirror drive.",
+      "targets": {
+        "A": "SC_181_A",
+        "B": "SC_181_B",
+        "C": "SC_181_C"
+      },
+      "recovery_target": "SC_181_C",
+      "station_offsets_cm": {
+        "A": [
+          179,
+          169
+        ],
+        "B": [
+          -203,
+          227
+        ],
+        "C": [
+          -160,
+          127
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "measure_mirror_heat",
+            "mode": "sample",
+            "target": "SC_181_A",
+            "support_target": "SC_181_B",
+            "dwell_ticks": 12,
+            "window_ticks": 200,
+            "failure": "backtrack"
+          },
+          {
+            "action": "isolate_lightning_spur",
+            "mode": "handoff",
+            "target": "SC_181_B",
+            "support_target": "SC_181_C",
+            "dwell_ticks": 15,
+            "window_ticks": 80,
+            "failure": "restart"
+          },
+          {
+            "action": "cool_optic_breaker",
+            "mode": "hold",
+            "target": "SC_181_C",
+            "support_target": "SC_181_A",
+            "dwell_ticks": 7,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "prove_mirror_cooling",
+            "mode": "pulse",
+            "target": "SC_181_A",
+            "support_target": "SC_181_C",
+            "dwell_ticks": 10,
+            "window_ticks": 120,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "isolate_lightning_spur_reserve",
+            "mode": "handoff",
+            "target": "SC_181_B",
+            "support_target": "SC_181_C",
+            "dwell_ticks": 15,
+            "window_ticks": 100,
+            "failure": "restart"
+          },
+          {
+            "action": "measure_mirror_heat_reserve",
+            "mode": "sample",
+            "target": "SC_181_A",
+            "support_target": "SC_181_B",
+            "dwell_ticks": 12,
+            "window_ticks": 220,
+            "failure": "backtrack"
+          },
+          {
+            "action": "cool_optic_breaker_reserve",
+            "mode": "hold",
+            "target": "SC_181_C",
+            "support_target": "SC_181_A",
+            "dwell_ticks": 7,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "prove_mirror_cooling_reserve",
+            "mode": "pulse",
+            "target": "SC_181_A",
+            "support_target": "SC_181_C",
+            "dwell_ticks": 10,
+            "window_ticks": 140,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_182",
+      "location_id": "LOC_182",
+      "region_id": "REG_23",
+      "source_puzzle_identity": "cross-feed lock/lightning/communications",
+      "source_title": "Northern Tracking Array: Cross-feed lock",
+      "source_risk": "lightning-sensitive instruments",
+      "source_climate": "lightning",
+      "source_task_ids": [
+        "JOB_182_1",
+        "JOB_182_2",
+        "JOB_182_3",
+        "JOB_182_4",
+        "JOB_182_5"
+      ],
+      "worksite_encounter_key": "LV_182|LV_182|cross-feed lock/lightning/communications|load_rebalance|static_discharge|173|19|site-communications-route-load_rebalance-topology-1|signal_echo|6|5|EXP009|serial|EXP010|triage|EXP011|triage|EXP012|communications|23",
+      "title": "Tracking array crossfeed lock",
+      "stakes": "The Northern Tracking Array has a lightning-created crossfeed between two antenna amplifiers. Separate both paths before restoring precision tracking signals.",
+      "targets": {
+        "A": "SC_182_A",
+        "B": "SC_182_B",
+        "C": "SC_182_C"
+      },
+      "recovery_target": "SC_182_C",
+      "station_offsets_cm": {
+        "A": [
+          188,
+          182
+        ],
+        "B": [
+          -95,
+          125
+        ],
+        "C": [
+          -170,
+          139
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "sample_array_returns",
+            "mode": "sample",
+            "target": "SC_182_A",
+            "support_target": "SC_182_B",
+            "dwell_ticks": 13,
+            "window_ticks": 80,
+            "failure": "restart"
+          },
+          {
+            "action": "locate_surge_bridge",
+            "mode": "sample",
+            "target": "SC_182_B",
+            "support_target": "SC_182_C",
+            "dwell_ticks": 16,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "split_antenna_rails",
+            "mode": "handoff",
+            "target": "SC_182_C",
+            "support_target": "SC_182_A",
+            "dwell_ticks": 8,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "confirm_star_tracking",
+            "mode": "hold",
+            "target": "SC_182_A",
+            "support_target": "SC_182_C",
+            "dwell_ticks": 11,
+            "window_ticks": 140,
+            "failure": "backtrack"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "locate_surge_bridge_reserve",
+            "mode": "sample",
+            "target": "SC_182_B",
+            "support_target": "SC_182_C",
+            "dwell_ticks": 16,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "sample_array_returns_reserve",
+            "mode": "sample",
+            "target": "SC_182_A",
+            "support_target": "SC_182_B",
+            "dwell_ticks": 13,
+            "window_ticks": 100,
+            "failure": "restart"
+          },
+          {
+            "action": "split_antenna_rails_reserve",
+            "mode": "handoff",
+            "target": "SC_182_C",
+            "support_target": "SC_182_A",
+            "dwell_ticks": 8,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "confirm_star_tracking_reserve",
+            "mode": "hold",
+            "target": "SC_182_A",
+            "support_target": "SC_182_C",
+            "dwell_ticks": 11,
+            "window_ticks": 160,
+            "failure": "backtrack"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_183",
+      "location_id": "LOC_183",
+      "region_id": "REG_23",
+      "source_puzzle_identity": "mislabelled feeder/lightning/education",
+      "source_title": "Cedar Astronomy School: Mislabelled feeder",
+      "source_risk": "lightning-sensitive instruments",
+      "source_climate": "lightning",
+      "source_task_ids": [
+        "JOB_183_1",
+        "JOB_183_2",
+        "JOB_183_3",
+        "JOB_183_4",
+        "JOB_183_5"
+      ],
+      "worksite_encounter_key": "LV_183|LV_183|mislabelled feeder/lightning/education|spur_isolation|static_discharge|182|32|site-education-route-spur_isolation-topology-2|control_mismatch|7|5|EXP009|serial|EXP010|crossdock|EXP011|interlock|EXP012|education|23",
+      "title": "Astronomy school feeder identity",
+      "stakes": "An aged label points Cedar Astronomy School's telescope classroom at the external lightning rod circuit. Trace the protected indoor route before opening the observatory.",
+      "targets": {
+        "A": "SC_183_A",
+        "B": "SC_183_B",
+        "C": "SC_183_C"
+      },
+      "recovery_target": "SC_183_C",
+      "station_offsets_cm": {
+        "A": [
+          197,
+          195
+        ],
+        "B": [
+          -104,
+          142
+        ],
+        "C": [
+          -180,
+          151
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "read_lecture_bus",
+            "mode": "sample",
+            "target": "SC_183_A",
+            "support_target": "SC_183_B",
+            "dwell_ticks": 14,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "trace_arrestor_label",
+            "mode": "sample",
+            "target": "SC_183_B",
+            "support_target": "SC_183_C",
+            "dwell_ticks": 17,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "retag_school_feeder",
+            "mode": "handoff",
+            "target": "SC_183_C",
+            "support_target": "SC_183_A",
+            "dwell_ticks": 9,
+            "window_ticks": 140,
+            "failure": "backtrack"
+          },
+          {
+            "action": "verify_telescope_class",
+            "mode": "hold",
+            "target": "SC_183_A",
+            "support_target": "SC_183_C",
+            "dwell_ticks": 12,
+            "window_ticks": 160,
+            "failure": "restart"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "trace_arrestor_label_reserve",
+            "mode": "sample",
+            "target": "SC_183_B",
+            "support_target": "SC_183_C",
+            "dwell_ticks": 17,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "read_lecture_bus_reserve",
+            "mode": "sample",
+            "target": "SC_183_A",
+            "support_target": "SC_183_B",
+            "dwell_ticks": 14,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "retag_school_feeder_reserve",
+            "mode": "handoff",
+            "target": "SC_183_C",
+            "support_target": "SC_183_A",
+            "dwell_ticks": 9,
+            "window_ticks": 160,
+            "failure": "backtrack"
+          },
+          {
+            "action": "verify_telescope_class_reserve",
+            "mode": "hold",
+            "target": "SC_183_A",
+            "support_target": "SC_183_C",
+            "dwell_ticks": 12,
+            "window_ticks": 180,
+            "failure": "restart"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_184",
+      "location_id": "LOC_184",
+      "region_id": "REG_23",
+      "source_puzzle_identity": "sticking isolator/lightning/shelter",
+      "source_title": "Stargazer Dormitory: Sticking isolator",
+      "source_risk": "lightning-sensitive instruments",
+      "source_climate": "lightning",
+      "source_task_ids": [
+        "JOB_184_1",
+        "JOB_184_2",
+        "JOB_184_3",
+        "JOB_184_4",
+        "JOB_184_5"
+      ],
+      "worksite_encounter_key": "LV_184|LV_184|sticking isolator/lightning/shelter|stability_hold|static_discharge|191|45|site-shelter-route-stability_hold-topology-3|reserve_brownout|8|5|EXP009|fork|EXP010|serial|EXP011|cascade|EXP012|shelter|23",
+      "title": "Stargazer dorm isolator blade",
+      "stakes": "A struck isolator has become sticky while the Stargazer Dormitory reserve heaters draw through its case. Protect sleeping quarters before freeing the switch.",
+      "targets": {
+        "A": "SC_184_A",
+        "B": "SC_184_B",
+        "C": "SC_184_C"
+      },
+      "recovery_target": "SC_184_C",
+      "station_offsets_cm": {
+        "A": [
+          206,
+          208
+        ],
+        "B": [
+          -113,
+          159
+        ],
+        "C": [
+          -190,
+          163
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "measure_dorm_heaters",
+            "mode": "sample",
+            "target": "SC_184_A",
+            "support_target": "SC_184_B",
+            "dwell_ticks": 15,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "isolate_struck_blade",
+            "mode": "handoff",
+            "target": "SC_184_B",
+            "support_target": "SC_184_C",
+            "dwell_ticks": 7,
+            "window_ticks": 140,
+            "failure": "backtrack"
+          },
+          {
+            "action": "trim_dorm_reserve",
+            "mode": "balance",
+            "target": "SC_184_C",
+            "support_target": "SC_184_A",
+            "dwell_ticks": 10,
+            "window_ticks": 160,
+            "failure": "restart"
+          },
+          {
+            "action": "prove_night_shelter",
+            "mode": "hold",
+            "target": "SC_184_A",
+            "support_target": "SC_184_C",
+            "dwell_ticks": 13,
+            "window_ticks": 180,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "isolate_struck_blade_reserve",
+            "mode": "handoff",
+            "target": "SC_184_B",
+            "support_target": "SC_184_C",
+            "dwell_ticks": 7,
+            "window_ticks": 160,
+            "failure": "backtrack"
+          },
+          {
+            "action": "measure_dorm_heaters_reserve",
+            "mode": "sample",
+            "target": "SC_184_A",
+            "support_target": "SC_184_B",
+            "dwell_ticks": 15,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "trim_dorm_reserve_reserve",
+            "mode": "balance",
+            "target": "SC_184_C",
+            "support_target": "SC_184_A",
+            "dwell_ticks": 10,
+            "window_ticks": 180,
+            "failure": "restart"
+          },
+          {
+            "action": "prove_night_shelter_reserve",
+            "mode": "hold",
+            "target": "SC_184_A",
+            "support_target": "SC_184_C",
+            "dwell_ticks": 13,
+            "window_ticks": 200,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_185",
+      "location_id": "LOC_185",
+      "region_id": "REG_24",
+      "source_puzzle_identity": "cold-chain rescue/sandstorm/distribution",
+      "source_title": "Dunewatch Switchfield: Cold-chain rescue",
+      "source_risk": "sand-blown power connectors",
+      "source_climate": "sandstorm",
+      "source_task_ids": [
+        "JOB_185_1",
+        "JOB_185_2",
+        "JOB_185_3",
+        "JOB_185_4",
+        "JOB_185_5"
+      ],
+      "worksite_encounter_key": "LV_185|LV_185|cold-chain rescue/sandstorm/distribution|stability_hold|dust_cloud|200|4|site-distribution-route-stability_hold-topology-4|phase_drift|9|5|EXP009|serial|EXP010|triage|EXP011|triage|EXP012|distribution|24",
+      "title": "Dunewatch frozen cold chain",
+      "stakes": "Sand blown into the Dunewatch Switchfield connector interrupts refrigerated desert supplies. Clear the protected link before transferring loads to the storage spur.",
+      "targets": {
+        "A": "SC_185_A",
+        "B": "SC_185_B",
+        "C": "SC_185_C"
+      },
+      "recovery_target": "SC_185_C",
+      "station_offsets_cm": {
+        "A": [
+          215,
+          221
+        ],
+        "B": [
+          -122,
+          176
+        ],
+        "C": [
+          -200,
+          175
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "measure_dune_coldbus",
+            "mode": "sample",
+            "target": "SC_185_A",
+            "support_target": "SC_185_B",
+            "dwell_ticks": 16,
+            "window_ticks": 140,
+            "failure": "backtrack"
+          },
+          {
+            "action": "shield_sand_entry",
+            "mode": "hold",
+            "target": "SC_185_B",
+            "support_target": "SC_185_C",
+            "dwell_ticks": 8,
+            "window_ticks": 160,
+            "failure": "restart"
+          },
+          {
+            "action": "trim_coldstore_source",
+            "mode": "balance",
+            "target": "SC_185_C",
+            "support_target": "SC_185_A",
+            "dwell_ticks": 11,
+            "window_ticks": 180,
+            "failure": "step"
+          },
+          {
+            "action": "confirm_desert_supplies",
+            "mode": "handoff",
+            "target": "SC_185_A",
+            "support_target": "SC_185_C",
+            "dwell_ticks": 14,
+            "window_ticks": 200,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "shield_sand_entry_reserve",
+            "mode": "hold",
+            "target": "SC_185_B",
+            "support_target": "SC_185_C",
+            "dwell_ticks": 8,
+            "window_ticks": 180,
+            "failure": "restart"
+          },
+          {
+            "action": "measure_dune_coldbus_reserve",
+            "mode": "sample",
+            "target": "SC_185_A",
+            "support_target": "SC_185_B",
+            "dwell_ticks": 16,
+            "window_ticks": 160,
+            "failure": "backtrack"
+          },
+          {
+            "action": "trim_coldstore_source_reserve",
+            "mode": "balance",
+            "target": "SC_185_C",
+            "support_target": "SC_185_A",
+            "dwell_ticks": 11,
+            "window_ticks": 200,
+            "failure": "step"
+          },
+          {
+            "action": "confirm_desert_supplies_reserve",
+            "mode": "handoff",
+            "target": "SC_185_A",
+            "support_target": "SC_185_C",
+            "dwell_ticks": 14,
+            "window_ticks": 220,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_186",
+      "location_id": "LOC_186",
+      "region_id": "REG_24",
+      "source_puzzle_identity": "isolated bypass/sandstorm/transport",
+      "source_title": "Sandline Transit Stop: Isolated bypass",
+      "source_risk": "sand-blown power connectors",
+      "source_climate": "sandstorm",
+      "source_task_ids": [
+        "JOB_186_1",
+        "JOB_186_2",
+        "JOB_186_3",
+        "JOB_186_4",
+        "JOB_186_5"
+      ],
+      "worksite_encounter_key": "LV_186|LV_186|isolated bypass/sandstorm/transport|circuit_pair|dust_cloud|209|17|site-transport-route-circuit_pair-topology-5|traction_surge|10|6|EXP009|serial|EXP010|crossdock|EXP011|interlock|EXP012|transport|24",
+      "title": "Sandline safe transit bypass",
+      "stakes": "A sandstorm has eroded the Sandline Transit Stop's bypass terminal. Secure the guide lighting and isolate the damaged rail before carrying passengers.",
+      "targets": {
+        "A": "SC_186_A",
+        "B": "SC_186_B",
+        "C": "SC_186_C"
+      },
+      "recovery_target": "SC_186_C",
+      "station_offsets_cm": {
+        "A": [
+          224,
+          234
+        ],
+        "B": [
+          -131,
+          193
+        ],
+        "C": [
+          -210,
+          187
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "read_transit_lamps",
+            "mode": "sample",
+            "target": "SC_186_A",
+            "support_target": "SC_186_B",
+            "dwell_ticks": 17,
+            "window_ticks": 160,
+            "failure": "restart"
+          },
+          {
+            "action": "inspect_sand_terminal",
+            "mode": "sample",
+            "target": "SC_186_B",
+            "support_target": "SC_186_C",
+            "dwell_ticks": 9,
+            "window_ticks": 180,
+            "failure": "step"
+          },
+          {
+            "action": "stage_dry_bypass",
+            "mode": "balance",
+            "target": "SC_186_C",
+            "support_target": "SC_186_A",
+            "dwell_ticks": 12,
+            "window_ticks": 200,
+            "failure": "step"
+          },
+          {
+            "action": "prove_safe_platform",
+            "mode": "hold",
+            "target": "SC_186_A",
+            "support_target": "SC_186_C",
+            "dwell_ticks": 15,
+            "window_ticks": 80,
+            "failure": "backtrack"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "inspect_sand_terminal_reserve",
+            "mode": "sample",
+            "target": "SC_186_B",
+            "support_target": "SC_186_C",
+            "dwell_ticks": 9,
+            "window_ticks": 200,
+            "failure": "step"
+          },
+          {
+            "action": "read_transit_lamps_reserve",
+            "mode": "sample",
+            "target": "SC_186_A",
+            "support_target": "SC_186_B",
+            "dwell_ticks": 17,
+            "window_ticks": 180,
+            "failure": "restart"
+          },
+          {
+            "action": "stage_dry_bypass_reserve",
+            "mode": "balance",
+            "target": "SC_186_C",
+            "support_target": "SC_186_A",
+            "dwell_ticks": 12,
+            "window_ticks": 220,
+            "failure": "step"
+          },
+          {
+            "action": "prove_safe_platform_reserve",
+            "mode": "hold",
+            "target": "SC_186_A",
+            "support_target": "SC_186_C",
+            "dwell_ticks": 15,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_187",
+      "location_id": "LOC_187",
+      "region_id": "REG_24",
+      "source_puzzle_identity": "voltage sag/sandstorm/health",
+      "source_title": "Dune First Response: Voltage sag",
+      "source_risk": "sand-blown power connectors",
+      "source_climate": "sandstorm",
+      "source_task_ids": [
+        "JOB_187_1",
+        "JOB_187_2",
+        "JOB_187_3",
+        "JOB_187_4",
+        "JOB_187_5"
+      ],
+      "worksite_encounter_key": "LV_187|LV_187|voltage sag/sandstorm/health|fault_trace|dust_cloud|218|30|site-health-route-fault_trace-topology-6|sterile_pressure|11|6|EXP009|fork|EXP010|serial|EXP011|cascade|EXP012|health|24",
+      "title": "Dune aid post voltage drift",
+      "stakes": "Fine sand inside the Dune First Response voltage regulator creates intermittent sags. Verify the rescue circuit separately before moving medicine refrigeration.",
+      "targets": {
+        "A": "SC_187_A",
+        "B": "SC_187_B",
+        "C": "SC_187_C"
+      },
+      "recovery_target": "SC_187_C",
+      "station_offsets_cm": {
+        "A": [
+          80,
+          104
+        ],
+        "B": [
+          -140,
+          210
+        ],
+        "C": [
+          -110,
+          199
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "sample_firstaid_rail",
+            "mode": "sample",
+            "target": "SC_187_A",
+            "support_target": "SC_187_B",
+            "dwell_ticks": 7,
+            "window_ticks": 180,
+            "failure": "step"
+          },
+          {
+            "action": "seal_sand_regulator",
+            "mode": "hold",
+            "target": "SC_187_B",
+            "support_target": "SC_187_C",
+            "dwell_ticks": 10,
+            "window_ticks": 200,
+            "failure": "step"
+          },
+          {
+            "action": "trim_voltage_reserve",
+            "mode": "balance",
+            "target": "SC_187_C",
+            "support_target": "SC_187_A",
+            "dwell_ticks": 13,
+            "window_ticks": 80,
+            "failure": "backtrack"
+          },
+          {
+            "action": "confirm_rescue_fridge",
+            "mode": "hold",
+            "target": "SC_187_A",
+            "support_target": "SC_187_C",
+            "dwell_ticks": 16,
+            "window_ticks": 100,
+            "failure": "restart"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "seal_sand_regulator_reserve",
+            "mode": "hold",
+            "target": "SC_187_B",
+            "support_target": "SC_187_C",
+            "dwell_ticks": 10,
+            "window_ticks": 220,
+            "failure": "step"
+          },
+          {
+            "action": "sample_firstaid_rail_reserve",
+            "mode": "sample",
+            "target": "SC_187_A",
+            "support_target": "SC_187_B",
+            "dwell_ticks": 7,
+            "window_ticks": 200,
+            "failure": "step"
+          },
+          {
+            "action": "trim_voltage_reserve_reserve",
+            "mode": "balance",
+            "target": "SC_187_C",
+            "support_target": "SC_187_A",
+            "dwell_ticks": 13,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "confirm_rescue_fridge_reserve",
+            "mode": "hold",
+            "target": "SC_187_A",
+            "support_target": "SC_187_C",
+            "dwell_ticks": 16,
+            "window_ticks": 120,
+            "failure": "restart"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_188",
+      "location_id": "LOC_188",
+      "region_id": "REG_24",
+      "source_puzzle_identity": "limited cable reel/sandstorm/commerce",
+      "source_title": "Oasis Supply Courtyard: Limited cable reel",
+      "source_risk": "sand-blown power connectors",
+      "source_climate": "sandstorm",
+      "source_task_ids": [
+        "JOB_188_1",
+        "JOB_188_2",
+        "JOB_188_3",
+        "JOB_188_4",
+        "JOB_188_5"
+      ],
+      "worksite_encounter_key": "LV_188|LV_188|limited cable reel/sandstorm/commerce|circuit_pair|dust_cloud|227|43|site-commerce-route-circuit_pair-topology-7|load_imbalance|1|6|EXP009|serial|EXP010|triage|EXP011|triage|EXP012|commerce|24",
+      "title": "Oasis courtyard short reel",
+      "stakes": "A sand-scoured connector forces the Oasis Supply Courtyard to re-route power around a damaged wall. Measure the only viable cable run before splicing.",
+      "targets": {
+        "A": "SC_188_A",
+        "B": "SC_188_B",
+        "C": "SC_188_C"
+      },
+      "recovery_target": "SC_188_C",
+      "station_offsets_cm": {
+        "A": [
+          89,
+          117
+        ],
+        "B": [
+          -149,
+          227
+        ],
+        "C": [
+          -120,
+          211
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "measure_oasis_route",
+            "mode": "sample",
+            "target": "SC_188_A",
+            "support_target": "SC_188_B",
+            "dwell_ticks": 8,
+            "window_ticks": 200,
+            "failure": "step"
+          },
+          {
+            "action": "mark_sand_exposure",
+            "mode": "hold",
+            "target": "SC_188_B",
+            "support_target": "SC_188_C",
+            "dwell_ticks": 11,
+            "window_ticks": 80,
+            "failure": "backtrack"
+          },
+          {
+            "action": "splice_oasis_reel",
+            "mode": "balance",
+            "target": "SC_188_C",
+            "support_target": "SC_188_A",
+            "dwell_ticks": 14,
+            "window_ticks": 100,
+            "failure": "restart"
+          },
+          {
+            "action": "certify_water_stores",
+            "mode": "handoff",
+            "target": "SC_188_A",
+            "support_target": "SC_188_C",
+            "dwell_ticks": 17,
+            "window_ticks": 120,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "mark_sand_exposure_reserve",
+            "mode": "hold",
+            "target": "SC_188_B",
+            "support_target": "SC_188_C",
+            "dwell_ticks": 11,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "measure_oasis_route_reserve",
+            "mode": "sample",
+            "target": "SC_188_A",
+            "support_target": "SC_188_B",
+            "dwell_ticks": 8,
+            "window_ticks": 220,
+            "failure": "step"
+          },
+          {
+            "action": "splice_oasis_reel_reserve",
+            "mode": "balance",
+            "target": "SC_188_C",
+            "support_target": "SC_188_A",
+            "dwell_ticks": 14,
+            "window_ticks": 120,
+            "failure": "restart"
+          },
+          {
+            "action": "certify_water_stores_reserve",
+            "mode": "handoff",
+            "target": "SC_188_A",
+            "support_target": "SC_188_C",
+            "dwell_ticks": 17,
+            "window_ticks": 140,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_189",
+      "location_id": "LOC_189",
+      "region_id": "REG_24",
+      "source_puzzle_identity": "staged pump sequence/sandstorm/waterworks",
+      "source_title": "Aquifer Pump Vault: Staged pump sequence",
+      "source_risk": "sand-blown power connectors",
+      "source_climate": "sandstorm",
+      "source_task_ids": [
+        "JOB_189_1",
+        "JOB_189_2",
+        "JOB_189_3",
+        "JOB_189_4",
+        "JOB_189_5"
+      ],
+      "worksite_encounter_key": "LV_189|LV_189|staged pump sequence/sandstorm/waterworks|relay_coincidence|dust_cloud|155|56|site-waterworks-route-relay_coincidence-topology-8|backflow|2|6|EXP009|serial|EXP010|crossdock|EXP011|interlock|EXP012|waterworks|24",
+      "title": "Aquifer staged pumping",
+      "stakes": "Sand has choked the Aquifer Pump Vault inlet and sealed the secondary pressure sensor. Prime staged filtration before enabling the deep-water pump.",
+      "targets": {
+        "A": "SC_189_A",
+        "B": "SC_189_B",
+        "C": "SC_189_C"
+      },
+      "recovery_target": "SC_189_C",
+      "station_offsets_cm": {
+        "A": [
+          98,
+          130
+        ],
+        "B": [
+          -158,
+          125
+        ],
+        "C": [
+          -130,
+          115
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "sample_aquifer_depth",
+            "mode": "sample",
+            "target": "SC_189_A",
+            "support_target": "SC_189_B",
+            "dwell_ticks": 9,
+            "window_ticks": 80,
+            "failure": "backtrack"
+          },
+          {
+            "action": "clear_sand_filter",
+            "mode": "hold",
+            "target": "SC_189_B",
+            "support_target": "SC_189_C",
+            "dwell_ticks": 12,
+            "window_ticks": 100,
+            "failure": "restart"
+          },
+          {
+            "action": "prime_aquifer_bypass",
+            "mode": "balance",
+            "target": "SC_189_C",
+            "support_target": "SC_189_A",
+            "dwell_ticks": 15,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "confirm_drinking_water",
+            "mode": "hold",
+            "target": "SC_189_A",
+            "support_target": "SC_189_C",
+            "dwell_ticks": 7,
+            "window_ticks": 140,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "clear_sand_filter_reserve",
+            "mode": "hold",
+            "target": "SC_189_B",
+            "support_target": "SC_189_C",
+            "dwell_ticks": 12,
+            "window_ticks": 120,
+            "failure": "restart"
+          },
+          {
+            "action": "sample_aquifer_depth_reserve",
+            "mode": "sample",
+            "target": "SC_189_A",
+            "support_target": "SC_189_B",
+            "dwell_ticks": 9,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "prime_aquifer_bypass_reserve",
+            "mode": "balance",
+            "target": "SC_189_C",
+            "support_target": "SC_189_A",
+            "dwell_ticks": 15,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "confirm_drinking_water_reserve",
+            "mode": "hold",
+            "target": "SC_189_A",
+            "support_target": "SC_189_C",
+            "dwell_ticks": 7,
+            "window_ticks": 160,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_190",
+      "location_id": "LOC_190",
+      "region_id": "REG_24",
+      "source_puzzle_identity": "intermittent ground/sandstorm/communications",
+      "source_title": "Storm Flag Radio Mast: Intermittent ground",
+      "source_risk": "sand-blown power connectors",
+      "source_climate": "sandstorm",
+      "source_task_ids": [
+        "JOB_190_1",
+        "JOB_190_2",
+        "JOB_190_3",
+        "JOB_190_4",
+        "JOB_190_5"
+      ],
+      "worksite_encounter_key": "LV_190|LV_190|intermittent ground/sandstorm/communications|feeder_pulse|dust_cloud|164|8|site-communications-route-feeder_pulse-topology-9|signal_echo|3|6|EXP009|fork|EXP010|serial|EXP011|cascade|EXP012|communications|24",
+      "title": "Storm flag mast earth leak",
+      "stakes": "A sandstorm makes the Storm Flag Radio Mast ground strap intermittently conductive. Reestablish a stable reference before sending the emergency flag warning.",
+      "targets": {
+        "A": "SC_190_A",
+        "B": "SC_190_B",
+        "C": "SC_190_C"
+      },
+      "recovery_target": "SC_190_C",
+      "station_offsets_cm": {
+        "A": [
+          107,
+          143
+        ],
+        "B": [
+          -167,
+          142
+        ],
+        "C": [
+          -140,
+          127
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "measure_mast_earth",
+            "mode": "sample",
+            "target": "SC_190_A",
+            "support_target": "SC_190_B",
+            "dwell_ticks": 10,
+            "window_ticks": 100,
+            "failure": "restart"
+          },
+          {
+            "action": "shield_sand_bond",
+            "mode": "hold",
+            "target": "SC_190_B",
+            "support_target": "SC_190_C",
+            "dwell_ticks": 13,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "trim_radio_ground",
+            "mode": "balance",
+            "target": "SC_190_C",
+            "support_target": "SC_190_A",
+            "dwell_ticks": 16,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "prove_storm_flag",
+            "mode": "handoff",
+            "target": "SC_190_A",
+            "support_target": "SC_190_C",
+            "dwell_ticks": 8,
+            "window_ticks": 160,
+            "failure": "backtrack"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "shield_sand_bond_reserve",
+            "mode": "hold",
+            "target": "SC_190_B",
+            "support_target": "SC_190_C",
+            "dwell_ticks": 13,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "measure_mast_earth_reserve",
+            "mode": "sample",
+            "target": "SC_190_A",
+            "support_target": "SC_190_B",
+            "dwell_ticks": 10,
+            "window_ticks": 120,
+            "failure": "restart"
+          },
+          {
+            "action": "trim_radio_ground_reserve",
+            "mode": "balance",
+            "target": "SC_190_C",
+            "support_target": "SC_190_A",
+            "dwell_ticks": 16,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "prove_storm_flag_reserve",
+            "mode": "handoff",
+            "target": "SC_190_A",
+            "support_target": "SC_190_C",
+            "dwell_ticks": 8,
+            "window_ticks": 180,
+            "failure": "backtrack"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_191",
+      "location_id": "LOC_191",
+      "region_id": "REG_24",
+      "source_puzzle_identity": "beacon continuity/sandstorm/education",
+      "source_title": "Desert Ecology Academy: Beacon continuity",
+      "source_risk": "sand-blown power connectors",
+      "source_climate": "sandstorm",
+      "source_task_ids": [
+        "JOB_191_1",
+        "JOB_191_2",
+        "JOB_191_3",
+        "JOB_191_4",
+        "JOB_191_5"
+      ],
+      "worksite_encounter_key": "LV_191|LV_191|beacon continuity/sandstorm/education|relay_coincidence|dust_cloud|173|21|site-education-route-relay_coincidence-topology-0|control_mismatch|4|5|EXP009|serial|EXP010|triage|EXP011|triage|EXP012|education|24",
+      "title": "Ecology school beacon closure",
+      "stakes": "Desert Ecology Academy's refuge beacon has a broken return after windblown grit entered the switch. Verify lamp continuity without energizing exposed outdoor benches.",
+      "targets": {
+        "A": "SC_191_A",
+        "B": "SC_191_B",
+        "C": "SC_191_C"
+      },
+      "recovery_target": "SC_191_C",
+      "station_offsets_cm": {
+        "A": [
+          116,
+          156
+        ],
+        "B": [
+          -176,
+          159
+        ],
+        "C": [
+          -150,
+          139
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "sample_desert_beacon",
+            "mode": "sample",
+            "target": "SC_191_A",
+            "support_target": "SC_191_B",
+            "dwell_ticks": 11,
+            "window_ticks": 120,
+            "failure": "step"
+          },
+          {
+            "action": "clean_grit_switch",
+            "mode": "hold",
+            "target": "SC_191_B",
+            "support_target": "SC_191_C",
+            "dwell_ticks": 14,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "bridge_school_alarm",
+            "mode": "balance",
+            "target": "SC_191_C",
+            "support_target": "SC_191_A",
+            "dwell_ticks": 17,
+            "window_ticks": 160,
+            "failure": "backtrack"
+          },
+          {
+            "action": "confirm_field_warning",
+            "mode": "hold",
+            "target": "SC_191_A",
+            "support_target": "SC_191_C",
+            "dwell_ticks": 9,
+            "window_ticks": 180,
+            "failure": "restart"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "clean_grit_switch_reserve",
+            "mode": "hold",
+            "target": "SC_191_B",
+            "support_target": "SC_191_C",
+            "dwell_ticks": 14,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "sample_desert_beacon_reserve",
+            "mode": "sample",
+            "target": "SC_191_A",
+            "support_target": "SC_191_B",
+            "dwell_ticks": 11,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "bridge_school_alarm_reserve",
+            "mode": "balance",
+            "target": "SC_191_C",
+            "support_target": "SC_191_A",
+            "dwell_ticks": 17,
+            "window_ticks": 180,
+            "failure": "backtrack"
+          },
+          {
+            "action": "confirm_field_warning_reserve",
+            "mode": "hold",
+            "target": "SC_191_A",
+            "support_target": "SC_191_C",
+            "dwell_ticks": 9,
+            "window_ticks": 200,
+            "failure": "restart"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_192",
+      "location_id": "LOC_192",
+      "region_id": "REG_24",
+      "source_puzzle_identity": "load-budget dilemma/sandstorm/shelter",
+      "source_title": "Coastal Refuge Dome: Load-budget dilemma",
+      "source_risk": "sand-blown power connectors",
+      "source_climate": "sandstorm",
+      "source_task_ids": [
+        "JOB_192_1",
+        "JOB_192_2",
+        "JOB_192_3",
+        "JOB_192_4",
+        "JOB_192_5"
+      ],
+      "worksite_encounter_key": "LV_192|LV_192|load-budget dilemma/sandstorm/shelter|post_repair_audit|dust_cloud|182|34|site-shelter-route-post_repair_audit-topology-1|reserve_brownout|5|5|EXP009|serial|EXP010|crossdock|EXP011|interlock|EXP012|shelter|24",
+      "title": "Refuge dome capacity allocation",
+      "stakes": "The Coastal Refuge Dome cannot power air filtration and crowd heaters simultaneously during a sandstorm. Reserve filtered air before allocating comfort loads.",
+      "targets": {
+        "A": "SC_192_A",
+        "B": "SC_192_B",
+        "C": "SC_192_C"
+      },
+      "recovery_target": "SC_192_C",
+      "station_offsets_cm": {
+        "A": [
+          125,
+          169
+        ],
+        "B": [
+          -185,
+          176
+        ],
+        "C": [
+          -160,
+          151
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "measure_dome_airflow",
+            "mode": "sample",
+            "target": "SC_192_A",
+            "support_target": "SC_192_B",
+            "dwell_ticks": 12,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "isolate_aux_heaters",
+            "mode": "handoff",
+            "target": "SC_192_B",
+            "support_target": "SC_192_C",
+            "dwell_ticks": 15,
+            "window_ticks": 160,
+            "failure": "backtrack"
+          },
+          {
+            "action": "trim_refuge_capacity",
+            "mode": "balance",
+            "target": "SC_192_C",
+            "support_target": "SC_192_A",
+            "dwell_ticks": 7,
+            "window_ticks": 180,
+            "failure": "restart"
+          },
+          {
+            "action": "certify_dome_safety",
+            "mode": "hold",
+            "target": "SC_192_A",
+            "support_target": "SC_192_C",
+            "dwell_ticks": 10,
+            "window_ticks": 200,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "isolate_aux_heaters_reserve",
+            "mode": "handoff",
+            "target": "SC_192_B",
+            "support_target": "SC_192_C",
+            "dwell_ticks": 15,
+            "window_ticks": 180,
+            "failure": "backtrack"
+          },
+          {
+            "action": "measure_dome_airflow_reserve",
+            "mode": "sample",
+            "target": "SC_192_A",
+            "support_target": "SC_192_B",
+            "dwell_ticks": 12,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "trim_refuge_capacity_reserve",
+            "mode": "balance",
+            "target": "SC_192_C",
+            "support_target": "SC_192_A",
+            "dwell_ticks": 7,
+            "window_ticks": 200,
+            "failure": "restart"
+          },
+          {
+            "action": "certify_dome_safety_reserve",
+            "mode": "hold",
+            "target": "SC_192_A",
+            "support_target": "SC_192_C",
+            "dwell_ticks": 10,
+            "window_ticks": 220,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_193",
+      "location_id": "LOC_193",
+      "region_id": "REG_25",
+      "source_puzzle_identity": "archive power/stairwell_flood/distribution",
+      "source_title": "Beacon Row Transformer: Archive power",
+      "source_risk": "stairwell flooding and antenna loss",
+      "source_climate": "stairwell_flood",
+      "source_task_ids": [
+        "JOB_193_1",
+        "JOB_193_2",
+        "JOB_193_3",
+        "JOB_193_4",
+        "JOB_193_5"
+      ],
+      "worksite_encounter_key": "LV_193|LV_193|archive power/stairwell_flood/distribution|post_repair_audit|water_ingress|191|54|site-distribution-route-post_repair_audit-topology-2|phase_drift|6|5|EXP009|fork|EXP010|serial|EXP011|cascade|EXP012|distribution|25",
+      "title": "Beacon row flooded archive",
+      "stakes": "The Beacon Row Transformer archive control tray has been drenched by a flooded stairwell. Isolate the submerged reference before restoring neighborhood records power.",
+      "targets": {
+        "A": "SC_193_A",
+        "B": "SC_193_B",
+        "C": "SC_193_C"
+      },
+      "recovery_target": "SC_193_C",
+      "station_offsets_cm": {
+        "A": [
+          134,
+          182
+        ],
+        "B": [
+          -194,
+          193
+        ],
+        "C": [
+          -170,
+          163
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "read_transformer_sump",
+            "mode": "sample",
+            "target": "SC_193_A",
+            "support_target": "SC_193_B",
+            "dwell_ticks": 13,
+            "window_ticks": 160,
+            "failure": "backtrack"
+          },
+          {
+            "action": "lock_archive_tray",
+            "mode": "handoff",
+            "target": "SC_193_B",
+            "support_target": "SC_193_C",
+            "dwell_ticks": 16,
+            "window_ticks": 180,
+            "failure": "restart"
+          },
+          {
+            "action": "dry_record_contacts",
+            "mode": "hold",
+            "target": "SC_193_C",
+            "support_target": "SC_193_A",
+            "dwell_ticks": 8,
+            "window_ticks": 200,
+            "failure": "step"
+          },
+          {
+            "action": "confirm_terrace_bus",
+            "mode": "pulse",
+            "target": "SC_193_A",
+            "support_target": "SC_193_C",
+            "dwell_ticks": 11,
+            "window_ticks": 80,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "lock_archive_tray_reserve",
+            "mode": "handoff",
+            "target": "SC_193_B",
+            "support_target": "SC_193_C",
+            "dwell_ticks": 16,
+            "window_ticks": 200,
+            "failure": "restart"
+          },
+          {
+            "action": "read_transformer_sump_reserve",
+            "mode": "sample",
+            "target": "SC_193_A",
+            "support_target": "SC_193_B",
+            "dwell_ticks": 13,
+            "window_ticks": 180,
+            "failure": "backtrack"
+          },
+          {
+            "action": "dry_record_contacts_reserve",
+            "mode": "hold",
+            "target": "SC_193_C",
+            "support_target": "SC_193_A",
+            "dwell_ticks": 8,
+            "window_ticks": 220,
+            "failure": "step"
+          },
+          {
+            "action": "confirm_terrace_bus_reserve",
+            "mode": "pulse",
+            "target": "SC_193_A",
+            "support_target": "SC_193_C",
+            "dwell_ticks": 11,
+            "window_ticks": 100,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_194",
+      "location_id": "LOC_194",
+      "region_id": "REG_25",
+      "source_puzzle_identity": "opening-time cutoff/stairwell_flood/transport",
+      "source_title": "Skybridge Transit Deck: Opening-time cutoff",
+      "source_risk": "stairwell flooding and antenna loss",
+      "source_climate": "stairwell_flood",
+      "source_task_ids": [
+        "JOB_194_1",
+        "JOB_194_2",
+        "JOB_194_3",
+        "JOB_194_4",
+        "JOB_194_5"
+      ],
+      "worksite_encounter_key": "LV_194|LV_194|opening-time cutoff/stairwell_flood/transport|load_rebalance|water_ingress|200|6|site-transport-route-load_rebalance-topology-3|traction_surge|7|5|EXP009|serial|EXP010|triage|EXP011|triage|EXP012|transport|25",
+      "title": "Skybridge transit opening gate",
+      "stakes": "A flooded stairwell blocks Skybridge Transit Deck access just as the last service carriage arrives. Restore route lamps without energizing the submerged landing.",
+      "targets": {
+        "A": "SC_194_A",
+        "B": "SC_194_B",
+        "C": "SC_194_C"
+      },
+      "recovery_target": "SC_194_C",
+      "station_offsets_cm": {
+        "A": [
+          143,
+          195
+        ],
+        "B": [
+          -203,
+          210
+        ],
+        "C": [
+          -180,
+          175
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "sample_stairwell_level",
+            "mode": "sample",
+            "target": "SC_194_A",
+            "support_target": "SC_194_B",
+            "dwell_ticks": 14,
+            "window_ticks": 180,
+            "failure": "restart"
+          },
+          {
+            "action": "isolate_wet_landing",
+            "mode": "handoff",
+            "target": "SC_194_B",
+            "support_target": "SC_194_C",
+            "dwell_ticks": 17,
+            "window_ticks": 200,
+            "failure": "step"
+          },
+          {
+            "action": "prime_skybridge_drain",
+            "mode": "hold",
+            "target": "SC_194_C",
+            "support_target": "SC_194_A",
+            "dwell_ticks": 9,
+            "window_ticks": 80,
+            "failure": "step"
+          },
+          {
+            "action": "pulse_safe_transit",
+            "mode": "pulse",
+            "target": "SC_194_A",
+            "support_target": "SC_194_C",
+            "dwell_ticks": 12,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "isolate_wet_landing_reserve",
+            "mode": "handoff",
+            "target": "SC_194_B",
+            "support_target": "SC_194_C",
+            "dwell_ticks": 17,
+            "window_ticks": 220,
+            "failure": "step"
+          },
+          {
+            "action": "sample_stairwell_level_reserve",
+            "mode": "sample",
+            "target": "SC_194_A",
+            "support_target": "SC_194_B",
+            "dwell_ticks": 14,
+            "window_ticks": 200,
+            "failure": "restart"
+          },
+          {
+            "action": "prime_skybridge_drain_reserve",
+            "mode": "hold",
+            "target": "SC_194_C",
+            "support_target": "SC_194_A",
+            "dwell_ticks": 9,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "pulse_safe_transit_reserve",
+            "mode": "pulse",
+            "target": "SC_194_A",
+            "support_target": "SC_194_C",
+            "dwell_ticks": 12,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_195",
+      "location_id": "LOC_195",
+      "region_id": "REG_25",
+      "source_puzzle_identity": "storm pulse timing/stairwell_flood/health",
+      "source_title": "Tower Eight Clinic: Storm pulse timing",
+      "source_risk": "stairwell flooding and antenna loss",
+      "source_climate": "stairwell_flood",
+      "source_task_ids": [
+        "JOB_195_1",
+        "JOB_195_2",
+        "JOB_195_3",
+        "JOB_195_4",
+        "JOB_195_5"
+      ],
+      "worksite_encounter_key": "LV_195|LV_195|storm pulse timing/stairwell_flood/health|spur_isolation|water_ingress|209|19|site-health-route-spur_isolation-topology-4|sterile_pressure|8|5|EXP009|serial|EXP010|crossdock|EXP011|interlock|EXP012|health|25",
+      "title": "Tower Eight clinic pulse slot",
+      "stakes": "Water in the tower stairwell has reached a clinic antenna conduit. Use the brief dry-power window to move medical lights without backfeeding the wet riser.",
+      "targets": {
+        "A": "SC_195_A",
+        "B": "SC_195_B",
+        "C": "SC_195_C"
+      },
+      "recovery_target": "SC_195_C",
+      "station_offsets_cm": {
+        "A": [
+          152,
+          208
+        ],
+        "B": [
+          -95,
+          227
+        ],
+        "C": [
+          -190,
+          187
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "read_clinic_riser",
+            "mode": "sample",
+            "target": "SC_195_A",
+            "support_target": "SC_195_B",
+            "dwell_ticks": 15,
+            "window_ticks": 200,
+            "failure": "step"
+          },
+          {
+            "action": "seal_flooded_entry",
+            "mode": "hold",
+            "target": "SC_195_B",
+            "support_target": "SC_195_C",
+            "dwell_ticks": 7,
+            "window_ticks": 80,
+            "failure": "step"
+          },
+          {
+            "action": "pulse_medical_transfer",
+            "mode": "pulse",
+            "target": "SC_195_C",
+            "support_target": "SC_195_A",
+            "dwell_ticks": 10,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "prove_tower_care",
+            "mode": "hold",
+            "target": "SC_195_A",
+            "support_target": "SC_195_C",
+            "dwell_ticks": 13,
+            "window_ticks": 120,
+            "failure": "restart"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "seal_flooded_entry_reserve",
+            "mode": "hold",
+            "target": "SC_195_B",
+            "support_target": "SC_195_C",
+            "dwell_ticks": 7,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "read_clinic_riser_reserve",
+            "mode": "sample",
+            "target": "SC_195_A",
+            "support_target": "SC_195_B",
+            "dwell_ticks": 15,
+            "window_ticks": 220,
+            "failure": "step"
+          },
+          {
+            "action": "pulse_medical_transfer_reserve",
+            "mode": "pulse",
+            "target": "SC_195_C",
+            "support_target": "SC_195_A",
+            "dwell_ticks": 10,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          },
+          {
+            "action": "prove_tower_care_reserve",
+            "mode": "hold",
+            "target": "SC_195_A",
+            "support_target": "SC_195_C",
+            "dwell_ticks": 13,
+            "window_ticks": 140,
+            "failure": "restart"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_196",
+      "location_id": "LOC_196",
+      "region_id": "REG_25",
+      "source_puzzle_identity": "cable splice/stairwell_flood/commerce",
+      "source_title": "Roof Garden Market: Cable splice",
+      "source_risk": "stairwell flooding and antenna loss",
+      "source_climate": "stairwell_flood",
+      "source_task_ids": [
+        "JOB_196_1",
+        "JOB_196_2",
+        "JOB_196_3",
+        "JOB_196_4",
+        "JOB_196_5"
+      ],
+      "worksite_encounter_key": "LV_196|LV_196|cable splice/stairwell_flood/commerce|stability_hold|water_ingress|218|32|site-commerce-route-stability_hold-topology-5|load_imbalance|9|6|EXP009|fork|EXP010|serial|EXP011|cascade|EXP012|commerce|25",
+      "title": "Roof garden splice isolation",
+      "stakes": "A wet stairwell cable serves Roof Garden Market's rooftop produce coolers. Protect the lift shaft and splice only the dry branch before reopening stalls.",
+      "targets": {
+        "A": "SC_196_A",
+        "B": "SC_196_B",
+        "C": "SC_196_C"
+      },
+      "recovery_target": "SC_196_C",
+      "station_offsets_cm": {
+        "A": [
+          161,
+          221
+        ],
+        "B": [
+          -104,
+          125
+        ],
+        "C": [
+          -200,
+          199
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "measure_roof_cooler",
+            "mode": "sample",
+            "target": "SC_196_A",
+            "support_target": "SC_196_B",
+            "dwell_ticks": 16,
+            "window_ticks": 80,
+            "failure": "step"
+          },
+          {
+            "action": "quarantine_wet_lift",
+            "mode": "handoff",
+            "target": "SC_196_B",
+            "support_target": "SC_196_C",
+            "dwell_ticks": 8,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "crimp_garden_feeder",
+            "mode": "balance",
+            "target": "SC_196_C",
+            "support_target": "SC_196_A",
+            "dwell_ticks": 11,
+            "window_ticks": 120,
+            "failure": "restart"
+          },
+          {
+            "action": "certify_rooftop_food",
+            "mode": "hold",
+            "target": "SC_196_A",
+            "support_target": "SC_196_C",
+            "dwell_ticks": 14,
+            "window_ticks": 140,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "quarantine_wet_lift_reserve",
+            "mode": "handoff",
+            "target": "SC_196_B",
+            "support_target": "SC_196_C",
+            "dwell_ticks": 8,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          },
+          {
+            "action": "measure_roof_cooler_reserve",
+            "mode": "sample",
+            "target": "SC_196_A",
+            "support_target": "SC_196_B",
+            "dwell_ticks": 16,
+            "window_ticks": 100,
+            "failure": "step"
+          },
+          {
+            "action": "crimp_garden_feeder_reserve",
+            "mode": "balance",
+            "target": "SC_196_C",
+            "support_target": "SC_196_A",
+            "dwell_ticks": 11,
+            "window_ticks": 140,
+            "failure": "restart"
+          },
+          {
+            "action": "certify_rooftop_food_reserve",
+            "mode": "hold",
+            "target": "SC_196_A",
+            "support_target": "SC_196_C",
+            "dwell_ticks": 14,
+            "window_ticks": 160,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_197",
+      "location_id": "LOC_197",
+      "region_id": "REG_25",
+      "source_puzzle_identity": "controlled load shed/stairwell_flood/waterworks",
+      "source_title": "Basement Sump Plant: Controlled load shed",
+      "source_risk": "stairwell flooding and antenna loss",
+      "source_climate": "stairwell_flood",
+      "source_task_ids": [
+        "JOB_197_1",
+        "JOB_197_2",
+        "JOB_197_3",
+        "JOB_197_4",
+        "JOB_197_5"
+      ],
+      "worksite_encounter_key": "LV_197|LV_197|controlled load shed/stairwell_flood/waterworks|circuit_pair|water_ingress|227|45|site-waterworks-route-circuit_pair-topology-6|backflow|10|6|EXP009|serial|EXP010|triage|EXP011|triage|EXP012|waterworks|25",
+      "title": "Basement sump emergency shedding",
+      "stakes": "Basement Sump Plant controls are overwhelmed by stairwell floodwater. Shed nonessential lobby loads so sump capacity can keep the exit passage clear.",
+      "targets": {
+        "A": "SC_197_A",
+        "B": "SC_197_B",
+        "C": "SC_197_C"
+      },
+      "recovery_target": "SC_197_C",
+      "station_offsets_cm": {
+        "A": [
+          170,
+          234
+        ],
+        "B": [
+          -113,
+          142
+        ],
+        "C": [
+          -210,
+          211
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "sample_basement_head",
+            "mode": "sample",
+            "target": "SC_197_A",
+            "support_target": "SC_197_B",
+            "dwell_ticks": 17,
+            "window_ticks": 100,
+            "failure": "backtrack"
+          },
+          {
+            "action": "isolate_lobby_lights",
+            "mode": "handoff",
+            "target": "SC_197_B",
+            "support_target": "SC_197_C",
+            "dwell_ticks": 9,
+            "window_ticks": 120,
+            "failure": "restart"
+          },
+          {
+            "action": "trim_sump_priority",
+            "mode": "balance",
+            "target": "SC_197_C",
+            "support_target": "SC_197_A",
+            "dwell_ticks": 12,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "confirm_stairwell_dry",
+            "mode": "hold",
+            "target": "SC_197_A",
+            "support_target": "SC_197_C",
+            "dwell_ticks": 15,
+            "window_ticks": 160,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "isolate_lobby_lights_reserve",
+            "mode": "handoff",
+            "target": "SC_197_B",
+            "support_target": "SC_197_C",
+            "dwell_ticks": 9,
+            "window_ticks": 140,
+            "failure": "restart"
+          },
+          {
+            "action": "sample_basement_head_reserve",
+            "mode": "sample",
+            "target": "SC_197_A",
+            "support_target": "SC_197_B",
+            "dwell_ticks": 17,
+            "window_ticks": 120,
+            "failure": "backtrack"
+          },
+          {
+            "action": "trim_sump_priority_reserve",
+            "mode": "balance",
+            "target": "SC_197_C",
+            "support_target": "SC_197_A",
+            "dwell_ticks": 12,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "confirm_stairwell_dry_reserve",
+            "mode": "hold",
+            "target": "SC_197_A",
+            "support_target": "SC_197_C",
+            "dwell_ticks": 15,
+            "window_ticks": 180,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_198",
+      "location_id": "LOC_198",
+      "region_id": "REG_25",
+      "source_puzzle_identity": "generator trade-off/stairwell_flood/communications",
+      "source_title": "Beacon Aerial Loft: Generator trade-off",
+      "source_risk": "stairwell flooding and antenna loss",
+      "source_climate": "stairwell_flood",
+      "source_task_ids": [
+        "JOB_198_1",
+        "JOB_198_2",
+        "JOB_198_3",
+        "JOB_198_4",
+        "JOB_198_5"
+      ],
+      "worksite_encounter_key": "LV_198|LV_198|generator trade-off/stairwell_flood/communications|fault_trace|water_ingress|155|58|site-communications-route-fault_trace-topology-7|signal_echo|11|6|EXP009|serial|EXP010|crossdock|EXP011|interlock|EXP012|communications|25",
+      "title": "Beacon aerial generator choices",
+      "stakes": "A storm has severed the Beacon Aerial Loft antenna return while stairwells fill with water. Reserve generator output for a reliable emergency broadcast.",
+      "targets": {
+        "A": "SC_198_A",
+        "B": "SC_198_B",
+        "C": "SC_198_C"
+      },
+      "recovery_target": "SC_198_C",
+      "station_offsets_cm": {
+        "A": [
+          179,
+          104
+        ],
+        "B": [
+          -122,
+          159
+        ],
+        "C": [
+          -110,
+          115
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "sample_roof_antenna",
+            "mode": "sample",
+            "target": "SC_198_A",
+            "support_target": "SC_198_B",
+            "dwell_ticks": 7,
+            "window_ticks": 120,
+            "failure": "restart"
+          },
+          {
+            "action": "isolate_flooded_riser",
+            "mode": "handoff",
+            "target": "SC_198_B",
+            "support_target": "SC_198_C",
+            "dwell_ticks": 10,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "trim_broadcast_generator",
+            "mode": "balance",
+            "target": "SC_198_C",
+            "support_target": "SC_198_A",
+            "dwell_ticks": 13,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "confirm_beacon_relay",
+            "mode": "hold",
+            "target": "SC_198_A",
+            "support_target": "SC_198_C",
+            "dwell_ticks": 16,
+            "window_ticks": 180,
+            "failure": "backtrack"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "isolate_flooded_riser_reserve",
+            "mode": "handoff",
+            "target": "SC_198_B",
+            "support_target": "SC_198_C",
+            "dwell_ticks": 10,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "sample_roof_antenna_reserve",
+            "mode": "sample",
+            "target": "SC_198_A",
+            "support_target": "SC_198_B",
+            "dwell_ticks": 7,
+            "window_ticks": 140,
+            "failure": "restart"
+          },
+          {
+            "action": "trim_broadcast_generator_reserve",
+            "mode": "balance",
+            "target": "SC_198_C",
+            "support_target": "SC_198_A",
+            "dwell_ticks": 13,
+            "window_ticks": 180,
+            "failure": "step"
+          },
+          {
+            "action": "confirm_beacon_relay_reserve",
+            "mode": "hold",
+            "target": "SC_198_A",
+            "support_target": "SC_198_C",
+            "dwell_ticks": 16,
+            "window_ticks": 200,
+            "failure": "backtrack"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_199",
+      "location_id": "LOC_199",
+      "region_id": "REG_25",
+      "source_puzzle_identity": "pressure trip/stairwell_flood/education",
+      "source_title": "Terrace Evening School: Pressure trip",
+      "source_risk": "stairwell flooding and antenna loss",
+      "source_climate": "stairwell_flood",
+      "source_task_ids": [
+        "JOB_199_1",
+        "JOB_199_2",
+        "JOB_199_3",
+        "JOB_199_4",
+        "JOB_199_5"
+      ],
+      "worksite_encounter_key": "LV_199|LV_199|pressure trip/stairwell_flood/education|circuit_pair|water_ingress|164|10|site-education-route-circuit_pair-topology-8|control_mismatch|1|6|EXP009|fork|EXP010|serial|EXP011|cascade|EXP012|education|25",
+      "title": "Terrace school false pressure",
+      "stakes": "Floodwater in the Terrace Evening School stairwell makes its pressure switch trip even after the classroom drains. Verify dry contacts before relighting the school.",
+      "targets": {
+        "A": "SC_199_A",
+        "B": "SC_199_B",
+        "C": "SC_199_C"
+      },
+      "recovery_target": "SC_199_C",
+      "station_offsets_cm": {
+        "A": [
+          188,
+          117
+        ],
+        "B": [
+          -131,
+          176
+        ],
+        "C": [
+          -120,
+          127
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "measure_school_sump",
+            "mode": "sample",
+            "target": "SC_199_A",
+            "support_target": "SC_199_B",
+            "dwell_ticks": 8,
+            "window_ticks": 140,
+            "failure": "step"
+          },
+          {
+            "action": "inspect_pressure_float",
+            "mode": "sample",
+            "target": "SC_199_B",
+            "support_target": "SC_199_C",
+            "dwell_ticks": 11,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "dry_pressure_contact",
+            "mode": "hold",
+            "target": "SC_199_C",
+            "support_target": "SC_199_A",
+            "dwell_ticks": 14,
+            "window_ticks": 180,
+            "failure": "backtrack"
+          },
+          {
+            "action": "prove_evening_class",
+            "mode": "pulse",
+            "target": "SC_199_A",
+            "support_target": "SC_199_C",
+            "dwell_ticks": 17,
+            "window_ticks": 200,
+            "failure": "restart"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "inspect_pressure_float_reserve",
+            "mode": "sample",
+            "target": "SC_199_B",
+            "support_target": "SC_199_C",
+            "dwell_ticks": 11,
+            "window_ticks": 180,
+            "failure": "step"
+          },
+          {
+            "action": "measure_school_sump_reserve",
+            "mode": "sample",
+            "target": "SC_199_A",
+            "support_target": "SC_199_B",
+            "dwell_ticks": 8,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "dry_pressure_contact_reserve",
+            "mode": "hold",
+            "target": "SC_199_C",
+            "support_target": "SC_199_A",
+            "dwell_ticks": 14,
+            "window_ticks": 200,
+            "failure": "backtrack"
+          },
+          {
+            "action": "prove_evening_class_reserve",
+            "mode": "pulse",
+            "target": "SC_199_A",
+            "support_target": "SC_199_C",
+            "dwell_ticks": 17,
+            "window_ticks": 220,
+            "failure": "restart"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "level_id": "LV_200",
+      "location_id": "LOC_200",
+      "region_id": "REG_25",
+      "source_puzzle_identity": "priority dispatch/stairwell_flood/shelter",
+      "source_title": "Residents' Emergency Hub: Priority dispatch",
+      "source_risk": "stairwell flooding and antenna loss",
+      "source_climate": "stairwell_flood",
+      "source_task_ids": [
+        "JOB_200_1",
+        "JOB_200_2",
+        "JOB_200_3",
+        "JOB_200_4",
+        "JOB_200_5"
+      ],
+      "worksite_encounter_key": "LV_200|LV_200|priority dispatch/stairwell_flood/shelter|relay_coincidence|water_ingress|173|23|site-shelter-route-relay_coincidence-topology-9|reserve_brownout|2|6|EXP009|serial|EXP010|triage|EXP011|triage|EXP012|shelter|25",
+      "title": "Residents emergency dispatch",
+      "stakes": "The Residents Emergency Hub must supply rescue lifts, dry exits and radio warnings from a constrained flooded terrace feeder. Select essential service before recovery.",
+      "targets": {
+        "A": "SC_200_A",
+        "B": "SC_200_B",
+        "C": "SC_200_C"
+      },
+      "recovery_target": "SC_200_C",
+      "station_offsets_cm": {
+        "A": [
+          197,
+          130
+        ],
+        "B": [
+          -140,
+          193
+        ],
+        "C": [
+          -130,
+          139
+        ]
+      },
+      "routes": {
+        "priority": [
+          {
+            "action": "sample_rescue_demand",
+            "mode": "sample",
+            "target": "SC_200_A",
+            "support_target": "SC_200_B",
+            "dwell_ticks": 9,
+            "window_ticks": 160,
+            "failure": "step"
+          },
+          {
+            "action": "lock_submerged_lift",
+            "mode": "handoff",
+            "target": "SC_200_B",
+            "support_target": "SC_200_C",
+            "dwell_ticks": 12,
+            "window_ticks": 180,
+            "failure": "backtrack"
+          },
+          {
+            "action": "trim_resident_priority",
+            "mode": "balance",
+            "target": "SC_200_C",
+            "support_target": "SC_200_A",
+            "dwell_ticks": 15,
+            "window_ticks": 200,
+            "failure": "restart"
+          },
+          {
+            "action": "certify_emergency_hub",
+            "mode": "hold",
+            "target": "SC_200_A",
+            "support_target": "SC_200_C",
+            "dwell_ticks": 7,
+            "window_ticks": 80,
+            "failure": "step"
+          }
+        ],
+        "resilience": [
+          {
+            "action": "lock_submerged_lift_reserve",
+            "mode": "handoff",
+            "target": "SC_200_B",
+            "support_target": "SC_200_C",
+            "dwell_ticks": 12,
+            "window_ticks": 200,
+            "failure": "backtrack"
+          },
+          {
+            "action": "sample_rescue_demand_reserve",
+            "mode": "sample",
+            "target": "SC_200_A",
+            "support_target": "SC_200_B",
+            "dwell_ticks": 9,
+            "window_ticks": 180,
+            "failure": "step"
+          },
+          {
+            "action": "trim_resident_priority_reserve",
+            "mode": "balance",
+            "target": "SC_200_C",
+            "support_target": "SC_200_A",
+            "dwell_ticks": 15,
+            "window_ticks": 220,
+            "failure": "restart"
+          },
+          {
+            "action": "certify_emergency_hub_reserve",
+            "mode": "hold",
+            "target": "SC_200_A",
+            "support_target": "SC_200_C",
+            "dwell_ticks": 7,
+            "window_ticks": 100,
+            "failure": "step"
+          }
+        ]
+      },
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    }
+  ]
+}
