@@ -215,5 +215,5 @@ static func _inspect_range(atlas: Dictionary, worksite_book: Dictionary, book: D
             placements.size() != 40 or modes.size() != MODES.size():
         return {"ok": false, "code": "EXP013_COVERAGE_INVALID"}
     return {"ok": true, "new_sites": 40, "total_individually_scripted": first_level + 39,
-        "remaining_sites": 201 - first_level - 39, "routes": 80,
+        "remaining_sites": 200 - (first_level + 39), "routes": 80,
         "route_steps": 320, "targets": 120}
