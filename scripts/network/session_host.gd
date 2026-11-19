@@ -21,7 +21,7 @@ const HOST_PEER: int = 1
 const CHUNK_ENVELOPE_BYTES: int = 96  # {"type":"snapshot_chunk","index":N,"data":"..."} around the escaped slice
 const ENVELOPE_KEYS: Array[String] = ["session", "seq", "type", "entity", "payload"]
 const INTENTS: Array[String] = ["inspect", "request_lock", "release", "heartbeat", "repair_step", "equip", "toggle_switch", "place_item",
-	"request_extract", "use_ladder", "use_route", "recover_self", "ping", "chat", "collect_lore", "operate_device", "operate_fault", "operate_consequence", "operate_logistics", "operate_balance"]
+	"request_extract", "use_ladder", "use_route", "recover_self", "ping", "chat", "collect_lore", "operate_device", "operate_fault", "operate_consequence", "operate_logistics", "operate_balance", "operate_worksite"]
 const DEFERRED_INTENTS: Array[String] = ["ready"]  # lobby; refused until implemented
 const PLACE_ACTIONS: Array[String] = ["pickup", "place", "connect", "disconnect", "start", "stop", "reset_breaker", "recover", "drop"]
 
@@ -52,6 +52,9 @@ var _logistics_tick: Callable = Callable()  # after EXP009 consequence tick
 var _balance_handler: Callable = Callable()  # EXP011 finite critical-load operations
 var _balance_state: Callable = Callable()  # authoritative EXP011 hash state
 var _balance_tick: Callable = Callable()  # after EXP010 logistics host tick
+var _worksite_handler: Callable = Callable()  # EXP012 source-pinned field orders
+var _worksite_state: Callable = Callable()  # canonical state and host hash
+var _worksite_tick: Callable = Callable()  # after EXP011 critical loads tick
 var _expedition_intent_guard: Callable = Callable()  # optional EXP06 policy; checked after host dedupe
 var _switches: Dictionary = {}  # switch id -> {"target", "field"}
 var _members: Dictionary = {}  # transport peer id (int) -> player id
@@ -198,6 +201,8 @@ func tick(now: int) -> Array[Dictionary]:
 		_logistics_tick.call()
 	if _balance_tick.is_valid():
 		_balance_tick.call()
+	if _worksite_tick.is_valid():
+		_worksite_tick.call()
 	if now - _last_checkpoint_tick >= int(_limits["checkpoint_interval_ticks"]):
 		_last_checkpoint_tick = now
 		events.append({"type": "checkpoint_due", "reason": "interval", "tick": now})
@@ -446,6 +451,18 @@ func _dispatch(player: String, msg: Dictionary) -> Dictionary:
 		if not balance_reply is Dictionary:
 			return _refuse("EXP011_INVALID_HOST_RESULT", "load authority returned invalid result", [entity])
 		return balance_reply
+	# EXP012: source-pinned worksite decision and checkpoint commands.
+	if kind == "operate_worksite":
+		if not _worksite_handler.is_valid():
+			return _refuse("UNSUPPORTED_INTENT", "EXP012 not active in this session", [])
+		if payload.size() != 1 or not payload.get("action") is String:
+			return _refuse("MALFORMED", "operate_worksite takes exactly one action", [entity])
+		if not in_range:
+			return _refuse("NOT_IN_RANGE", "move closer to %s" % entity, [entity])
+		var work_reply: Variant = _worksite_handler.call(player, entity, str(payload["action"]))
+		if not work_reply is Dictionary:
+			return _refuse("EXP012_INVALID_HOST_RESULT", "worksite authority returned invalid result", [entity])
+		return work_reply
 	# EXP04's optional pickup is subject to the SAME transport membership,
 	# session, sequence, rate, entity proximity and sight checks as repairs.
 	# Without an explicit server-side handler existing contracts refuse it.
@@ -571,6 +588,8 @@ func authoritative_state() -> Dictionary:
 		state["exp010_logistics"] = _logistics_state.call()
 	if _balance_state.is_valid():
 		state["exp011_critical_loads"] = _balance_state.call()
+	if _worksite_state.is_valid():
+		state["exp012_worksite_orders"] = _worksite_state.call()
 	return state
 
 
@@ -617,6 +636,14 @@ func set_expedition_balance_authority(handler: Callable, state_provider: Callabl
 	_balance_handler = handler
 	_balance_state = state_provider
 	_balance_tick = tick_provider
+
+
+## EXP012 only attaches to explicitly opted-in expedition instances.
+func set_expedition_worksite_authority(handler: Callable, state_provider: Callable,
+		tick_provider: Callable) -> void:
+	_worksite_handler = handler
+	_worksite_state = state_provider
+	_worksite_tick = tick_provider
 
 
 ## Attach crew communication (V06).

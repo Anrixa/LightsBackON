@@ -29,6 +29,7 @@ const Faults := preload("res://scripts/gameplay/expedition_fault_diagnostics.gd"
 const Consequences := preload("res://scripts/gameplay/expedition_consequences.gd")
 const Logistics := preload("res://scripts/gameplay/expedition_emergency_logistics.gd")
 const Balancing := preload("res://scripts/gameplay/expedition_critical_loads.gd")
+const Worksite := preload("res://scripts/gameplay/expedition_worksite_orders.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
 
@@ -53,6 +54,7 @@ var faults: Faults
 var consequences: Consequences
 var logistics: Logistics
 var balancing: Balancing
+var worksite: Worksite
 
 var _definitions: Dictionary = {}
 var _position_source: Callable
@@ -85,7 +87,8 @@ func start(level_id: String, host_position: Callable,
 		enforce_campaign: bool = false, campaign_root: String = "",
 		enable_bespoke: bool = false, enable_devices: bool = false,
 		enable_faults: bool = false, enable_consequences: bool = false,
-		enable_logistics: bool = false, enable_balance: bool = false) -> Dictionary:
+		enable_logistics: bool = false, enable_balance: bool = false,
+		enable_worksite: bool = false) -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
 	if enable_devices and not enable_bespoke:
@@ -98,6 +101,8 @@ func start(level_id: String, host_position: Callable,
 		return _fail("EXP010_REQUIRES_EXP009")
 	if enable_balance and not enable_logistics:
 		return _fail("EXP011_REQUIRES_EXP010")
+	if enable_worksite and not enable_balance:
+		return _fail("EXP012_REQUIRES_EXP011")
 	if account_key != "" and not SaveService.is_valid_key(account_key):
 		return _fail("INVALID_ACCOUNT_KEY")
 	if not host_position.is_valid() or (physics_visibility.is_valid() and not host_position.is_valid()):
@@ -241,6 +246,30 @@ func start(level_id: String, host_position: Callable,
 			var offset: Vector3 = [Vector3(1.45, 0.0, 0.60), Vector3(-1.45, 0.0, 0.60),
 				Vector3(-1.50, 0.0, 0.75)][j]
 			load_positions[str(service["id"])] = load_positions[str(service["anchor"])] + offset
+	if enable_worksite:
+		var worksite_book: Dictionary = Worksite.load_book()
+		var worksite_audit: Dictionary = Worksite.inspect(atlas, Balancing.load_book(), worksite_book)
+		if not bool(worksite_audit.get("ok", false)):
+			return _fail("EXP012_BOOK_INVALID", worksite_audit)
+		var order: Dictionary = Worksite.entry_for(worksite_book, level,
+			balancing.definition_snapshot())
+		if order.is_empty():
+			return _fail("EXP012_SOURCE_MISMATCH")
+		worksite = Worksite.new()
+		var worksite_config: Dictionary = worksite.configure(order)
+		if not bool(worksite_config.get("ok", false)):
+			return _fail("EXP012_CONFIG_FAILED", worksite_config)
+		_definitions["worksite"] = worksite.definition_snapshot()
+		var work_positions: Dictionary = _definitions["positions"]
+		work_positions[str(order["board"])] = work_positions[str(order["anchors"]["board"])] + Vector3(0.75, 0.0, 1.35)
+		work_positions[str(order["decision"])] = work_positions[str(order["anchors"]["decision"])] + Vector3(-0.75, 0.0, 1.20)
+		work_positions[str(order["console"])] = work_positions[str(order["anchors"]["console"])] + Vector3(0.75, 0.0, 1.35)
+		work_positions[str(order["optional_target"])] = work_positions[str(order["anchors"]["optional_target"])] + Vector3(0.75, 0.0, -1.35)
+		for j: int in range(3):
+			var checkpoint: Dictionary = order["checkpoints"][j]
+			var offset: Vector3 = [Vector3(-1.20, 0.0, -1.30),
+				Vector3(1.20, 0.0, 1.30), Vector3(1.25, 0.0, -1.30)][j]
+			work_positions[str(checkpoint["id"])] = work_positions[str(checkpoint["anchor"])] + offset
 	_position_source = host_position
 	_physics_visibility = physics_visibility
 	_account_key = account_key
@@ -294,6 +323,9 @@ func start(level_id: String, host_position: Callable,
 	if balancing != null:
 		host.set_expedition_balance_authority(Callable(self, "_operate_balance"),
 			Callable(balancing, "snapshot"), Callable(self, "_balance_tick"))
+	if worksite != null:
+		host.set_expedition_worksite_authority(Callable(self, "_operate_worksite"),
+			Callable(worksite, "snapshot"), Callable(self, "_worksite_tick"))
 	var accepted: Dictionary = host.admit(Host.HOST_PEER, PLAYER_ID, PROTOCOL, rev, TOOLS)
 	if not bool(accepted.get("ok", false)):
 		return _fail("ADMISSION_REFUSED", accepted)
@@ -310,6 +342,7 @@ func start(level_id: String, host_position: Callable,
 		"devices_active": devices != null, "faults_active": faults != null,
 		"consequences_active": consequences != null,
 		"logistics_active": logistics != null, "balance_active": balancing != null,
+		"worksite_active": worksite != null,
 		"qualification": "AUTHORITY_SOURCE_HEADLESS_ONLY_NO_PLAYABILITY"}
 
 
@@ -318,6 +351,11 @@ func _session_id() -> String:
 
 
 func _content_revision() -> String:
+	if worksite != null:
+		return "EXP012_" + ("%s|%s|%s" % [
+			str(_definitions.get("source_fingerprint", "")),
+			str(balancing.definition_snapshot().get("load_key", "")),
+			str(worksite.definition_snapshot().get("encounter_key", ""))]).sha256_text()
 	if balancing != null:
 		return "EXP011_" + ("%s|%s|%s|%s|%s|%s" % [
 			str(_definitions.get("source_fingerprint", "")),
@@ -407,6 +445,10 @@ func _bespoke_guard(player_id: String, kind: String, entity: String,
 		return _fail("EXP010_LOGISTICS_INCOMPLETE")
 	if kind == "request_extract" and balancing != null and not balancing.solved():
 		return _fail("EXP011_BALANCING_INCOMPLETE")
+	if kind == "request_extract" and worksite != null and not worksite.solved():
+		return _fail("EXP012_WORKSITE_INCOMPLETE")
+	if kind == "operate_worksite" and (worksite == null or not worksite.target_ids().has(entity)):
+		return _fail("EXP012_UNKNOWN_TARGET")
 	if kind == "operate_balance":
 		if balancing == null or not balancing.target_ids().has(entity):
 			return _fail("EXP011_UNKNOWN_TARGET")
@@ -523,6 +565,29 @@ func _operate_balance(player_id: String, entity: String, action: String) -> Dict
 func _balance_tick() -> void:
 	if balancing != null:
 		balancing.advance(_balance_facts())
+
+
+## The five source task IDs are read-only host evidence. The fifth restoration
+## task remains extraction-dependent; requiring it now would deadlock extraction.
+func _worksite_facts() -> Dictionary:
+	var facts: Dictionary = _balance_facts()
+	facts["balancing_solved"] = balancing != null and balancing.solved()
+	facts["investigation_solved"] = _completed.has(str(_tasks[0]["id"]))
+	facts["routing_solved"] = _completed.has(str(_tasks[1]["id"]))
+	facts["repair_solved"] = _completed.has(str(_tasks[2]["id"]))
+	facts["discovery_solved"] = _completed.has(str(_tasks[3]["id"]))
+	return facts
+
+
+func _operate_worksite(player_id: String, entity: String, action: String) -> Dictionary:
+	if player_id != PLAYER_ID or worksite == null:
+		return _fail("EXP012_HOST_PRINCIPAL_INVALID")
+	return worksite.operate(entity, action, _worksite_facts())
+
+
+func _worksite_tick() -> void:
+	if worksite != null:
+		worksite.advance(_worksite_facts())
 
 
 ## Called by SessionHost ONLY after its existing transport/session/sequence,
@@ -710,6 +775,8 @@ func task_board() -> Dictionary:
 		board["logistics"] = logistics.snapshot()
 	if balancing != null:
 		board["balancing"] = balancing.snapshot()
+	if worksite != null:
+		board["worksite"] = worksite.snapshot()
 	return board
 
 

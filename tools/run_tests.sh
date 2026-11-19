@@ -39,6 +39,9 @@ if [ -n "$PY" ]; then "$PY" tools/validate_exp010_logistics.py || FAIL=1; fi
 echo "== EXP011: 200 critical load boards, 600 circuits and capacity recovery oracle =="
 if [ -n "$PY" ]; then "$PY" tools/validate_exp011_loads.py || FAIL=1; fi
 
+echo "== EXP012: 200 source-pinned worksite encounter graphs and 400 routes =="
+if [ -n "$PY" ]; then "$PY" tools/validate_exp012_worksites.py || FAIL=1; fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 
