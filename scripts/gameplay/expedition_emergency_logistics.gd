@@ -13,6 +13,16 @@ const ROUTES: Dictionary = {
 	"direct": {"spares": 2, "fuel": 1, "ticks": 6},
 	"relay": {"spares": 1, "fuel": 2, "ticks": 14}
 }
+const CARGO: Dictionary = {
+	"distribution": ["Grid reconnection sleeve", "Priority feeder stabilizer"],
+	"transport": ["Crossing signal isolator", "Platform traction control pack"],
+	"health": ["Cold-chain transfer cassette", "Sterile room safety module"],
+	"commerce": ["Protected archive bus coupler", "Market emergency light kit"],
+	"waterworks": ["Sluice backflow seal", "Flood pump emergency control"],
+	"communications": ["Relay synchronization module", "Emergency antenna switchgear"],
+	"education": ["Workshop circuit isolator", "Campus evacuation controller"],
+	"shelter": ["Shelter heating link", "Emergency exit transfer assembly"]
+}
 const MAX_EVENTS: int = 24
 
 var _spec: Dictionary = {}
@@ -114,7 +124,8 @@ static func inspect(atlas: Dictionary, consequences: Dictionary, book: Dictionar
 					job.get("requires") != (expected[2] if j == 1 and pattern == "serial" else "") or \
 					job.get("priority") != ("critical" if j == 0 else "support") or \
 					job.get("deadline_ticks") != (18 + i % 6 if j == 0 else 36 + i % 9) or \
-					not job.get("cargo") is String or str(job.get("cargo", "")).length() < 8:
+					not CARGO.has(str(entry.get("site", ""))) or \
+					job.get("cargo") != CARGO[str(entry["site"])][j]:
 				errors.append("JOB_SOURCE_INVALID_" + lid)
 		for id: String in expected:
 			if targets.has(id):
