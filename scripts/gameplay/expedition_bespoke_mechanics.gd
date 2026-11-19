@@ -186,7 +186,9 @@ func _safe_in_ticks() -> int:
 func preflight(kind: String, entity: String) -> Dictionary:
 	if _spec.is_empty():
 		return {"ok": false, "code": "EXP06_NOT_CONFIGURED"}
-	if kind == "request_extract" and entity == "ZONE_EXTRACT" and not solved():
+	# SessionHost identifies the extraction zone from its own mission state,
+	# not from the wire entity string. Guard every extraction intent.
+	if kind == "request_extract" and not solved():
 		return {"ok": false, "code": "EXP06_PUZZLE_UNRESOLVED",
 			"family": (_spec["puzzle"] as Dictionary)["family"]}
 	var blocking: String = str((_spec["hazard"] as Dictionary)["blocks"])
