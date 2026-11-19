@@ -3,6 +3,7 @@ extends "res://tests/test_case.gd"
 ## This checks scene wiring only, NOT continuous human/controller playability.
 
 const Atlas := preload("res://scripts/world/dispatch_atlas.gd")
+const AtlasPanel := preload("res://scripts/ui/dispatch_atlas_panel.gd")
 const Runtime := preload("res://scripts/gameplay/expedition_host_session.gd")
 const StageScene := preload("res://scenes/expeditions/mission_stage.tscn")
 var _holder: Node3D
@@ -50,3 +51,14 @@ func test_EXP04_lore_has_no_generator_or_equipment_grid_effect() -> void:
 	assert_true(positions.has(item_id))
 	assert_false(runtime.equipment.canonical_state().has(item_id))
 	assert_eq(runtime.grid.canonical_state(), grid_before)
+
+
+func test_EXP04_atlas_collection_summary_does_not_create_an_identity() -> void:
+	var panel: Control = AtlasPanel.new()
+	_holder.add_child(panel)
+	var collection: Label = panel.find_child("ExpeditionCollectionSummary", true, false) as Label
+	assert_true(collection != null)
+	if collection != null:
+		assert_true(collection.text.contains("existing local identity not available"))
+	assert_true(panel.find_child("LevelList", true, false) != null)
+	assert_true(panel.find_children("*", "OfflinePersistence", true, false).is_empty())
