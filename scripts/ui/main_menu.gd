@@ -343,7 +343,11 @@ func _launch_experimental_dispatch(level_id: String) -> void:
 	if not bool(DispatchAtlas.inspect(source).get("ok", false)) or \
 			DispatchAtlas.find_level(source, level_id).is_empty():
 		return
+	# The same existing pseudonymous local identity is reused. An unreadable
+	# identity does not authorize creation of an alternate expedition profile.
 	get_tree().set_meta("expedition_requested_level", level_id)
+	get_tree().set_meta("expedition_account_key",
+		_store.account_key if _save_ready and _store != null else "")
 	get_tree().change_scene_to_file(EXP03_STAGE_PATH)
 
 
