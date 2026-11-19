@@ -110,9 +110,21 @@ static func inspect(atlas: Dictionary, consequences: Dictionary, book: Dictionar
 		if not job_values is Array or (job_values as Array).size() != 2:
 			errors.append("JOB_COUNT_INVALID_" + lid)
 			continue
+		# Godot JSON parses numeric literals as floats; compare exact finite
+		# quantities rather than numeric Variant/dictionary identity.
+		var stock_valid: bool = false
+		var stock_source: Variant = entry.get("stock")
+		if stock_source is Dictionary:
+			var stock: Dictionary = stock_source
+			var spares: Variant = stock.get("spares")
+			var fuel: Variant = stock.get("fuel")
+			stock_valid = stock.size() == 2 and \
+				(typeof(spares) == TYPE_INT or typeof(spares) == TYPE_FLOAT) and \
+				(typeof(fuel) == TYPE_INT or typeof(fuel) == TYPE_FLOAT) and \
+				float(spares) == 3.0 and float(fuel) == 3.0
 		if entry.get("depot") != expected[0] or entry.get("console") != expected[1] or \
 				entry.get("depot_anchor") != ANCHORS[0] or entry.get("console_anchor") != ANCHORS[2] or \
-				entry.get("stock") != {"spares": 3, "fuel": 3}:
+				not stock_valid:
 			errors.append("DEPOT_OR_STOCK_INVALID_" + lid)
 		for j: int in range(2):
 			if not job_values[j] is Dictionary:
