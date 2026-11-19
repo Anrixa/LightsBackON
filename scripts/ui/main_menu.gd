@@ -9,6 +9,8 @@ const LoadingCard := preload("res://scripts/ui/loading_card.gd")
 const InputPrompt := preload("res://scripts/ui/input_prompt.gd")
 const InputDeviceTracker := preload("res://scripts/ui/input_device_tracker.gd")
 const DispatchAtlasPanel := preload("res://scripts/ui/dispatch_atlas_panel.gd")
+const DispatchAtlas := preload("res://scripts/world/dispatch_atlas.gd")
+const EXP03_STAGE_PATH: String = "res://scenes/expeditions/mission_stage.tscn"
 
 const MISSION_PATH: String = "res://scenes/mission/mission_root.tscn"
 const C03_PREVIEW_PATH: String = "res://scenes/mission/c03_roof_preview.tscn"
@@ -176,6 +178,10 @@ func _ready() -> void:
 	_layout_for_size(size)
 	_apply_save_status(save_status)
 	(continue_button if _save_available else start_button if _save_ready else quit_button).grab_focus()
+	# Returning from an ephemeral dispatch resumes the atlas, not a C01 save.
+	if bool(get_tree().get_meta("expedition_reopen_atlas", false)):
+		get_tree().remove_meta("expedition_reopen_atlas")
+		call_deferred("_open_dispatch_atlas")
 
 
 ## Treat 620 px as a maximum, not a fixed minimum. Preserve a safe border
@@ -325,6 +331,20 @@ func _open_dispatch_atlas() -> void:
 	_dispatch_atlas_panel.name = "DispatchAtlasOverlay"
 	add_child(_dispatch_atlas_panel)
 	_dispatch_atlas_panel.closed.connect(_close_dispatch_atlas)
+	_dispatch_atlas_panel.mission_requested.connect(_launch_experimental_dispatch)
+
+
+## EXP03 experiments use a brand-new ephemeral scene. This does not change
+## the offline_resume flag or touch the C01 save/profile directories.
+func _launch_experimental_dispatch(level_id: String) -> void:
+	if _dispatch_atlas_panel == null or _loading_card != null:
+		return
+	var source: Dictionary = DispatchAtlas.load_catalog()
+	if not bool(DispatchAtlas.inspect(source).get("ok", false)) or \
+			DispatchAtlas.find_level(source, level_id).is_empty():
+		return
+	get_tree().set_meta("expedition_requested_level", level_id)
+	get_tree().change_scene_to_file(EXP03_STAGE_PATH)
 
 
 func _close_dispatch_atlas() -> void:

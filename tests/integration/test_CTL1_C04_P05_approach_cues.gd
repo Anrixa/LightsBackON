@@ -187,7 +187,18 @@ func test_CTL1_C04_P05_guide_file_never_changes_rules_revision_classification() 
 
 
 func test_CTL1_C04_P05_both_export_presets_package_preview_json() -> void:
+	# Future additive exports may include further unreferenced, source-owned
+	# JSON files. Enforce membership rather than freezing the entire CSV text.
 	var presets: String = FileAccess.get_file_as_string("res://export_presets.cfg")
-	var pattern: String = 'include_filter="build_manifest.json,scenes/mission/c04_preview_approaches.json"'
-	assert_eq(presets.split(pattern).size() - 1, 2,
-		"release and internal exports must package C04's otherwise unreferenced JSON")
+	var checked: int = 0
+	for line: String in presets.split("\n"):
+		if not line.begins_with('include_filter="'):
+			continue
+		var value: String = line.trim_prefix('include_filter="').trim_suffix('"')
+		var included: PackedStringArray = value.split(",")
+		assert_true(included.has("build_manifest.json"),
+			"the build provenance manifest must be packaged")
+		assert_true(included.has("scenes/mission/c04_preview_approaches.json"),
+			"C04's otherwise unreferenced approach JSON must survive both exports")
+		checked += 1
+	assert_eq(checked, 2, "check both release and internal Windows presets")
