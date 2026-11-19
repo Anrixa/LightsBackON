@@ -69,6 +69,10 @@ func _device(run: Runtime, node: Dictionary, action: String = "") -> Dictionary:
 
 
 func _repair(run: Runtime) -> void:
+	# A device-graph diagnostic is not a meter inspection: preserve the
+	# original F03 meter-first repair prerequisite before taking a lock.
+	_stand(run, "PANEL_WEST")
+	_command(run, "inspect", "PANEL_WEST")
 	_stand(run, "R_WEST")
 	_command(run, "request_lock", "R_WEST")
 	var tools: Dictionary = {
