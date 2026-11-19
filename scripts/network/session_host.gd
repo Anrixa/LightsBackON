@@ -21,7 +21,7 @@ const HOST_PEER: int = 1
 const CHUNK_ENVELOPE_BYTES: int = 96  # {"type":"snapshot_chunk","index":N,"data":"..."} around the escaped slice
 const ENVELOPE_KEYS: Array[String] = ["session", "seq", "type", "entity", "payload"]
 const INTENTS: Array[String] = ["inspect", "request_lock", "release", "heartbeat", "repair_step", "equip", "toggle_switch", "place_item",
-	"request_extract", "use_ladder", "use_route", "recover_self", "ping", "chat", "collect_lore"]
+	"request_extract", "use_ladder", "use_route", "recover_self", "ping", "chat", "collect_lore", "operate_device"]
 const DEFERRED_INTENTS: Array[String] = ["ready"]  # lobby; refused until implemented
 const PLACE_ACTIONS: Array[String] = ["pickup", "place", "connect", "disconnect", "start", "stop", "reset_breaker", "recover", "drop"]
 
@@ -38,6 +38,8 @@ var _mission: MissionDirector = null  # optional: sessions without a contract (t
 var _comms: Comms = null  # optional; comms are ephemeral and never part of the authoritative state
 var _collectible_handler: Callable = Callable()  # optional EXP04 host-only pickup callback
 var _collectible_state: Callable = Callable()  # optional EXP04 canonical discovered state
+var _device_handler: Callable = Callable()  # opt-in EXP07; invoked only after host range and replay checks
+var _device_state: Callable = Callable()  # host-owned EXP07 device state, part of canonical hash
 var _expedition_intent_guard: Callable = Callable()  # optional EXP06 policy; checked after host dedupe
 var _switches: Dictionary = {}  # switch id -> {"target", "field"}
 var _members: Dictionary = {}  # transport peer id (int) -> player id
@@ -361,6 +363,19 @@ func _dispatch(player: String, msg: Dictionary) -> Dictionary:
 			return _refuse("MALFORMED", "use_route takes no client payload", [entity])
 		return _mission.use_wind_route(player, entity, _range_check.call(player, entity))
 	var in_range: bool = _range_check.call(player, entity)
+	# EXP07 devices share the same host sequence, replay, rate, range and sight gates.
+	# No legacy C01-C12 session attaches a device authority.
+	if kind == "operate_device":
+		if not _device_handler.is_valid():
+			return _refuse("UNSUPPORTED_INTENT", "this session has no EXP07 devices", [])
+		if payload.size() != 1 or not payload.get("action") is String:
+			return _refuse("MALFORMED", "operate_device needs exactly one action", [entity])
+		if not in_range:
+			return _refuse("NOT_IN_RANGE", "move closer to %s" % entity, [entity])
+		var result: Variant = _device_handler.call(player, entity, str(payload["action"]))
+		if not result is Dictionary:
+			return _refuse("EXP07_INVALID_HOST_RESULT", "device authority produced invalid result", [entity])
+		return result
 	# EXP04's optional pickup is subject to the SAME transport membership,
 	# session, sequence, rate, entity proximity and sight checks as repairs.
 	# Without an explicit server-side handler existing contracts refuse it.
@@ -476,6 +491,8 @@ func authoritative_state() -> Dictionary:
 		state["mission"] = _mission.canonical_state()
 	if _collectible_state.is_valid():
 		state["field_lore"] = _collectible_state.call()
+	if _device_state.is_valid():
+		state["exp07_devices"] = _device_state.call()
 	return state
 
 
@@ -484,6 +501,12 @@ func authoritative_state() -> Dictionary:
 func set_collectible_authority(handler: Callable, state_provider: Callable) -> void:
 	_collectible_handler = handler
 	_collectible_state = state_provider
+
+
+## EXP07 is opt-in per experimental expedition session. Every other host is unchanged.
+func set_expedition_device_authority(handler: Callable, state_provider: Callable) -> void:
+	_device_handler = handler
+	_device_state = state_provider
 
 
 ## Attach crew communication (V06).

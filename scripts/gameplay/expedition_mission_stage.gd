@@ -106,7 +106,7 @@ func _ready() -> void:
 	runtime = Runtime.new()
 	var result: Dictionary = runtime.start(
 		level_id, Callable(self, "_host_position"), Callable(self, "_world_sight"),
-		_expedition_account, _expedition_account != "", "", true)
+		_expedition_account, _expedition_account != "", "", true, true)
 	if not bool(result.get("ok", false)):
 		push_error("EXP03_HOST_START_FAILED: " + str(result))
 		return
@@ -152,6 +152,9 @@ func _add_host_targets() -> void:
 		"SW_GRID_SPUR": "GRID SPUR", "SW_WEST_SPUR": "WEST BYPASS",
 		"SW_SIGN": "SIGN FEED", "ZONE_EXTRACT": "RETURN ZONE"
 	}
+	if runtime.devices != null:
+		for device: Dictionary in (_definitions["devices"] as Dictionary)["nodes"]:
+			names[str(device["id"])] = str(device["action"]).replace("_", " ").to_upper()
 	for id: String in _definitions["positions"]:
 		var marker: Marker3D = Marker3D.new()
 		marker.name = id
@@ -343,6 +346,12 @@ func _next_repair() -> void:
 func _activate_target() -> void:
 	if _target == "":
 		return
+	if _target.begins_with("DV_") and runtime.devices != null:
+		var device: Dictionary = runtime.devices.device_definition(_target)
+		if not device.is_empty():
+			var action: String = "reset" if runtime.devices.status_for(_target) == "jammed" else str(device["action"])
+			_send("operate_device", _target, {"action": action})
+		return
 	match _target:
 		"PANEL_WEST", "PANEL_SPUR":
 			_send("inspect", _target)
@@ -453,6 +462,21 @@ func _refresh() -> void:
 			str(status["hazard_kind"]), str(status["hazard_blocks"]),
 			"UNSAFE" if status["hazard_active"] else "SAFE",
 			int(status["safe_in_ticks"]), int(status["exposure_ticks"])])
+	if board.has("devices"):
+		var graph: Dictionary = board["devices"]
+		var done: int = 0
+		for status: Variant in (graph["status"] as Dictionary).values():
+			if status == "done":
+				done += 1
+		lines.append("EXP07 DEVICES %d/%d • faults %d • resets %d • extraction %s" % [
+			done, (graph["status"] as Dictionary).size(), int(graph["faults"]),
+			int(graph["resets"]), "READY" if graph["solved"] else "BLOCKED"])
+		if _target.begins_with("DV_") and runtime.devices != null:
+			var current: Dictionary = runtime.devices.device_definition(_target)
+			if not current.is_empty():
+				lines.append("DEVICE %s: %s • %s • requires %s" % [
+					_target, str(current["action"]), runtime.devices.status_for(_target),
+					str(current["requires"])])
 	_task_label.text = "\n".join(lines)
 	if _target_label != null:
 		_target_label.text = "Target: %s  /  tool: %s  /  host revision: %d" % [
