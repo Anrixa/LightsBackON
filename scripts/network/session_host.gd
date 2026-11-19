@@ -21,7 +21,7 @@ const HOST_PEER: int = 1
 const CHUNK_ENVELOPE_BYTES: int = 96  # {"type":"snapshot_chunk","index":N,"data":"..."} around the escaped slice
 const ENVELOPE_KEYS: Array[String] = ["session", "seq", "type", "entity", "payload"]
 const INTENTS: Array[String] = ["inspect", "request_lock", "release", "heartbeat", "repair_step", "equip", "toggle_switch", "place_item",
-	"request_extract", "use_ladder", "use_route", "recover_self", "ping", "chat"]
+	"request_extract", "use_ladder", "use_route", "recover_self", "ping", "chat", "collect_lore"]
 const DEFERRED_INTENTS: Array[String] = ["ready"]  # lobby; refused until implemented
 const PLACE_ACTIONS: Array[String] = ["pickup", "place", "connect", "disconnect", "start", "stop", "reset_breaker", "recover", "drop"]
 
@@ -36,6 +36,8 @@ var _interaction: Interaction
 var _equipment: Equipment
 var _mission: MissionDirector = null  # optional: sessions without a contract (tests, lobby) run without one
 var _comms: Comms = null  # optional; comms are ephemeral and never part of the authoritative state
+var _collectible_handler: Callable = Callable()  # optional EXP04 host-only pickup callback
+var _collectible_state: Callable = Callable()  # optional EXP04 canonical discovered state
 var _switches: Dictionary = {}  # switch id -> {"target", "field"}
 var _members: Dictionary = {}  # transport peer id (int) -> player id
 var _last_seq: Dictionary = {}  # peer id -> highest accepted seq
@@ -343,6 +345,20 @@ func _dispatch(player: String, msg: Dictionary) -> Dictionary:
 			return _refuse("MALFORMED", "use_route takes no client payload", [entity])
 		return _mission.use_wind_route(player, entity, _range_check.call(player, entity))
 	var in_range: bool = _range_check.call(player, entity)
+	# EXP04's optional pickup is subject to the SAME transport membership,
+	# session, sequence, rate, entity proximity and sight checks as repairs.
+	# Without an explicit server-side handler existing contracts refuse it.
+	if kind == "collect_lore":
+		if not _collectible_handler.is_valid():
+			return _refuse("UNSUPPORTED_INTENT", "this contract has no lore pickup authority", [])
+		if not payload.is_empty():
+			return _refuse("MALFORMED", "collect_lore has no client payload", [entity])
+		if not in_range:
+			return _refuse("NOT_IN_RANGE", "move closer to %s" % entity, [entity])
+		var collectible_reply: Variant = _collectible_handler.call(player, entity)
+		if not collectible_reply is Dictionary:
+			return _refuse("UNSUPPORTED_INTENT", "invalid collectible host reply", [entity])
+		return collectible_reply
 	match kind:
 		"toggle_switch":
 			if not _switches.has(entity):
@@ -442,7 +458,16 @@ func authoritative_state() -> Dictionary:
 		"crew": crew}
 	if _mission != null:
 		state["mission"] = _mission.canonical_state()
+	if _collectible_state.is_valid():
+		state["field_lore"] = _collectible_state.call()
 	return state
+
+
+## Only an explicit expedition instance attaches this extension. Legacy campaigns
+## continue to reject collect_lore and preserve their canonical snapshots.
+func set_collectible_authority(handler: Callable, state_provider: Callable) -> void:
+	_collectible_handler = handler
+	_collectible_state = state_provider
 
 
 ## Attach crew communication (V06).

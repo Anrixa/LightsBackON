@@ -19,6 +19,9 @@ const Interaction := preload("res://scripts/interaction/interaction_service.gd")
 const Equipment := preload("res://scripts/interaction/equipment_service.gd")
 const Mission := preload("res://scripts/simulation/mission_director.gd")
 const Host := preload("res://scripts/network/session_host.gd")
+const Rewards := preload("res://scripts/progression/reward_service.gd")
+const Ledger := preload("res://scripts/progression/expedition_ledger.gd")
+const SaveService := preload("res://scripts/persistence/save_service.gd")
 
 const RUNTIME_SCHEMA: int = 1
 const PROTOCOL: int = 1
@@ -44,6 +47,11 @@ var _completed: Dictionary = {}
 var _observed_inspections: Dictionary = {}
 var _tick: int = 0
 var _ready: bool = false
+var _collectible: Dictionary = {}
+var _lore_claimed: bool = false
+var _account_key: String = ""
+var _issued: Dictionary = {}
+var _reward_queue: Rewards.HostQueue = Rewards.HostQueue.new()
 
 
 static func _json(path: String) -> Dictionary:
@@ -58,9 +66,11 @@ static func _fail(code: String, details: Variant = null) -> Dictionary:
 ## Only source-pinned ID selection is accepted. Reject a forged catalog or
 ## invalid geometry before constructing a single authority-bearing service.
 func start(level_id: String, host_position: Callable,
-		physics_visibility: Callable = Callable()) -> Dictionary:
+		physics_visibility: Callable = Callable(), account_key: String = "") -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
+	if account_key != "" and not SaveService.is_valid_key(account_key):
+		return _fail("INVALID_ACCOUNT_KEY")
 	if not host_position.is_valid() or (physics_visibility.is_valid() and not host_position.is_valid()):
 		return _fail("MISSING_HOST_POSITION")
 	var atlas: Dictionary = Atlas.load_catalog()
@@ -77,6 +87,11 @@ func start(level_id: String, host_position: Callable,
 		return _fail("CONTRACT_FACTORY_FAILED", _definitions)
 	_position_source = host_position
 	_physics_visibility = physics_visibility
+	_account_key = account_key
+	# Lore ownership never participates in the grid, equipment, or repair state.
+	_collectible = level["collectible"].duplicate(true)
+	var item_id: String = str(_collectible["id"])
+	(_definitions["positions"] as Dictionary)[item_id] = 		(_definitions["positions"] as Dictionary)["PANEL_SPUR"] + Vector3(0.0, -0.35, 0.55)
 	grid = Grid.new()
 	meter = Meter.new()
 	interaction = Interaction.new()
@@ -105,6 +120,7 @@ func start(level_id: String, host_position: Callable,
 		return _fail("HOST_INVALID", errors)
 	host.set_position_provider(Callable(self, "_position_cm"))
 	host.set_mission(mission)
+	host.set_collectible_authority(Callable(self, "_claim_lore"), Callable(self, "_lore_state"))
 	var accepted: Dictionary = host.admit(Host.HOST_PEER, PLAYER_ID, PROTOCOL, rev, TOOLS)
 	if not bool(accepted.get("ok", false)):
 		return _fail("ADMISSION_REFUSED", accepted)
@@ -159,6 +175,59 @@ func receive(peer_id: int, message: PackedByteArray) -> Dictionary:
 				_observed_inspections[panel] = true
 	_update_progress()
 	return reply
+
+
+## Called by SessionHost ONLY after its existing transport/session/sequence,
+## rate, proximity and optional physics line-of-sight gates all passed.
+func _claim_lore(player_id: String, item_id: String) -> Dictionary:
+	if player_id != PLAYER_ID or item_id != str(_collectible.get("id", "")):
+		return _fail("UNKNOWN_COLLECTIBLE")
+	if _lore_claimed:
+		return _fail("ALREADY_COLLECTED")
+	if not _completed.has(str(_tasks[3]["id"])):
+		return _fail("DISCOVERY_EVIDENCE_REQUIRED")
+	_lore_claimed = true
+	if _account_key != "":
+		var receipt: Dictionary = Ledger.make_receipt(_account_key,
+			str(_definitions["level_id"]), item_id, "lore")
+		var single: Array[Dictionary] = [receipt]
+		_reward_queue.issue(single)
+	return {"ok": true, "collected_id": item_id}
+
+
+func _lore_state() -> Dictionary:
+	return {"id": str(_collectible.get("id", "")), "collected": _lore_claimed}
+
+
+## Only accepted new task facts become personal field-point receipts.
+func _issue_task_rewards() -> void:
+	if _account_key == "":
+		return
+	var batch: Array[Dictionary] = []
+	for task: Dictionary in _tasks:
+		var id: String = str(task["id"])
+		if _completed.has(id) and not _issued.has(id):
+			_issued[id] = true
+			batch.append(Ledger.make_receipt(_account_key,
+				str(_definitions["level_id"]), id, str(task["kind"])))
+	if not batch.is_empty():
+		_reward_queue.issue(batch)
+
+
+## Only the trusted local host calls the pending-receipt/ack interface.
+func pending_rewards(account_key: String) -> Array[Dictionary]:
+	if account_key == "" or account_key != _account_key:
+		return [] as Array[Dictionary]
+	return _reward_queue.pending_for(account_key)
+
+
+func ack_reward(account_key: String, receipt_key: String) -> void:
+	if _account_key != "" and account_key == _account_key:
+		_reward_queue.ack(account_key, receipt_key)
+
+
+func lore_state() -> Dictionary:
+	return _lore_state().duplicate(true)
 
 
 func _host_position(player_id: String) -> Vector3:
@@ -248,6 +317,7 @@ func _update_progress() -> void:
 	if _completed.has(first) and _completed.has(second) and _completed.has(third) and \
 			not mission.results().is_empty():
 		_completed[last] = true
+	_issue_task_rewards()
 
 
 ## Read-only per-run task projection; preview field_points are NEVER granted.
@@ -270,6 +340,7 @@ func task_board() -> Dictionary:
 		"ok": true, "schema": RUNTIME_SCHEMA, "level_id": _definitions["level_id"],
 		"tasks": out, "required_completed": required_done,
 		"required_total": 4, "optional_completed": _completed.has(str(_tasks[3]["id"])),
+		"lore_collected": _lore_claimed, "lore_id": str(_collectible.get("id", "")),
 		"mission_verified": mission.verified(),
 		"mission_completed": not mission.results().is_empty(),
 		"host_revision": host.revision,

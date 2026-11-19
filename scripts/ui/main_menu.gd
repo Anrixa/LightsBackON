@@ -153,11 +153,11 @@ func _ready() -> void:
 	c04_preview_button.pressed.connect(_launch_c04_preview)
 	layout.add_child(c04_preview_button)
 
-	# EXP01 read-only design catalogue: never launches unbuilt levels, awards points
-	# or replaces the production C01 checkpoint.
+	# EXP04: read-only atlas with an explicit opt-in host mission; any field
+	# score and lore are isolated from the production C01 checkpoint.
 	dispatch_atlas_button = Button.new()
 	dispatch_atlas_button.name = "DispatchAtlasButton"
-	dispatch_atlas_button.text = "Explore 200 planned dispatches (preview)"
+	dispatch_atlas_button.text = "Explore 200 experimental dispatch missions"
 	dispatch_atlas_button.custom_minimum_size.y = 56.0
 	dispatch_atlas_button.pressed.connect(_open_dispatch_atlas)
 	layout.add_child(dispatch_atlas_button)
@@ -328,14 +328,16 @@ func _open_dispatch_atlas() -> void:
 	if _dispatch_atlas_panel != null or _loading_card != null:
 		return
 	_dispatch_atlas_panel = DispatchAtlasPanel.new()
+	_dispatch_atlas_panel.set("account_key",
+		_store.account_key if _save_ready and _store != null else "")
 	_dispatch_atlas_panel.name = "DispatchAtlasOverlay"
 	add_child(_dispatch_atlas_panel)
 	_dispatch_atlas_panel.closed.connect(_close_dispatch_atlas)
 	_dispatch_atlas_panel.mission_requested.connect(_launch_experimental_dispatch)
 
 
-## EXP03 experiments use a brand-new ephemeral scene. This does not change
-## the offline_resume flag or touch the C01 save/profile directories.
+## EXP04 missions use a separate source scene/profile ledger. This does not
+## change offline_resume or write the original C01 checkpoint/credit profile.
 func _launch_experimental_dispatch(level_id: String) -> void:
 	if _dispatch_atlas_panel == null or _loading_card != null:
 		return
@@ -343,7 +345,11 @@ func _launch_experimental_dispatch(level_id: String) -> void:
 	if not bool(DispatchAtlas.inspect(source).get("ok", false)) or \
 			DispatchAtlas.find_level(source, level_id).is_empty():
 		return
+	# The same existing pseudonymous local identity is reused. An unreadable
+	# identity does not authorize creation of an alternate expedition profile.
 	get_tree().set_meta("expedition_requested_level", level_id)
+	get_tree().set_meta("expedition_account_key",
+		_store.account_key if _save_ready and _store != null else "")
 	get_tree().change_scene_to_file(EXP03_STAGE_PATH)
 
 

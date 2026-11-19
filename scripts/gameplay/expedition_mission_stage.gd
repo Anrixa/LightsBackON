@@ -12,6 +12,10 @@ const PlayerController := preload("res://scripts/actors/first_person_controller.
 const TargetSelector := preload("res://scripts/interaction/target_selector.gd")
 const Visibility := preload("res://scripts/interaction/interaction_visibility.gd")
 const Interaction := preload("res://scripts/interaction/interaction_service.gd")
+const Ledger := preload("res://scripts/progression/expedition_ledger.gd")
+const SaveService := preload("res://scripts/persistence/save_service.gd")
+const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
+const ContentHash := preload("res://scripts/network/content_hash.gd")
 
 const MENU_PATH: String = "res://scenes/menu/main_menu.tscn"
 const HOST_STEP_SECONDS: float = 0.1
@@ -33,11 +37,35 @@ var _feedback: Label
 var _target_label: Label
 var _back: Button
 var _loaded: bool = false
+var _expedition_account: String = ""
+var _expedition_saves: SaveService
+var _expedition_profile: Dictionary = {}
+var _reward_error: String = ""
 
 
 func _ready() -> void:
 	var requested: String = str(get_tree().get_meta("expedition_requested_level", level_id))
 	get_tree().remove_meta("expedition_requested_level")
+	_expedition_account = str(get_tree().get_meta("expedition_account_key", ""))
+	get_tree().remove_meta("expedition_account_key")
+	if _expedition_account != "":
+		_expedition_saves = SaveService.new()
+		_expedition_saves.configure(1, OfflinePersistence.SAVE_BUILD_ID,
+			ContentHash.content_revision(), ContentHash.rules_revision())
+		var loaded: Dictionary = Ledger.load_profile(_expedition_saves,
+			_expedition_account, OfflinePersistence.runtime_root())
+		if not loaded.get("ok", false):
+			push_error("EXP04_PROFILE_HOLD_NO_OVERWRITE: " + str(loaded))
+			return
+		_expedition_profile = loaded["profile"]
+		# A prior crash after inbox write but before profile commit is healed
+		# before starting the next source-authoritative run.
+		var recovered: Dictionary = Ledger.receive(_expedition_saves,
+			_expedition_account, OfflinePersistence.runtime_root(), [], _utc_now())
+		if not recovered.get("ok", false):
+			push_error("EXP04_INBOX_HOLD_NO_OVERWRITE: " + str(recovered))
+			return
+		_expedition_profile = recovered["profile"]
 	var catalog: Dictionary = Atlas.load_catalog()
 	if not bool(Atlas.inspect(catalog).get("ok", false)):
 		push_error("EXP03_ATLAS_INVALID")
@@ -67,7 +95,8 @@ func _ready() -> void:
 	player.global_position = Vector3(start.x, 0.91, start.z + 1.70)
 	runtime = Runtime.new()
 	var result: Dictionary = runtime.start(
-		level_id, Callable(self, "_host_position"), Callable(self, "_world_sight"))
+		level_id, Callable(self, "_host_position"), Callable(self, "_world_sight"),
+		_expedition_account)
 	if not bool(result.get("ok", false)):
 		push_error("EXP03_HOST_START_FAILED: " + str(result))
 		return
@@ -106,6 +135,7 @@ func _add_host_targets() -> void:
 	group.name = "HostTargets"
 	world.add_child(group)
 	var names: Dictionary = {
+		str(runtime.lore_state()["id"]): "LORE RELIC",
 		"PANEL_WEST": "WEST METER", "SW_EAST": "EAST FEED",
 		"R_WEST": "WEST WORKSITE", "PANEL_SPUR": "SPUR METER",
 		"SW_GRID_SPUR": "GRID SPUR", "SW_WEST_SPUR": "WEST BYPASS",
@@ -120,10 +150,16 @@ func _add_host_targets() -> void:
 		group.add_child(marker)
 		if id != "ZONE_EXTRACT":
 			var mesh: BoxMesh = BoxMesh.new()
-			mesh.size = Vector3(0.75, 0.43, 0.11)
+			mesh.size = Vector3(0.32, 0.32, 0.32) if id.begins_with("FIND_") 				else Vector3(0.75, 0.43, 0.11)
 			var plate: MeshInstance3D = MeshInstance3D.new()
 			plate.name = "WorksitePlate"
 			plate.mesh = mesh
+			if id.begins_with("FIND_"):
+				var material: StandardMaterial3D = StandardMaterial3D.new()
+				material.albedo_color = Color("#EFC56B")
+				material.metallic = 0.55
+				material.roughness = 0.30
+				plate.material_override = material
 			marker.add_child(plate)
 		var label: Label3D = Label3D.new()
 		label.name = "WorksiteLabel"
@@ -151,7 +187,7 @@ func _build_overlay(level: Dictionary) -> void:
 	box.add_theme_constant_override("separation", 8)
 	surface.add_child(box)
 	var title: Label = Label.new()
-	title.text = "%s  /  %s\nEXPERIMENTAL, UNSAVED DISPATCH • NO PLAYABILITY CERTIFICATION" % [
+	title.text = "%s  /  %s\nEXPERIMENTAL FIELD DISPATCH • NO PLAYABILITY CERTIFICATION" % [
 		level_id, str(level["title"])]
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	title.add_theme_color_override("font_color", Color("#F3D396"))
@@ -171,13 +207,13 @@ func _build_overlay(level: Dictionary) -> void:
 	_feedback.add_theme_color_override("font_color", Color("#F1D6B2"))
 	box.add_child(_feedback)
 	var controls: Label = Label.new()
-	controls.text = "WASD move • mouse aim • E interact • 1–5 tools • Esc return to atlas\nStage 4: inspect optional archive, try safe GRID spur; unsafe WEST bypass is deliberately hazardous."
+	controls.text = "WASD move • mouse aim • E interact • 1–5 tools • Esc return to atlas\nStage 4: inspect optional archive, then pick up its lore relic. Unsafe WEST bypass is hazardous."
 	controls.add_theme_color_override("font_color", Color("#D9E3EC"))
 	controls.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(controls)
 	_back = Button.new()
 	_back.name = "ReturnToDispatchButton"
-	_back.text = "Return to dispatch atlas (no expedition save)"
+	_back.text = "Return to dispatch atlas (original C01 save unchanged)"
 	_back.custom_minimum_size = Vector2(310.0, 45.0)
 	_back.pressed.connect(_return_to_menu)
 	box.add_child(_back)
@@ -199,6 +235,7 @@ func _physics_process(delta: float) -> void:
 	while _tick_accumulator >= HOST_STEP_SECONDS:
 		_tick_accumulator -= HOST_STEP_SECONDS
 		runtime.tick_host()
+		_persist_rewards()
 	var selected: String = _aim_target()
 	if selected != _target:
 		_target = selected
@@ -235,6 +272,7 @@ func _send(kind: String, entity: String, payload: Dictionary = {}) -> Dictionary
 	var envelope: Dictionary = {"session": runtime.session_id(), "seq": _sequence,
 		"type": kind, "entity": entity, "payload": payload}
 	var reply: Dictionary = runtime.receive(1, JSON.stringify(envelope).to_utf8_buffer())
+	_persist_rewards()
 	if _feedback != null:
 		_feedback.text = ("%s: %s" % [kind, "ACCEPTED" if reply.get("ok", false) else
 			str(reply.get("code", "DENIED"))])
@@ -273,6 +311,9 @@ func _activate_target() -> void:
 		"ZONE_EXTRACT":
 			_send("request_extract", _target, {"action": "start"})
 		_:
+			if _target.begins_with("FIND_"):
+				_send("collect_lore", _target)
+				return
 			if _target.begins_with("SW_"):
 				var mapping: Dictionary = {
 					"SW_EAST": "E_GRID_EAST",
@@ -318,6 +359,29 @@ func _unhandled_input(event: InputEvent) -> void:
 		_select_tool(wrapi(_selected_tool - 1, 0, TOOL_IDS.size()))
 
 
+## Save the pending server receipts before acknowledging. A failed profile
+## write retains the host queue for another attempt; no old file is reset.
+func _persist_rewards() -> void:
+	if _expedition_account == "" or _expedition_saves == null or runtime == null:
+		return
+	var pending: Array[Dictionary] = runtime.pending_rewards(_expedition_account)
+	if pending.is_empty():
+		return
+	var result: Dictionary = Ledger.receive(_expedition_saves,
+		_expedition_account, OfflinePersistence.runtime_root(), pending, _utc_now())
+	if not result.get("ok", false):
+		_reward_error = str(result.get("code", "UNKNOWN_SAVE_ERROR"))
+		return
+	_reward_error = ""
+	_expedition_profile = result["profile"]
+	for key: String in result["acks"]:
+		runtime.ack_reward(_expedition_account, key)
+
+
+func _utc_now() -> String:
+	return Time.get_datetime_string_from_system(true) + "Z"
+
+
 func _refresh() -> void:
 	if not _loaded or _task_label == null:
 		return
@@ -329,6 +393,17 @@ func _refresh() -> void:
 	lines.append("Mandatory %d/4 • Optional %s • Grid verified: %s • Mission complete: %s" % [
 		int(board["required_completed"]), str(board["optional_completed"]),
 		str(board["mission_verified"]), str(board["mission_completed"])])
+	lines.append("LORE %s  •  %s" % [
+		"COLLECTED" if board["lore_collected"] else "AVAILABLE AFTER DISCOVERY",
+		str(board["lore_id"])])
+	if _expedition_account != "":
+		lines.append("FIELD POINTS: %d / %d  •  Archived lore: %d / %d" % [
+			int(_expedition_profile.get("field_points", 0)), Ledger.MAX_FIELD_POINTS,
+			(_expedition_profile.get("lore_finds", {}) as Dictionary).size(), Ledger.MAX_FINDS])
+	else:
+		lines.append("Field progression unavailable: existing local identity not ready")
+	if _reward_error != "":
+		lines.append("EXP04 SAVE HOLD: " + _reward_error)
 	_task_label.text = "\n".join(lines)
 	if _target_label != null:
 		_target_label.text = "Target: %s  /  tool: %s  /  host revision: %d" % [
