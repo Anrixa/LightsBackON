@@ -158,6 +158,8 @@ func start(level_id: String, host_position: Callable,
 	host.set_position_provider(Callable(self, "_position_cm"))
 	host.set_mission(mission)
 	host.set_collectible_authority(Callable(self, "_claim_lore"), Callable(self, "_lore_state"))
+	if bespoke != null:
+		host.set_expedition_intent_guard(Callable(self, "_bespoke_guard"))
 	var accepted: Dictionary = host.admit(Host.HOST_PEER, PLAYER_ID, PROTOCOL, rev, TOOLS)
 	if not bool(accepted.get("ok", false)):
 		return _fail("ADMISSION_REFUSED", accepted)
@@ -196,15 +198,6 @@ func definition_snapshot() -> Dictionary:
 func receive(peer_id: int, message: PackedByteArray) -> Dictionary:
 	if not _ready:
 		return _fail("SESSION_NOT_READY")
-	# EXP06 fail-closed rules apply to the exact source-pinned host envelope;
-	# they cannot replace SessionHost's own peer, sequence or range checks.
-	if bespoke != null and peer_id == Host.HOST_PEER:
-		var untrusted: Variant = JSON.parse_string(message.get_string_from_utf8())
-		if untrusted is Dictionary and untrusted.get("session") == session_id():
-			var guard: Dictionary = bespoke.preflight(
-				str(untrusted.get("type", "")), str(untrusted.get("entity", "")))
-			if not bool(guard.get("ok", false)):
-				return guard
 	var reply: Dictionary = host.receive(peer_id, message)
 	if not bool(reply.get("ok", false)) or bool(reply.get("duplicate", false)):
 		return reply
@@ -225,6 +218,15 @@ func receive(peer_id: int, message: PackedByteArray) -> Dictionary:
 			grid.canonical_state(), interaction.canonical_state()["repairs"])
 	_update_progress()
 	return reply
+
+
+## Only SessionHost may invoke this after shape, member, sequence and dedupe checks.
+func _bespoke_guard(player_id: String, kind: String, entity: String,
+		_payload: Dictionary) -> Dictionary:
+	if player_id != PLAYER_ID or bespoke == null:
+		return _fail("EXP06_INVALID_HOST_PRINCIPAL")
+	return bespoke.preflight(kind, entity)
+
 
 
 ## Called by SessionHost ONLY after its existing transport/session/sequence,
