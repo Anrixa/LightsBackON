@@ -199,6 +199,8 @@ func operate(id: String, action: String, facts: Dictionary) -> Dictionary:
 	if id == str(_spec["console"]):
 		if action != "certify":
 			return {"ok": false, "code": "EXP009_CONSOLE_ACTION_INVALID"}
+		if _certified:
+			return {"ok": false, "code": "EXP009_ALREADY_CERTIFIED"}
 		if not _started or not _resolved() or \
 				not bool(facts.get("faults_solved", false)) or not _host_ready(facts):
 			return {"ok": false, "code": "EXP009_CASCADE_UNRESOLVED"}
@@ -251,24 +253,31 @@ func operate(id: String, action: String, facts: Dictionary) -> Dictionary:
 func advance(facts: Dictionary) -> void:
 	if _spec.is_empty():
 		return
-	_clock += 1
+	# Dormant and steady-state sessions MUST NOT increment canonical tick:
+	# doing so would manufacture a host revision and network delta at 10 Hz.
 	if not _started:
-		if ["route", "prepared", "holding", "verified", "faulted", "complete"].has(str(facts.get("fault_phase", ""))):
-			_started = true
-			var root: String = str(_spec["nodes"][0]["id"])
-			_nodes[root]["status"] = "at_risk"
-			_record("CASCADE_STARTED", root)
-		else:
+		if not ["route", "prepared", "holding", "verified", "faulted", "complete"].has(str(facts.get("fault_phase", ""))):
 			return
-	if _certified:
-		if not _host_ready(facts) or not bool(facts.get("faults_solved", false)):
-			_certified = false
-			_reopens += 1
-			var root: String = str(_spec["nodes"][0]["id"])
-			_nodes[root]["status"] = "at_risk"
-			_nodes[root]["exposure"] = 0
-			_record("SERVICE_REOPENED", root)
+		_clock += 1
+		_started = true
+		var root: String = str(_spec["nodes"][0]["id"])
+		_nodes[root]["status"] = "at_risk"
+		_record("CASCADE_STARTED", root)
+	elif _certified:
+		if _host_ready(facts) and bool(facts.get("faults_solved", false)):
+			return
+		_clock += 1
+		_certified = false
+		_reopens += 1
+		var root: String = str(_spec["nodes"][0]["id"])
+		_nodes[root]["status"] = "at_risk"
+		_nodes[root]["exposure"] = 0
+		_record("SERVICE_REOPENED", root)
 		return
+	else:
+		if _resolved():
+			return
+		_clock += 1
 	for node: Dictionary in _spec["nodes"]:
 		var id: String = str(node["id"])
 		if str(_nodes[id]["status"]) != "at_risk":
