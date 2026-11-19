@@ -57,6 +57,20 @@ func _complete_step(site: SiteEngine, facts: Dictionary) -> void:
             assert_true(false, "Unknown authored EXP013 operation")
 
 
+func test_EXP013_A04_final_sources_cover_every_atlas_location() -> void:
+    var books: Array[Dictionary] = SiteCatalog.load_available_books()
+    assert_eq(books.size(), 4, "A04 must contain all four contiguous EXP013 books")
+    var audit: Dictionary = SiteCatalog.inspect_collection(
+        Atlas.load_catalog(), Worksite.load_book(), books)
+    assert_true(bool(audit.get("ok", false)), str(audit))
+    if bool(audit.get("ok", false)):
+        assert_eq(int(audit["exp013_locations"]), 160)
+        assert_eq(int(audit["cumulative_scripted"]), 200)
+        assert_eq(int(audit["remaining"]), 0)
+        assert_eq(int(audit["exp013_targets"]), 480)
+        assert_eq(int(audit["unique_actions"]), 640)
+
+
 func test_EXP013_expansions_each_complete_80_host_routes_without_client_clocks() -> void:
     var books: Array[Dictionary] = SiteCatalog.load_available_books()
     var audit: Dictionary = SiteCatalog.inspect_collection(
