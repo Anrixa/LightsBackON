@@ -171,3 +171,6 @@ func test_EXP010_source_splice_and_permissive_policy_are_refused() -> void:
 	assert_true(Logistics.entry_for(one, catalog["levels"][0],
 		Chains.load_book()["entries"][0]).is_empty())
 	assert_true(Logistics.inspect(catalog, Chains.load_book(), book)["ok"])
+	var tampered: Dictionary = book.duplicate(true)
+	tampered["entries"][0]["jobs"][0]["cargo"] = "Fabricated service module"
+	assert_false(Logistics.inspect(catalog, Chains.load_book(), tampered)["ok"])
