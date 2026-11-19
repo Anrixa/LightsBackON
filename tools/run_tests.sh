@@ -45,6 +45,9 @@ if [ -n "$PY" ]; then "$PY" tools/validate_exp012_worksites.py || FAIL=1; fi
 echo "== EXP012 A02: 40 authored site-specific host interventions / 80 executable routes =="
 if [ -n "$PY" ]; then "$PY" tools/validate_exp012_a02_sites.py || FAIL=1; fi
 
+echo "== EXP013 A01: 40 additional authored sites / 80 route replays / source pins =="
+if [ -n "$PY" ]; then "$PY" tools/validate_exp013_sites.py || FAIL=1; fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 
