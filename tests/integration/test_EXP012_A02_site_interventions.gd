@@ -256,3 +256,23 @@ func test_EXP012_A02_route_selection_has_no_mutation_on_rejected_action() -> voi
     assert_true(machine.operate(first_target, str(first["action"]), facts)["ok"])
     assert_false(machine.can_choose_route("resilience"))
     assert_eq(machine.choose_route("resilience")["code"], "EXP012A02_ROUTE_LOCKED")
+
+
+func test_EXP012_A02_godot_json_numeric_clocks_reject_fraction_and_text() -> void:
+    var atlas: Dictionary = Atlas.load_catalog()
+    var base: Dictionary = Site.load_book()
+    var orders: Dictionary = Worksite.load_book()
+    assert_true(Site.inspect(atlas, orders, base)["ok"],
+        "Integer-valued JSON numbers must pass regardless of Godot float decoding.")
+    var fraction: Dictionary = base.duplicate(true)
+    fraction["entries"][0]["routes"]["priority"][0]["dwell_ticks"] = 7.5
+    assert_eq(Site.inspect(atlas, orders, fraction)["code"],
+        "EXP012A02_MECHANIC_INVALID")
+    var text_timer: Dictionary = base.duplicate(true)
+    text_timer["entries"][0]["routes"]["priority"][0]["window_ticks"] = "100"
+    assert_eq(Site.inspect(atlas, orders, text_timer)["code"],
+        "EXP012A02_MECHANIC_INVALID")
+    var bool_timer: Dictionary = base.duplicate(true)
+    bool_timer["entries"][0]["routes"]["priority"][0]["window_ticks"] = true
+    assert_eq(Site.inspect(atlas, orders, bool_timer)["code"],
+        "EXP012A02_MECHANIC_INVALID")
