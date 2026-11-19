@@ -95,6 +95,7 @@ func test_EXP012_A02_40_source_bound_sites_80_routes_and_320_steps() -> void:
         for route: String in ["priority", "resilience"]:
             var machine: Site = Site.new()
             assert_true(machine.configure(entry)["ok"])
+            assert_true(machine.choose_route(route)["ok"])
             assert_eq(machine.target_ids().size(), 3)
             var facts: Dictionary = _facts(route)
             var next: Dictionary = machine.snapshot()
@@ -114,6 +115,7 @@ func test_EXP012_A02_premature_confirmation_causes_bounded_recoverable_fault() -
     var entry: Dictionary = Site.load_book()["entries"][0]
     var machine: Site = Site.new()
     assert_true(machine.configure(entry)["ok"])
+    assert_true(machine.choose_route("priority")["ok"])
     var facts: Dictionary = _facts()
     var start: String = str(entry["routes"]["priority"][0]["target"])
     assert_true(machine.operate(start,
@@ -134,6 +136,7 @@ func test_EXP012_A02_missed_pulse_window_and_loss_of_supply_restart() -> void:
     var entry: Dictionary = Site.load_book()["entries"][0]
     var machine: Site = Site.new()
     assert_true(machine.configure(entry)["ok"])
+    assert_true(machine.choose_route("priority")["ok"])
     var facts: Dictionary = _facts()
     _complete_one(machine, facts)
     var unsafe: Dictionary = facts.duplicate()
@@ -166,6 +169,7 @@ func test_EXP012_A02_rejects_source_splices_and_forged_route_payloads() -> void:
     assert_false(Site.inspect(atlas, a01, wrong)["ok"])
     var machine: Site = Site.new()
     assert_true(machine.configure(book["entries"][0])["ok"])
+    assert_true(machine.choose_route("priority")["ok"])
     var facts: Dictionary = _facts()
     var first: Dictionary = book["entries"][0]["routes"]["priority"][0]
     assert_eq(machine.operate(str(first["target"]), str(first["action"]),
@@ -218,6 +222,7 @@ func test_EXP012_A02_certified_site_reopens_after_late_power_loss() -> void:
     var entry: Dictionary = Site.load_book()["entries"][1]
     var machine: Site = Site.new()
     assert_true(machine.configure(entry)["ok"])
+    assert_true(machine.choose_route("resilience")["ok"])
     var facts: Dictionary = _facts("resilience")
     for _i: int in range(4):
         _complete_one(machine, facts)
@@ -233,3 +238,21 @@ func test_EXP012_A02_certified_site_reopens_after_late_power_loss() -> void:
     for _j: int in range(4):
         _complete_one(machine, facts)
     assert_true(machine.solved())
+
+
+func test_EXP012_A02_route_selection_has_no_mutation_on_rejected_action() -> void:
+    var entry: Dictionary = Site.load_book()["entries"][0]
+    var machine: Site = Site.new()
+    assert_true(machine.configure(entry)["ok"])
+    var facts: Dictionary = _facts()
+    var first: Dictionary = entry["routes"]["priority"][0]
+    var first_target: String = str(first["target"])
+    var original: String = JSON.stringify(machine.snapshot())
+    assert_eq(machine.operate(first_target, str(first["action"]), facts)["code"],
+        "EXP012A02_A01_ROUTE_NOT_SYNCED")
+    assert_eq(JSON.stringify(machine.snapshot()), original)
+    assert_true(machine.choose_route("resilience")["ok"])
+    assert_true(machine.choose_route("priority")["ok"])
+    assert_true(machine.operate(first_target, str(first["action"]), facts)["ok"])
+    assert_false(machine.can_choose_route("resilience"))
+    assert_eq(machine.choose_route("resilience")["code"], "EXP012A02_ROUTE_LOCKED")
