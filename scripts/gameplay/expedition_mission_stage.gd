@@ -776,10 +776,13 @@ func _refresh() -> void:
 				int(authored["recoveries"])])
 			if not authored["solved"]:
 				var next_step: Dictionary = authored["next"]
-				lines.append("A02: E on %s to %s / %s; support %s; %d/%d ticks; 2 reads require spacing." % [
-					str(next_step["target"]), str(next_step["action"]), str(next_step["mode"]),
-					str(next_step["support_target"]), int(authored["tick"]),
-					int(authored["deadline"])])
+				if next_step.is_empty():
+					lines.append("A02: open the A01 worksite board, then select the operating strategy at its route station.")
+				else:
+					lines.append("A02: E on %s to %s / %s; support %s; %d/%d host ticks." % [
+						str(next_step["target"]), str(next_step["action"]), str(next_step["mode"]),
+						str(next_step["support_target"]), int(authored["tick"]),
+						int(authored["deadline"])])
 				if authored["fault"] != "":
 					lines.append("A02 FAULT: use E at %s to recover safely." % str(authored["recovery_target"]))
 	_task_label.text = "\n".join(lines)
