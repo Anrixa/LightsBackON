@@ -41,6 +41,11 @@ func _wire(run: Runtime, seq: int, kind: String, entity: String,
 
 func _command(run: Runtime, kind: String, entity: String,
 		payload: Dictionary = {}) -> Dictionary:
+	# Respect the original host 20-command/10-tick rate gate. Host clock,
+	# not client timestamps, releases the test window.
+	if _seq > 0 and _seq % 8 == 0:
+		for interval: int in range(11):
+			run.tick_host()
 	for tick: int in range(200):
 		var safe: bool = bool(run.bespoke.preflight(kind, entity).get("ok", false))
 		if kind == "operate_device" and run.devices != null and \
