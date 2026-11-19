@@ -306,19 +306,29 @@ func start(level_id: String, host_position: Callable,
 	# The A02 machine remains unmodified; the new content is independently audited
 	# and receives its own host state, revision namespace and extraction interlock.
 	if enable_site_exp013:
-		var exp013_book: Dictionary = SiteEXP013.load_book()
-		var exp013_audit: Dictionary = SiteEXP013.inspect(atlas, Worksite.load_book(), exp013_book)
+		var exp013_books: Array[Dictionary] = SiteEXP013.load_available_books()
+		var exp013_audit: Dictionary = SiteEXP013.inspect_collection(
+			atlas, Worksite.load_book(), exp013_books)
 		if not bool(exp013_audit.get("ok", false)):
 			return _fail("EXP013_BOOK_INVALID", exp013_audit)
-		var exp013_case: Dictionary = SiteEXP013.entry_for(exp013_book, level,
-			worksite.definition_snapshot())
+		# Exactly one source-pinned level may be selected. Earlier opt-in
+		# sessions and all uncovered 200-level foundation sites remain unchanged.
+		var exp013_case: Dictionary = {}
+		for source_book: Dictionary in exp013_books:
+			var matching: Dictionary = SiteEXP013.entry_for(source_book, level,
+				worksite.definition_snapshot())
+			if not matching.is_empty():
+				if not exp013_case.is_empty():
+					return _fail("EXP013_OVERLAPPING_BOOKS")
+				exp013_case = matching
+				_definitions["site_exp013_phase"] = str(source_book["authority"]).split("_")[1]
 		if not exp013_case.is_empty():
 			if site_a02 != null:
 				return _fail("EXP013_OVERLAPPING_SITE_BOOKS")
 			site_exp013 = SiteA02.new()
-			var result: Dictionary = site_exp013.configure(exp013_case)
-			if not bool(result.get("ok", false)):
-				return _fail("EXP013_CONFIG_FAILED", result)
+			var configured: Dictionary = site_exp013.configure(exp013_case)
+			if not bool(configured.get("ok", false)):
+				return _fail("EXP013_CONFIG_FAILED", configured)
 			_definitions["site_exp013"] = site_exp013.definition_snapshot()
 			var exp013_positions: Dictionary = _definitions["positions"]
 			var bases: Dictionary = {"A": "PANEL_WEST", "B": "PANEL_SPUR", "C": "R_WEST"}
@@ -328,7 +338,7 @@ func start(level_id: String, host_position: Callable,
 					float(offset_cm[0]) / 100.0, 0.0, float(offset_cm[1]) / 100.0)
 				exp013_positions[str(exp013_case["targets"][letter])] = \
 					exp013_positions[str(bases[letter])] + offset_m
-			# Physical clearance/reach remain owner-held and are not claimed.
+			# The source-defined markers do NOT certify physical accessibility.
 	_position_source = host_position
 	_physics_visibility = physics_visibility
 	_account_key = account_key
