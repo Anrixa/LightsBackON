@@ -15,8 +15,13 @@
 
 `scenes/expeditions/bespoke_encounters.json` contains exactly 200 explicit,
 level-specific records source-bound to the immutable EXP01 title, location,
-puzzle identity, site archetype, environmental risk, setting and first three
-authored task mechanic motifs. Every record has a unique encounter key.
+puzzle identity, region, source climate, site archetype, environmental
+risk, setting and first three authored task mechanic motifs. The eight
+implemented puzzle families are explicitly mapped from each level's authored
+power-routing mechanic; environmental hazard families are mapped from the
+location's source climate instead of arbitrarily rotated. These mappings are
+enforced independently in both Godot and Python source audits. Every record has
+a unique encounter key.
 
 Eight active host puzzle families:
 
@@ -77,7 +82,8 @@ physical traversal or collision certification.
 1. Independently validate all 200 source-bound records using
    `python tools/validate_exp06_encounters.py` and mutation-denial tests.
 2. Run `test_EXP06_bespoke.gd` via the existing automatic Godot test runner:
-   all 200 content pins, eight live host action puzzle families,
+   all 200 content pins and 200 source-pinned host session initializations,
+   eight live host action puzzle families,
    malformed/source-forgery rejection, extraction denial until evidence,
    environmental action lockouts and no-replay side effects.
 3. Re-run original EXP01–EXP05 automated integration and Python reference tests,
