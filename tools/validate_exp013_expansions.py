@@ -152,7 +152,8 @@ def validate(atlas: dict, orders: dict, books: list[dict],
                 for i, step in enumerate(steps):
                     require(0 <= recovery_oracle(step["failure"], i) <= i,
                             "EXP013_EXTENSION_RECOVERY_UNSAFE")
-                sequences[route] = [s["action"].removesuffix("_reserve") for s in steps]
+                sequences[route] = [s["action"] if route == "priority" else
+                                    s["action"].removesuffix("_reserve") for s in steps]
             require(len(set(sequences["priority"])) == 4 and
                     set(sequences["priority"]) == set(sequences["resilience"]) and
                     sequences["priority"] != sequences["resilience"],
