@@ -211,3 +211,25 @@ func test_EXP012_A02_opt_in_dedupe_range_and_unaffected_160_levels() -> void:
     if next["ok"]:
         assert_true(uncovered.site_a02 == null)
         assert_false(uncovered.host.authoritative_state()["exp012_worksite_orders"].has("site_a02"))
+
+
+
+func test_EXP012_A02_certified_site_reopens_after_late_power_loss() -> void:
+    var entry: Dictionary = Site.load_book()["entries"][1]
+    var machine: Site = Site.new()
+    assert_true(machine.configure(entry)["ok"])
+    var facts: Dictionary = _facts("resilience")
+    for _i: int in range(4):
+        _complete_one(machine, facts)
+    assert_true(machine.solved())
+    var unsafe: Dictionary = facts.duplicate()
+    unsafe["hazard_active"] = true
+    machine.advance(unsafe)
+    assert_false(machine.solved())
+    assert_eq(machine.snapshot()["step"], 0)
+    assert_eq(machine.snapshot()["fault"], "SUPPLY_LOST")
+    assert_eq(machine.snapshot()["unsafe_events"], 1)
+    assert_true(machine.operate(str(entry["recovery_target"]), "recover", facts)["ok"])
+    for _j: int in range(4):
+        _complete_one(machine, facts)
+    assert_true(machine.solved())
