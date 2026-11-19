@@ -181,6 +181,10 @@ func _session_id() -> String:
 
 
 func _content_revision() -> String:
+	if bespoke != null:
+		return "EXP06_" + ("%s|%s" % [
+			str(_definitions.get("source_fingerprint", "")),
+			str(bespoke.definition_snapshot().get("encounter_key", ""))]).sha256_text()
 	return "EXP03_" + str(_definitions.get("source_fingerprint", ""))
 
 
