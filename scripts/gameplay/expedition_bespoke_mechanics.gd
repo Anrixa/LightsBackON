@@ -53,7 +53,7 @@ static func _numeric_valid(value: Variant, lower: int, upper: int) -> bool:
 	if not (value is int or value is float):
 		return false
 	var number: float = float(value)
-	return is_finite(number) and number == floorf(number) and number >= lower and number <= upper
+	return not is_nan(number) and not is_inf(number) and number == floorf(number) and number >= lower and number <= upper
 
 
 static func entry_for(book: Dictionary, level: Dictionary, location: Dictionary) -> Dictionary:
