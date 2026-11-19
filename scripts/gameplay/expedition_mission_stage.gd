@@ -45,6 +45,8 @@ var _reward_error: String = ""
 var _hazard_marker: MeshInstance3D
 var _fault_route: String = "isolate"
 var _consequence_choice: String = "isolate"
+var _logistics_route: String = "direct"
+var _logistics_job: String = "a"
 
 
 func _ready() -> void:
@@ -108,7 +110,7 @@ func _ready() -> void:
 	runtime = Runtime.new()
 	var result: Dictionary = runtime.start(
 		level_id, Callable(self, "_host_position"), Callable(self, "_world_sight"),
-		_expedition_account, _expedition_account != "", "", true, true, true, true)
+		_expedition_account, _expedition_account != "", "", true, true, true, true, true)
 	if not bool(result.get("ok", false)):
 		push_error("EXP03_HOST_START_FAILED: " + str(result))
 		return
@@ -167,6 +169,12 @@ func _add_host_targets() -> void:
 		for node: Dictionary in chain["nodes"]:
 			names[str(node["id"])] = str(node["service"]).to_upper()
 		names[str(chain["console"])] = "CASCADE CERTIFICATION CONSOLE"
+	if runtime.logistics != null:
+		var manifest: Dictionary = runtime.logistics.definition_snapshot()
+		names[str(manifest["depot"])] = "EMERGENCY SUPPLY DEPOT"
+		names[str(manifest["console"])] = "LOGISTICS CERTIFICATION"
+		for job: Dictionary in manifest["jobs"]:
+			names[str(job["id"])] = str(job["cargo"]).to_upper()
 	for id: String in _definitions["positions"]:
 		var marker: Marker3D = Marker3D.new()
 		marker.name = id
@@ -258,7 +266,7 @@ func _build_overlay(level: Dictionary) -> void:
 	_feedback.add_theme_color_override("font_color", Color("#F1D6B2"))
 	box.add_child(_feedback)
 	var controls: Label = Label.new()
-	controls.text = "WASD move • mouse aim • E interact • R switch EXP08 isolation/reroute • T switch EXP009 isolate/divert • 1–5 tools • Esc return to atlas\nEXP06: Follow puzzle instructions and host hazard windows. EXP07: Finish equipment sequence. EXP08: Scan both probes, choose SPUR OFF isolation or SPUR ON spare-relay reroute, stabilize and certify. EXP009: Survey each linked service, T chooses isolate/divert, repair failures with SPUR OFF, certify once EXP08 is complete. Optional archive and lore remain optional."
+	controls.text = "WASD move • mouse aim • E interact • R EXP08 route • T EXP009 response • U EXP010 direct/relay • Y EXP010 shipment A/B • K recall depot shipment • 1–5 tools • Esc atlas\nEXP06–EXP009: Complete equipment, stability and service recovery. EXP010: Open depot manifest, allocate one direct and one relay shipment from finite stocks, wait for host transit, receive each cargo, certify the logistics board. Unsafe supply pauses transit and reopens completed deliveries for recheck. Source/headless only; physical playability remains held."
 	controls.add_theme_color_override("font_color", Color("#D9E3EC"))
 	controls.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(controls)
@@ -358,6 +366,23 @@ func _next_repair() -> void:
 func _activate_target() -> void:
 	if _target == "":
 		return
+	if _target.begins_with("LG_") and runtime.logistics != null:
+		var manifest: Dictionary = runtime.logistics.definition_snapshot()
+		var logistics_state: Dictionary = runtime.logistics.snapshot()
+		if _target == str(manifest["depot"]):
+			var action: String = "dispatch_" + _logistics_job + "_" + _logistics_route
+			if not logistics_state["manifest"]:
+				action = "manifest"
+			_send("operate_logistics", _target, {"action": action})
+		elif _target == str(manifest["console"]):
+			_send("operate_logistics", _target, {"action": "certify"})
+		elif (logistics_state["jobs"] as Dictionary).has(_target):
+			var status: String = str(logistics_state["jobs"][_target]["status"])
+			if ["arrived", "recheck"].has(status):
+				_send("operate_logistics", _target, {"action": "receive" if status == "arrived" else "recheck"})
+			else:
+				_feedback.text = "EXP010 shipment " + _target + " is " + status.to_upper()
+		return
 	if _target.begins_with("FC_") and runtime.consequences != null:
 		var chain: Dictionary = runtime.consequences.definition_snapshot()
 		var snapshot: Dictionary = runtime.consequences.snapshot()
@@ -432,6 +457,22 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event.is_action_pressed("ui_cancel") or event.is_action_pressed("pause"):
 		_return_to_menu()
+		get_viewport().set_input_as_handled()
+		return
+	if event is InputEventKey and event.physical_keycode == KEY_K and not event.ctrl_pressed and not event.alt_pressed:
+		if _target.begins_with("LG_") and runtime.logistics != null and \
+				_target == str(runtime.logistics.definition_snapshot()["depot"]):
+			_send("operate_logistics", _target, {"action": "recall"})
+		get_viewport().set_input_as_handled()
+		return
+	if event is InputEventKey and event.physical_keycode == KEY_U and not event.ctrl_pressed and not event.alt_pressed:
+		_logistics_route = "relay" if _logistics_route == "direct" else "direct"
+		_refresh()
+		get_viewport().set_input_as_handled()
+		return
+	if event is InputEventKey and event.physical_keycode == KEY_Y and not event.ctrl_pressed and not event.alt_pressed:
+		_logistics_job = "b" if _logistics_job == "a" else "a"
+		_refresh()
 		get_viewport().set_input_as_handled()
 		return
 	if event is InputEventKey and event.physical_keycode == KEY_T and not event.ctrl_pressed and not event.alt_pressed:
@@ -557,6 +598,23 @@ func _refresh() -> void:
 		if _target.begins_with("FC_"):
 			lines.append("EXP009 target %s • selected %s • E survey / response / repair / certify" % [
 				_target, _consequence_choice])
+	if board.has("logistics"):
+		var logistics: Dictionary = board["logistics"]
+		lines.append("EXP010 LOGISTICS %s • stock %d spares / %d fuel • tick %d • late %d • recall %d • reopens %d" % [
+			"CERTIFIED" if logistics["certified"] else "MANIFESTED" if logistics["manifest"] else "DORMANT",
+			int(logistics["stock"]["spares"]), int(logistics["stock"]["fuel"]), int(logistics["tick"]),
+			int(logistics["late"]), int(logistics["recalls"]), int(logistics["reopens"])])
+		for job: Dictionary in (_definitions["logistics"] as Dictionary)["jobs"]:
+			var state: Dictionary = logistics["jobs"][str(job["id"])]
+			lines.append("%s • %s • %s • deadline %d ticks • %s" % [
+				str(job["id"]), str(job["cargo"]), str(state["status"]).to_upper(),
+				int(job["deadline_ticks"]), str(job["priority"])])
+		lines.append("EXP010 choice: job %s / %s route • U route, Y job, E act, K recall at depot" % [
+			_logistics_job.to_upper(), _logistics_route])
+		if not (logistics["active"] as Dictionary).is_empty():
+			var active: Dictionary = logistics["active"]
+			lines.append("SUPPLY IN TRANSIT: %s / %s • %d/%d host ticks" % [
+				str(active["job"]), str(active["route"]), int(active["elapsed"]), int(active["duration"])])
 	_task_label.text = "\n".join(lines)
 	if _target_label != null:
 		_target_label.text = "Target: %s  /  tool: %s  /  host revision: %d" % [
