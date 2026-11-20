@@ -57,6 +57,15 @@ func test_EXP014_A03_every_region_has_distinct_actual_geometry_and_source_risk()
 			assert_eq(str(node.get_meta("source_location_id")), str(location["id"]))
 			var hazard: Node3D = (node.get_node("EnvironmentalEncounter") as Node3D).get_child(0)
 			assert_eq(str(hazard.get_meta("source_risk")), str(location["risk"]))
+			var evidence: Node3D = node.get_node("EnvironmentalEncounter") as Node3D
+			var source_task: String = str(evidence.get_meta("source_task_evidence", ""))
+			var is_original_task: bool = false
+			for task: Dictionary in level["tasks"]:
+				if str(task["id"]) == source_task:
+					is_original_task = true
+			assert_true(is_original_task, "Environmental evidence must reference an original task")
+			assert_eq(str((evidence.get_node("SiteSpecificEvidenceBearing") as Node3D).
+				get_meta("source_task_id")), source_task)
 			node.free()
 		assert_eq(plan, original, "Presentation cannot mutate mission source plan")
 		count += 1
