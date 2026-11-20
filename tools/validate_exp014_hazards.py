@@ -157,6 +157,9 @@ def validate(
     require(all(fragment in stage for fragment in stage_contract),
             "LIVE_HAZARD_INTERFACE_MISSING")
     mechanics = (
+        'outcome.get("qualification") != QUALIFICATION',
+        'outcome.get("region_id") != _spec["region_id"]',
+        'outcome.get("risk_class") != _spec["risk_class"]',
         'if _mode == "temporary":',
         'if action == "engineer_control":',
         'elif action == "temporary_bypass":',
