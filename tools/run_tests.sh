@@ -54,6 +54,9 @@ if [ -n "$PY" ]; then "$PY" tools/validate_exp013_expansions.py || FAIL=1; fi
 echo "== EXP013 A04: final 200 source-bound sites, 1000 tasks and 400 operating routes =="
 if [ -n "$PY" ]; then "$PY" tools/validate_exp013_completion.py || FAIL=1; fi
 
+echo "== EXP014 A01: 200 host-bound schematic compositions and honest mechanical diversity metrics =="
+if [ -n "$PY" ]; then "$PY" tools/validate_exp014_composition.py || FAIL=1; fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 

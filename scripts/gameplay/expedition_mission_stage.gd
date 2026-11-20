@@ -7,6 +7,7 @@ extends Node3D
 const Atlas := preload("res://scripts/world/dispatch_atlas.gd")
 const Plan := preload("res://scripts/world/expedition_layout_plan.gd")
 const Graybox := preload("res://scripts/world/expedition_graybox.gd")
+const SiteComposition := preload("res://scripts/world/expedition_site_composition.gd")
 const Runtime := preload("res://scripts/gameplay/expedition_host_session.gd")
 const PlayerController := preload("res://scripts/actors/first_person_controller.gd")
 const TargetSelector := preload("res://scripts/interaction/target_selector.gd")
@@ -43,6 +44,7 @@ var _expedition_saves: SaveService
 var _expedition_profile: Dictionary = {}
 var _reward_error: String = ""
 var _hazard_marker: MeshInstance3D
+var _site_composition: Node3D
 var _fault_route: String = "isolate"
 var _consequence_choice: String = "isolate"
 var _logistics_route: String = "direct"
@@ -118,6 +120,7 @@ func _ready() -> void:
 		return
 	_definitions = runtime.definition_snapshot()
 	_add_host_targets()
+	_add_site_composition()
 	_add_hazard_marker()
 	_build_overlay(level)
 	# An original Compatibility scene with no extra lights or game-state
@@ -226,6 +229,24 @@ func _add_host_targets() -> void:
 		label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 		label.modulate = Color("#E4EDF1")
 		marker.add_child(label)
+
+
+## EXP014: build only a non-colliding, source-bound field presentation.
+## Validation uses the same host positions and inspected route definitions;
+## this layer cannot register network entities or change host authority.
+func _add_site_composition() -> void:
+	var active: Variant = runtime.site_exp013 if runtime.site_exp013 != null else runtime.site_a02
+	if active == null:
+		return
+	var case_source: Dictionary = active.definition_snapshot()
+	var positions: Dictionary = _definitions["positions"]
+	var checked: Dictionary = SiteComposition.inspect(case_source, positions)
+	if not bool(checked.get("ok", false)):
+		push_error("EXP014_SOURCE_COMPOSITION_HOLD: " + str(checked))
+		return
+	_site_composition = SiteComposition.build(case_source, positions)
+	if _site_composition != null:
+		world.add_child(_site_composition)
 
 
 ## A visible diagnostic marker, not a damage collider or tested path blocker.
@@ -796,4 +817,8 @@ func _refresh() -> void:
 		_target_label.text = "Target: %s  /  tool: %s  /  host revision: %d" % [
 			_target if _target != "" else "(aim at numbered station)",
 			TOOL_IDS[_selected_tool], int(board["host_revision"])]
+	if _site_composition != null:
+		var active: Variant = runtime.site_exp013 if runtime.site_exp013 != null else runtime.site_a02
+		if active != null:
+			SiteComposition.reflect(_site_composition, active.snapshot())
 	set_meta("display_revision", int(board["host_revision"]))
