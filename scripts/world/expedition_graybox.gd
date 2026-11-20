@@ -1,4 +1,5 @@
 extends RefCounted
+const Regional := preload("res://scripts/world/expedition_regional_facilities.gd")
 ## EXP02: original procedural 3D level-composition previews.
 ## One built world per selected dispatch; never launches a player, registers
 ## a host target or performs pickup/reward actions. Only the floor collides.
@@ -181,4 +182,11 @@ static func build(plan: Dictionary) -> Node3D:
 		text.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 		text.modulate = Color("#F0F3EE")
 		marker.add_child(text)
+	# EXP014 A03: one source-validated regional facility package per selected
+	# worksite. Mesh-only schematic evidence; no new world collision or host input.
+	var regional: Node3D = Regional.build(plan)
+	if regional == null:
+		root.free()
+		return null
+	root.add_child(regional)
 	return root
