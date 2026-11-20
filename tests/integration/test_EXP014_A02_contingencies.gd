@@ -51,6 +51,26 @@ func _run_step(engine: Contingency, facts: Dictionary) -> void:
 	for i: int in range(int(next["dwell_ticks"])):
 		engine.advance(facts)
 	assert_eq(str(engine.snapshot()["phase"]), "stable")
+	# The four risk guards must be genuinely different host-side proof paths.
+	var guard: String = str(next["guard"])
+	if guard == "load_balanced":
+		assert_false(bool(engine.operate(support, first, facts).get("ok", true)),
+			"Load stability hold was bypassed")
+		for i: int in range(3):
+			engine.advance(facts)
+	else:
+		var proof_station: String = support if guard == "supplies_ready" else \
+			witness if guard == "cascade_stable" else target
+		var proof_action: String = "stock_check" if guard == "supplies_ready" else \
+			"relay_ping" if guard == "cascade_stable" else "clearance_probe"
+		assert_false(bool(engine.operate(support, first, facts).get("ok", true)),
+			"Required domain proof was bypassed")
+		assert_true(bool(engine.operate(proof_station, proof_action, facts).get("ok", false)),
+			"Source-domain preflight failed")
+		assert_false(bool(engine.operate(support, first, facts).get("ok", true)),
+			"Guard witness gap was bypassed")
+		for i: int in range(3):
+			engine.advance(facts)
 	assert_true(bool(engine.operate(support, first, facts).get("ok", false)))
 	assert_false(bool(engine.operate(witness, second, facts).get("ok", true)),
 		"Witness forged before host gap")
