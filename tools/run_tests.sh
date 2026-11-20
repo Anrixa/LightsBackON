@@ -69,6 +69,9 @@ if [ -n "$PY" ]; then "$PY" tools/validate_exp014_feedback.py || FAIL=1; fi
 echo "== EXP014 A05: 25 noncosmetic approach protocols, 200 source pins and 400 decision routes =="
 if [ -n "$PY" ]; then "$PY" tools/validate_exp014_approach.py || FAIL=1; fi
 
+echo "== EXP014 A06: five risk-specific consequence graphs, 200 sites and authenticated host gates =="
+if [ -n "$PY" ]; then "$PY" tools/validate_exp014_outcomes.py || FAIL=1; fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 
