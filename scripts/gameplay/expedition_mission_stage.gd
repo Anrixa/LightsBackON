@@ -9,6 +9,7 @@ const Plan := preload("res://scripts/world/expedition_layout_plan.gd")
 const Graybox := preload("res://scripts/world/expedition_graybox.gd")
 const SiteComposition := preload("res://scripts/world/expedition_site_composition.gd")
 const EnvironmentFeedback := preload("res://scripts/world/expedition_environment_feedback.gd")
+const ApproachView := preload("res://scripts/world/expedition_approach_view.gd")
 const Runtime := preload("res://scripts/gameplay/expedition_host_session.gd")
 const PlayerController := preload("res://scripts/actors/first_person_controller.gd")
 const TargetSelector := preload("res://scripts/interaction/target_selector.gd")
@@ -47,6 +48,8 @@ var _reward_error: String = ""
 var _hazard_marker: MeshInstance3D
 var _site_composition: Node3D
 var _environmental_feedback: Node3D
+var _approach_view: Node3D
+var _approach_choice: String = "guarded"
 var _fault_route: String = "isolate"
 var _consequence_choice: String = "isolate"
 var _logistics_route: String = "direct"
@@ -116,7 +119,7 @@ func _ready() -> void:
 	runtime = Runtime.new()
 	var result: Dictionary = runtime.start(
 		level_id, Callable(self, "_host_position"), Callable(self, "_world_sight"),
-		_expedition_account, _expedition_account != "", "", true, true, true, true, true, true, true, true, true, true)
+		_expedition_account, _expedition_account != "", "", true, true, true, true, true, true, true, true, true, true, true)
 	if not bool(result.get("ok", false)):
 		push_error("EXP03_HOST_START_FAILED: " + str(result))
 		return
@@ -256,6 +259,14 @@ func _add_site_composition(plan: Dictionary) -> void:
 		_environmental_feedback = EnvironmentFeedback.attach(plan, case_source, regional)
 		if _environmental_feedback == null:
 			push_error("EXP014_A04_ENVIRONMENT_SOURCE_HOLD")
+	# Source-anchored approach ribbons represent the available entry options
+	# but never register physical navigation or new interaction targets.
+	if runtime.site_approach != null:
+		_approach_view = ApproachView.build(plan, case_source, positions)
+		if _approach_view == null:
+			push_error("EXP014_A05_APPROACH_SOURCE_HOLD")
+		else:
+			world.add_child(_approach_view)
 
 
 ## A visible diagnostic marker, not a damage collider or tested path blocker.
@@ -466,10 +477,41 @@ func _activate_contingency_target() -> void:
 			str(next["witness"]), str(next["target"])]
 
 
+## All A05 commands reuse host-registered SC targets. The UI only
+## chooses an action; source validation and the decision belong to the host.
+func _activate_approach_target() -> void:
+	if runtime.site_approach == null:
+		return
+	var state: Dictionary = runtime.site_approach.snapshot()
+	var action: String = ""
+	if str(state["fault"]) != "":
+		if _target == str(state["recovery_target"]):
+			action = "recover"
+	else:
+		var next: Dictionary = state["next"]
+		if _target == str(next.get("target", "")):
+			if str(state["phase"]) == "arrival":
+				action = "approach_" + _approach_choice
+			elif str(state["phase"]) == "decision":
+				action = "commit_" + _worksite_route
+			else:
+				action = str(next.get("action", ""))
+	if action != "":
+		_send("operate_worksite", _target, {"action": action})
+	elif _feedback != null:
+		_feedback.text = "EXP014 A05: host requests %s at %s; evidence %d/%d." % [
+			str((state["next"] as Dictionary).get("action", "recover")),
+			str((state["next"] as Dictionary).get("target", state["recovery_target"])),
+			int(state["step"]), int(state["total_steps"])]
+
+
 func _activate_target() -> void:
 	if _target == "":
 		return
 	if _target.begins_with("SC_") and (runtime.site_a02 != null or runtime.site_exp013 != null):
+		if runtime.site_approach != null and not runtime.site_approach.solved():
+			_activate_approach_target()
+			return
 		var active_site: Variant = runtime.site_exp013 if runtime.site_exp013 != null else runtime.site_a02
 		# EXP014 is a post-intervention layer. Reuse the same physical host
 		# station IDs and authenticated worksite ingress, never a new RPC.
@@ -659,6 +701,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		_worksite_route = "resilience" if _worksite_route == "priority" else "priority"
 		if _feedback != null:
 			_feedback.text = "EXP012 strategy: " + _worksite_route.to_upper()
+		_refresh()
+		get_viewport().set_input_as_handled()
+		return
+	if event is InputEventKey and event.physical_keycode == KEY_G and not event.ctrl_pressed and not event.alt_pressed:
+		_approach_choice = "urgent" if _approach_choice == "guarded" else "guarded"
+		if _feedback != null:
+			_feedback.text = "EXP014 A05 approach selected: " + _approach_choice.to_upper()
 		_refresh()
 		get_viewport().set_input_as_handled()
 		return
@@ -892,6 +941,25 @@ func _refresh() -> void:
 				lines.append("EXP014 %s • guard %s • target %s → support %s → witness %s • host progress %d/2" % [
 					str(current["mode"]), str(current["guard"]), str(current["target"]),
 					str(current["support"]), str(current["witness"]), int(state["progress"])])
+	if board.has("worksite") and board["worksite"].has("site_approach"):
+		var intel: Dictionary = board["worksite"]["site_approach"]
+		lines.append("EXP014 A05 APPROACH %s • mode %s (G: %s) • investigation %d/%d • failures %d / recovery %d" % [
+			str(intel["phase"]).to_upper(), str(intel["approach"]),
+			_approach_choice, int(intel["step"]), int(intel["total_steps"]),
+			int(intel["failures"]), int(intel["recoveries"])])
+		if bool(intel["intel_revealed"]):
+			lines.append("HOST-VERIFIED INTELLIGENCE: %s • risk guard %s • recommended %s • chosen %s" % [
+				str(intel["protocol"]), str(intel["risk_guard"]),
+				str(intel["recommended_route"]), str(intel["route"])])
+		if str(intel["fault"]) != "":
+			lines.append("A05 FAULT %s • recover at %s; no intervention unlocked." % [
+				str(intel["fault"]), str(intel["recovery_target"])])
+		elif not bool(intel["solved"]):
+			var requested: Dictionary = intel["next"]
+			lines.append("A05 HOST REQUEST: %s at %s • choose V for decision route • E to act" % [
+				str(requested.get("action", "")), str(requested.get("target", ""))])
+		else:
+			lines.append("A05 OPERATING ROUTE LOCKED: %s • select same route at worksite board" % str(intel["route"]))
 	_task_label.text = "\n".join(lines)
 	if _target_label != null:
 		_target_label.text = "Target: %s  /  tool: %s  /  host revision: %d" % [
@@ -904,6 +972,8 @@ func _refresh() -> void:
 			if runtime.site_contingency != null and active.solved():
 				SiteComposition.reflect_contingency(
 					_site_composition, runtime.site_contingency.snapshot())
+	if _approach_view != null and runtime.site_approach != null:
+		ApproachView.reflect(_approach_view, runtime.site_approach.snapshot())
 	if _environmental_feedback != null:
 		var active_source: Variant = runtime.site_exp013 if runtime.site_exp013 != null else runtime.site_a02
 		if active_source != null:
