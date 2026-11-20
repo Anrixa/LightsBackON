@@ -133,7 +133,7 @@ func configure(approach: Dictionary, contingency: Dictionary) -> Dictionary:
 		"risk_class": str(RISK_CLASS[str(approach["region_id"])]),
 		"qualification": QUALIFICATION
 	}
-		_risk_class = str(_spec["risk_class"])
+	_risk_class = str(_spec["risk_class"])
 	return {"ok": true, "level_id": _spec["level_id"]}
 
 
@@ -303,10 +303,13 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 		_log("PLAN_" + _mode.to_upper())
 	elif _phase == "audit":
 		var steps: Array = _audit_steps()
-		if _audit_count >= steps.size() or 				not bool(facts.get("site_contingency_solved", false)) or 				not bool(facts.get("site_intervention_solved", false)):
+		if _audit_count >= steps.size() or \
+				not bool(facts.get("site_contingency_solved", false)) or \
+				not bool(facts.get("site_intervention_solved", false)):
 			return _reject("RESTORATION_EVIDENCE_REQUIRED")
 		var expected: Dictionary = steps[_audit_count]
-		if action != str(expected["action"]) or 				not bool(facts.get(str(expected["guard"]), false)):
+		if action != str(expected["action"]) or \
+				not bool(facts.get(str(expected["guard"]), false)):
 			return _reject("SOURCE_PROOF_MISMATCH")
 		if _audit_count > 0 and _tick - _witness_tick < int(expected["gap"]):
 			return _reject("WITNESS_NOT_SETTLED")
