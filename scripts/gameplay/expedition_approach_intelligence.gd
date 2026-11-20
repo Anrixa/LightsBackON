@@ -209,11 +209,22 @@ func _next() -> Dictionary:
 
 func snapshot() -> Dictionary:
 	var discovered: bool = ["decision", "prepare"].has(_phase) or _solved
+	# Every fact is a consequence of accepted host observations. An early
+	# examination exposes the site risk and exact upstream guard; a second
+	# independent witness exposes the evidence protocol. Only finishing the
+	# entire source-specific investigation exposes the safe route guidance.
+	var evidence_count: int = _step if _fault == "" else 0
+	var observed_risk: String = str(_source.get("source_risk", "")) if evidence_count > 0 else ""
+	var observed_guard: String = str(_profile.get("guard", "")) if evidence_count > 0 else ""
+	var observed_protocol: String = str(_profile.get("protocol", "")) if evidence_count > 1 else ""
 	return {"level_id": str(_source.get("level_id", "")),
 		"region_id": str(_source.get("region_id", "")), "phase": _phase,
 		"approach": _approach, "route": _route, "solved": _solved,
 		"tick": _tick, "step": _step, "total_steps": _steps().size() if not _source.is_empty() else 0,
 		"intel_revealed": discovered, "recommended_route": str(_profile.get("recommend", "")) if discovered else "",
+		"observed_risk": observed_risk,
+		"observed_guard": observed_guard,
+		"observed_protocol": observed_protocol,
 		"protocol": str(_profile.get("protocol", "")) if discovered else "unverified",
 		"risk_guard": str(_profile.get("guard", "")) if discovered else "unverified",
 		"fault": _fault, "failures": _failures, "recoveries": _recoveries,
