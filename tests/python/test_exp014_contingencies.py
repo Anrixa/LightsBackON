@@ -76,7 +76,9 @@ class EXP014ContingencySourceTests(unittest.TestCase):
         # A renamed action cannot mask a mechanically repeated shared graph.
         tampered = copy.deepcopy(self.book)
         reference = tampered["entries"][0]["routes"]
-        for entry in tampered["entries"]:
+        # Preserve the first ten real cases so all three modes and all four
+        # guards remain represented. Only topology variety should fail.
+        for entry in tampered["entries"][10:]:
             for route in ("priority", "resilience"):
                 for idx, step in enumerate(entry["routes"][route]):
                     original = reference[route][idx]
