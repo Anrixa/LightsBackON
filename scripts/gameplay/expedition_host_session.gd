@@ -32,6 +32,7 @@ const Balancing := preload("res://scripts/gameplay/expedition_critical_loads.gd"
 const Worksite := preload("res://scripts/gameplay/expedition_worksite_orders.gd")
 const SiteA02 := preload("res://scripts/gameplay/expedition_site_interventions.gd")
 const SiteEXP013 := preload("res://scripts/gameplay/expedition_site_exp013.gd")
+const SiteContingencies := preload("res://scripts/gameplay/expedition_site_contingencies.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
 
@@ -59,6 +60,7 @@ var balancing: Balancing
 var worksite: Worksite
 var site_a02: SiteA02
 var site_exp013: SiteA02
+var site_contingency: SiteContingencies
 
 var _definitions: Dictionary = {}
 var _position_source: Callable
@@ -93,7 +95,8 @@ func start(level_id: String, host_position: Callable,
 		enable_faults: bool = false, enable_consequences: bool = false,
 		enable_logistics: bool = false, enable_balance: bool = false,
 		enable_worksite: bool = false, enable_site_a02: bool = false,
-		enable_site_exp013: bool = false) -> Dictionary:
+		enable_site_exp013: bool = false,
+		enable_site_contingency: bool = false) -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
 	if enable_devices and not enable_bespoke:
@@ -112,6 +115,8 @@ func start(level_id: String, host_position: Callable,
 		return _fail("EXP012A02_REQUIRES_EXP012")
 	if enable_site_exp013 and not enable_worksite:
 		return _fail("EXP013_REQUIRES_EXP012")
+	if enable_site_contingency and (not enable_site_a02 or not enable_site_exp013):
+		return _fail("EXP014_REQUIRES_EXP012A02_AND_EXP013")
 	if account_key != "" and not SaveService.is_valid_key(account_key):
 		return _fail("INVALID_ACCOUNT_KEY")
 	if not host_position.is_valid() or (physics_visibility.is_valid() and not host_position.is_valid()):
@@ -339,6 +344,29 @@ func start(level_id: String, host_position: Callable,
 				exp013_positions[str(exp013_case["targets"][letter])] = \
 					exp013_positions[str(bases[letter])] + offset_m
 			# The source-defined markers do NOT certify physical accessibility.
+	# EXP014 A02: additive post-intervention state only; all existing site
+	# definitions/positions and the original 1,000 task bindings stay immutable.
+	if enable_site_contingency:
+		var originals: Array[Dictionary] = []
+		for prior: Dictionary in SiteA02.load_book().get("entries", []):
+			originals.append(prior)
+		for source_book: Dictionary in SiteEXP013.load_available_books():
+			for prior: Dictionary in source_book["entries"]:
+				originals.append(prior)
+		var contingency_book: Dictionary = SiteContingencies.load_book()
+		var contingency_audit: Dictionary = SiteContingencies.inspect(
+			atlas, originals, contingency_book)
+		if not bool(contingency_audit.get("ok", false)):
+			return _fail("EXP014_CONTINGENCY_BOOK_INVALID", contingency_audit)
+		var contingency_case: Dictionary = SiteContingencies.entry_for(
+			contingency_book, level_id)
+		if contingency_case.is_empty() or (site_a02 == null and site_exp013 == null):
+			return _fail("EXP014_SITE_SOURCE_NOT_AVAILABLE")
+		site_contingency = SiteContingencies.new()
+		var contingency_configured: Dictionary = site_contingency.configure(contingency_case)
+		if not bool(contingency_configured.get("ok", false)):
+			return _fail("EXP014_CONTINGENCY_CONFIG_INVALID", contingency_configured)
+		_definitions["site_contingency"] = site_contingency.definition_snapshot()
 	_position_source = host_position
 	_physics_visibility = physics_visibility
 	_account_key = account_key
@@ -412,7 +440,7 @@ func start(level_id: String, host_position: Callable,
 		"consequences_active": consequences != null,
 		"logistics_active": logistics != null, "balance_active": balancing != null,
 		"worksite_active": worksite != null, "site_a02_active": site_a02 != null,
-		"site_exp013_active": site_exp013 != null,
+		"site_exp013_active": site_exp013 != null, "site_contingency_active": site_contingency != null,
 		"qualification": "AUTHORITY_SOURCE_HEADLESS_ONLY_NO_PLAYABILITY"}
 
 
@@ -421,6 +449,13 @@ func _session_id() -> String:
 
 
 func _content_revision() -> String:
+	if site_contingency != null:
+		var original: SiteA02 = site_exp013 if site_exp013 != null else site_a02
+		return "EXP014_" + ("%s|%s|%s|%s" % [
+			str(_definitions.get("source_fingerprint", "")),
+			str(worksite.definition_snapshot().get("encounter_key", "")),
+			JSON.stringify(original.definition_snapshot()),
+			JSON.stringify(site_contingency.definition_snapshot())]).sha256_text()
 	if site_exp013 != null:
 		return "EXP013_" + ("%s|%s|%s|%s" % [
 			str(_definitions.get("source_fingerprint", "")),
@@ -533,6 +568,8 @@ func _bespoke_guard(player_id: String, kind: String, entity: String,
 		return _fail("EXP012A02_SITE_INCOMPLETE")
 	if kind == "request_extract" and site_exp013 != null and not site_exp013.solved():
 		return _fail("EXP013_SITE_INCOMPLETE")
+	if kind == "request_extract" and site_contingency != null and not site_contingency.solved():
+		return _fail("EXP014_CONTINGENCY_INCOMPLETE")
 	if kind == "operate_worksite" and (worksite == null or \
 			(not worksite.target_ids().has(entity) and \
 			(site_a02 == null or not site_a02.target_ids().has(entity)) and \
@@ -672,23 +709,39 @@ func _worksite_facts() -> Dictionary:
 	return facts
 
 
+func _contingency_facts() -> Dictionary:
+	var facts: Dictionary = _worksite_facts()
+	var original: SiteA02 = site_exp013 if site_exp013 != null else site_a02
+	facts["site_intervention_solved"] = original != null and original.solved()
+	return facts
+
+
 func _operate_worksite(player_id: String, entity: String, action: String) -> Dictionary:
 	if player_id != PLAYER_ID or worksite == null:
 		return _fail("EXP012_HOST_PRINCIPAL_INVALID")
 	var active: SiteA02 = site_exp013 if site_exp013 != null else site_a02
 	if active != null and active.target_ids().has(entity):
+		if site_contingency != null and active.solved():
+			return site_contingency.operate(entity, action, _contingency_facts())
 		return active.operate(entity, action, _worksite_facts())
 	# The A01 choice and one authored site overlay must agree atomically.
 	# An attempted reroute after intervention begins cannot fork host states.
 	if active != null and entity == str(worksite.definition_snapshot()["decision"]) and \
-			["priority", "resilience"].has(action) and not active.can_choose_route(action):
-		return _fail("EXP013_ROUTE_LOCKED" if site_exp013 != null else "EXP012A02_ROUTE_LOCKED")
+			["priority", "resilience"].has(action) and \
+			(not active.can_choose_route(action) or \
+			(site_contingency != null and not site_contingency.can_choose_route(action))):
+		return _fail("EXP014_ROUTE_LOCKED" if site_contingency != null else \
+			"EXP013_ROUTE_LOCKED" if site_exp013 != null else "EXP012A02_ROUTE_LOCKED")
 	var reply: Dictionary = worksite.operate(entity, action, _worksite_facts())
 	if bool(reply.get("ok", false)) and active != null and \
 			entity == str(worksite.definition_snapshot()["decision"]):
 		var binding: Dictionary = active.choose_route(action)
 		if not bool(binding.get("ok", false)):
 			return _fail("EXP013_ROUTE_SYNC_FAILED" if site_exp013 != null else "EXP012A02_ROUTE_SYNC_FAILED")
+		if site_contingency != null:
+			var synced: Dictionary = site_contingency.choose_route(action)
+			if not bool(synced.get("ok", false)):
+				return _fail("EXP014_ROUTE_SYNC_FAILED")
 	return reply
 
 
@@ -699,6 +752,8 @@ func _worksite_tick() -> void:
 		site_a02.advance(_worksite_facts())
 	if site_exp013 != null:
 		site_exp013.advance(_worksite_facts())
+	if site_contingency != null:
+		site_contingency.advance(_contingency_facts())
 
 
 func _worksite_snapshot() -> Dictionary:
@@ -709,6 +764,8 @@ func _worksite_snapshot() -> Dictionary:
 		state["site_a02"] = site_a02.snapshot()
 	if site_exp013 != null:
 		state["site_exp013"] = site_exp013.snapshot()
+	if site_contingency != null:
+		state["site_contingency"] = site_contingency.snapshot()
 	return state
 
 
