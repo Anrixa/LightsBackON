@@ -123,8 +123,8 @@ func test_EXP014_A02_faults_recovery_and_upstream_loss_cannot_be_bypassed() -> v
 	assert_true(bool(engine.choose_route("priority").get("ok", false)))
 	var facts: Dictionary = _facts("priority")
 	var source: Dictionary = engine.snapshot()["next"]
-	assert_false(bool(engine.operate(str(source["target"]),
-		str(source["action"]), facts).get("ok", true)) == false)
+	assert_true(bool(engine.operate(str(source["target"]),
+		str(source["action"]), facts).get("ok", false)))
 	assert_false(bool(engine.operate(str(source["target"]), "seal", facts).get("ok", true)))
 	assert_eq(str(engine.snapshot()["fault"]), "PREMATURE_CLOSE")
 	assert_false(bool(engine.operate(str(source["target"]), "recover", facts).get("ok", true)))
