@@ -189,7 +189,7 @@ func test_EXP014_A06_guard_loss_recovery_witness_and_route_binding() -> void:
 	assert_true(bool(candidate.operate(str(first["target"]), str(first["action"]), facts).get("ok", false)))
 	var second: Dictionary = candidate.snapshot()["next"]
 	assert_false(bool(candidate.operate(str(second["target"]), str(second["action"]),
-		facts).get("ok", false), "Independent host witness requires elapsed ticks")
+		facts).get("ok", false)), "Independent host witness requires elapsed ticks")
 	for i: int in range(6):
 		candidate.advance(facts)
 	assert_true(bool(candidate.operate(str(second["target"]), str(second["action"]),
