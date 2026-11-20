@@ -135,13 +135,16 @@ static func inspect(plan: Dictionary) -> Dictionary:
 			return _reject("EXP014_A03_UNBOUND_TASK_MARKER")
 		seen[task_id] = true
 	var forms: Array = recipe["forms"]
-	if forms.size() != 4 or len(set_forms(forms)) != 4:
+	if forms.size() != 4 or set_forms(forms).size() != 4:
 		return _reject("EXP014_A03_INVALID_FACILITY_PROFILE")
 	var site: Dictionary = _anchor(stations, serial, region_number)
 	if not bool(site.get("ok", false)):
 		return _reject(str(site.get("code", "EXP014_A03_NO_FREE_FACILITY_SLOT")))
+	var form_names: Array[String] = []
+	for form: Variant in forms:
+		form_names.append(str(form))
 	var geometry_sig: String = ("%s|%s" % [
-		",".join(forms), str(recipe["cue"])]).sha256_text()
+		",".join(form_names), str(recipe["cue"])]).sha256_text()
 	var site_sig: String = ("%s|%s|%s|%s" % [
 		level, region, str(site["anchor"]), geometry_sig]).sha256_text()
 	return {"ok": true, "region_id": region, "level_id": level,
@@ -306,7 +309,8 @@ static func build(plan: Dictionary) -> Node3D:
 	var recipe: Dictionary = RECIPES[str(audit["region_id"])]
 	var root: Node3D = Node3D.new()
 	root.name = "EXP014_A03_RegionalFacilities"
-	root.position = Vector3(audit["anchor"].x, 0.0, audit["anchor"].y)
+	var anchor: Vector2 = audit["anchor"]
+	root.position = Vector3(anchor.x, 0.0, anchor.y)
 	root.set_meta("source_level_id", str(audit["level_id"]))
 	root.set_meta("source_region_id", str(audit["region_id"]))
 	root.set_meta("source_location_id", str(audit["location_id"]))
@@ -333,4 +337,27 @@ static func build(plan: Dictionary) -> Node3D:
 	encounter.name = "EnvironmentalEncounter"
 	root.add_child(encounter)
 	_environment(encounter, str(recipe["cue"]), color, str(recipe["risk"]))
+	# An individual site chooses its nearest original task marker as the
+	# source of the encounter approach cue. This points at evidence only;
+	# it never installs or modifies a host interactable.
+	var nearest_id: String = ""
+	var nearest_delta: Vector2 = Vector2.ZERO
+	var best_distance: float = INF
+	for station: Dictionary in plan["stations"]:
+		var position: Vector3 = station["position"]
+		var delta: Vector2 = Vector2(position.x - anchor.x,
+			position.z - anchor.y)
+		if delta.length() < best_distance:
+			best_distance = delta.length()
+			nearest_id = str(station["id"])
+			nearest_delta = delta
+	encounter.set_meta("source_task_evidence", nearest_id)
+	encounter.set_meta("distance_to_source_task_m", best_distance)
+	var bearing: Node3D = Node3D.new()
+	bearing.name = "SiteSpecificEvidenceBearing"
+	bearing.rotation.y = atan2(nearest_delta.x, nearest_delta.y)
+	bearing.set_meta("source_task_id", nearest_id)
+	encounter.add_child(bearing)
+	_box(bearing, "DirectionNeedle", Vector3(0.0, 0.07, 1.15),
+		Vector3(0.13, 0.06, 0.65), color)
 	return root
