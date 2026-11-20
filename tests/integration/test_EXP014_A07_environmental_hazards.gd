@@ -221,7 +221,7 @@ func test_EXP014_A07_pressure_failure_authenticated_recovery_and_no_refund() -> 
 	assert_true(bool(hazard.operate(str(next["target"]), "temporary_bypass",
 		facts).get("ok", false)))
 	var guard: Dictionary = facts.duplicate(true)
-	guard["balancing_solved"] = false
+	guard[str(Hazards.PROFILES["depth"]["sequence"][0]["guard"])] = false
 	var current: Dictionary = hazard.snapshot()["next"]
 	assert_false(bool(hazard.operate(str(current["target"]),
 		str(current["action"]), guard).get("ok", false)))
