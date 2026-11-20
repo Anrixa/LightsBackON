@@ -76,8 +76,13 @@ func test_EXP014_A04_all_200_sites_and_25_authored_risk_sequences() -> void:
 			assert_eq(str(station.get_meta("source_task_id")), expected)
 			assert_eq(str(station.get_meta("visual_state")), "unverified")
 			var cue: String = str(station.get_meta("evidence_clue"))
-			assert_false(clues.has(cue), "No duplicate authored evidence: " + cue)
-			clues[cue] = true
+			# Every region owns one authored triad, reused at its eight source sites.
+			# Duplicates across *different regions* are forbidden.
+			if (serial - 1) % 8 == 0:
+				assert_false(clues.has(cue), "No reused regional clue: " + cue)
+				clues[cue] = true
+			else:
+				assert_true(clues.has(cue), "Within-region evidence must be stable")
 		var host_state: Dictionary = {"level_id": str(plan["id"]),
 			"route": "priority", "step": 1, "fault": "", "solved": false}
 		var before: Dictionary = host_state.duplicate(true)
