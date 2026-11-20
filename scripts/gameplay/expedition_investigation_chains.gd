@@ -354,7 +354,7 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 		_log("HOST_PROOF_" + str(option["id"]))
 		if _completed.size() == _nodes().size():
 			if not bool(facts.get("hazard_safe", false)) or \
-					str(facts.get("worksite_route", "")) != _route:
+					str(facts.get("recon_route", "")) != _route:
 				return _trip("SOURCE_ROUTE_LOST")
 			_solved = true
 			_phase = "certified"
