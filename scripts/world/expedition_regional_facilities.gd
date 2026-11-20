@@ -215,12 +215,19 @@ static func _form(parent: Node3D, form: String, tint: Color) -> void:
 			elif form == "gantry":
 				_box(parent, "GantryHead", Vector3(0.0, 2.66, 0.0), Vector3(0.52, 0.45, 0.6), tint)
 		"silo", "cistern", "tower", "stack", "mast", "pylon":
-			_cylinder(parent, "Column", Vector3(0.0, 1.55, 0.0),
+			var height: float = 2.15 if form == "cistern" else 3.1
+			_cylinder(parent, "Column", Vector3(0.0, height * 0.5, 0.0),
 				0.72 if form in ["silo", "cistern"] else 0.29,
-				3.1 if form != "cistern" else 2.15, tint)
+				height, tint)
 			if form in ["tower", "pylon", "mast"]:
 				_box(parent, "Crossarm", Vector3(0.0, 2.84, 0.0),
 					Vector3(2.0 if form != "mast" else 1.0, 0.15, 0.21), iron)
+			if form == "pylon":
+				_box(parent, "StrainBrace", Vector3(0.0, 1.36, 0.0),
+					Vector3(1.65, 0.14, 0.35), iron)
+			elif form == "tower":
+				_box(parent, "InstrumentDeck", Vector3(0.0, 2.10, 0.0),
+					Vector3(1.08, 0.16, 1.08), iron)
 			if form in ["silo", "cistern"]:
 				_box(parent, "FeedSpur", Vector3(0.0, 0.3, 0.0),
 					Vector3(2.1, 0.20, 0.25), iron)
