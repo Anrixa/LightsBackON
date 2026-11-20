@@ -77,7 +77,7 @@ class EXP014OutcomesTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "HOST_AUTHORITY_OR_EXTRACTION_BYPASS"):
             self.check(host=missing_gate)
         missing_bridge = self.host.replace(
-            "site_outcomes.operate(entity, action, _outcome_facts())", "{}", 1)
+            "site_outcomes.operate(entity, action, _outcome_facts())", "{}")
         with self.assertRaisesRegex(ValueError, "HOST_AUTHORITY_OR_EXTRACTION_BYPASS"):
             self.check(host=missing_bridge)
 
