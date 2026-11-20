@@ -114,7 +114,7 @@ func _ready() -> void:
 	runtime = Runtime.new()
 	var result: Dictionary = runtime.start(
 		level_id, Callable(self, "_host_position"), Callable(self, "_world_sight"),
-		_expedition_account, _expedition_account != "", "", true, true, true, true, true, true, true, true, true)
+		_expedition_account, _expedition_account != "", "", true, true, true, true, true, true, true, true, true, true)
 	if not bool(result.get("ok", false)):
 		push_error("EXP03_HOST_START_FAILED: " + str(result))
 		return
@@ -406,11 +406,53 @@ func _next_repair() -> void:
 	_send("repair_step", "R_WEST", {"step": step})
 
 
+## Select only source-defined actions for the opt-in host contingency.
+## The player never sends a progress counter, host tick or success verdict.
+func _activate_contingency_target() -> void:
+	var state: Dictionary = runtime.site_contingency.snapshot()
+	if str(state["fault"]) != "":
+		if _target == str(state["recovery_target"]):
+			_send("operate_worksite", _target, {"action": "recover"})
+		return
+	if bool(state["solved"]):
+		return
+	var next: Dictionary = state["next"]
+	if next.is_empty():
+		return
+	var mode: String = str(next["mode"])
+	var phase: String = str(state["phase"])
+	var progress: int = int(state["progress"])
+	var action: String = ""
+	if phase == "ready" and _target == str(next["target"]):
+		action = str(next["action"])
+	elif phase == "stable":
+		if progress == 0 and _target == str(next["support"]):
+			action = "read" if mode == "quorum" else \
+				"arm" if mode == "reserve_lease" else "isolate"
+		elif progress == 1 and _target == str(next["witness"]):
+			action = "attest" if mode == "quorum" else \
+				"transfer" if mode == "reserve_lease" else "verify"
+		elif progress == 2 and _target == str(next["target"]):
+			action = "seal" if mode == "quorum" else \
+				"release" if mode == "reserve_lease" else "close"
+	if action != "":
+		_send("operate_worksite", _target, {"action": action})
+	elif _feedback != null:
+		_feedback.text = "EXP014: %s / stage %d / go to %s then %s then %s." % [
+			mode.to_upper(), progress, str(next["support"]),
+			str(next["witness"]), str(next["target"])]
+
+
 func _activate_target() -> void:
 	if _target == "":
 		return
 	if _target.begins_with("SC_") and (runtime.site_a02 != null or runtime.site_exp013 != null):
 		var active_site: Variant = runtime.site_exp013 if runtime.site_exp013 != null else runtime.site_a02
+		# EXP014 is a post-intervention layer. Reuse the same physical host
+		# station IDs and authenticated worksite ingress, never a new RPC.
+		if runtime.site_contingency != null and active_site.solved():
+			_activate_contingency_target()
+			return
 		var case_state: Dictionary = active_site.snapshot()
 		var next: Dictionary = case_state["next"]
 		if str(case_state["fault"]) != "":
@@ -812,6 +854,21 @@ func _refresh() -> void:
 				if authored["fault"] != "":
 					lines.append("%s FAULT: E at %s to recover safely." % [
 						badge, str(authored["recovery_target"])])
+	if board.has("worksite") and board["worksite"].has("site_contingency"):
+		var state: Dictionary = board["worksite"]["site_contingency"]
+		lines.append("EXP014 CONTINGENCY %s • route %s • stage %d/3 • %s • failures %d / recoveries %d" % [
+			"HOST VERIFIED" if state["solved"] else "ACTIVE", str(state["route"]),
+			int(state["step"]) if state["solved"] else int(state["step"]) + 1,
+			str(state["phase"]), int(state["failures"]), int(state["recoveries"])])
+		if str(state["fault"]) != "":
+			lines.append("EXP014 FAULT %s • recovery station %s" % [
+				str(state["fault"]), str(state["recovery_target"])])
+		elif not bool(state["solved"]):
+			var current: Dictionary = state["next"]
+			if not current.is_empty():
+				lines.append("EXP014 %s • guard %s • target %s → support %s → witness %s • host progress %d/2" % [
+					str(current["mode"]), str(current["guard"]), str(current["target"]),
+					str(current["support"]), str(current["witness"]), int(state["progress"])])
 	_task_label.text = "\n".join(lines)
 	if _target_label != null:
 		_target_label.text = "Target: %s  /  tool: %s  /  host revision: %d" % [
@@ -821,4 +878,7 @@ func _refresh() -> void:
 		var active: Variant = runtime.site_exp013 if runtime.site_exp013 != null else runtime.site_a02
 		if active != null:
 			SiteComposition.reflect(_site_composition, active.snapshot())
+			if runtime.site_contingency != null and active.solved():
+				SiteComposition.reflect_contingency(
+					_site_composition, runtime.site_contingency.snapshot())
 	set_meta("display_revision", int(board["host_revision"]))
