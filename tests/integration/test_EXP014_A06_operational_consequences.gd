@@ -117,7 +117,10 @@ func test_EXP014_A06_200_sites_400_consequence_plans_and_5_risk_graphs() -> void
 		assert_eq(source, originals[index], "A06 must never rewrite original source cases")
 	assert_eq(ids.size(), 200)
 	assert_eq(families.size(), 5)
-	assert_eq(int(families.values().reduce(func(a, b): return int(a) + int(b), 0)), 400)
+	var total_replays: int = 0
+	for count: Variant in families.values():
+		total_replays += int(count)
+	assert_eq(total_replays, 400)
 
 
 func test_EXP014_A06_fail_closed_sources_and_no_untrusted_recon() -> void:
