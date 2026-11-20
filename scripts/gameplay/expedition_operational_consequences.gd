@@ -9,6 +9,46 @@ extends RefCounted
 const QUALIFICATION: String = "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
 const MODES: Array[String] = ["buffer", "managed"]
 const ROUTES: Array[String] = ["priority", "resilience"]
+## Independently source-locked to EXP014 A04's regional apparatus. The audit
+## below is gameplay authority, not signage; a Python oracle guards drift.
+const RISK_CLASS: Dictionary = {
+	"REG_01":"depth", "REG_02":"conductivity", "REG_03":"mechanical",
+	"REG_04":"depth", "REG_05":"structure", "REG_06":"conductivity",
+	"REG_07":"depth", "REG_08":"mechanical", "REG_09":"weather",
+	"REG_10":"mechanical", "REG_11":"weather", "REG_12":"weather",
+	"REG_13":"depth", "REG_14":"structure", "REG_15":"conductivity",
+	"REG_16":"mechanical", "REG_17":"weather", "REG_18":"depth",
+	"REG_19":"depth", "REG_20":"structure", "REG_21":"conductivity",
+	"REG_22":"conductivity", "REG_23":"weather", "REG_24":"structure",
+	"REG_25":"depth"
+}
+## Five different host-evidence graphs; stations, prerequisites and step
+## counts vary. Action labels alone are not accepted as proof of diversity.
+const AUDIT_BOOK: Dictionary = {
+	"depth": [
+		{"station":"C", "action":"isolate_seepage", "guard":"logistics_solved", "gap":0},
+		{"station":"B", "action":"verify_dryness", "guard":"faults_solved", "gap":3},
+		{"station":"A", "action":"confirm_supply", "guard":"balancing_solved", "gap":2}
+	],
+	"conductivity": [
+		{"station":"B", "action":"isolate_contact", "guard":"faults_solved", "gap":0},
+		{"station":"C", "action":"prove_insulation", "guard":"consequences_solved", "gap":4}
+	],
+	"mechanical": [
+		{"station":"C", "action":"relieve_interlock", "guard":"balancing_solved", "gap":0},
+		{"station":"A", "action":"prove_travel", "guard":"logistics_solved", "gap":3},
+		{"station":"B", "action":"latch_recheck", "guard":"faults_solved", "gap":2}
+	],
+	"structure": [
+		{"station":"A", "action":"clearance_scan", "guard":"consequences_solved", "gap":0},
+		{"station":"C", "action":"verify_anchor", "guard":"logistics_solved", "gap":5}
+	],
+	"weather": [
+		{"station":"A", "action":"weather_isolation", "guard":"faults_solved", "gap":0},
+		{"station":"B", "action":"reference_measure", "guard":"balancing_solved", "gap":2},
+		{"station":"C", "action":"confirm_weather_seal", "guard":"logistics_solved", "gap":4}
+	]
+}
 const GUARDS: Array[String] = [
 	"logistics_solved", "faults_solved", "balancing_solved", "consequences_solved"
 ]
@@ -18,6 +58,7 @@ var _phase: String = "inactive"
 var _route: String = ""
 var _approach: String = ""
 var _mode: String = ""
+var _risk_class: String = ""
 var _tick: int = 0
 var _witness_tick: int = -1
 var _phase_tick: int = 0
@@ -68,7 +109,8 @@ static func inspect(approach: Dictionary, contingency: Dictionary) -> Dictionary
 	var profile: Variant = approach.get("profile")
 	if not profile is Dictionary or \
 			not GUARDS.has(str(profile.get("guard", ""))) or \
-			not ROUTES.has(str(profile.get("recommend", ""))):
+			not ROUTES.has(str(profile.get("recommend", ""))) or \
+			not RISK_CLASS.has(str(approach.get("region_id", ""))):
 		return _reject("POLICY_INVALID")
 	return {"ok": true, "level_id": level_id, "qualification": QUALIFICATION}
 
@@ -88,8 +130,10 @@ func configure(approach: Dictionary, contingency: Dictionary) -> Dictionary:
 		"targets": approach["targets"].duplicate(true),
 		"guard": str(approach["profile"]["guard"]),
 		"recommended_route": str(approach["profile"]["recommend"]),
+		"risk_class": str(RISK_CLASS[str(approach["region_id"])]),
 		"qualification": QUALIFICATION
 	}
+		_risk_class = str(_spec["risk_class"])
 	return {"ok": true, "level_id": _spec["level_id"]}
 
 
@@ -110,11 +154,11 @@ func started() -> bool:
 
 
 func prepared() -> bool:
-	return ["monitor", "audit_primary", "audit_secondary", "backlog", "signoff", "certified"].has(_phase)
+	return ["monitor", "audit", "backlog", "signoff", "certified"].has(_phase)
 
 
 func needs_action() -> bool:
-	return ["plan", "audit_primary", "audit_secondary", "backlog", "signoff", "fault"].has(_phase)
+	return ["plan", "audit", "backlog", "signoff", "fault"].has(_phase)
 
 
 func solved() -> bool:
@@ -152,6 +196,10 @@ func _fault_now(reason: String) -> Dictionary:
 	return _reject(reason)
 
 
+func _audit_steps() -> Array:
+	return AUDIT_BOOK.get(_risk_class, [])
+
+
 func _next() -> Dictionary:
 	if _spec.is_empty() or _solved:
 		return {}
@@ -159,10 +207,11 @@ func _next() -> Dictionary:
 		"plan":
 			return {"target": _target("A"), "action": "buffer_service",
 				"alternative": "accept_managed_outage"}
-		"audit_primary":
-			return {"target": _target("B"), "action": "sample_service"}
-		"audit_secondary":
-			return {"target": _target("C"), "action": "crosscheck_service"}
+		"audit":
+			var steps: Array = _audit_steps()
+			if _audit_count < steps.size():
+				return {"target": _target(str(steps[_audit_count]["station"])),
+					"action": str(steps[_audit_count]["action"])}
 		"backlog":
 			return {"target": _target("B"), "action": "mitigate_backlog"}
 		"signoff":
@@ -182,7 +231,8 @@ func snapshot() -> Dictionary:
 		"mode": _mode, "tick": _tick, "reserve": _reserve,
 		"service_debt": _service_debt, "exposure_ticks": _exposure_ticks,
 		"incidents": _incidents, "recoveries": _recoveries,
-		"audit_count": _audit_count, "quality_index": quality,
+		"audit_count": _audit_count, "total_audits": _audit_steps().size(),
+		"risk_class": _risk_class, "quality_index": quality,
 		"fault": _fault, "solved": _solved, "next": _next(),
 		"recovery_target": _target("C") if not _spec.is_empty() else "",
 		"history": _history.duplicate(true),
@@ -208,7 +258,7 @@ func advance(facts: Dictionary) -> void:
 			_service_debt = mini(6, _service_debt + liability)
 		if bool(facts.get("site_intervention_solved", false)) and \
 				bool(facts.get("site_contingency_solved", false)):
-			_phase = "audit_primary"
+			_phase = "audit"
 			_audit_count = 0
 			_log("RESTORATION_READY_FOR_AUDIT")
 
@@ -227,7 +277,7 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 		_recoveries += 1
 		_audit_count = 0
 		_witness_tick = -1
-		_phase = "audit_primary" if bool(facts.get("site_contingency_solved", false)) and \
+		_phase = "audit" if bool(facts.get("site_contingency_solved", false)) and \
 			bool(facts.get("site_intervention_solved", false)) else "plan"
 		_log("HOST_RECOVERED")
 		return {"ok": true, "state": snapshot()}
@@ -251,24 +301,21 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 		_phase = "monitor"
 		_phase_tick = _tick
 		_log("PLAN_" + _mode.to_upper())
-	elif _phase == "audit_primary":
-		if action != "sample_service" or not bool(facts.get("site_contingency_solved", false)) or \
-				not bool(facts.get("site_intervention_solved", false)):
+	elif _phase == "audit":
+		var steps: Array = _audit_steps()
+		if _audit_count >= steps.size() or 				not bool(facts.get("site_contingency_solved", false)) or 				not bool(facts.get("site_intervention_solved", false)):
 			return _reject("RESTORATION_EVIDENCE_REQUIRED")
-		_audit_count = 1
-		_witness_tick = _tick
-		_phase = "audit_secondary"
-		_log("PRIMARY_SAMPLE")
-	elif _phase == "audit_secondary":
-		if action != "crosscheck_service":
-			return _reject("FALSE_WITNESS")
-		var gap: int = 2 if _route == "priority" else 4
-		if _tick - _witness_tick < gap:
+		var expected: Dictionary = steps[_audit_count]
+		if action != str(expected["action"]) or 				not bool(facts.get(str(expected["guard"]), false)):
+			return _reject("SOURCE_PROOF_MISMATCH")
+		if _audit_count > 0 and _tick - _witness_tick < int(expected["gap"]):
 			return _reject("WITNESS_NOT_SETTLED")
-		_audit_count = 2
-		_phase_tick = _tick
-		_phase = "backlog" if _service_debt > 0 else "signoff"
-		_log("CROSSCHECK_ACCEPTED")
+		_audit_count += 1
+		_witness_tick = _tick
+		_log("PROOF_" + str(_risk_class).to_upper() + "_" + str(_audit_count))
+		if _audit_count == steps.size():
+			_phase_tick = _tick
+			_phase = "backlog" if _service_debt > 0 else "signoff"
 	elif _phase == "backlog":
 		if action != "mitigate_backlog":
 			return _reject("BACKLOG_UNMITIGATED")
@@ -283,7 +330,7 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 				not bool(facts.get("site_intervention_solved", false)) or \
 				str(facts.get("worksite_route", "")) != _route:
 			return _reject("SOURCE_ROUTE_OR_RESTORATION_UNVERIFIED")
-		if _audit_count != 2 or _tick - _phase_tick < 3:
+		if _audit_count != _audit_steps().size() or _tick - _phase_tick < 3:
 			return _reject("FINAL_SETTLING_REQUIRED")
 		_solved = true
 		_phase = "certified"
