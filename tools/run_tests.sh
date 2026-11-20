@@ -63,6 +63,9 @@ if [ -n "$PY" ]; then "$PY" tools/validate_exp014_contingencies.py || FAIL=1; fi
 echo "== EXP014 A03: 25 authored regional facility geometries, all 200 source sites, task standoffs =="
 if [ -n "$PY" ]; then "$PY" tools/validate_exp014_regions.py || FAIL=1; fi
 
+echo "== EXP014 A04: 25 host-observed risk evidence sequences, 200 preserved cases ==" 
+if [ -n "$PY" ]; then "$PY" tools/validate_exp014_feedback.py || FAIL=1; fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 
