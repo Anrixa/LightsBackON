@@ -947,9 +947,14 @@ func _refresh() -> void:
 			str(intel["phase"]).to_upper(), str(intel["approach"]),
 			_approach_choice, int(intel["step"]), int(intel["total_steps"]),
 			int(intel["failures"]), int(intel["recoveries"])])
+		if str(intel["observed_risk"]) != "":
+			lines.append("EVIDENCE 1 CONFIRMED: source risk %s • required live support %s" % [
+				str(intel["observed_risk"]), str(intel["observed_guard"])])
+		if str(intel["observed_protocol"]) != "":
+			lines.append("EVIDENCE 2 CONFIRMED: independent %s proof required" % [
+				str(intel["observed_protocol"])])
 		if bool(intel["intel_revealed"]):
-			lines.append("HOST-VERIFIED INTELLIGENCE: %s • risk guard %s • recommended %s • chosen %s" % [
-				str(intel["protocol"]), str(intel["risk_guard"]),
+			lines.append("HOST-VERIFIED DECISION BRIEF: recommended %s • chosen %s" % [
 				str(intel["recommended_route"]), str(intel["route"])])
 		if str(intel["fault"]) != "":
 			lines.append("A05 FAULT %s • recover at %s; no intervention unlocked." % [
