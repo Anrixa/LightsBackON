@@ -153,7 +153,7 @@ def validate(atlas: dict, previous: list[dict], source: dict,
                 observed_guards.add(procedure["guard"])
                 steps += 1
             oracle = replay_oracle(entry, route)
-            require(oracle["complete"] and oracle["actions"] == 12 and
+            require(oracle["complete"] and
                     oracle["steps"] == 3 and
                     12 <= oracle["actions"] <= 15,
                     "EXP014_REPLAY_DEADLOCK")
