@@ -96,10 +96,9 @@ class EXP014PuzzleTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "UNSUPPORTED_NODE"):
             self.check(book=book)
         book = copy.deepcopy(self.book)
-        book["entries"][0]["branches"]["field"]["nodes"][-1]["requires"] = ["P5"]
-        # P3 or another intermediate branch may still be connected via P5;
-        # explicitly cut both independent arms from the final attestation.
-        book["entries"][0]["branches"]["field"]["nodes"][5]["requires"] = ["P4"]
+        # A final attestation that depends only on the root would make
+        # the five other site proofs decorative and disconnected.
+        book["entries"][0]["branches"]["field"]["nodes"][-1]["requires"] = ["P0"]
         with self.assertRaisesRegex(ValueError, "DECORATIVE_UNCONNECTED_EVIDENCE"):
             self.check(book=book)
 
