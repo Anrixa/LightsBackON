@@ -172,7 +172,10 @@ func needs_action() -> bool:
 func begin(outcome: Dictionary) -> Dictionary:
 	if _spec.is_empty() or started() or \
 			not ["buffer", "managed"].has(str(outcome.get("mode", ""))) or \
+			outcome.get("qualification") != QUALIFICATION or \
 			outcome.get("level_id") != _spec["level_id"] or \
+			outcome.get("region_id") != _spec["region_id"] or \
+			outcome.get("risk_class") != _spec["risk_class"] or \
 			not ROUTES.has(str(outcome.get("route", ""))) or \
 			not ["monitor", "audit", "backlog", "signoff", "certified"].has(
 				str(outcome.get("phase", ""))):
