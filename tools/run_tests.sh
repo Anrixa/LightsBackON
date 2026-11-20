@@ -57,6 +57,9 @@ if [ -n "$PY" ]; then "$PY" tools/validate_exp013_completion.py || FAIL=1; fi
 echo "== EXP014 A01: 200 host-bound schematic compositions and honest mechanical diversity metrics =="
 if [ -n "$PY" ]; then "$PY" tools/validate_exp014_composition.py || FAIL=1; fi
 
+echo "== EXP014 A02: 200 source-pinned host contingencies, all 400 route oracles and >=150 noncosmetic structures =="
+if [ -n "$PY" ]; then "$PY" tools/validate_exp014_contingencies.py || FAIL=1; fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 
