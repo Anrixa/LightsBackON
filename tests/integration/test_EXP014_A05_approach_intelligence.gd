@@ -156,6 +156,12 @@ func test_EXP014_A05_evidence_gap_expiry_fault_and_authenticated_recovery() -> v
 	var first: Dictionary = recon.snapshot()["next"]
 	assert_true(bool(recon.operate(str(first["target"]),
 		str(first["action"]), facts).get("ok", false)))
+	assert_eq(str(recon.snapshot()["observed_risk"]), str(source["source_risk"]))
+	assert_ne(str(recon.snapshot()["observed_guard"]), "")
+	assert_eq(str(recon.snapshot()["observed_protocol"]), "",
+		"Independent protocol remains unknown until the next evidence stage")
+	assert_eq(str(recon.snapshot()["recommended_route"]), "",
+		"Recommendation cannot leak before completed investigation")
 	var before: Dictionary = recon.snapshot()
 	var second: Dictionary = before["next"]
 	assert_eq(str(recon.operate(str(second["target"]),
@@ -170,6 +176,8 @@ func test_EXP014_A05_evidence_gap_expiry_fault_and_authenticated_recovery() -> v
 		"recover", facts).get("ok", false)))
 	assert_eq(str(recon.snapshot()["phase"]), "arrival")
 	assert_false(bool(recon.snapshot()["intel_revealed"]))
+	assert_eq(str(recon.snapshot()["observed_risk"]), "",
+		"Recovery must invalidate the previous investigation disclosure")
 	assert_eq(int(recon.snapshot()["recoveries"]), 1)
 	_replay(recon, "resilience")
 
