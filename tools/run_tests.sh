@@ -75,6 +75,9 @@ if [ -n "$PY" ]; then "$PY" tools/validate_exp014_outcomes.py || FAIL=1; fi
 echo "== EXP014 A07: 25 risk-locked regions, five real hazard graphs and host authority gates =="
 if [ -n "$PY" ]; then "$PY" tools/validate_exp014_hazards.py || FAIL=1; fi
 
+echo "== EXP014 A08: 200 independently pinned nonlinear investigation graphs per route, 1000 immutable task IDs =="
+if [ -n "$PY" ]; then "$PY" tools/validate_exp014_puzzles.py || FAIL=1; fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 
