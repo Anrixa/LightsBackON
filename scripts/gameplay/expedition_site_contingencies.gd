@@ -21,6 +21,8 @@ var _start_tick: int = -1
 var _deadline: int = -1
 var _progress: int = 0
 var _progress_tick: int = -1
+var _guard_progress: int = 0
+var _guard_tick: int = -1
 var _fault: String = ""
 var _failures: int = 0
 var _recoveries: int = 0
@@ -235,6 +237,8 @@ func _reset_step() -> void:
 	_deadline = -1
 	_progress = 0
 	_progress_tick = -1
+	_guard_progress = 0
+	_guard_tick = -1
 
 
 func _break(reason: String, scope: String) -> Dictionary:
@@ -264,6 +268,31 @@ func _finish_step() -> Dictionary:
 
 func solved() -> bool:
 	return not _spec.is_empty() and _route != "" and _index == 3 and _fault == ""
+
+
+## Domain-specific guards are real additional host operations, not merely
+## alternate labels for the same redundant global-safe predicate. The timed
+## load hold and three proof/acknowledgment types must complete first.
+func _prove_guard(step: Dictionary, entity: String, action: String) -> Dictionary:
+	var guard: String = str(step["guard"])
+	if guard == "load_balanced":
+		if _tick - _start_tick < int(step["dwell_ticks"]) + 3:
+			return {"ok": false, "code": "EXP014_LOAD_STABILITY_HOLD"}
+		return {"ok": true, "ready": true}
+	var station: String = str(step["support"]) if guard == "supplies_ready" else \
+		str(step["witness"]) if guard == "cascade_stable" else str(step["target"])
+	var command: String = "stock_check" if guard == "supplies_ready" else \
+		"relay_ping" if guard == "cascade_stable" else "clearance_probe"
+	if _guard_progress == 0:
+		if entity != station or action != command:
+			return {"ok": false, "code": "EXP014_" + guard.to_upper() + "_PROOF_REQUIRED"}
+		_guard_progress = 1
+		_guard_tick = _tick
+		_log("DOMAIN_PROOF_" + guard.to_upper(), entity)
+		return {"ok": true, "guard_acknowledged": true}
+	if _tick - _guard_tick < 3:
+		return {"ok": false, "code": "EXP014_DOMAIN_PROOF_SETTLING"}
+	return {"ok": true, "ready": true}
 
 
 func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
@@ -306,6 +335,9 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 	if _tick > _deadline:
 		return _break("WINDOW_EXPIRED", str(step["failure"]))
 	if _progress == 0:
+		var guard_reply: Dictionary = _prove_guard(step, entity, action)
+		if not bool(guard_reply.get("ready", false)):
+			return guard_reply
 		var first_action: String = "read" if mode == "quorum" else \
 			"arm" if mode == "reserve_lease" else "isolate"
 		if entity != support or action != first_action:
@@ -364,7 +396,8 @@ func snapshot() -> Dictionary:
 		"route": _route, "step": _index, "step_count": 3, "phase": _phase,
 		"fault": _fault, "tick": _tick, "start_tick": _start_tick,
 		"deadline": _deadline, "progress": _progress,
-		"progress_tick": _progress_tick, "started": _started,
+		"progress_tick": _progress_tick, "guard_progress": _guard_progress,
+		"guard_tick": _guard_tick, "started": _started,
 		"recoveries": _recoveries, "failures": _failures,
 		"unsafe_events": _unsafe_events, "solved": solved(),
 		"next": _current().duplicate(true),
