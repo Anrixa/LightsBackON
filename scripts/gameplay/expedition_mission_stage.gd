@@ -1001,9 +1001,9 @@ func _refresh() -> void:
 			str(outcome["phase"]).to_upper(), str(outcome["route"]), str(outcome["mode"]),
 			int(outcome["reserve"]), int(outcome["service_debt"]),
 			int(outcome["exposure_ticks"]), int(outcome["quality_index"])])
-		lines.append("A06 incidents %d • recoveries %d • host witness %d/2 • H selects %s" % [
-			int(outcome["incidents"]), int(outcome["recoveries"]),
-			int(outcome["audit_count"]), _outcome_choice.to_upper()])
+		lines.append("A06 %s risk • incidents %d • recoveries %d • host witness %d/%d • H selects %s" % [
+			str(outcome["risk_class"]), int(outcome["incidents"]), int(outcome["recoveries"]),
+			int(outcome["audit_count"]), int(outcome["total_audits"]), _outcome_choice.to_upper()])
 		var following: Dictionary = outcome["next"]
 		if not following.is_empty():
 			lines.append("A06 HOST REQUEST: %s at %s • fault %s" % [
