@@ -51,6 +51,7 @@ var _environmental_feedback: Node3D
 var _approach_view: Node3D
 var _approach_choice: String = "guarded"
 var _outcome_choice: String = "buffer"
+var _hazard_choice: String = "engineered"
 var _fault_route: String = "isolate"
 var _consequence_choice: String = "isolate"
 var _logistics_route: String = "direct"
@@ -120,7 +121,7 @@ func _ready() -> void:
 	runtime = Runtime.new()
 	var result: Dictionary = runtime.start(
 		level_id, Callable(self, "_host_position"), Callable(self, "_world_sight"),
-		_expedition_account, _expedition_account != "", "", true, true, true, true, true, true, true, true, true, true, true, true)
+		_expedition_account, _expedition_account != "", "", true, true, true, true, true, true, true, true, true, true, true, true, true
 	if not bool(result.get("ok", false)):
 		push_error("EXP03_HOST_START_FAILED: " + str(result))
 		return
@@ -525,12 +526,37 @@ func _activate_outcome_target() -> void:
 	_send("operate_worksite", _target, {"action": action})
 
 
+## A07 uses only existing SC targets; hazard progress and time originate
+## from the host. J changes the requested control, not the authoritative result.
+func _activate_hazard_target() -> void:
+	if runtime.site_hazards == null:
+		return
+	var state: Dictionary = runtime.site_hazards.snapshot()
+	var next: Dictionary = state["next"]
+	if next.is_empty():
+		return
+	if _target != str(next.get("target", "")):
+		if _feedback != null:
+			_feedback.text = "A07 HOST REQUEST: " + str(next.get("target", ""))
+		return
+	var action: String = str(next.get("action", ""))
+	if str(state["phase"]) == "choice" and _hazard_choice == "temporary":
+		action = str(next.get("alternative", ""))
+	_send("operate_worksite", _target, {"action": action})
+
+
 func _activate_target() -> void:
 	if _target == "":
 		return
 	if _target.begins_with("SC_") and (runtime.site_a02 != null or runtime.site_exp013 != null):
 		if runtime.site_approach != null and not runtime.site_approach.solved():
 			_activate_approach_target()
+			return
+		if runtime.site_outcomes != null and not runtime.site_outcomes.prepared():
+			_activate_outcome_target()
+			return
+		if runtime.site_hazards != null and runtime.site_hazards.needs_action():
+			_activate_hazard_target()
 			return
 		if runtime.site_outcomes != null and runtime.site_outcomes.needs_action():
 			_activate_outcome_target()
@@ -738,6 +764,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		_outcome_choice = "managed" if _outcome_choice == "buffer" else "buffer"
 		if _feedback != null:
 			_feedback.text = "EXP014 A06 service plan: " + _outcome_choice.to_upper()
+		_refresh()
+		get_viewport().set_input_as_handled()
+		return
+	if event is InputEventKey and event.physical_keycode == KEY_J and not event.ctrl_pressed and not event.alt_pressed:
+		_hazard_choice = "temporary" if _hazard_choice == "engineered" else "engineered"
+		if _feedback != null:
+			_feedback.text = "EXP014 A07 containment choice: " + _hazard_choice.to_upper()
 		_refresh()
 		get_viewport().set_input_as_handled()
 		return
@@ -1011,6 +1044,23 @@ func _refresh() -> void:
 				str(outcome["fault"]) if outcome["fault"] != "" else "none"])
 		if bool(outcome["solved"]):
 			lines.append("A06 HOST CERTIFIED: operational consequences verified; not production points.")
+	if board.has("worksite") and board["worksite"].has("site_hazards"):
+		var hazard: Dictionary = board["worksite"]["site_hazards"]
+		lines.append("EXP014 A07 %s HAZARD • %s • %s mode • pressure %d • exposure %d" % [
+			str(hazard["risk_class"]).to_upper(), str(hazard["phase"]).to_upper(),
+			str(hazard["mode"]), int(hazard["pressure"]), int(hazard["exposure"])])
+		lines.append("A07 mitigation %d/%d • materials %d • residual %d • failures %d • recovery %d • J: %s" % [
+			int(hazard["step"]), int(hazard["mitigation_total"]),
+			int(hazard["materials"]), int(hazard["liability"]),
+			int(hazard["failures"]), int(hazard["recoveries"]),
+			_hazard_choice.to_upper()])
+		var hazard_next: Dictionary = hazard["next"]
+		if not hazard_next.is_empty():
+			lines.append("A07 HOST REQUEST: %s at %s • fault %s" % [
+				str(hazard_next.get("action", "")), str(hazard_next.get("target", "")),
+				str(hazard["fault"]) if hazard["fault"] != "" else "none"])
+		if bool(hazard["solved"]):
+			lines.append("A07 ENVIRONMENT VERIFIED BY HOST (source/headless only)")
 	_task_label.text = "\n".join(lines)
 	if _target_label != null:
 		_target_label.text = "Target: %s  /  tool: %s  /  host revision: %d" % [
