@@ -72,6 +72,9 @@ if [ -n "$PY" ]; then "$PY" tools/validate_exp014_approach.py || FAIL=1; fi
 echo "== EXP014 A06: five risk-specific consequence graphs, 200 sites and authenticated host gates =="
 if [ -n "$PY" ]; then "$PY" tools/validate_exp014_outcomes.py || FAIL=1; fi
 
+echo "== EXP014 A07: 25 risk-locked regions, five real hazard graphs and host authority gates =="
+if [ -n "$PY" ]; then "$PY" tools/validate_exp014_hazards.py || FAIL=1; fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 
