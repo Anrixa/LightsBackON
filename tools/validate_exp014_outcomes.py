@@ -11,11 +11,18 @@ import json
 from pathlib import Path
 import re
 
-from validate_exp014_approach import (
-    ATLAS, CONTINGENCIES, QUALIFICATION, load_profiles as load_a05,
-    validate as validate_a05,
-)
-from validate_exp014_feedback import load_profiles as load_a04
+if __package__:
+    from .validate_exp014_approach import (
+        ATLAS, CONTINGENCIES, QUALIFICATION, load_profiles as load_a05,
+        validate as validate_a05,
+    )
+    from .validate_exp014_feedback import load_profiles as load_a04
+else:
+    from validate_exp014_approach import (
+        ATLAS, CONTINGENCIES, QUALIFICATION, load_profiles as load_a05,
+        validate as validate_a05,
+    )
+    from validate_exp014_feedback import load_profiles as load_a04
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts/gameplay/expedition_operational_consequences.gd"
