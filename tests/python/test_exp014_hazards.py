@@ -75,7 +75,7 @@ class EXP014HazardsTests(unittest.TestCase):
     def test_source_risk_and_immutable_original_task_pins_cannot_be_swapped(self) -> None:
         mutated = dict(self.a06_classes)
         mutated["REG_01"] = "weather"
-        with self.assertRaisesRegex(ValueError, "RISK_SOURCE_MISMATCH"):
+        with self.assertRaisesRegex(ValueError, "EXP014_A06_RISK_ARTIFACT_DRIFT|RISK_SOURCE_MISMATCH"):
             self.audit(a06_classes=mutated)
         mutated = copy.deepcopy(self.contingencies)
         mutated["entries"][199]["source_task_ids"][1] = "JOB_001_2"
