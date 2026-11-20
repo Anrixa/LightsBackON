@@ -34,6 +34,7 @@ const SiteA02 := preload("res://scripts/gameplay/expedition_site_interventions.g
 const SiteEXP013 := preload("res://scripts/gameplay/expedition_site_exp013.gd")
 const SiteContingencies := preload("res://scripts/gameplay/expedition_site_contingencies.gd")
 const SiteApproach := preload("res://scripts/gameplay/expedition_approach_intelligence.gd")
+const SiteOutcomes := preload("res://scripts/gameplay/expedition_operational_consequences.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
 
@@ -63,6 +64,7 @@ var site_a02: SiteA02
 var site_exp013: SiteA02
 var site_contingency: SiteContingencies
 var site_approach: SiteApproach
+var site_outcomes: SiteOutcomes
 
 var _definitions: Dictionary = {}
 var _position_source: Callable
@@ -99,7 +101,8 @@ func start(level_id: String, host_position: Callable,
 		enable_worksite: bool = false, enable_site_a02: bool = false,
 		enable_site_exp013: bool = false,
 		enable_site_contingency: bool = false,
-		enable_site_approach: bool = false) -> Dictionary:
+		enable_site_approach: bool = false,
+		enable_site_outcomes: bool = false) -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
 	if enable_devices and not enable_bespoke:
@@ -122,6 +125,8 @@ func start(level_id: String, host_position: Callable,
 		return _fail("EXP014_REQUIRES_EXP012A02_AND_EXP013")
 	if enable_site_approach and not enable_site_contingency:
 		return _fail("EXP014_A05_REQUIRES_A02_CONTINGENCY")
+	if enable_site_outcomes and not enable_site_approach:
+		return _fail("EXP014_A06_REQUIRES_A05_RECON")
 	if account_key != "" and not SaveService.is_valid_key(account_key):
 		return _fail("INVALID_ACCOUNT_KEY")
 	if not host_position.is_valid() or (physics_visibility.is_valid() and not host_position.is_valid()):
@@ -383,6 +388,14 @@ func start(level_id: String, host_position: Callable,
 		if not bool(approach_gate.get("ok", false)):
 			return _fail("EXP014_A05_SOURCE_INVALID", approach_gate)
 		_definitions["site_approach"] = site_approach.definition_snapshot()
+	# A06 is fully opt-in, bound to both immutable predecessor definitions.
+	if enable_site_outcomes:
+		site_outcomes = SiteOutcomes.new()
+		var outcome_gate: Dictionary = site_outcomes.configure(
+			site_approach.definition_snapshot(), site_contingency.definition_snapshot())
+		if not bool(outcome_gate.get("ok", false)):
+			return _fail("EXP014_A06_SOURCE_INVALID", outcome_gate)
+		_definitions["site_outcomes"] = site_outcomes.definition_snapshot()
 	_position_source = host_position
 	_physics_visibility = physics_visibility
 	_account_key = account_key
@@ -458,6 +471,7 @@ func start(level_id: String, host_position: Callable,
 		"worksite_active": worksite != null, "site_a02_active": site_a02 != null,
 		"site_exp013_active": site_exp013 != null, "site_contingency_active": site_contingency != null,
 		"site_approach_active": site_approach != null,
+		"site_outcomes_active": site_outcomes != null,
 		"qualification": "AUTHORITY_SOURCE_HEADLESS_ONLY_NO_PLAYABILITY"}
 
 
@@ -466,6 +480,12 @@ func _session_id() -> String:
 
 
 func _content_revision() -> String:
+	if site_outcomes != null:
+		return "EXP014_A06_" + ("%s|%s|%s|%s" % [
+			str(_definitions.get("source_fingerprint", "")),
+			JSON.stringify(site_approach.definition_snapshot()),
+			JSON.stringify(site_contingency.definition_snapshot()),
+			JSON.stringify(site_outcomes.definition_snapshot())]).sha256_text()
 	if site_approach != null:
 		return "EXP014_A05_" + ("%s|%s|%s|%s" % [
 			str(_definitions.get("source_fingerprint", "")),
@@ -595,6 +615,8 @@ func _bespoke_guard(player_id: String, kind: String, entity: String,
 		return _fail("EXP014_CONTINGENCY_INCOMPLETE")
 	if kind == "request_extract" and site_approach != null and not site_approach.solved():
 		return _fail("EXP014_A05_INTELLIGENCE_INCOMPLETE")
+	if kind == "request_extract" and site_outcomes != null and not site_outcomes.solved():
+		return _fail("EXP014_A06_OUTCOMES_INCOMPLETE")
 	if kind == "operate_worksite" and (worksite == null or \
 			(not worksite.target_ids().has(entity) and \
 			(site_a02 == null or not site_a02.target_ids().has(entity)) and \
@@ -741,18 +763,33 @@ func _contingency_facts() -> Dictionary:
 	return facts
 
 
+func _outcome_facts() -> Dictionary:
+	var facts: Dictionary = _contingency_facts()
+	facts["site_contingency_solved"] = site_contingency != null and site_contingency.solved()
+	return facts
+
+
 func _operate_worksite(player_id: String, entity: String, action: String) -> Dictionary:
 	if player_id != PLAYER_ID or worksite == null:
 		return _fail("EXP012_HOST_PRINCIPAL_INVALID")
 	var active: SiteA02 = site_exp013 if site_exp013 != null else site_a02
 	if active != null and active.target_ids().has(entity):
 		if site_approach != null and not site_approach.solved():
-			return site_approach.operate(entity, action, _worksite_facts())
+			var recon_reply: Dictionary = site_approach.operate(entity, action, _worksite_facts())
+			if bool(recon_reply.get("ok", false)) and site_approach.solved() and site_outcomes != null:
+				site_outcomes.begin(site_approach.snapshot())
+			return recon_reply
+		if site_outcomes != null and site_outcomes.needs_action():
+			return site_outcomes.operate(entity, action, _outcome_facts())
 		if site_contingency != null and active.solved():
 			return site_contingency.operate(entity, action, _contingency_facts())
 		return active.operate(entity, action, _worksite_facts())
 	# The A01 choice and one authored site overlay must agree atomically.
 	# An attempted reroute after intervention begins cannot fork host states.
+	if active != null and entity == str(worksite.definition_snapshot()["decision"]) and \
+			["priority", "resilience"].has(action) and site_outcomes != null and \
+			not site_outcomes.prepared():
+		return _fail("EXP014_A06_CONSEQUENCE_PLAN_REQUIRED")
 	if active != null and entity == str(worksite.definition_snapshot()["decision"]) and \
 			["priority", "resilience"].has(action) and site_approach != null and \
 			(not site_approach.solved() or site_approach.selected_route() != action):
@@ -787,6 +824,10 @@ func _worksite_tick() -> void:
 		site_contingency.advance(_contingency_facts())
 	if site_approach != null:
 		site_approach.advance(_worksite_facts())
+	if site_outcomes != null:
+		if not site_outcomes.started() and site_approach.solved():
+			site_outcomes.begin(site_approach.snapshot())
+		site_outcomes.advance(_outcome_facts())
 
 
 func _worksite_snapshot() -> Dictionary:
@@ -801,6 +842,8 @@ func _worksite_snapshot() -> Dictionary:
 		state["site_contingency"] = site_contingency.snapshot()
 	if site_approach != null:
 		state["site_approach"] = site_approach.snapshot()
+	if site_outcomes != null:
+		state["site_outcomes"] = site_outcomes.snapshot()
 	return state
 
 
