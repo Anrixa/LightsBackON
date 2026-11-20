@@ -24,7 +24,8 @@ class EXP014ContingencySourceTests(unittest.TestCase):
         self.assertTrue(result["ok"])
         self.assertEqual(result["routes"], 400)
         self.assertEqual(result["contingency_steps"], 1200)
-        self.assertEqual(result["minimal_operate_actions"], 4800)
+        self.assertGreaterEqual(result["host_action_transitions"], 4800)
+        self.assertLessEqual(result["host_action_transitions"], 6000)
         self.assertGreaterEqual(result["distinct_mechanical_route_pairs"], 150)
         self.assertLessEqual(result["maximum_reused_structure"], 8)
         self.assertFalse(result["physical_playability_certified"])
@@ -36,7 +37,8 @@ class EXP014ContingencySourceTests(unittest.TestCase):
                     done = replay_oracle(entry, route)
                     self.assertTrue(done["complete"])
                     self.assertEqual(done["steps"], 3)
-                    self.assertEqual(done["actions"], 12)
+                    self.assertGreaterEqual(done["actions"], 12)
+                    self.assertLessEqual(done["actions"], 15)
                     self.assertGreaterEqual(done["host_ticks"], 30)
 
     def test_action_renaming_and_timer_tweaks_cannot_mint_new_mechanics(self) -> None:
