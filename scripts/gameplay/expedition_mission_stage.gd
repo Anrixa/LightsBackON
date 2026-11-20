@@ -8,6 +8,7 @@ const Atlas := preload("res://scripts/world/dispatch_atlas.gd")
 const Plan := preload("res://scripts/world/expedition_layout_plan.gd")
 const Graybox := preload("res://scripts/world/expedition_graybox.gd")
 const SiteComposition := preload("res://scripts/world/expedition_site_composition.gd")
+const EnvironmentFeedback := preload("res://scripts/world/expedition_environment_feedback.gd")
 const Runtime := preload("res://scripts/gameplay/expedition_host_session.gd")
 const PlayerController := preload("res://scripts/actors/first_person_controller.gd")
 const TargetSelector := preload("res://scripts/interaction/target_selector.gd")
@@ -45,6 +46,7 @@ var _expedition_profile: Dictionary = {}
 var _reward_error: String = ""
 var _hazard_marker: MeshInstance3D
 var _site_composition: Node3D
+var _environmental_feedback: Node3D
 var _fault_route: String = "isolate"
 var _consequence_choice: String = "isolate"
 var _logistics_route: String = "direct"
@@ -120,7 +122,7 @@ func _ready() -> void:
 		return
 	_definitions = runtime.definition_snapshot()
 	_add_host_targets()
-	_add_site_composition()
+	_add_site_composition(plan)
 	_add_hazard_marker()
 	_build_overlay(level)
 	# An original Compatibility scene with no extra lights or game-state
@@ -234,7 +236,7 @@ func _add_host_targets() -> void:
 ## EXP014: build only a non-colliding, source-bound field presentation.
 ## Validation uses the same host positions and inspected route definitions;
 ## this layer cannot register network entities or change host authority.
-func _add_site_composition() -> void:
+func _add_site_composition(plan: Dictionary) -> void:
 	var active: Variant = runtime.site_exp013 if runtime.site_exp013 != null else runtime.site_a02
 	if active == null:
 		return
@@ -247,6 +249,13 @@ func _add_site_composition() -> void:
 	_site_composition = SiteComposition.build(case_source, positions)
 	if _site_composition != null:
 		world.add_child(_site_composition)
+	# EXP014 A04 is visual evidence only, tied to the same already-authored
+	# plan, site source, immutable task IDs and A03 region package.
+	var regional: Node3D = world.get_node_or_null("EXP014_A03_RegionalFacilities") as Node3D
+	if regional != null:
+		_environmental_feedback = EnvironmentFeedback.attach(plan, case_source, regional)
+		if _environmental_feedback == null:
+			push_error("EXP014_A04_ENVIRONMENT_SOURCE_HOLD")
 
 
 ## A visible diagnostic marker, not a damage collider or tested path blocker.
@@ -895,4 +904,9 @@ func _refresh() -> void:
 			if runtime.site_contingency != null and active.solved():
 				SiteComposition.reflect_contingency(
 					_site_composition, runtime.site_contingency.snapshot())
+	if _environmental_feedback != null:
+		var active_source: Variant = runtime.site_exp013 if runtime.site_exp013 != null else runtime.site_a02
+		if active_source != null:
+			var contingency_state: Dictionary = runtime.site_contingency.snapshot() if runtime.site_contingency != null else {}
+			EnvironmentFeedback.reflect(_environmental_feedback, active_source.snapshot(), contingency_state)
 	set_meta("display_revision", int(board["host_revision"]))
