@@ -426,9 +426,23 @@ func _activate_contingency_target() -> void:
 	if phase == "ready" and _target == str(next["target"]):
 		action = str(next["action"])
 	elif phase == "stable":
-		if progress == 0 and _target == str(next["support"]):
-			action = "read" if mode == "quorum" else \
-				"arm" if mode == "reserve_lease" else "isolate"
+		var guard: String = str(next["guard"])
+		var guard_progress: int = int(state["guard_progress"])
+		var proof_station: String = str(next["support"]) if guard == "supplies_ready" else \
+			str(next["witness"]) if guard == "cascade_stable" else str(next["target"])
+		var proof_action: String = "stock_check" if guard == "supplies_ready" else \
+			"relay_ping" if guard == "cascade_stable" else "clearance_probe"
+		if progress == 0 and guard != "load_balanced" and guard_progress == 0:
+			if _target == proof_station:
+				action = proof_action
+		elif progress == 0 and _target == str(next["support"]):
+			var ready_tick: int = int(state["start_tick"]) + int(next["dwell_ticks"]) + 3
+			var proof_ready: bool = guard == "load_balanced" and int(state["tick"]) >= ready_tick
+			proof_ready = proof_ready or (guard != "load_balanced" and \
+				int(state["tick"]) - int(state["guard_tick"]) >= 3)
+			if proof_ready:
+				action = "read" if mode == "quorum" else \
+					"arm" if mode == "reserve_lease" else "isolate"
 		elif progress == 1 and _target == str(next["witness"]):
 			action = "attest" if mode == "quorum" else \
 				"transfer" if mode == "reserve_lease" else "verify"
