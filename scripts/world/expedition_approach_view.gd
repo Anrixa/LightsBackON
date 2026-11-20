@@ -54,9 +54,10 @@ static func build(plan: Dictionary, source: Dictionary,
 	root.set_meta("source_risk", str(plan["hazard"]))
 	root.set_meta("qualification", QUALIFICATION)
 	root.set_meta("host_phase", "unverified")
-	var entrance: Vector3 = positions[str(source["targets"][str(profile["entry"])] )]
-	var first: Vector3 = positions[str(source["targets"][str(profile["first"])] )]
-	var second: Vector3 = positions[str(source["targets"][str(profile["second"])] )]
+	var targets: Dictionary = source["targets"]
+	var entrance: Vector3 = positions[str(targets[str(profile["entry"])])]
+	var first: Vector3 = positions[str(targets[str(profile["first"])])]
+	var second: Vector3 = positions[str(targets[str(profile["second"])])]
 	var guarded: Node3D = Node3D.new()
 	guarded.name = "GuardedApproach"
 	root.add_child(guarded)
