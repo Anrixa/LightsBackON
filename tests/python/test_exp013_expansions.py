@@ -72,8 +72,8 @@ class EXP013ExpansionTests(unittest.TestCase):
         self._deny(downgrade, "EXP013_EXTENSION_COSMETIC_STRATEGY")
 
     def test_both_windows_export_memberships_required(self):
-        # Keep the parent A01's membership valid so this negative test
-        # specifically exercises the A02 extension export gate.
+        # Preserve the parent A01 export membership. Remove only the A02
+        # extension to exercise the extension-specific fail-closed gate.
         from tools.validate_exp013_expansions import ROOT
         presets = (ROOT / "export_presets.cfg").read_text(encoding="utf-8")
         missing_extension = presets.replace(
