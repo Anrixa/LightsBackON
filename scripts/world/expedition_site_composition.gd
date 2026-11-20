@@ -229,12 +229,10 @@ static func build(spec: Dictionary, positions: Dictionary) -> Node3D:
 			conduit.set_meta("source_support", str(step["support_target"]))
 			conduit.set_meta("visual_status", "idle")
 	var legend: Label3D = _caption(root, "ProcedureStatus",
-		"OPERATING ORDER NOT SELECTED", 3.3, COLOR_IDLE)
+		"OPERATING ORDER NOT SELECTED", 0.0, COLOR_IDLE)
 	legend.position = (positions[str(targets["A"])] +
 		positions[str(targets["B"])] + positions[str(targets["C"])]) / 3.0 + \
 		Vector3(0.0, 3.3, 0.0)
-	# _caption's local y is replaced by the world-space status anchor above.
-	legend.position.y -= 3.3
 	return root
 
 
