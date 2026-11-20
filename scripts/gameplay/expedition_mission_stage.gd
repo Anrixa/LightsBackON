@@ -50,6 +50,7 @@ var _site_composition: Node3D
 var _environmental_feedback: Node3D
 var _approach_view: Node3D
 var _approach_choice: String = "guarded"
+var _outcome_choice: String = "buffer"
 var _fault_route: String = "isolate"
 var _consequence_choice: String = "isolate"
 var _logistics_route: String = "direct"
@@ -119,7 +120,7 @@ func _ready() -> void:
 	runtime = Runtime.new()
 	var result: Dictionary = runtime.start(
 		level_id, Callable(self, "_host_position"), Callable(self, "_world_sight"),
-		_expedition_account, _expedition_account != "", "", true, true, true, true, true, true, true, true, true, true, true)
+		_expedition_account, _expedition_account != "", "", true, true, true, true, true, true, true, true, true, true, true, true)
 	if not bool(result.get("ok", false)):
 		push_error("EXP03_HOST_START_FAILED: " + str(result))
 		return
@@ -505,12 +506,34 @@ func _activate_approach_target() -> void:
 			int(state["step"]), int(state["total_steps"])]
 
 
+## A06 choices only describe an intent. The host decides whether the
+## authenticated SC target and actual restoration evidence permit progress.
+func _activate_outcome_target() -> void:
+	if runtime.site_outcomes == null:
+		return
+	var state: Dictionary = runtime.site_outcomes.snapshot()
+	var next: Dictionary = state["next"]
+	if next.is_empty():
+		return
+	if _target != str(next.get("target", "")):
+		if _feedback != null:
+			_feedback.text = "A06 host requests " + str(next.get("target", ""))
+		return
+	var action: String = str(next.get("action", ""))
+	if str(state["phase"]) == "plan" and _outcome_choice == "managed":
+		action = str(next.get("alternative", ""))
+	_send("operate_worksite", _target, {"action": action})
+
+
 func _activate_target() -> void:
 	if _target == "":
 		return
 	if _target.begins_with("SC_") and (runtime.site_a02 != null or runtime.site_exp013 != null):
 		if runtime.site_approach != null and not runtime.site_approach.solved():
 			_activate_approach_target()
+			return
+		if runtime.site_outcomes != null and runtime.site_outcomes.needs_action():
+			_activate_outcome_target()
 			return
 		var active_site: Variant = runtime.site_exp013 if runtime.site_exp013 != null else runtime.site_a02
 		# EXP014 is a post-intervention layer. Reuse the same physical host
@@ -708,6 +731,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		_approach_choice = "urgent" if _approach_choice == "guarded" else "guarded"
 		if _feedback != null:
 			_feedback.text = "EXP014 A05 approach selected: " + _approach_choice.to_upper()
+		_refresh()
+		get_viewport().set_input_as_handled()
+		return
+	if event is InputEventKey and event.physical_keycode == KEY_H and not event.ctrl_pressed and not event.alt_pressed:
+		_outcome_choice = "managed" if _outcome_choice == "buffer" else "buffer"
+		if _feedback != null:
+			_feedback.text = "EXP014 A06 service plan: " + _outcome_choice.to_upper()
 		_refresh()
 		get_viewport().set_input_as_handled()
 		return
@@ -965,6 +995,22 @@ func _refresh() -> void:
 				str(requested.get("action", "")), str(requested.get("target", ""))])
 		else:
 			lines.append("A05 OPERATING ROUTE LOCKED: %s • select same route at worksite board" % str(intel["route"]))
+	if board.has("worksite") and board["worksite"].has("site_outcomes"):
+		var outcome: Dictionary = board["worksite"]["site_outcomes"]
+		lines.append("EXP014 A06 SERVICE %s • %s / %s • reserve %d • debt %d • exposure %d • quality %d" % [
+			str(outcome["phase"]).to_upper(), str(outcome["route"]), str(outcome["mode"]),
+			int(outcome["reserve"]), int(outcome["service_debt"]),
+			int(outcome["exposure_ticks"]), int(outcome["quality_index"])])
+		lines.append("A06 incidents %d • recoveries %d • host witness %d/2 • H selects %s" % [
+			int(outcome["incidents"]), int(outcome["recoveries"]),
+			int(outcome["audit_count"]), _outcome_choice.to_upper()])
+		var following: Dictionary = outcome["next"]
+		if not following.is_empty():
+			lines.append("A06 HOST REQUEST: %s at %s • fault %s" % [
+				str(following.get("action", "")), str(following.get("target", "")),
+				str(outcome["fault"]) if outcome["fault"] != "" else "none"])
+		if bool(outcome["solved"]):
+			lines.append("A06 HOST CERTIFIED: operational consequences verified; not production points.")
 	_task_label.text = "\n".join(lines)
 	if _target_label != null:
 		_target_label.text = "Target: %s  /  tool: %s  /  host revision: %d" % [
