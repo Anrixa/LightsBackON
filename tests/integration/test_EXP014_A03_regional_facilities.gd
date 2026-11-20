@@ -64,8 +64,8 @@ func test_EXP014_A03_every_region_has_distinct_actual_geometry_and_source_risk()
 				if str(task["id"]) == source_task:
 					is_original_task = true
 			assert_true(is_original_task, "Environmental evidence must reference an original task")
-			assert_eq(str((evidence.get_node("SiteSpecificEvidenceBearing") as Node3D).
-				get_meta("source_task_id")), source_task)
+			var bearing: Node3D = evidence.get_node("SiteSpecificEvidenceBearing") as Node3D
+			assert_eq(str(bearing.get_meta("source_task_id")), source_task)
 			node.free()
 		assert_eq(plan, original, "Presentation cannot mutate mission source plan")
 		count += 1
