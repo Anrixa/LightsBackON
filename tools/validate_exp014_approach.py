@@ -149,7 +149,8 @@ def validate(atlas: dict, contingencies: dict, profiles: dict[str, dict],
 
 
 if __name__ == "__main__":
-    from tools.validate_exp014_feedback import load_profiles as a04_profiles
+    # Direct script invocation places tools/ on sys.path, not necessarily root.
+    from validate_exp014_feedback import load_profiles as a04_profiles
 
     print("EXP014 A05 APPROACH INTELLIGENCE AUDIT:",
           json.dumps(validate(
