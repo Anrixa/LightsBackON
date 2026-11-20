@@ -57,7 +57,7 @@ class EXP014EnvironmentalEvidenceTests(unittest.TestCase):
 
     def test_legacy_atlas_must_remain_immutable(self) -> None:
         changed = copy.deepcopy(self.atlas)
-        changed["levels"][79]["tasks"][0]["id"] = "JOB_080_1"
+        changed["levels"][79]["tasks"][0]["id"] = "JOB_001_1"
         with self.assertRaisesRegex(ValueError, "ATLAS_TASK_DRIFT"):
             validate(changed, self.contingencies, self.profiles)
 
