@@ -126,7 +126,34 @@ func definition_snapshot() -> Dictionary:
 
 
 func resolved() -> bool:
-	return _phase == "attested"
+	# Attestation remains valid only while the actual A09 normal feeder,
+	# standby transfer and regional preparation still satisfy the proof.
+	if _phase != "attested" or _network == null:
+		return false
+	var state: Dictionary = _network.snapshot()
+	if state.is_empty() or not _network.site_prepared():
+		return false
+	var feeder: Dictionary = state["feeders"][str(_recipe["normal_feeder_id"])]
+	var tie: Dictionary = state["ties"][str(_recipe["backfeed_tie_id"])]
+	return not bool(feeder["isolated"]) and str(feeder["fault"]) == "" \
+		and not bool(tie["engaged"])
+
+
+## The existing board exposes A09 direct feeder/tie controls. During this
+## opt-in episode, reserve *those exact source assets* for the cascade to
+## avoid out-of-order reset/release and an unfinishable incident. Other
+## A09 regional assets and owner-approved controls remain available.
+func protects_original_asset(action: String) -> bool:
+	if _recipe.is_empty():
+		return false
+	var segments: PackedStringArray = action.split(":")
+	if segments.size() != 2:
+		return false
+	if ["regional_isolate", "regional_reset"].has(segments[0]):
+		return segments[1] == str(_recipe["normal_feeder_id"])
+	if ["regional_engage", "regional_release"].has(segments[0]):
+		return segments[1] == str(_recipe["backfeed_tie_id"])
+	return false
 
 
 func snapshot() -> Dictionary:
