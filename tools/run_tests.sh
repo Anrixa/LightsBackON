@@ -144,6 +144,20 @@ elif [ -f project.godot ]; then
     FAIL=1
   fi
   rm -f "$IMPORT_OUT"
+  echo "== EXP015 A03: direct Godot host script parser preflight =="
+  HOST_PARSE_OUT="$(mktemp)"
+  if ! "$GODOT_BIN" --headless --path . --check-only --script res://scripts/gameplay/expedition_host_session.gd >"$HOST_PARSE_OUT" 2>&1; then
+    echo "FAIL: Godot host script parser rejected expedition_host_session.gd"
+    cat "$HOST_PARSE_OUT"
+    FAIL=1
+  elif grep -qE "SCRIPT ERROR|Parse Error" "$HOST_PARSE_OUT"; then
+    echo "FAIL: Godot host script parser reported source errors"
+    cat "$HOST_PARSE_OUT"
+    FAIL=1
+  else
+    echo "EXP015_A03_HOST_SCRIPT_PARSE=PASS"
+  fi
+  rm -f "$HOST_PARSE_OUT"
   # Every Godot run below (tests, solution traces, cross-check) gets its own empty user:// (SAVE22).
   isolate_godot_user_dir || { echo "FAIL: cannot create an isolated Godot user dir"; exit 1; }
   trap 'rm -rf "$LBO_TEST_USER_ROOT"' EXIT
