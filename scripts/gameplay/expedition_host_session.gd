@@ -38,6 +38,7 @@ const SiteOutcomes := preload("res://scripts/gameplay/expedition_operational_con
 const SiteHazards := preload("res://scripts/gameplay/expedition_environment_hazards.gd")
 const SitePuzzles := preload("res://scripts/gameplay/expedition_investigation_chains.gd")
 const RegionalNetworks := preload("res://scripts/gameplay/expedition_regional_network.gd")
+const Incident := preload("res://scripts/gameplay/expedition_regional_emergencies.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
 
@@ -71,6 +72,7 @@ var site_outcomes: SiteOutcomes
 var site_hazards: SiteHazards
 var site_puzzles: SitePuzzles
 var regional_network: RegionalNetworks
+var incident_response: Incident
 
 var _definitions: Dictionary = {}
 var _position_source: Callable
@@ -111,7 +113,8 @@ func start(level_id: String, host_position: Callable,
 		enable_site_outcomes: bool = false,
 		enable_site_hazards: bool = false,
 		enable_site_puzzles: bool = false,
-		enable_regional_networks: bool = false) -> Dictionary:
+		enable_regional_networks: bool = false,
+		enable_incident_response: bool = false) -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
 	if enable_devices and not enable_bespoke:
@@ -142,6 +145,8 @@ func start(level_id: String, host_position: Callable,
 		return _fail("EXP014_A08_REQUIRES_A07_ENVIRONMENT")
 	if enable_regional_networks and (not enable_site_puzzles or not enforce_campaign):
 		return _fail("EXP014_A09_REQUIRES_A08_AND_HOST_CAMPAIGN")
+	if enable_incident_response and not enable_regional_networks:
+		return _fail("EXP015_REQUIRES_A09_REGIONAL_NETWORK")
 	if account_key != "" and not SaveService.is_valid_key(account_key):
 		return _fail("INVALID_ACCOUNT_KEY")
 	if not host_position.is_valid() or (physics_visibility.is_valid() and not host_position.is_valid()):
@@ -318,6 +323,21 @@ func start(level_id: String, host_position: Callable,
 			var offset: Vector3 = [Vector3(-1.20, 0.0, -1.30),
 				Vector3(1.20, 0.0, 1.30), Vector3(1.25, 0.0, -1.30)][j]
 			work_positions[str(checkpoint["id"])] = work_positions[str(checkpoint["anchor"])] + offset
+	# EXP015 A01: additional first-OR-join emergency response is strictly
+	# opt-in. It reuses A09 assets and the existing authenticated worksite board.
+	if enable_incident_response:
+		var incidents: Dictionary = Incident.load_book()
+		var verified: Dictionary = Incident.inspect(atlas, incidents, RegionalNetworks.load_book())
+		if not bool(verified.get("ok", false)):
+			return _fail("EXP015_INCIDENT_BOOK_INVALID", verified)
+		var recipe: Dictionary = Incident.entry_for(incidents, level_id)
+		if recipe.is_empty():
+			return _fail("EXP015_SITE_NOT_AUTHORED")
+		incident_response = Incident.new()
+		var response: Dictionary = incident_response.configure(recipe, regional_network)
+		if not bool(response.get("ok", false)):
+			return _fail("EXP015_INCIDENT_CONFIG_INVALID", response)
+		_definitions["incident_response"] = incident_response.definition_snapshot()
 	# The A02 overlay is available only for the 40 explicitly authored
 	# source-linked locations. The other 160 remain unchanged A01 sessions.
 	if enable_site_a02:
@@ -519,6 +539,7 @@ func start(level_id: String, host_position: Callable,
 		"site_hazards_active": site_hazards != null,
 		"site_puzzles_active": site_puzzles != null,
 		"regional_network_active": regional_network != null,
+		"incident_response_active": incident_response != null,
 		"qualification": "AUTHORITY_SOURCE_HEADLESS_ONLY_NO_PLAYABILITY"}
 
 
@@ -527,6 +548,11 @@ func _session_id() -> String:
 
 
 func _content_revision() -> String:
+	if incident_response != null:
+		return "EXP015_A01_" + ("%s|%s|%s" % [
+			str(_definitions.get("source_fingerprint", "")),
+			JSON.stringify(site_puzzles.definition_snapshot()),
+			JSON.stringify(incident_response.definition_snapshot())]).sha256_text()
 	if regional_network != null:
 		return "EXP014_A09_" + ("%s|%s|%s" % [
 			str(_definitions.get("source_fingerprint", "")),
@@ -665,6 +691,9 @@ func _bespoke_guard(player_id: String, kind: String, entity: String,
 	if kind == "request_extract" and regional_network != null \
 			and not regional_network.site_prepared():
 		return _fail("EXP014_A09_PREPARATION_REQUIRED")
+	if kind == "request_extract" and incident_response != null \
+			and not incident_response.certified():
+		return _fail("EXP015_INCIDENT_RESPONSE_REQUIRED")
 	if kind == "request_extract" and devices != null and not devices.solved():
 		return _fail("EXP07_DEVICES_INCOMPLETE")
 	if kind == "request_extract" and faults != null and not faults.solved():
@@ -862,6 +891,9 @@ func _operate_worksite(player_id: String, entity: String, action: String) -> Dic
 	# These requests enter only through the existing SessionHost worksite intent,
 	# after its principal, sequence, dedupe, range and rate validation. The
 	# original board target is reused; there is no new network action RPC.
+	if incident_response != null and entity == str(worksite.definition_snapshot()["board"]) \
+			and action.begins_with("incident_"):
+		return incident_response.operate(action)
 	if regional_network != null and entity == str(worksite.definition_snapshot()["board"]):
 		match action:
 			"regional_critical":
@@ -996,6 +1028,8 @@ func _worksite_snapshot() -> Dictionary:
 		state["site_puzzles"] = site_puzzles.snapshot()
 	if regional_network != null:
 		state["regional_network"] = regional_network.snapshot()
+	if incident_response != null:
+		state["incident_response"] = incident_response.snapshot()
 	return state
 
 
@@ -1142,7 +1176,8 @@ func _update_progress() -> void:
 		_completed[optional] = true
 	if _completed.has(first) and _completed.has(second) and _completed.has(third) and \
 			not mission.results().is_empty() and \
-			(regional_network == null or regional_network.site_prepared()):
+			(regional_network == null or regional_network.site_prepared()) and \
+			(incident_response == null or incident_response.certified()):
 		_completed[last] = true
 	_issue_task_rewards()
 
@@ -1189,6 +1224,8 @@ func task_board() -> Dictionary:
 		board["worksite"] = _worksite_snapshot()
 	if regional_network != null:
 		board["regional_network"] = regional_network.snapshot()
+	if incident_response != null:
+		board["incident_response"] = incident_response.snapshot()
 	return board
 
 
@@ -1200,6 +1237,8 @@ func authoritative_state() -> Dictionary:
 		state["exp06"] = bespoke.snapshot()
 	if regional_network != null:
 		state["exp014_regional_network"] = regional_network.snapshot()
+	if incident_response != null:
+		state["exp015_incident_response"] = incident_response.snapshot()
 	return state
 
 
