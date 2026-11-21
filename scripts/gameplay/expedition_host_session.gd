@@ -346,10 +346,12 @@ func start(level_id: String, host_position: Callable,
 		if not bool(verified.get("ok", false)):
 			return _fail("EXP015_INCIDENT_BOOK_INVALID", verified)
 		var recipe: Dictionary = Incident.entry_for(incidents, level_id)
-		if recipe.is_empty() and (not enable_service_cascade or
-				Cascade.entry_for(Cascade.load_book(), level_id).is_empty()) and
+		if recipe.is_empty() and (
+				(not enable_service_cascade or
+					Cascade.entry_for(Cascade.load_book(), level_id).is_empty()) and
 				(not enable_regional_finale or
-				Finale.entry_for(Finale.load_book(), level_id).is_empty()):
+					Finale.entry_for(Finale.load_book(), level_id).is_empty())
+		):
 			return _fail("EXP015_SITE_NOT_AUTHORED")
 		if not recipe.is_empty():
 			incident_response = Incident.new()
@@ -366,10 +368,12 @@ func start(level_id: String, host_position: Callable,
 		if not bool(cascade_gate.get("ok", false)):
 			return _fail("EXP015_A02_SOURCE_INVALID", cascade_gate)
 		var case: Dictionary = Cascade.entry_for(cascade_book, level_id)
-		if case.is_empty() and (not enable_incident_response or
-				Incident.entry_for(Incident.load_book(), level_id).is_empty()) and
+		if case.is_empty() and (
+				(not enable_incident_response or
+					Incident.entry_for(Incident.load_book(), level_id).is_empty()) and
 				(not enable_regional_finale or
-				Finale.entry_for(Finale.load_book(), level_id).is_empty()):
+					Finale.entry_for(Finale.load_book(), level_id).is_empty())
+		):
 			return _fail("EXP015_A02_SITE_NOT_AUTHORED")
 		if not case.is_empty():
 			service_cascade = Cascade.new()
@@ -386,10 +390,12 @@ func start(level_id: String, host_position: Callable,
 		if not bool(finale_audit.get("ok", false)):
 			return _fail("EXP015_A03_FINALE_SOURCE_INVALID", finale_audit)
 		var finale_entry: Dictionary = Finale.entry_for(finale_book, level_id)
-		if finale_entry.is_empty() and (not enable_incident_response or
-				Incident.entry_for(Incident.load_book(), level_id).is_empty()) and
+		if finale_entry.is_empty() and (
+				(not enable_incident_response or
+					Incident.entry_for(Incident.load_book(), level_id).is_empty()) and
 				(not enable_service_cascade or
-				Cascade.entry_for(Cascade.load_book(), level_id).is_empty()):
+					Cascade.entry_for(Cascade.load_book(), level_id).is_empty())
+		):
 			return _fail("EXP015_A03_SITE_NOT_AUTHORED")
 		if not finale_entry.is_empty():
 			regional_finale = Finale.new()
