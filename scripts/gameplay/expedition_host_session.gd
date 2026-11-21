@@ -549,9 +549,13 @@ func _session_id() -> String:
 
 func _content_revision() -> String:
 	if incident_response != null:
-		return "EXP015_A01_" + ("%s|%s|%s" % [
+		# Include the predecessor A09 regional book in the EXP015 wire revision.
+		# Matching incident recipes must never mask a different feeder topology.
+		return "EXP015_A01_" + ("%s|%s|%s|%s" % [
 			str(_definitions.get("source_fingerprint", "")),
 			JSON.stringify(site_puzzles.definition_snapshot()),
+			JSON.stringify(RegionalNetworks.entry_for(RegionalNetworks.load_book(),
+				str(_definitions.get("level_id", "")))),
 			JSON.stringify(incident_response.definition_snapshot())]).sha256_text()
 	if regional_network != null:
 		return "EXP014_A09_" + ("%s|%s|%s" % [
