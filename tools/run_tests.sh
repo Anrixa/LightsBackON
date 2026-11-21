@@ -106,6 +106,11 @@ if [ -n "$PY" ]; then
   "$PY" tools/validate_exp015_finales.py --report build/exp015-a03/source-audit.json || FAIL=1
 fi
 
+echo "== EXP015 A04: 25 post-finale true feeder trips and two recovery routes =="
+if [ -n "$PY" ]; then
+  "$PY" tools/validate_exp015_aftercare.py --report build/exp015-a04/source-audit.json || FAIL=1
+fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 
