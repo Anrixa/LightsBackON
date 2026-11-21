@@ -13,6 +13,11 @@ const BOOK_PATH: String = "res://scenes/expeditions/regional_networks_exp014_a09
 const SOURCE_AUTHORITY: String = "EXP014_A09_1_SOURCE_NETWORK_TOPOLOGIES_ONLY"
 const QUALIFICATION: String = "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
 
+## Process-local owner/host scope only. Never a production save or multiplayer state.
+## On restart, completed-site proof is reconstructed from EXP04 receipts; explicit
+## strategy/transfer decisions are not falsely claimed to survive termination.
+static var _host_regions: Dictionary = {}
+
 var _region: Dictionary = {}
 var _site_id: String = ""
 var _restored: Dictionary = {}
@@ -24,6 +29,9 @@ var _engaged: Dictionary = {}
 var _reserve: int = 0
 var _initial_reserve: int = 0
 var _recharged: bool = false
+var _strategy: String = ""
+var _prepared: Dictionary = {}
+var _service_debt: int = 0
 var _events: Array[Dictionary] = []
 var _ready: bool = false
 
@@ -311,4 +319,137 @@ func snapshot() -> Dictionary:
 		"reserve_anchor": _region["reserve_anchor_site"],
 		"reserve_pu": _reserve, "reserve_initial_pu": _initial_reserve,
 		"sites": states, "feeders": feeder_states, "ties": tie_states,
-		"events": _events.duplicate(true), "qualification": QUALIFICATION}
+		"events": _events.duplicate(true), "strategy": _strategy,
+		"site_conditions": site_conditions(), "qualification": QUALIFICATION}
+
+
+## Host receipt evidence supplies two distinct viable regional choices. Both are
+## valid only once the corresponding original EXP05 branch has been restored.
+## A failed choice cannot consume reserve or lock out the other path.
+func select_strategy(mode: String) -> Dictionary:
+	if not _ready:
+		return _fail("NOT_CONFIGURED")
+	if not _strategy.is_empty():
+		return _fail("REGIONAL_STRATEGY_ALREADY_LOCKED")
+	var choices: Dictionary = _region["strategies"]
+	if not choices.has(mode):
+		return _fail("UNKNOWN_REGIONAL_STRATEGY")
+	var proof: String = str(choices[mode]["requires_receipt_site"])
+	if not _restored.has(proof):
+		return _fail("REGIONAL_STRATEGY_RECEIPT_REQUIRED")
+	if mode == "critical_first":
+		if _reserve < 2:
+			return _fail("STANDBY_RESERVE_EXHAUSTED")
+		_reserve -= 2
+	else:
+		# Resilience-first keeps more standby power but accepts critical
+		# service debt until the region's original critical site is restored.
+		if not _restored.has(str(_region["critical_service_site"])):
+			_service_debt += 2
+	_strategy = mode
+	_record("choose_" + mode, proof)
+	return {"ok": true, "strategy": _strategy, "reserve": _reserve}
+
+
+## Real supply readiness comes from the present host feeder state. If the
+## EXP05 route is available but the physical tree is dark, allow a bounded
+## temporary supply OR a reversible managed outage: never deadlock branches.
+func site_conditions() -> Dictionary:
+	if not _ready:
+		return {}
+	var states: Dictionary = _live_nodes(true)
+	var root: String = str(_region["root_source_id"])
+	var primary_ready: bool = _site_id == root
+	var normal: Dictionary = _live_nodes(false)
+	for key: String in _feeders:
+		var feeder: Dictionary = _feeders[key]
+		if str(feeder["to"]) == _site_id and not _isolated.has(key) \
+				and normal.has(str(feeder["from"])):
+			primary_ready = true
+	var supply_ready: bool = primary_ready or states.has(_site_id)
+	for key: String in _engaged:
+		var tie: Dictionary = _ties[key]
+		if tie["to"] == _site_id and states.has(str(tie["from"])):
+			supply_ready = true
+	var prepared: String = str(_prepared.get(_site_id, ""))
+	var critical: bool = _site_id == str(_region["critical_service_site"])
+	var pressure: int = 2 if not supply_ready else 0
+	if _strategy == "resilience_first":
+		pressure = maxi(0, pressure - 1)
+	elif _strategy == "critical_first" and not critical:
+		pressure += 1
+	return {"site_id": _site_id, "supply_ready": supply_ready,
+		"primary_ready": primary_ready, "prepared": prepared,
+		"needs_preparation": prepared.is_empty(),
+		"risk_pressure": pressure, "service_debt": _service_debt,
+		"strategy": _strategy, "critical_site": critical,
+		"reserve_pu": _reserve}
+
+
+func site_prepared() -> bool:
+	return _ready and _prepared.has(_site_id)
+
+
+func prepare_site(mode: String) -> Dictionary:
+	if not _ready:
+		return _fail("NOT_CONFIGURED")
+	if site_prepared():
+		return _fail("SITE_ALREADY_PREPARED")
+	if not ["buffer", "managed"].has(mode):
+		return _fail("UNKNOWN_SITE_PREPARATION")
+	var conditions: Dictionary = site_conditions()
+	var cost: int = 0 if conditions["supply_ready"] else 2
+	if mode == "buffer" and cost > _reserve:
+		return _fail("STANDBY_RESERVE_EXHAUSTED")
+	if mode == "buffer":
+		_reserve -= cost
+	elif not conditions["supply_ready"]:
+		_service_debt += 2
+	_prepared[_site_id] = mode
+	_record("prepare_" + mode, _site_id)
+	return {"ok": true, "conditions": site_conditions()}
+
+
+## Only the host reads/updates this ephemeral context. Every new dispatch
+## revalidates the EXP04 receipt profile and the original EXP05 launch graph.
+func attach_site(atlas: Dictionary, profile: Dictionary, level_id: String) -> Dictionary:
+	if not _ready:
+		return _fail("NOT_CONFIGURED")
+	var entry: Dictionary = entry_for(load_book(), level_id)
+	if entry.get("region_id") != _region.get("region_id"):
+		return _fail("REGION_CONTEXT_MISMATCH")
+	var access: Dictionary = Campaign.can_launch(profile, atlas,
+		Campaign.load_routes(), level_id)
+	if not bool(access.get("ok", false)):
+		return _fail("REGION_CAMPAIGN_LOCK")
+	var refreshed: Dictionary = refresh_receipts(atlas, profile)
+	if not bool(refreshed.get("ok", false)):
+		return refreshed
+	_site_id = level_id
+	return {"ok": true, "level_id": _site_id, "restored": _restored.size()}
+
+
+static func acquire(atlas: Dictionary, profile: Dictionary,
+		level_id: String) -> Dictionary:
+	var account: String = str(profile.get("account_key", ""))
+	var entry: Dictionary = entry_for(load_book(), level_id)
+	if account.is_empty() or entry.is_empty():
+		return _fail("REGIONAL_CONTEXT_IDENTITY_MISSING")
+	var key: String = account + "|" + str(entry["region_id"])
+	if _host_regions.has(key):
+		var existing: Variant = _host_regions[key]
+		var attached: Dictionary = existing.attach_site(atlas, profile, level_id)
+		if not bool(attached.get("ok", false)):
+			return attached
+		return {"ok": true, "network": existing, "reused": true}
+	var created: Variant = new()
+	var configured: Dictionary = created.configure(atlas, profile, level_id)
+	if not bool(configured.get("ok", false)):
+		return configured
+	_host_regions[key] = created
+	return {"ok": true, "network": created, "reused": false}
+
+
+## Headless test isolation only: not a production reset or a save wipe.
+static func clear_host_memory_for_test() -> void:
+	_host_regions.clear()
