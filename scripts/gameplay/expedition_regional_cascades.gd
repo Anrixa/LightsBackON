@@ -147,7 +147,9 @@ func protects_original_asset(action: String) -> bool:
 	if _recipe.is_empty():
 		return false
 	var segments: PackedStringArray = action.split(":")
-	if segments.size() != 2:
+	# A09 consumes get_slice(":", 1) even when trailing segments exist.
+	# Match the exact source asset slice, not an assumed 2-token envelope.
+	if segments.size() < 2:
 		return false
 	if ["regional_isolate", "regional_reset"].has(segments[0]):
 		return segments[1] == str(_recipe["normal_feeder_id"])
