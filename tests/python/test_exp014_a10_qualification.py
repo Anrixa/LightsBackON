@@ -5,6 +5,7 @@ executable is required; export cases use clearly synthetic local fixture bytes.
 """
 from __future__ import annotations
 
+import copy
 import json
 import tempfile
 import unittest
@@ -52,6 +53,60 @@ class QualificationSourceTests(unittest.TestCase):
         self.assertEqual(result["investigation_graphs"],
                          {"forensic": 200, "field": 200})
         self.assertEqual(len(result["mechanical_fingerprint_sha256"]), 64)
+
+    def test_id_normalized_mechanical_uniqueness_is_independent(self) -> None:
+        books = q.read_sources()
+        result = q.id_normalized_mechanical_audit(
+            books["contingencies"], books["investigations"])
+        self.assertEqual(result["site_count"], 200)
+        self.assertEqual(result["unique_mechanics_without_ids"], 200)
+        self.assertEqual(len(result["normalized_signature_set_sha256"]), 64)
+
+    def test_renamed_targets_and_timers_cannot_mint_new_mechanics(self) -> None:
+        books = q.read_sources()
+        case = copy.deepcopy(books["contingencies"]["entries"][0])
+        inquiry = copy.deepcopy(books["investigations"]["entries"][0])
+        before = q.mechanical_structure(case, inquiry)
+        old_targets = dict(case["targets"])
+        remap = {target: "TEST_TARGET_" + role
+                 for role, target in old_targets.items()}
+        case["targets"] = {role: remap[target]
+                           for role, target in old_targets.items()}
+        for route in case["routes"].values():
+            for step in route:
+                for field in ("target", "support", "witness"):
+                    step[field] = remap[step[field]]
+                step["dwell_ticks"] = 999
+                step["action"] = "NEW_COSMETIC_LABEL"
+        for branch in inquiry["branches"].values():
+            for node in branch["nodes"]:
+                node["dwell_ticks"] = 12345
+                node["source_action"] = "RENAMED_ACTION"
+        self.assertEqual(q.mechanical_structure(case, inquiry), before)
+        self.assertEqual(
+            q.canonical_sha(q.mechanical_structure(case, inquiry)),
+            q.canonical_sha(before),
+        )
+
+    def test_relabelled_mechanical_copy_is_rejected_as_duplicate(self) -> None:
+        books = q.read_sources()
+        old = books["contingencies"]["entries"]
+        inquiries = books["investigations"]["entries"]
+        first = old[0]
+        second = old[1]
+        inverse_first = {val: key for key, val in first["targets"].items()}
+        second["routes"] = copy.deepcopy(first["routes"])
+        for route in second["routes"].values():
+            for step in route:
+                for field in ("target", "support", "witness"):
+                    role = inverse_first[step[field]]
+                    step[field] = second["targets"][role]
+        inquiries[1]["branches"] = copy.deepcopy(inquiries[0]["branches"])
+        inquiries[1]["risk_class"] = inquiries[0]["risk_class"]
+        with self.assertRaisesRegex(q.QualificationError,
+                                    "RENAMED_SITE_MECHANICAL_COLLISION"):
+            q.id_normalized_mechanical_audit(
+                books["contingencies"], books["investigations"])
 
     def test_godot_test_inventory_exists_but_does_not_pretend_execution(self) -> None:
         item = q.host_test_inventory()
