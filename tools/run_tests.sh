@@ -81,6 +81,11 @@ if [ -n "$PY" ]; then "$PY" tools/validate_exp014_puzzles.py || FAIL=1; fi
 echo "== EXP014 A09.1: 25 noncosmetic regional network structures and safe standby ties =="
 if [ -n "$PY" ]; then "$PY" tools/validate_exp014_networks.py || FAIL=1; fi
 
+echo "== EXP014 A10.1: 25-region cross-system source fingerprints and 50 original OR-join scenarios =="
+if [ -n "$PY" ]; then
+  "$PY" tools/validate_exp014_a10.py --report build/exp014-a10-1/source-audit.json || FAIL=1
+fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 
