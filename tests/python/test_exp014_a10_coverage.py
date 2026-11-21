@@ -88,11 +88,11 @@ class EXP014A10SourceOracleTests(unittest.TestCase):
 
     def test_first_and_second_or_join_cannot_become_and_gate(self) -> None:
         tampered = copy.deepcopy(self.pristine["campaign"])
-        tampered["nodes"][3]["requires_any"] = ["LV_002", "LV_003"]
+        tampered["nodes"][3]["requires_any"] = ["LV_002"]
         with self.assertRaisesRegex(ValueError, "OR_JOIN_REGRESSION"):
             self.check(campaign=tampered)
         tampered = copy.deepcopy(self.pristine["campaign"])
-        tampered["nodes"][6]["requires_any"] = ["LV_005", "LV_006"]
+        tampered["nodes"][6]["requires_any"] = ["LV_005"]
         with self.assertRaisesRegex(ValueError, "OR_JOIN_REGRESSION"):
             self.check(campaign=tampered)
 
