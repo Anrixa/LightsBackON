@@ -37,6 +37,7 @@ const SiteApproach := preload("res://scripts/gameplay/expedition_approach_intell
 const SiteOutcomes := preload("res://scripts/gameplay/expedition_operational_consequences.gd")
 const SiteHazards := preload("res://scripts/gameplay/expedition_environment_hazards.gd")
 const SitePuzzles := preload("res://scripts/gameplay/expedition_investigation_chains.gd")
+const RegionalNetworks := preload("res://scripts/gameplay/expedition_regional_network.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
 
@@ -69,6 +70,7 @@ var site_approach: SiteApproach
 var site_outcomes: SiteOutcomes
 var site_hazards: SiteHazards
 var site_puzzles: SitePuzzles
+var regional_network: RegionalNetworks
 
 var _definitions: Dictionary = {}
 var _position_source: Callable
@@ -108,7 +110,8 @@ func start(level_id: String, host_position: Callable,
 		enable_site_approach: bool = false,
 		enable_site_outcomes: bool = false,
 		enable_site_hazards: bool = false,
-		enable_site_puzzles: bool = false) -> Dictionary:
+		enable_site_puzzles: bool = false,
+		enable_regional_networks: bool = false) -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
 	if enable_devices and not enable_bespoke:
@@ -137,6 +140,8 @@ func start(level_id: String, host_position: Callable,
 		return _fail("EXP014_A07_REQUIRES_A06_OUTCOMES")
 	if enable_site_puzzles and not enable_site_hazards:
 		return _fail("EXP014_A08_REQUIRES_A07_ENVIRONMENT")
+	if enable_regional_networks and (not enable_site_puzzles or not enforce_campaign):
+		return _fail("EXP014_A09_REQUIRES_A08_AND_HOST_CAMPAIGN")
 	if account_key != "" and not SaveService.is_valid_key(account_key):
 		return _fail("INVALID_ACCOUNT_KEY")
 	if not host_position.is_valid() or (physics_visibility.is_valid() and not host_position.is_valid()):
@@ -165,9 +170,18 @@ func start(level_id: String, host_position: Callable,
 			Campaign.load_routes(), level_id)
 		if not bool(access.get("ok", false)):
 			return _fail(str(access.get("code", "CAMPAIGN_ROUTE_INVALID")), access)
+		if enable_regional_networks:
+			# No client progress flag: host loads independently verified EXP04 receipts.
+			var regional_gate: Dictionary = RegionalNetworks.acquire(
+				atlas, loaded["profile"], level_id)
+			if not bool(regional_gate.get("ok", false)):
+				return _fail("EXP014_A09_REGIONAL_PROFILE_HOLD", regional_gate)
+			regional_network = regional_gate["network"]
 	var location: Dictionary = Atlas.find_location(atlas, str(level["location_id"]))
 	var plan: Dictionary = Plan.make_plan(level, location)
 	_definitions = Factory.build(level, plan)
+	if regional_network != null:
+		_definitions["regional_network"] = regional_network.snapshot()
 	if not bool(_definitions.get("ok", false)):
 		return _fail("CONTRACT_FACTORY_FAILED", _definitions)
 	if enable_bespoke:
@@ -504,6 +518,7 @@ func start(level_id: String, host_position: Callable,
 		"site_outcomes_active": site_outcomes != null,
 		"site_hazards_active": site_hazards != null,
 		"site_puzzles_active": site_puzzles != null,
+		"regional_network_active": regional_network != null,
 		"qualification": "AUTHORITY_SOURCE_HEADLESS_ONLY_NO_PLAYABILITY"}
 
 
@@ -512,6 +527,12 @@ func _session_id() -> String:
 
 
 func _content_revision() -> String:
+	if regional_network != null:
+		return "EXP014_A09_" + ("%s|%s|%s" % [
+			str(_definitions.get("source_fingerprint", "")),
+			JSON.stringify(site_puzzles.definition_snapshot()),
+			JSON.stringify(RegionalNetworks.entry_for(
+				RegionalNetworks.load_book(), str(_definitions.get("level_id", ""))))]).sha256_text()
 	if site_puzzles != null:
 		return "EXP014_A08_" + ("%s|%s|%s|%s" % [
 			str(_definitions.get("source_fingerprint", "")),
@@ -833,6 +854,19 @@ func _puzzle_facts() -> Dictionary:
 func _operate_worksite(player_id: String, entity: String, action: String) -> Dictionary:
 	if player_id != PLAYER_ID or worksite == null:
 		return _fail("EXP012_HOST_PRINCIPAL_INVALID")
+	# These requests enter only through the existing SessionHost worksite intent,
+	# after its principal, sequence, dedupe, range and rate validation. The
+	# original board target is reused; there is no new network action RPC.
+	if regional_network != null and entity == str(worksite.definition_snapshot()["board"]):
+		match action:
+			"regional_critical":
+				return regional_network.select_strategy("critical_first")
+			"regional_resilience":
+				return regional_network.select_strategy("resilience_first")
+			"regional_buffer":
+				return regional_network.prepare_site("buffer")
+			"regional_managed":
+				return regional_network.prepare_site("managed")
 	var active: SiteA02 = site_exp013 if site_exp013 != null else site_a02
 	if active != null and active.target_ids().has(entity):
 		if site_approach != null and not site_approach.solved():
@@ -854,6 +888,9 @@ func _operate_worksite(player_id: String, entity: String, action: String) -> Dic
 		if site_contingency != null and active.solved():
 			return site_contingency.operate(entity, action, _contingency_facts())
 		return active.operate(entity, action, _worksite_facts())
+	if regional_network != null and entity == str(worksite.definition_snapshot()["decision"]) \
+			and ["priority", "resilience"].has(action) and not regional_network.site_prepared():
+		return _fail("EXP014_A09_REGIONAL_PREPARATION_REQUIRED")
 	# A07 exposure/fault can block unsafe worksite operations and routing,
 	# but does not prevent opening the original source review board.
 	if site_hazards != null and worksite.target_ids().has(entity) and \
@@ -937,6 +974,8 @@ func _worksite_snapshot() -> Dictionary:
 		state["site_hazards"] = site_hazards.snapshot()
 	if site_puzzles != null:
 		state["site_puzzles"] = site_puzzles.snapshot()
+	if regional_network != null:
+		state["regional_network"] = regional_network.snapshot()
 	return state
 
 
@@ -1127,6 +1166,8 @@ func task_board() -> Dictionary:
 		board["balancing"] = balancing.snapshot()
 	if worksite != null:
 		board["worksite"] = _worksite_snapshot()
+	if regional_network != null:
+		board["regional_network"] = regional_network.snapshot()
 	return board
 
 
@@ -1136,6 +1177,8 @@ func authoritative_state() -> Dictionary:
 	var state: Dictionary = host.authoritative_state().duplicate(true)
 	if bespoke != null:
 		state["exp06"] = bespoke.snapshot()
+	if regional_network != null:
+		state["exp014_regional_network"] = regional_network.snapshot()
 	return state
 
 
