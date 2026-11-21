@@ -14,12 +14,16 @@ import json
 from pathlib import Path
 from typing import Any
 
-from tools.validate_exp014_networks import (
-    validate as audit_networks,
-    unlabeled_tree_signature,
-    dependencies,
-)
-from tools.validate_exp014_outcomes import parse_script as parse_risk_classes
+if __package__:
+    from .validate_exp014_networks import (
+        validate as audit_networks, unlabeled_tree_signature, dependencies,
+    )
+    from .validate_exp014_outcomes import parse_script as parse_risk_classes
+else:
+    from validate_exp014_networks import (
+        validate as audit_networks, unlabeled_tree_signature, dependencies,
+    )
+    from validate_exp014_outcomes import parse_script as parse_risk_classes
 
 ROOT = Path(__file__).resolve().parents[1]
 DIR = ROOT / "scenes" / "expeditions"
