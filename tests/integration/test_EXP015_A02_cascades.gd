@@ -365,3 +365,59 @@ func test_EXP015_A02_attestation_checks_live_network_and_limits_asset_lock() -> 
 		str(source["normal_feeder_id"])).get("ok", false)))
 	assert_false(response.resolved(),
 		"attestation cannot outlive unsafe source feeder state")
+
+
+func test_EXP015_A02_actual_a01_to_a02_process_local_dispatch_handoff() -> void:
+	var account: String = "exp015_cross_dispatch"
+	var first: Dictionary = _start(0, "resilience_first", account, 4, true, true)
+	assert_true(bool(first["reply"].get("ok", false)), str(first["reply"]))
+	if not bool(first["reply"].get("ok", false)):
+		return
+	var entry_host: Runtime = first["host"]
+	var first_board: String = str(entry_host.worksite.definition_snapshot()["board"])
+	_position = entry_host.definition_snapshot()["positions"][first_board]
+	assert_true(bool(_send(entry_host, 1, first_board, "regional_resilience").get("ok", false)))
+	var seq: int = 2
+	for action: String in [
+		"incident_survey", "incident_isolate", "incident_managed",
+		"incident_prepare", "incident_recover", "incident_certify"
+	]:
+		assert_true(bool(_send(entry_host, seq, first_board, action).get("ok", false)),
+			"First dispatch: %s" % action)
+		seq += 1
+	assert_true(entry_host.incident_response.certified())
+	var prior_network: Regional = entry_host.regional_network
+	var prior_events: int = prior_network.snapshot()["events"].size()
+	var prior_reserve: int = int(prior_network.snapshot()["reserve_pu"])
+	# The second host independently loads source-valid EXP04 test fixture
+	# receipts for LV004 and LV005, rather than a client completion flag.
+	var follow: Dictionary = _start(0, "resilience_first", account, 7, true, true)
+	assert_true(bool(follow["reply"].get("ok", false)), str(follow["reply"]))
+	if not bool(follow["reply"].get("ok", false)):
+		return
+	var host: Runtime = follow["host"]
+	assert_true(host.regional_network == prior_network,
+		"both authored encounters must share the actual host regional context")
+	assert_eq(str(host.regional_network.snapshot()["strategy"]), "resilience_first")
+	assert_eq(int(host.regional_network.snapshot()["reserve_pu"]), prior_reserve)
+	assert_eq(int(host.regional_network.snapshot()["events"].size()), prior_events)
+	assert_false(host.regional_network.site_prepared(),
+		"the second OR-join must not inherit a different site's preparation")
+	assert_true(host.incident_response == null)
+	assert_true(host.service_cascade != null)
+	var board: String = str(host.worksite.definition_snapshot()["board"])
+	_position = host.definition_snapshot()["positions"][board]
+	var command: int = 1
+	for action: String in [
+		"cascade_assess", "cascade_trip", "cascade_managed",
+		"cascade_prepare", "cascade_clear", "cascade_reconnect", "cascade_attest"
+	]:
+		assert_true(bool(_send(host, command, board, action).get("ok", false)),
+			"Second dispatch: %s" % action)
+		command += 1
+	assert_true(host.service_cascade.resolved())
+	assert_true(host.regional_network.site_prepared())
+	assert_false(host.completed())
+	assert_eq(host.pending_rewards(account).size(), 0)
+	print("EXP015_A02_CROSS_DISPATCH first=LV_004 second=LV_007 strategy=resilience_first",
+		" regional_shared=true source_receipts=test_fixture_ONLY")
