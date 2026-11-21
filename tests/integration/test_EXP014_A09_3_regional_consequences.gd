@@ -72,7 +72,7 @@ func test_EXP014_A09_3_unverified_context_or_legacy_opt_in_fails_closed() -> voi
 	assert_true(bool(created.get("ok", false)), str(created))
 	var fake: Dictionary = profile.duplicate(true)
 	fake["completed_levels"]["LV_004"] = true
-	assert_eq(Network.acquire(atlas, fake, "LV_003")["code"], "RESTORATION_RECEIPT_HOLD")
+	assert_eq(Network.acquire(atlas, fake, "LV_003")["code"], "REGION_CAMPAIGN_LOCK")
 	var host: Runtime = Runtime.new()
 	var illegal: Dictionary = host.start("LV_001", Callable(self, "_position"),
 		Callable(), "", false, "", true, true, true, true, true,
