@@ -938,6 +938,11 @@ func _operate_worksite(player_id: String, entity: String, action: String) -> Dic
 	if service_cascade != null and entity == str(worksite.definition_snapshot()["board"]) \
 			and action.begins_with("cascade_"):
 		return service_cascade.operate(action)
+	# This episode owns only its pinned normal feeder and standby tie;
+	# direct A09 commands must not bypass fault proof or invalidate recovery.
+	if service_cascade != null and entity == str(worksite.definition_snapshot()["board"]) \
+			and service_cascade.protects_original_asset(action):
+		return _fail("EXP015_A02_PROTECTED_NETWORK_ASSET")
 	if regional_network != null and entity == str(worksite.definition_snapshot()["board"]):
 		match action:
 			"regional_critical":
