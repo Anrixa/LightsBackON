@@ -210,16 +210,18 @@ func test_EXP014_A10_3_host_rejects_malformed_foreign_stale_and_client_progress(
 	}).to_utf8_buffer()
 	assert_eq(host.receive(1, corrupt)["code"], "MALFORMED")
 	assert_eq(host.regional_network.snapshot(), before)
-	var accepted: Dictionary = host.receive(1, _wire(host, 1, board, "regional_managed"))
+	# A policy-refused, well-shaped seq=1 has still been consumed by the
+	# authoritative host. Use seq=2 for the first accepted transition.
+	var accepted: Dictionary = host.receive(1, _wire(host, 2, board, "regional_managed"))
 	assert_true(bool(accepted.get("ok", false)), str(accepted))
 	assert_true(host.regional_network.site_prepared())
 	var prepared: Dictionary = host.regional_network.snapshot()
 	assert_true(bool(host.receive(1,
-		_wire(host, 1, board, "regional_managed")).get("duplicate", false)))
+		_wire(host, 2, board, "regional_managed")).get("duplicate", false)))
 	assert_eq(host.regional_network.snapshot(), prepared)
 	assert_false(bool(host.receive(1,
 		_wire(host, 70, "FORGED_BOARD", "regional_buffer")).get("ok", false)))
-	assert_eq(host.receive(1, _wire(host, 1, board, "regional_managed"))["code"],
+	assert_eq(host.receive(1, _wire(host, 2, board, "regional_managed"))["code"],
 		"STALE_SEQUENCE")
 	assert_eq(host.regional_network.snapshot(), prepared)
 	assert_false(host.completed())
