@@ -132,7 +132,18 @@ echo "== godot =="
 if [ -f project.godot ] && [ -z "$GODOT_BIN" ]; then
   echo "FAIL: Godot 4.7.2 not found; set GODOT_BIN to the console exe (see docs/PC-RUNBOOK.md A.3)"; FAIL=1
 elif [ -f project.godot ]; then
-  "$GODOT_BIN" --headless --path . --import >/dev/null 2>&1 || true   # builds the class cache on a fresh clone
+  # Godot import errors must be visible and actionable. Do not swallow parser failures.
+  IMPORT_OUT="$(mktemp)"
+  if ! "$GODOT_BIN" --headless --path . --import >"$IMPORT_OUT" 2>&1; then
+    echo "FAIL: Godot import returned non-zero (details below)"
+    cat "$IMPORT_OUT"
+    FAIL=1
+  elif grep -qE "SCRIPT ERROR|Parse Error" "$IMPORT_OUT"; then
+    echo "FAIL: Godot import reported script/parser errors (details below)"
+    cat "$IMPORT_OUT"
+    FAIL=1
+  fi
+  rm -f "$IMPORT_OUT"
   # Every Godot run below (tests, solution traces, cross-check) gets its own empty user:// (SAVE22).
   isolate_godot_user_dir || { echo "FAIL: cannot create an isolated Godot user dir"; exit 1; }
   trap 'rm -rf "$LBO_TEST_USER_ROOT"' EXIT
