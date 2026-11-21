@@ -32,6 +32,14 @@ jobs:
         run: echo "GODOT_BIN=$(bash tools/setup_godot_linux.sh)" >> "$GITHUB_ENV"
       - name: Run all checks
         run: bash tools/run_tests.sh
+      - name: Preserve A10.4 Linux source evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exp014-a10-4-linux-${{ github.sha }}
+          path: build/exp014-a10-4/source-gate.json
+          if-no-files-found: warn
+          retention-days: 14
 
   windows:
     runs-on: windows-latest
@@ -113,6 +121,7 @@ jobs:
             --smoke-log build/smoke.log \
             --report build/exp014-a10-4/windows-export-gate.json
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: windows-build-${{ github.sha }}
           path: |
