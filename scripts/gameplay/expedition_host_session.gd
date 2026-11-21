@@ -40,6 +40,7 @@ const SitePuzzles := preload("res://scripts/gameplay/expedition_investigation_ch
 const RegionalNetworks := preload("res://scripts/gameplay/expedition_regional_network.gd")
 const Incident := preload("res://scripts/gameplay/expedition_regional_emergencies.gd")
 const Cascade := preload("res://scripts/gameplay/expedition_regional_cascades.gd")
+const Finale := preload("res://scripts/gameplay/expedition_regional_finales.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
 
@@ -75,6 +76,7 @@ var site_puzzles: SitePuzzles
 var regional_network: RegionalNetworks
 var incident_response: Incident
 var service_cascade: Cascade
+var regional_finale: Finale
 
 var _definitions: Dictionary = {}
 var _position_source: Callable
@@ -117,7 +119,8 @@ func start(level_id: String, host_position: Callable,
 		enable_site_puzzles: bool = false,
 		enable_regional_networks: bool = false,
 		enable_incident_response: bool = false,
-		enable_service_cascade: bool = false) -> Dictionary:
+		enable_service_cascade: bool = false,
+		enable_regional_finale: bool = false) -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
 	if enable_devices and not enable_bespoke:
@@ -152,6 +155,8 @@ func start(level_id: String, host_position: Callable,
 		return _fail("EXP015_REQUIRES_A09_REGIONAL_NETWORK")
 	if enable_service_cascade and not enable_regional_networks:
 		return _fail("EXP015_A02_REQUIRES_A09_REGIONAL_NETWORK")
+	if enable_regional_finale and not enable_regional_networks:
+		return _fail("EXP015_A03_REQUIRES_A09_REGIONAL_NETWORK")
 	if account_key != "" and not SaveService.is_valid_key(account_key):
 		return _fail("INVALID_ACCOUNT_KEY")
 	if not host_position.is_valid() or (physics_visibility.is_valid() and not host_position.is_valid()):
@@ -337,7 +342,9 @@ func start(level_id: String, host_position: Callable,
 			return _fail("EXP015_INCIDENT_BOOK_INVALID", verified)
 		var recipe: Dictionary = Incident.entry_for(incidents, level_id)
 		if recipe.is_empty() and (not enable_service_cascade or
-				Cascade.entry_for(Cascade.load_book(), level_id).is_empty()):
+				Cascade.entry_for(Cascade.load_book(), level_id).is_empty()) and
+				(not enable_regional_finale or
+				Finale.entry_for(Finale.load_book(), level_id).is_empty()):
 			return _fail("EXP015_SITE_NOT_AUTHORED")
 		if not recipe.is_empty():
 			incident_response = Incident.new()
@@ -355,7 +362,9 @@ func start(level_id: String, host_position: Callable,
 			return _fail("EXP015_A02_SOURCE_INVALID", cascade_gate)
 		var case: Dictionary = Cascade.entry_for(cascade_book, level_id)
 		if case.is_empty() and (not enable_incident_response or
-				Incident.entry_for(Incident.load_book(), level_id).is_empty()):
+				Incident.entry_for(Incident.load_book(), level_id).is_empty()) and
+				(not enable_regional_finale or
+				Finale.entry_for(Finale.load_book(), level_id).is_empty()):
 			return _fail("EXP015_A02_SITE_NOT_AUTHORED")
 		if not case.is_empty():
 			service_cascade = Cascade.new()
@@ -363,6 +372,26 @@ func start(level_id: String, host_position: Callable,
 			if not bool(started.get("ok", false)):
 				return _fail("EXP015_A02_CONFIG_INVALID", started)
 			_definitions["service_cascade"] = service_cascade.definition_snapshot()
+	# EXP015 A03: host-owned critical/shelter response at the third
+	# original junction (regional finale), distinct from A01 and A02 sites.
+	if enable_regional_finale:
+		var finale_book: Dictionary = Finale.load_book()
+		var finale_audit: Dictionary = Finale.inspect(
+			atlas, finale_book, RegionalNetworks.load_book())
+		if not bool(finale_audit.get("ok", false)):
+			return _fail("EXP015_A03_FINALE_SOURCE_INVALID", finale_audit)
+		var finale_entry: Dictionary = Finale.entry_for(finale_book, level_id)
+		if finale_entry.is_empty() and (not enable_incident_response or
+				Incident.entry_for(Incident.load_book(), level_id).is_empty()) and
+				(not enable_service_cascade or
+				Cascade.entry_for(Cascade.load_book(), level_id).is_empty()):
+			return _fail("EXP015_A03_SITE_NOT_AUTHORED")
+		if not finale_entry.is_empty():
+			regional_finale = Finale.new()
+			var approved: Dictionary = regional_finale.configure(finale_entry, regional_network)
+			if not bool(approved.get("ok", false)):
+				return _fail("EXP015_A03_FINALE_CONFIG_INVALID", approved)
+			_definitions["regional_finale"] = regional_finale.definition_snapshot()
 	# The A02 overlay is available only for the 40 explicitly authored
 	# source-linked locations. The other 160 remain unchanged A01 sessions.
 	if enable_site_a02:
@@ -566,6 +595,7 @@ func start(level_id: String, host_position: Callable,
 		"regional_network_active": regional_network != null,
 		"incident_response_active": incident_response != null,
 		"service_cascade_active": service_cascade != null,
+		"regional_finale_active": regional_finale != null,
 		"qualification": "AUTHORITY_SOURCE_HEADLESS_ONLY_NO_PLAYABILITY"}
 
 
@@ -574,6 +604,13 @@ func _session_id() -> String:
 
 
 func _content_revision() -> String:
+	if regional_finale != null:
+		return "EXP015_A03_" + ("%s|%s|%s|%s" % [
+			str(_definitions.get("source_fingerprint", "")),
+			JSON.stringify(site_puzzles.definition_snapshot()),
+			JSON.stringify(RegionalNetworks.entry_for(RegionalNetworks.load_book(),
+				str(_definitions.get("level_id", "")))),
+			JSON.stringify(regional_finale.definition_snapshot())]).sha256_text()
 	if service_cascade != null:
 		# Include inherited A09 topology in exact SessionHost content revision.
 		return "EXP015_A02_" + ("%s|%s|%s|%s" % [
@@ -735,6 +772,9 @@ func _bespoke_guard(player_id: String, kind: String, entity: String,
 	if kind == "request_extract" and service_cascade != null \
 			and not service_cascade.resolved():
 		return _fail("EXP015_A02_CASCADE_UNRESOLVED")
+	if kind == "request_extract" and regional_finale != null \
+			and not regional_finale.closed():
+		return _fail("EXP015_A03_FINALE_NOT_SIGNED_OFF")
 	if kind == "request_extract" and devices != null and not devices.solved():
 		return _fail("EXP07_DEVICES_INCOMPLETE")
 	if kind == "request_extract" and faults != null and not faults.solved():
@@ -943,6 +983,12 @@ func _operate_worksite(player_id: String, entity: String, action: String) -> Dic
 	if service_cascade != null and entity == str(worksite.definition_snapshot()["board"]) \
 			and service_cascade.protects_original_asset(action):
 		return _fail("EXP015_A02_PROTECTED_NETWORK_ASSET")
+	if regional_finale != null and entity == str(worksite.definition_snapshot()["board"]) \
+			and action.begins_with("finale_"):
+		return regional_finale.operate(action)
+	if regional_finale != null and entity == str(worksite.definition_snapshot()["board"]) \
+			and regional_finale.protects_original_action(action):
+		return _fail("EXP015_A03_PROTECTED_NETWORK_ASSET")
 	if regional_network != null and entity == str(worksite.definition_snapshot()["board"]):
 		match action:
 			"regional_critical":
@@ -1081,6 +1127,8 @@ func _worksite_snapshot() -> Dictionary:
 		state["incident_response"] = incident_response.snapshot()
 	if service_cascade != null:
 		state["service_cascade"] = service_cascade.snapshot()
+	if regional_finale != null:
+		state["regional_finale"] = regional_finale.snapshot()
 	return state
 
 
@@ -1229,7 +1277,8 @@ func _update_progress() -> void:
 			not mission.results().is_empty() and \
 			(regional_network == null or regional_network.site_prepared()) and \
 			(incident_response == null or incident_response.certified()) and \
-			(service_cascade == null or service_cascade.resolved()):
+			(service_cascade == null or service_cascade.resolved()) and \
+			(regional_finale == null or regional_finale.closed()):
 		_completed[last] = true
 	_issue_task_rewards()
 
@@ -1280,6 +1329,8 @@ func task_board() -> Dictionary:
 		board["incident_response"] = incident_response.snapshot()
 	if service_cascade != null:
 		board["service_cascade"] = service_cascade.snapshot()
+	if regional_finale != null:
+		board["regional_finale"] = regional_finale.snapshot()
 	return board
 
 
@@ -1295,6 +1346,8 @@ func authoritative_state() -> Dictionary:
 		state["exp015_incident_response"] = incident_response.snapshot()
 	if service_cascade != null:
 		state["exp015_service_cascade"] = service_cascade.snapshot()
+	if regional_finale != null:
+		state["exp015_regional_finale"] = regional_finale.snapshot()
 	return state
 
 
