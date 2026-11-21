@@ -282,6 +282,16 @@ func test_EXP015_A02_authenticated_host_cascade_replay_and_no_premature_rewards(
 		assert_eq(host.service_cascade.snapshot()["events"].size(), 7)
 		assert_true(host.authoritative_state().has("exp015_service_cascade"))
 		assert_eq(str(host.task_board()["service_cascade"]["phase"]), "attested")
+		var protected: Dictionary = host.service_cascade.definition_snapshot()
+		var safe: Dictionary = host.regional_network.snapshot()
+		assert_eq(str(_send(host, 10, board,
+			"regional_isolate:" + str(protected["normal_feeder_id"])).get("code", "")),
+			"EXP015_A02_PROTECTED_NETWORK_ASSET")
+		assert_eq(str(_send(host, 11, board,
+			"regional_engage:" + str(protected["backfeed_tie_id"])).get("code", "")),
+			"EXP015_A02_PROTECTED_NETWORK_ASSET")
+		assert_eq(host.regional_network.snapshot(), safe,
+			"the original board must not invalidate an attested cascade")
 		assert_ne(str(host._bespoke_guard(Runtime.PLAYER_ID,
 			"request_extract", "ZONE_EXTRACT", {}).get("code", "")),
 			"EXP015_A02_CASCADE_UNRESOLVED")
@@ -320,3 +330,30 @@ func test_EXP015_A02_first_or_join_retains_a01_and_legacy_opt_out() -> void:
 		false, false, false, false, false,
 		false, true).get("code", "")),
 		"EXP015_A02_REQUIRES_A09_REGIONAL_NETWORK")
+
+
+func test_EXP015_A02_attestation_checks_live_network_and_limits_asset_lock() -> void:
+	var context: Dictionary = _context(
+		Atlas.load_catalog(), Cascade.load_book(), 0, "critical_first")
+	assert_false(context.is_empty())
+	var response: Cascade = context["response"]
+	var network: Regional = context["regional"]
+	var source: Dictionary = context["recipe"]
+	assert_true(response.protects_original_asset(
+		"regional_reset:" + str(source["normal_feeder_id"])))
+	assert_true(response.protects_original_asset(
+		"regional_release:" + str(source["backfeed_tie_id"])))
+	assert_false(response.protects_original_asset("regional_recharge"))
+	assert_false(response.protects_original_asset("regional_isolate:OTHER_FEEDER"))
+	for action: String in [
+		"cascade_assess", "cascade_trip", "cascade_managed", "cascade_prepare",
+		"cascade_clear", "cascade_reconnect", "cascade_attest"
+	]:
+		assert_true(bool(response.operate(action).get("ok", false)), action)
+	assert_true(response.resolved())
+	# Trusted test-only state tampering must revoke the existing attestation;
+	# this path is NOT exposed through the secured player board.
+	assert_true(bool(network.host_transition("isolate_feeder",
+		str(source["normal_feeder_id"])).get("ok", false)))
+	assert_false(response.resolved(),
+		"attestation cannot outlive unsafe source feeder state")
