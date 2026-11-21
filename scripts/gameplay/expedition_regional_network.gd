@@ -250,6 +250,11 @@ func host_transition(action: String, asset: String, proof: String = "") -> Dicti
 			var live: Dictionary = _live_nodes(true)
 			if not live.has(str(tie["from"])) or live.has(str(tie["to"])):
 				return _fail("BREAK_BEFORE_MAKE_INTERLOCK")
+			# Physically isolate the normal incoming path before closing a tie,
+			# including when its upstream supply is currently dark.
+			for feeder_id: String in _feeders:
+				if _feeders[feeder_id]["to"] == tie["to"] and not _isolated.has(feeder_id):
+					return _fail("BREAK_BEFORE_MAKE_INTERLOCK")
 			var cost: int = 2
 			if cost > int(tie["capacity_pu"]) or cost > _reserve:
 				return _fail("STANDBY_RESERVE_EXHAUSTED")
