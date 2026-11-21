@@ -105,6 +105,13 @@ jobs:
         run: |
           & ./tools/Start-QA56-WindowsCapture.ps1 `
             -Executable build/windows/LightsBackOn.exe -PreflightOnly
+      - name: EXP014 A10.4 bind Windows export to exact-head source and boot
+        run: |
+          python tools/qualify_exp014_a10.py \
+            --windows-export-dir build/windows \
+            --build-manifest build_manifest.json \
+            --smoke-log build/smoke.log \
+            --report build/exp014-a10-4/windows-export-gate.json
       - uses: actions/upload-artifact@v4
         with:
           name: windows-build-${{ github.sha }}
@@ -112,4 +119,5 @@ jobs:
             build/windows/
             build/smoke.log
             build/SHA256SUMS.txt
+            build/exp014-a10-4/
           retention-days: 14
