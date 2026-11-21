@@ -176,7 +176,7 @@ func test_EXP014_A10_2_all_25_regions_both_strategies_use_real_host_ingress() ->
 			assert_eq(int(host.regional_network.snapshot()["events"].size()), 2)
 			accepted += 2
 			runs += 1
-		print("A10_2_HOST_PATH region=%02d mode=%s sessions=%d accepted=%d rejected=%d" %
+			print("A10_2_HOST_PATH region=%02d mode=%s sessions=%d accepted=%d rejected=%d" %
 			[region + 1, mode, runs, accepted, rejected])
 	assert_eq(runs, 50)
 	assert_eq(accepted, 100)
@@ -233,7 +233,7 @@ func test_EXP014_A10_2_cross_dispatch_regions_keep_strategy_but_not_forged_progr
 			assert_eq(int(next_host.regional_network.snapshot()["events"].size()), old_events + 1)
 			assert_eq(next_host.pending_rewards(account).size(), 0)
 			dispatches += 2
-		print("A10_2_DISPATCH region=%02d mode=%s host_sessions=%d strategy=%s" %
+			print("A10_2_DISPATCH region=%02d mode=%s host_sessions=%d strategy=%s" %
 			[region + 1, mode, dispatches, mode])
 	assert_eq(dispatches, CHECK_REGIONS.size() * 4)
 
