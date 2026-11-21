@@ -15,6 +15,7 @@ const OfflinePersistence := preload("res://scripts/persistence/offline_persisten
 const ContentHash := preload("res://scripts/network/content_hash.gd")
 
 var account_key: String = ""  # assigned by MainMenu before entering scene tree
+var regional_networks_enabled: bool = false  # explicit EXP014 experimental opt-in
 var _data: Dictionary = {}
 var _field_profile: Dictionary = {}
 var _field_profile_error: String = ""
@@ -118,6 +119,14 @@ func _ready() -> void:
 			int(_campaign_board["restored"]), int(_campaign_board["available"]),
 			int(_campaign_board["locked"]), int(_campaign_board["cleared_regions"])]
 	layout.add_child(campaign_summary)
+	var regional_toggle: CheckBox = CheckBox.new()
+	regional_toggle.name = "EXP014RegionalNetworkOptIn"
+	regional_toggle.text = "Experimental regional electrical simulation (A09) — source/headless only"
+	regional_toggle.button_pressed = false
+	regional_toggle.disabled = account_key == "" or _field_profile_error != "" or _campaign_error != ""
+	regional_toggle.toggled.connect(func(enabled: bool) -> void:
+		regional_networks_enabled = enabled)
+	layout.add_child(regional_toggle)
 
 	var halves: HSplitContainer = HSplitContainer.new()
 	halves.size_flags_vertical = Control.SIZE_EXPAND_FILL

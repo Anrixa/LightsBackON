@@ -867,6 +867,21 @@ func _operate_worksite(player_id: String, entity: String, action: String) -> Dic
 				return regional_network.prepare_site("buffer")
 			"regional_managed":
 				return regional_network.prepare_site("managed")
+			"regional_recharge":
+				return regional_network.host_transition("recharge_reserve",
+					str(regional_network.snapshot()["reserve_anchor"]))
+		if action.begins_with("regional_isolate:"):
+			return regional_network.host_transition("isolate_feeder",
+				action.get_slice(":", 1))
+		if action.begins_with("regional_reset:"):
+			return regional_network.host_transition("reset_feeder",
+				action.get_slice(":", 1))
+		if action.begins_with("regional_engage:"):
+			return regional_network.host_transition("engage_tie",
+				action.get_slice(":", 1))
+		if action.begins_with("regional_release:"):
+			return regional_network.host_transition("release_tie",
+				action.get_slice(":", 1))
 	var active: SiteA02 = site_exp013 if site_exp013 != null else site_a02
 	if active != null and active.target_ids().has(entity):
 		if site_approach != null and not site_approach.solved():
