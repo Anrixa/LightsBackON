@@ -660,6 +660,11 @@ func _bespoke_guard(player_id: String, kind: String, entity: String,
 		_payload: Dictionary) -> Dictionary:
 	if player_id != PLAYER_ID or bespoke == null:
 		return _fail("EXP06_INVALID_HOST_PRINCIPAL")
+	# Opt-in A09 extraction MUST be independently gated by a host-owned
+	# regional decision. Never trust a client-supplied preparation boolean.
+	if kind == "request_extract" and regional_network != null \
+			and not regional_network.site_prepared():
+		return _fail("EXP014_A09_PREPARATION_REQUIRED")
 	if kind == "request_extract" and devices != null and not devices.solved():
 		return _fail("EXP07_DEVICES_INCOMPLETE")
 	if kind == "request_extract" and faults != null and not faults.solved():
@@ -1110,7 +1115,7 @@ func tick_host() -> Dictionary:
 			grid.canonical_state(), interaction.canonical_state()["repairs"])
 	_update_progress()
 	return {"ok": true, "tick": _tick, "revision": host.revision,
-		"completed": mission.results().size() > 0}
+		"completed": completed()}
 
 
 func _update_progress() -> void:
@@ -1136,7 +1141,8 @@ func _update_progress() -> void:
 	if _observed_inspections.has("PANEL_SPUR") and meter_snapshots.has("PANEL_SPUR"):
 		_completed[optional] = true
 	if _completed.has(first) and _completed.has(second) and _completed.has(third) and \
-			not mission.results().is_empty():
+			not mission.results().is_empty() and \
+			(regional_network == null or regional_network.site_prepared()):
 		_completed[last] = true
 	_issue_task_rewards()
 
@@ -1163,7 +1169,7 @@ func task_board() -> Dictionary:
 		"required_total": 4, "optional_completed": _completed.has(str(_tasks[3]["id"])),
 		"lore_collected": _lore_claimed, "lore_id": str(_collectible.get("id", "")),
 		"mission_verified": mission.verified(),
-		"mission_completed": not mission.results().is_empty(),
+		"mission_completed": completed(),
 		"host_revision": host.revision,
 		"not_certified": "NO_PHYSICAL_PLAYABILITY_OR_REWARD_PROMOTION"
 	}
@@ -1206,4 +1212,8 @@ func state_hash() -> String:
 
 
 func completed() -> bool:
-	return _ready and not mission.results().is_empty()
+	if not _ready or mission.results().is_empty():
+		return false
+	if regional_network != null:
+		return _tasks.size() == 5 and _completed.has(str(_tasks[4]["id"]))
+	return true
