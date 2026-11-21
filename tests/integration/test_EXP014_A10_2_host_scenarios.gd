@@ -315,3 +315,39 @@ func test_EXP014_A10_2_saved_receipt_rollback_rejected_by_existing_live_host() -
 		"RESTORATION_RECEIPT_ROLLBACK")
 	assert_eq(host.regional_network.snapshot(), old_state,
 		"failed attach cannot mutate live host state or erase earlier events")
+
+
+func test_EXP014_A10_2_regional_preparation_does_not_bypass_a07_a08_host_gates() -> void:
+	var evaluated: int = 0
+	for region: int in [0, 9, 24]:
+		var account: String = "a102_chain_%02d" % (region + 1)
+		var root: String = _root.path_join(account)
+		var profile: Dictionary = _seed(region, "critical_first", account)
+		_write_profile(root, profile)
+		var opened: Dictionary = _start(_level(region * 8, 4), account, root)
+		assert_true(bool(opened["ok"]), str(opened["reply"]))
+		if not bool(opened["ok"]):
+			continue
+		var host: Runtime = opened["host"]
+		var decision: String = str(host.worksite.definition_snapshot()["decision"])
+		var board: String = _board(host)
+		_stand(host, decision)
+		var no_regional_prep: Dictionary = _send(host, 1, decision, "priority")
+		assert_eq(str(no_regional_prep.get("code", "")),
+			"EXP014_A09_REGIONAL_PREPARATION_REQUIRED")
+		_stand(host, board)
+		assert_true(bool(_send(host, 2, board, "regional_critical").get("ok", false)))
+		assert_true(bool(_send(host, 3, board, "regional_managed").get("ok", false)))
+		assert_true(host.regional_network.site_prepared())
+		_stand(host, decision)
+		var no_hazard_proof: Dictionary = _send(host, 4, decision, "priority")
+		assert_eq(str(no_hazard_proof.get("code", "")),
+			"EXP014_A07_HAZARD_LOCKED")
+		assert_false(host.site_hazards.can_operate())
+		assert_false(host.site_puzzles.solved())
+		assert_false(bool(host.task_board()["mission_completed"]))
+		assert_eq(host.pending_rewards(account).size(), 0)
+		evaluated += 1
+		print("A10_2_CROSS_SYSTEM region=%02d regional=prepared hazard=held investigation=held" %
+			[region + 1])
+	assert_eq(evaluated, 3)
