@@ -96,6 +96,11 @@ if [ -n "$PY" ]; then
   "$PY" tools/validate_exp015_emergencies.py --report build/exp015-a01/source-audit.json || FAIL=1
 fi
 
+echo "== EXP015 A02: 25 second-junction host fault cascades, finite standby and managed fallback =="
+if [ -n "$PY" ]; then
+  "$PY" tools/validate_exp015_cascades.py --report build/exp015-a02/source-audit.json || FAIL=1
+fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 
