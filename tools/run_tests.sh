@@ -91,6 +91,11 @@ if [ -n "$PY" ]; then
   "$PY" tools/qualify_exp014_a10.py --report build/exp014-a10-4/source-gate.json || FAIL=1
 fi
 
+echo "== EXP015 A01: 25 source-pinned emergency incidents and two recovery modes =="
+if [ -n "$PY" ]; then
+  "$PY" tools/validate_exp015_emergencies.py --report build/exp015-a01/source-audit.json || FAIL=1
+fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 
