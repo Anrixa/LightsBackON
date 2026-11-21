@@ -26,10 +26,10 @@ from pathlib import Path
 from typing import Any
 
 if __package__:
-    from .validate_exp014_a10 import audit, read_sources
+    from .validate_exp014_a10 import audit, read_sources, canonical_sha, investigation_schedule
     from .validate_exp014_outcomes import parse_script as parse_risks
 else:
-    from validate_exp014_a10 import audit, read_sources
+    from validate_exp014_a10 import audit, read_sources, canonical_sha, investigation_schedule
     from validate_exp014_outcomes import parse_script as parse_risks
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -137,9 +137,82 @@ def protected_git_audit() -> dict[str, Any]:
             "protected_objects": found, "protected_worktree_clean": True}
 
 
+def mechanical_structure(contingency: dict, inquiry: dict) -> dict[str, Any]:
+    """Mechanics-only fingerprint, normalizing source-specific target IDs.
+
+    Never count level ID, task ID, stage prose, step action names or clock
+    durations as independent mechanical differentiation. Station *roles*
+    and actual guard/dependency/choice topology do count.
+    """
+    targets = contingency.get("targets", {})
+    require(isinstance(targets, dict) and set(targets) == {"A", "B", "C"} and
+            len(set(targets.values())) == 3,
+            "MISSING_MECHANICAL_TARGET_ROLES")
+    inverse = {value: role for role, value in targets.items()}
+    branches = inquiry.get("branches", {})
+    require(isinstance(branches, dict) and
+            set(branches) == {"forensic", "field"}, "BAD_MECHANICAL_BRANCHES")
+    routes = contingency.get("routes", {})
+    require(isinstance(routes, dict) and
+            set(routes) == {"priority", "resilience"}, "BAD_MECHANICAL_ROUTES")
+    steps: dict[str, list[list[str]]] = {}
+    for mode in ("priority", "resilience"):
+        route = routes[mode]
+        require(isinstance(route, list) and len(route) == 3,
+                "BAD_MECHANICAL_ROUTE_STEPS", mode)
+        path: list[list[str]] = []
+        for step in route:
+            require(isinstance(step, dict) and
+                    all(step.get(field) in inverse
+                        for field in ("target", "support", "witness")),
+                    "FORGED_MECHANICAL_TARGET", mode)
+            path.append([
+                step["mode"], step["guard"], step["failure"],
+                inverse[step["target"]], inverse[step["support"]],
+                inverse[step["witness"]],
+            ])
+        steps[mode] = path
+    return {
+        "risk_class": inquiry["risk_class"],
+        "investigations": {
+            mode: investigation_schedule(branches[mode], mode)
+            for mode in ("forensic", "field")
+        },
+        "contingency_role_graphs": steps,
+    }
+
+
+def id_normalized_mechanical_audit(contingencies: dict,
+                                   investigations: dict) -> dict[str, Any]:
+    """Independent 200-site diversity check with no numeric site identities."""
+    old = contingencies.get("entries", [])
+    revised = investigations.get("entries", [])
+    require(isinstance(old, list) and len(old) == 200 and
+            isinstance(revised, list) and len(revised) == 200,
+            "MECHANICAL_SOURCE_CARDINALITY")
+    by_site = {item.get("level_id"): item for item in revised}
+    require(len(by_site) == 200, "MECHANICAL_DUPLICATE_INVESTIGATION")
+    unique: set[str] = set()
+    for entry in old:
+        level = entry.get("level_id")
+        require(level in by_site, "MECHANICAL_SOURCE_JOIN", str(level))
+        digest = canonical_sha(mechanical_structure(entry, by_site[level]))
+        require(digest not in unique, "RENAMED_SITE_MECHANICAL_COLLISION",
+                str(level))
+        unique.add(digest)
+    require(len(unique) == 200, "RENAMED_SITE_MECHANICAL_COVERAGE")
+    return {"site_count": 200, "unique_mechanics_without_ids": 200,
+            "normalized_signature_set_sha256": canonical_sha(sorted(unique)),
+            "ignored": ["level_id", "target_numeric_id", "action_prose",
+                        "titles", "clock_dwell_or_window_ticks"]}
+
+
 def source_audit() -> dict[str, Any]:
     classes, _ = parse_risks()
-    full = audit(**read_sources(), risk_classes=classes)
+    sources = read_sources()
+    full = audit(**sources, risk_classes=classes)
+    independent = id_normalized_mechanical_audit(
+        sources["contingencies"], sources["investigations"])
     expectations = {
         "regions": 25, "locations": 200, "levels": 200,
         "immutable_task_ids": 1000, "original_lore_ids": 200,
@@ -164,6 +237,7 @@ def source_audit() -> dict[str, Any]:
         "expected": expectations,
         "investigation_graphs": {"forensic": 200, "field": 200},
         "mechanical_fingerprint_sha256": full["source_fingerprint_sha256"],
+        "independent_id_normalized_mechanics": independent,
         "source_coverage_checked": True,
         "note": "Abstract source paths are NOT host replay, physical play or release",
     }
