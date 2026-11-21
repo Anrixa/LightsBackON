@@ -4,7 +4,7 @@ extends "res://tests/test_case.gd"
 const Atlas := preload("res://scripts/world/dispatch_atlas.gd")
 const Ledger := preload("res://scripts/progression/expedition_ledger.gd")
 const Network := preload("res://scripts/gameplay/expedition_regional_network.gd")
-const Panel := preload("res://scripts/ui/expedition_regional_panel.gd")
+const RegionalPanel := preload("res://scripts/ui/expedition_regional_panel.gd")
 const Runtime := preload("res://scripts/gameplay/expedition_host_session.gd")
 
 var _last_action: String = ""
@@ -41,7 +41,7 @@ func test_EXP014_A09_4_all_25_regional_panels_show_200_canonical_sites() -> void
 		assert_true(bool(configured.get("ok", false)), str(configured))
 		if not bool(configured.get("ok", false)):
 			continue
-		var panel: Panel = Panel.new()
+		var panel: RegionalPanel = RegionalPanel.new()
 		var snapshot: Dictionary = net.snapshot()
 		panel.show_network(snapshot)
 		assert_eq(snapshot["sites"].size(), 8)
@@ -60,7 +60,7 @@ func test_EXP014_A09_4_panel_controls_submit_source_asset_not_local_verdict() ->
 	var profile: Dictionary = Ledger.new_profile("a094_view")
 	var net: Network = Network.new()
 	assert_true(bool(net.configure(atlas, profile, "LV_001")["ok"]))
-	var panel: Panel = Panel.new()
+	var panel: RegionalPanel = RegionalPanel.new()
 	panel.action_requested.connect(Callable(self, "_accepted"))
 	panel.show_network(net.snapshot())
 	panel._handle("toggle_feeder")
