@@ -290,6 +290,12 @@ func test_EXP015_A02_authenticated_host_cascade_replay_and_no_premature_rewards(
 		assert_eq(str(_send(host, 11, board,
 			"regional_engage:" + str(protected["backfeed_tie_id"])).get("code", "")),
 			"EXP015_A02_PROTECTED_NETWORK_ASSET")
+		# Original A09 consumes get_slice(":", 1), so trailing colons
+		# must not let the same protected feeder request slip past the guard.
+		assert_eq(str(_send(host, 12, board,
+			"regional_isolate:" + str(protected["normal_feeder_id"]) +
+			":suffix").get("code", "")),
+			"EXP015_A02_PROTECTED_NETWORK_ASSET")
 		assert_eq(host.regional_network.snapshot(), safe,
 			"the original board must not invalidate an attested cascade")
 		assert_ne(str(host._bespoke_guard(Runtime.PLAYER_ID,
@@ -343,6 +349,8 @@ func test_EXP015_A02_attestation_checks_live_network_and_limits_asset_lock() -> 
 		"regional_reset:" + str(source["normal_feeder_id"])))
 	assert_true(response.protects_original_asset(
 		"regional_release:" + str(source["backfeed_tie_id"])))
+	assert_true(response.protects_original_asset(
+		"regional_reset:" + str(source["normal_feeder_id"]) + ":junk"))
 	assert_false(response.protects_original_asset("regional_recharge"))
 	assert_false(response.protects_original_asset("regional_isolate:OTHER_FEEDER"))
 	for action: String in [
