@@ -61,9 +61,12 @@ func test_EXP014_A09_2_non_replayable_reserve_and_tie_interlocks() -> void:
 	assert_true(bool(net.configure(atlas, profile, "LV_003")["ok"]))
 	assert_eq(net.host_transition("engage_tie", "NET_01_T01")["code"],
 		"BREAK_BEFORE_MAKE_INTERLOCK")
-	# A primary switch isolation makes the tie eligible, but reserve is finite.
-	assert_true(bool(net.host_transition("isolate_feeder", "NET_01_F02")["ok"]))
-	assert_true(bool(net.host_transition("engage_tie", "NET_01_T01").get("ok", false)) == false)
-	# The source side of this standby tie is now isolated. No phantom power.
-	assert_eq(net.snapshot()["reserve_pu"], 6)
+	# The isolated normal LV_006 arrival makes standby safe to engage.
+	assert_true(bool(net.host_transition("isolate_feeder", "NET_01_F05")["ok"]))
+	assert_true(bool(net.host_transition("engage_tie", "NET_01_T01")["ok"]))
+	assert_eq(net.snapshot()["reserve_pu"], 4)
+	assert_eq(net.host_transition("engage_tie", "NET_01_T01")["code"], "TIE_UNAVAILABLE")
+	assert_eq(net.snapshot()["reserve_pu"], 4)
+	assert_true(bool(net.host_transition("release_tie", "NET_01_T01")["ok"]))
+	assert_eq(net.snapshot()["reserve_pu"], 4) # opening does not mint power
 	assert_eq(net.host_transition("recharge_reserve", "LV_006")["code"], "RESERVE_RECHARGE_DENIED")
