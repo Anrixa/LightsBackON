@@ -312,3 +312,80 @@ func test_EXP015_A03_three_flags_coexist_at_the_original_three_junctions() -> vo
 		false, false, false, false, false,
 		false, false, true)
 	assert_eq(str(gate.get("code", "")), "EXP015_A03_REQUIRES_A09_REGIONAL_NETWORK")
+
+
+func test_EXP015_A03_authenticated_three_junction_process_local_handoff() -> void:
+	var account: String = "a03_three_junction_same_account"
+	var first: Dictionary = _start(0, "resilience_first", account, 4, true, true, true)
+	assert_true(bool(first["reply"].get("ok", false)), str(first["reply"]))
+	if not bool(first["reply"].get("ok", false)):
+		return
+	var a01: Runtime = first["host"]
+	assert_true(a01.incident_response != null)
+	var first_board: String = str(a01.worksite.definition_snapshot()["board"])
+	_position = a01.definition_snapshot()["positions"][first_board]
+	assert_true(bool(_send(a01, 1, first_board, "regional_resilience").get("ok", false)))
+	var sequence: int = 2
+	for action: String in [
+		"incident_survey", "incident_isolate", "incident_managed",
+		"incident_prepare", "incident_recover", "incident_certify"
+	]:
+		assert_true(bool(_send(a01, sequence, first_board, action).get("ok", false)),
+			"First junction: " + action)
+		sequence += 1
+	assert_true(a01.incident_response.certified())
+	var same_network: Network = a01.regional_network
+	var reserve_before: int = int(same_network.snapshot()["reserve_pu"])
+	var events_before: int = same_network.snapshot()["events"].size()
+	# The following source-valid profiles are isolated test fixtures, not
+	# recorded player mission completion or production save promotions.
+	var second: Dictionary = _start(0, "resilience_first", account, 7, true, true, true)
+	assert_true(bool(second["reply"].get("ok", false)), str(second["reply"]))
+	if not bool(second["reply"].get("ok", false)):
+		return
+	var a02: Runtime = second["host"]
+	assert_true(a02.regional_network == same_network)
+	assert_false(a02.regional_network.site_prepared(),
+		"A02 cannot inherit A01 preparation")
+	assert_eq(str(same_network.snapshot()["strategy"]), "resilience_first")
+	assert_eq(int(same_network.snapshot()["reserve_pu"]), reserve_before)
+	assert_eq(int(same_network.snapshot()["events"].size()), events_before)
+	var second_board: String = str(a02.worksite.definition_snapshot()["board"])
+	_position = a02.definition_snapshot()["positions"][second_board]
+	sequence = 1
+	for action: String in [
+		"cascade_assess", "cascade_trip", "cascade_managed", "cascade_prepare",
+		"cascade_clear", "cascade_reconnect", "cascade_attest"
+	]:
+		assert_true(bool(_send(a02, sequence, second_board, action).get("ok", false)),
+			"Second junction: " + action)
+		sequence += 1
+	assert_true(a02.service_cascade.resolved())
+	var reserve_after_second: int = int(same_network.snapshot()["reserve_pu"])
+	var finale: Dictionary = _start(0, "resilience_first", account, 8, true, true, true)
+	assert_true(bool(finale["reply"].get("ok", false)), str(finale["reply"]))
+	if not bool(finale["reply"].get("ok", false)):
+		return
+	var a03: Runtime = finale["host"]
+	assert_true(a03.regional_network == same_network)
+	assert_true(a03.regional_finale != null)
+	assert_false(a03.regional_network.site_prepared(),
+		"Finale must prepare its own original site")
+	assert_eq(int(same_network.snapshot()["reserve_pu"]), reserve_after_second)
+	var final_board: String = str(a03.worksite.definition_snapshot()["board"])
+	_position = a03.definition_snapshot()["positions"][final_board]
+	sequence = 1
+	for action: String in [
+		"finale_assess", "finale_critical_contingency", "finale_managed",
+		"finale_verify", "finale_signoff"
+	]:
+		assert_true(bool(_send(a03, sequence, final_board, action).get("ok", false)),
+			"Regional finale: " + action)
+		sequence += 1
+	assert_true(a03.regional_finale.closed())
+	assert_eq(int(a03.regional_finale.snapshot()["critical_contingency_pressure"]), 3)
+	assert_eq(str(same_network.snapshot()["strategy"]), "resilience_first")
+	assert_eq(a03.pending_rewards(account).size(), 0)
+	assert_false(a03.completed())
+	print("EXP015_A03_REGIONAL_HANDOFF first=LV_004 second=LV_007 finale=LV_008",
+		" host_owned=true continuity=process_local_ONLY rewards=0")
