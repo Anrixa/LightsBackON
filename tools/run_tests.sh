@@ -119,6 +119,9 @@ fi
 echo "== EXP016 A07: source-pinned hazard operation order and preemption, 200 sites =="
 if [ -n "$PY" ]; then "$PY" tools/validate_exp016_a07.py || FAIL=1; fi
 
+echo "== EXP016 A08: host-admitted tool selection and bounded genuine worksite reserves =="
+if [ -n "$PY" ]; then "$PY" tools/validate_exp016_a08.py || FAIL=1; fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 

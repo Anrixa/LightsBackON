@@ -21,6 +21,10 @@ var _kits: int = 0
 var _liabilities: int = 0
 var _faults: int = 0
 var _recoveries: int = 0
+var _equipment_manifest: Dictionary = {}
+var _equipped_tool: String = ""
+var _spare_cells: int = 0
+var _spares_debited: int = 0
 var _hazard_protocol: Dictionary = {}
 var _hazard_progress: int = 0
 var _hazard_interruptions: int = 0
@@ -172,6 +176,16 @@ func configure(entry: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 
+func bind_equipment_manifest(manifest: Dictionary) -> Dictionary:
+	if _spec.is_empty() or not _equipment_manifest.is_empty() or \
+			manifest.get("level_id") != _spec.get("level_id") or \
+			not manifest.has("required_tools"):
+		return _reject("EQUIPMENT_SOURCE_MISMATCH")
+	_equipment_manifest = manifest.duplicate(true)
+	_spare_cells = int(manifest.get("reserve_cells", 0))
+	return {"ok": true, "code": "ORIGINAL_WORKSITE_EQUIPMENT_BOUND"}
+
+
 func bind_hazard_protocol(protocol: Dictionary) -> Dictionary:
 	if _spec.is_empty() or not _hazard_protocol.is_empty() or \
 			protocol.get("level_id") != _spec.get("level_id") or \
@@ -195,6 +209,8 @@ func definition_snapshot() -> Dictionary:
 	var copy: Dictionary = _spec.duplicate(true)
 	if not _fault_layer.is_empty():
 		copy["source_fault_layer"] = _fault_layer.duplicate(true)
+	if not _equipment_manifest.is_empty():
+		copy["source_equipment_manifest"] = _equipment_manifest.duplicate(true)
 	if not _hazard_protocol.is_empty():
 		copy["source_hazard_protocol"] = _hazard_protocol.duplicate(true)
 	return copy
@@ -239,6 +255,16 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 	var targets: Dictionary = _spec["targets"]
 	if not targets.values().has(entity):
 		return _reject("FOREIGN_TARGET")
+	if _phase == "working" and action.begins_with("case_equip:") and \
+			not _equipment_manifest.is_empty():
+		var requested: String = action.get_slice(":", 1)
+		if entity != str(targets["A"]) or \
+				not _equipment_manifest["authorized_tools"].has(requested) or \
+				not facts.get("authorized_tools", []).has(requested):
+			return _reject("UNADMITTED_TOOL_OR_WRONG_STATION")
+		_equipped_tool = requested
+		_record("host_selected_" + requested)
+		return {"ok": true, "code": "HOST_TOOL_SELECTED", "tool": requested}
 	if _phase == "hazard_preflight":
 		var sequence: Array[String] = [
 			"survey_station", "isolate_station", "clear_station"]
@@ -376,6 +402,15 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 		if entity != str(targets[str(step["station"])]) or \
 				action != "case_" + str(step["kind"]):
 			continue
+		if not _equipment_manifest.is_empty():
+			var required_tool: String = str(_equipment_manifest["required_tools"].get(
+				str(step["kind"]), ""))
+			if required_tool == "" or _equipped_tool != required_tool or \
+					not facts.get("authorized_tools", []).has(required_tool):
+				return _reject("AUTHENTICATED_TOOL_REQUIRED")
+			if _equipment_manifest["charged_operations"].has(str(step["kind"])) and \
+					int(step["cost"]) > 0 and _spare_cells < 1:
+				return _reject("FINITE_WORKSITE_SPARES_EXHAUSTED")
 		for needed: String in step.get("requires_tokens", []):
 			if int(_tokens.get(needed, 0)) < 1:
 				return _reject("EVIDENCE_TOKEN_UNAVAILABLE")
@@ -394,6 +429,11 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 			_tokens[used] = int(_tokens.get(used, 0)) - 1
 		for earned: String in step.get("grants_tokens", []):
 			_tokens[earned] = int(_tokens.get(earned, 0)) + 1
+		if not _equipment_manifest.is_empty() and \
+				_equipment_manifest["charged_operations"].has(str(step["kind"])) and \
+				cost > 0:
+			_spare_cells -= 1
+			_spares_debited += 1
 		_kits -= cost
 		_completed[str(step["id"])] = true
 		_record("verified_" + str(step["kind"]))
@@ -414,4 +454,6 @@ func snapshot() -> Dictionary:
 		"evidence_tokens": _tokens.duplicate(true),
 		"hazard_progress": _hazard_progress, "hazard_interruptions": _hazard_interruptions,
 		"source_hazard_kind": _hazard_protocol.get("source_hazard_kind", ""),
+		"equipped_tool": _equipped_tool, "worksite_spare_cells": _spare_cells,
+		"worksite_spares_debited": _spares_debited,
 		"history": _history.duplicate(true)}
