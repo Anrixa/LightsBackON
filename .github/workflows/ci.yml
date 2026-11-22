@@ -21,7 +21,8 @@ env:
 jobs:
   linux:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # Full source/headless Godot qualification must finish before release gates are evaluated.
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -105,7 +106,8 @@ jobs:
 
   windows:
     runs-on: windows-latest
-    timeout-minutes: 40
+    # Includes the complete Godot suite and Windows export/smoke verification.
+    timeout-minutes: 90
     defaults:
       run:
         shell: bash
