@@ -121,6 +121,11 @@ if [ -n "$PY" ]; then
   "$PY" tools/qualify_exp015_region_replay.py --report build/exp015-a06/source-audit.json || FAIL=1
 fi
 
+echo "== EXP015 A07: 100 source-identical alternate-route sites and 150 role scenarios =="
+if [ -n "$PY" ]; then
+  "$PY" tools/validate_exp015_alt_routes.py --report build/exp015-a07/source-audit.json || FAIL=1
+fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 
@@ -173,6 +178,34 @@ elif [ -f project.godot ]; then
     echo "EXP015_A03_HOST_SCRIPT_PARSE=PASS"
   fi
   rm -f "$HOST_PARSE_OUT"
+  echo "== EXP015 A07: direct Godot original alternate route controller parse =="
+  A07_PARSE_OUT="$(mktemp)"
+  if ! "$GODOT_BIN" --headless --path . --check-only --script res://scripts/gameplay/expedition_regional_alt_routes.gd >"$A07_PARSE_OUT" 2>&1; then
+    echo "FAIL: Godot cannot parse EXP015 A07 original regional route controller"
+    cat "$A07_PARSE_OUT"
+    FAIL=1
+  elif grep -qE "SCRIPT ERROR|Parse Error" "$A07_PARSE_OUT"; then
+    echo "FAIL: Godot alternate route controller parser reported source errors"
+    cat "$A07_PARSE_OUT"
+    FAIL=1
+  else
+    echo "EXP015_A07_CONTROLLER_PARSE=PASS"
+  fi
+  rm -f "$A07_PARSE_OUT"
+  echo "== EXP015 A07: direct Godot source and host replay test parse =="
+  A07_TEST_PARSE_OUT="$(mktemp)"
+  if ! "$GODOT_BIN" --headless --path . --check-only --script res://tests/integration/test_EXP015_A07_alt_routes.gd >"$A07_TEST_PARSE_OUT" 2>&1; then
+    echo "FAIL: Godot cannot parse EXP015 A07 source/host regression tests"
+    cat "$A07_TEST_PARSE_OUT"
+    FAIL=1
+  elif grep -qE "SCRIPT ERROR|Parse Error" "$A07_TEST_PARSE_OUT"; then
+    echo "FAIL: Godot A07 source/host replay parser reported source errors"
+    cat "$A07_TEST_PARSE_OUT"
+    FAIL=1
+  else
+    echo "EXP015_A07_REPLAY_PARSE=PASS"
+  fi
+  rm -f "$A07_TEST_PARSE_OUT"
   echo "== EXP015 A06: direct Godot 3-dispatch headless replay test parse preflight =="
   A06_PARSE_OUT="$(mktemp)"
   if ! "$GODOT_BIN" --headless --path . --check-only --script res://tests/integration/test_EXP015_A06_region_replay.gd >"$A06_PARSE_OUT" 2>&1; then
