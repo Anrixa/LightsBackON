@@ -227,6 +227,10 @@ func tick(now: int) -> Array[Dictionary]:
 ## Delta for clients since the last publish: {"type": "delta", "from", "to", "ops", "hash"}; {} when nothing changed.
 ## ops are set/del on key paths of the canonical authoritative state; "hash" is the state hash after applying them.
 func publish() -> Dictionary:
+	# An obsolete A09 SessionHost must not publish the replacement dispatch's
+	# shared source through its old session ID. The current host is unaffected.
+	if _expedition_tick_authority.is_valid() and 			not bool(_expedition_tick_authority.call()):
+		return {}
 	if revision == _published_revision and not _published_state.is_empty():
 		return {}
 	var now_state: Dictionary = authoritative_state()
@@ -242,6 +246,11 @@ func publish() -> Dictionary:
 ## revision. Any delta published afterwards starts from that revision, so a joining client queues them and applies
 ## the ones newer than the snapshot. Returns {"deltas": [flushed delta or empty], "manifest", "chunks"}.
 func snapshot() -> Dictionary:
+	# Reconnection to an obsolete original-region session must not reveal
+	# newer regional feeder/reserve/debt state or an untrusted old manifest.
+	if _expedition_tick_authority.is_valid() and 			not bool(_expedition_tick_authority.call()):
+		return _refuse("EXP015_A12_13_STALE_HOST_SNAPSHOT",
+			"regional dispatch ownership has changed", [])
 	var flushed: Dictionary = publish()
 	var text: String = PowerGrid.serialize(_published_state)
 	var size: int = int(_limits["snapshot_chunk_bytes"])
@@ -577,6 +586,10 @@ func state_hash() -> String:
 
 
 func authoritative_state() -> Dictionary:
+	# Direct read access is host-internal, but must be safe even if an
+	# obsolete session remains referenced after a newer A09 dispatch.
+	if _expedition_tick_authority.is_valid() and 			not bool(_expedition_tick_authority.call()):
+		return {"authority": "EXP015_A12_13_STALE_HOST_SNAPSHOT"}
 	var repairs: Dictionary = _interaction.canonical_state()
 	repairs.erase("revision")
 	var items: Dictionary = _equipment.canonical_state()

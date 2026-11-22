@@ -34,12 +34,16 @@ class QualificationSourceTests(unittest.TestCase):
         self.assertIn(host_oid, allowed)
         self.assertFalse(audited["source_host_evolution_independently_reviewed"])
         if host_oid != q.PROTECTED_GIT_OBJECTS[host_path]:
-            self.assertEqual(audited["source_host_evolution"],
-                             "EXP015_A12_11_HOST_TICK_FENCE")
+            current_label = audited["source_host_evolution"]
+            self.assertIn(current_label, q.PINNED_SESSION_HOST_EVOLUTIONS)
+            self.assertEqual(
+                host_oid, q.PINNED_SESSION_HOST_EVOLUTIONS[current_label],
+            )
 
     def test_unlisted_host_revision_is_rejected_fail_closed(self) -> None:
-        with patch.dict(q.PINNED_SESSION_HOST_EVOLUTIONS,
-                        {"EXP015_A12_11_HOST_TICK_FENCE": "f" * 40}):
+        with patch.dict(q.PINNED_SESSION_HOST_EVOLUTIONS, {
+                key: "f" * 40 for key in q.PINNED_SESSION_HOST_EVOLUTIONS
+        }):
             with self.assertRaisesRegex(q.QualificationError,
                                         "PROTECTED_SOURCE_DRIFT"):
                 q.protected_git_audit()
