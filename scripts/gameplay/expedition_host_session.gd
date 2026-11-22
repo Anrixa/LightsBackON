@@ -199,6 +199,9 @@ func start(level_id: String, host_position: Callable,
 		regional_entry = null
 		regional_settlement = null
 		regional_anchor_recovery = null
+		# A failed composite start must not retain half-bound advanced controllers.
+		advanced_cases = null
+		advanced_cascade = null
 		_bound_regional_dispatch_epoch = 0
 		_ready = false
 	return outcome
@@ -1006,13 +1009,74 @@ func start_exp016_source_qualification(level_id: String,
 	)
 
 
+## EXP018 A03: authenticated original regional finales with 200-source casework.
+## This is an opt-in test/experimental path, not a new release entry or save.
+## The ordinary start() flag order and all existing callers remain unchanged.
+func start_exp018_authenticated_finale(level_id: String,
+		host_position: Callable, account_key: String,
+		campaign_root: String,
+		physics_visibility: Callable = Callable()) -> Dictionary:
+	var site_number: int = int(level_id.trim_prefix("LV_"))
+	if level_id != "LV_%03d" % site_number or site_number < 8 or 			site_number > 200 or site_number % 8 != 0:
+		return _fail("EXP018_A03_ORIGINAL_FINALE_REQUIRED")
+	if account_key.is_empty() or campaign_root.is_empty():
+		return _fail("EXP018_A03_AUTHENTICATED_PROFILE_REQUIRED")
+	return start(level_id, host_position, physics_visibility,
+		account_key, true, campaign_root,
+		true,  # original bespoke
+		true,  # original device graphs
+		true,  # original faults
+		true,  # original consequences
+		true,  # original logistics
+		true,  # original critical load balancing
+		true,  # original worksite
+		true,  # original individual worksite overlay
+		true,  # original EXP013 overlay
+		true,  # original EXP014 contingency
+		true,  # original approach intelligence
+		true,  # original operational consequence
+		true,  # original hazards
+		true,  # original nonlinear puzzles
+		true,  # original region network
+		true,  # original incident response
+		true,  # original service cascade
+		true,  # original finale
+		true,  # original aftercare
+		true,  # original reserve assurance
+		false, # original alternate route (not used at finale)
+		false, # original rejoin (not used at finale)
+		false, # original root-only commissioning
+		true,  # original debt settlement
+		true,  # original authenticated anchor recovery
+		true,  # EXP016 casework
+		true,  # EXP016 fault layers
+		true,  # EXP016 hazard recovery
+		true,  # EXP016 finite equipment
+		true,  # EXP016 source policy
+		true,  # EXP016 original feeder cascade
+		true   # EXP016 authenticated lore
+	)
+
+
 func _session_id() -> String:
 	return "S_EXP03_" + str(_definitions.get("level_id", "UNKNOWN"))
 
 
 func _content_revision() -> String:
-	# In A02, original regional and standalone EXP016 revisions retain their
-	# historical identities. A03 will bind a composite revision to joint play.
+	# Combined regional+casework clients must reject either outdated source.
+	# Do not change the original standalone EXP015 or EXP016 wire revisions.
+	if advanced_cases != null and regional_network != null:
+		return "EXP018_A03_" + JSON.stringify({
+			"atlas": _definitions.get("source_fingerprint", ""),
+			"network_source": RegionalNetworks.entry_for(
+				RegionalNetworks.load_book(),
+				str(_definitions.get("level_id", ""))),
+			"regional_finale": regional_finale.definition_snapshot() 				if regional_finale != null else {},
+			"regional_settlement": regional_settlement.definition_snapshot() 				if regional_settlement != null else {},
+			"regional_anchor": regional_anchor_recovery.definition_snapshot() 				if regional_anchor_recovery != null else {},
+			"advanced_case": advanced_cases.definition_snapshot(),
+			"advanced_cascade": advanced_cascade.snapshot().get("region_id", "") 				if advanced_cascade != null else "",
+		}).sha256_text()
 	if advanced_cases != null and regional_network == null:
 		return "EXP016_" + str(_definitions.get("advanced_case_phase", "A02")) + "_" + ("%s|%s" % [
 			str(_definitions.get("source_fingerprint", "")),
@@ -1984,6 +2048,10 @@ func authoritative_state() -> Dictionary:
 	var state: Dictionary = host.authoritative_state().duplicate(true)
 	if bespoke != null:
 		state["exp06"] = bespoke.snapshot()
+	if advanced_cases != null:
+		state["exp018_advanced_cases"] = advanced_cases.snapshot()
+	if advanced_cascade != null:
+		state["exp018_advanced_cascade"] = advanced_cascade.snapshot()
 	if regional_network != null:
 		state["exp014_regional_network"] = regional_network.snapshot()
 	if incident_response != null:

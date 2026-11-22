@@ -21,7 +21,9 @@ env:
 jobs:
   linux:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # Full cross-phase Godot qualification exceeds the former 20-minute cap.
+    # Keep the full test suite; fail only on real test errors or a 60-minute ceiling.
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -105,7 +107,8 @@ jobs:
 
   windows:
     runs-on: windows-latest
-    timeout-minutes: 40
+    # Windows runs the full Godot suite plus signed-off source/export checks.
+    timeout-minutes: 90
     defaults:
       run:
         shell: bash
