@@ -55,7 +55,7 @@ func test_EXP018_A04_all_200_host_source_bindings_and_non_authoritative_visuals(
 		assert_true(bool(response.get("ok", false)), str(response))
 		if bool(response.get("ok", false)):
 			assert_eq(str(response["level_id"]), str(level["id"]))
-		assert_eq(str(response["authority"]), "READ_ONLY_HOST_PROJECTION")
+			assert_eq(str(response["authority"]), "READ_ONLY_HOST_PROJECTION")
 			assert_eq((host.task_board()["tasks"] as Array).size(), 5)
 			for load: String in Presentation.LOADS:
 				var lamp: Node3D = view.get_node("HostSupplyLights/Supply_" + load)
