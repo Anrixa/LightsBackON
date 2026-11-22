@@ -47,6 +47,7 @@ const AltRoute := preload("res://scripts/gameplay/expedition_regional_alt_routes
 const Rejoin := preload("res://scripts/gameplay/expedition_regional_rejoin_consequences.gd")
 const Entry := preload("res://scripts/gameplay/expedition_regional_entry_commissioning.gd")
 const Settlement := preload("res://scripts/gameplay/expedition_regional_debt_settlement.gd")
+const AnchorRecovery := preload("res://scripts/gameplay/expedition_regional_anchor_recovery.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
 
@@ -89,6 +90,7 @@ var alternate_route: AltRoute
 var regional_rejoin: Rejoin
 var regional_entry: Entry
 var regional_settlement: Settlement
+var regional_anchor_recovery: AnchorRecovery
 
 var _definitions: Dictionary = {}
 var _position_source: Callable
@@ -138,7 +140,8 @@ func start(level_id: String, host_position: Callable,
 		enable_alternate_routes: bool = false,
 		enable_regional_rejoins: bool = false,
 		enable_regional_entries: bool = false,
-		enable_regional_settlement: bool = false) -> Dictionary:
+		enable_regional_settlement: bool = false,
+		enable_anchor_recovery: bool = false) -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
 	if enable_devices and not enable_bespoke:
@@ -188,6 +191,8 @@ func start(level_id: String, host_position: Callable,
 		return _fail("EXP015_A09_REQUIRES_ORIGINAL_A09_NETWORK")
 	if enable_regional_settlement and not enable_regional_assurance:
 		return _fail("EXP015_A10_REQUIRES_A05_CRITICAL_ASSURANCE")
+	if enable_anchor_recovery and not enable_regional_settlement:
+		return _fail("EXP015_A12_REQUIRES_A10_DEBT_SETTLEMENT")
 	if account_key != "" and not SaveService.is_valid_key(account_key):
 		return _fail("INVALID_ACCOUNT_KEY")
 	if not host_position.is_valid() or (physics_visibility.is_valid() and not host_position.is_valid()):
@@ -539,6 +544,13 @@ func start(level_id: String, host_position: Callable,
 		if not bool(settlement_gate.get("ok", false)):
 			return _fail("EXP015_A10_CONFIG_INVALID", settlement_gate)
 		_definitions["regional_settlement"] = regional_settlement.definition_snapshot()
+	# A12.2 only at an original finale with A10 enabled: no new RPC.
+	if enable_anchor_recovery and regional_settlement != null:
+		regional_anchor_recovery = AnchorRecovery.new()
+		var anchor_ready: Dictionary = regional_anchor_recovery.configure(regional_network)
+		if not bool(anchor_ready.get("ok", false)):
+			return _fail("EXP015_A12_SOURCE_OR_CONFIG_INVALID", anchor_ready)
+		_definitions["regional_anchor_recovery"] = regional_anchor_recovery.definition_snapshot()
 	# The A02 overlay is available only for the 40 explicitly authored
 	# source-linked locations. The other 160 remain unchanged A01 sessions.
 	if enable_site_a02:
@@ -749,6 +761,7 @@ func start(level_id: String, host_position: Callable,
 		"regional_rejoin_active": regional_rejoin != null,
 		"regional_entry_active": regional_entry != null,
 		"regional_settlement_active": regional_settlement != null,
+		"regional_anchor_recovery_active": regional_anchor_recovery != null,
 		"qualification": "AUTHORITY_SOURCE_HEADLESS_ONLY_NO_PLAYABILITY"}
 
 
@@ -757,6 +770,11 @@ func _session_id() -> String:
 
 
 func _content_revision() -> String:
+	if regional_anchor_recovery != null:
+		return "EXP015_A12_2_" + ("%s|%s|%s" % [
+			str(_definitions.get("source_fingerprint", "")),
+			JSON.stringify(regional_settlement.definition_snapshot()),
+			JSON.stringify(regional_anchor_recovery.definition_snapshot())]).sha256_text()
 	if regional_settlement != null:
 		return "EXP015_A10_" + ("%s|%s|%s|%s" % [
 			str(_definitions.get("source_fingerprint", "")),
@@ -990,6 +1008,9 @@ func _bespoke_guard(player_id: String, kind: String, entity: String,
 	if kind == "request_extract" and regional_settlement != null \
 			and not regional_settlement.closed():
 		return _fail("EXP015_A10_DEBT_SETTLEMENT_REQUIRED")
+	if kind == "request_extract" and regional_anchor_recovery != null \
+			and not regional_anchor_recovery.closed():
+		return _fail("EXP015_A12_ANCHOR_RECOVERY_REQUIRED")
 	if kind == "request_extract" and devices != null and not devices.solved():
 		return _fail("EXP07_DEVICES_INCOMPLETE")
 	if kind == "request_extract" and faults != null and not faults.solved():
@@ -1187,6 +1208,9 @@ func _operate_worksite(player_id: String, entity: String, action: String) -> Dic
 	# These requests enter only through the existing SessionHost worksite intent,
 	# after its principal, sequence, dedupe, range and rate validation. The
 	# original board target is reused; there is no new network action RPC.
+	if regional_anchor_recovery != null and entity == str(worksite.definition_snapshot()["board"]) \
+			and action.begins_with("anchor_"):
+		return regional_anchor_recovery.operate(action)
 	if regional_settlement != null and entity == str(worksite.definition_snapshot()["board"]) \
 			and action.begins_with("settlement_"):
 		return regional_settlement.operate(action)
@@ -1392,6 +1416,8 @@ func _worksite_snapshot() -> Dictionary:
 		state["regional_entry"] = regional_entry.snapshot()
 	if regional_settlement != null:
 		state["regional_settlement"] = regional_settlement.snapshot()
+	if regional_anchor_recovery != null:
+		state["regional_anchor_recovery"] = regional_anchor_recovery.snapshot()
 	return state
 
 
@@ -1611,6 +1637,8 @@ func task_board() -> Dictionary:
 		board["regional_entry"] = regional_entry.snapshot()
 	if regional_settlement != null:
 		board["regional_settlement"] = regional_settlement.snapshot()
+	if regional_anchor_recovery != null:
+		board["regional_anchor_recovery"] = regional_anchor_recovery.snapshot()
 	return board
 
 
@@ -1640,6 +1668,8 @@ func authoritative_state() -> Dictionary:
 		state["exp015_regional_entry"] = regional_entry.snapshot()
 	if regional_settlement != null:
 		state["exp015_regional_settlement"] = regional_settlement.snapshot()
+	if regional_anchor_recovery != null:
+		state["exp015_regional_anchor_recovery"] = regional_anchor_recovery.snapshot()
 	return state
 
 
