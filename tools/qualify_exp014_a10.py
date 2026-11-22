@@ -61,6 +61,7 @@ PINNED_SESSION_HOST_EVOLUTIONS: dict[str, str] = {
     "EXP015_A12_15_BIND_ONCE_REPLAY_FENCE": "78001f7c3cd360226440f6fa8483f9395bbfaa9c",
     # Original baseline preserved. A12.15 CI repair adds the exact revised blob.
     "EXP015_A12_15_DENIED_REPLAY_COMPAT": "53b34e5680e1774930c77c974433cde315f3a0b6",
+    "EXP015_A12_15_DENIED_REPLAY_AND_MISSION_FENCE": "69a1ac7ca3602b2f318298ee335d4143c78bd592",
 }
 
 # Exact, descriptive tests are pinned, not just total test counts. All run in

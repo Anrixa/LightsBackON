@@ -305,6 +305,7 @@ func test_EXP015_A12_15_25_regions_reject_rebound_guards_and_cached_success() ->
 		assert_true(successor.regional_network == network)
 		var stale_revision: int = old.host.revision
 		var stale_hash: String = old.host.state_hash()
+		var old_mission_before: Dictionary = old.mission.canonical_state()
 		# Public setup methods cannot transform an old owner into a new one.
 		old.host.set_expedition_tick_authority(Callable())
 		old.host.set_expedition_tick_authority(
@@ -337,6 +338,8 @@ func test_EXP015_A12_15_25_regions_reject_rebound_guards_and_cached_success() ->
 			"EXP015_A12_9_STALE_HOST_DISPATCH")
 		assert_eq(old.host.revision, stale_revision)
 		assert_eq(old.host.state_hash(), stale_hash)
+		assert_eq(old.mission.canonical_state(), old_mission_before,
+			"obsolete host must not observe live supply on refused commands")
 		assert_eq(int(network.snapshot()["reserve_pu"]), reserve_after_first,
 			"no stale replay may charge finite original reserve")
 		var live: Dictionary = successor.host.snapshot()
