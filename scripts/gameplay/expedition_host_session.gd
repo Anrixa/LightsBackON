@@ -45,6 +45,8 @@ const AdvancedHazards := preload("res://scripts/gameplay/expedition_advanced_haz
 const AdvancedFaults := preload("res://scripts/gameplay/expedition_advanced_fault_layers.gd")
 const AdvancedCases := preload("res://scripts/gameplay/expedition_advanced_casework.gd")
 const RegionalNetworks := preload("res://scripts/gameplay/expedition_regional_network.gd")
+const FieldTools := preload("res://scripts/gameplay/exp019_field_tools.gd")
+const Mechanics := preload("res://scripts/gameplay/exp019_mechanical_pass.gd")
 const Incident := preload("res://scripts/gameplay/expedition_regional_emergencies.gd")
 const Cascade := preload("res://scripts/gameplay/expedition_regional_cascades.gd")
 const Finale := preload("res://scripts/gameplay/expedition_regional_finales.gd")
@@ -90,6 +92,8 @@ var site_puzzles: SitePuzzles
 var advanced_cascade: AdvancedCascade
 var advanced_cases: AdvancedCases
 var regional_network: RegionalNetworks
+var field_tools: FieldTools
+var site_mechanics: Mechanics
 var incident_response: Incident
 var service_cascade: Cascade
 var regional_finale: Finale
@@ -163,7 +167,9 @@ func start(level_id: String, host_position: Callable,
 		enable_advanced_equipment: bool = false,
 		enable_advanced_policy: bool = false,
 		enable_advanced_cascade: bool = false,
-		enable_advanced_discoveries: bool = false) -> Dictionary:
+		enable_advanced_discoveries: bool = false,
+		enable_field_tools: bool = false,
+		enable_site_mechanics: bool = false) -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
 	var token: Dictionary = {}
@@ -181,7 +187,7 @@ func start(level_id: String, host_position: Callable,
 		enable_advanced_cases, enable_advanced_fault_layers,
 		enable_advanced_environment, enable_advanced_equipment,
 		enable_advanced_policy, enable_advanced_cascade,
-		enable_advanced_discoveries)
+		enable_advanced_discoveries, enable_field_tools, enable_site_mechanics)
 	if not bool(outcome.get("ok", false)):
 		var rollback: Dictionary = RegionalNetworks.rollback_host_start(token)
 		if not bool(rollback.get("ok", false)):
@@ -202,6 +208,8 @@ func start(level_id: String, host_position: Callable,
 		# A failed composite start must not retain half-bound advanced controllers.
 		advanced_cases = null
 		advanced_cascade = null
+		field_tools = null
+		site_mechanics = null
 		_bound_regional_dispatch_epoch = 0
 		_ready = false
 	return outcome
@@ -237,9 +245,15 @@ func _start_unchecked(level_id: String, host_position: Callable,
 		enable_advanced_equipment: bool = false,
 		enable_advanced_policy: bool = false,
 		enable_advanced_cascade: bool = false,
-		enable_advanced_discoveries: bool = false) -> Dictionary:
+		enable_advanced_discoveries: bool = false,
+		enable_field_tools: bool = false,
+		enable_site_mechanics: bool = false) -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
+	if enable_field_tools and (not enable_worksite or not enable_bespoke):
+		return _fail("EXP019_A03_REQUIRES_HOST_WORKSITE")
+	if enable_site_mechanics and (not enable_worksite or not enable_site_hazards):
+		return _fail("EXP019_A05_REQUIRES_HOST_HAZARD_WORKSITE")
 	if enable_devices and not enable_bespoke:
 		return _fail("EXP07_REQUIRES_EXP06")
 	if enable_faults and not enable_devices:
@@ -873,6 +887,20 @@ func _start_unchecked(level_id: String, host_position: Callable,
 			if not bool(attached.get("ok", false)):
 				return _fail("EXP016_A11_DISCOVERY_BIND_FAILED", attached)
 		_definitions["advanced_cases"] = advanced_cases.definition_snapshot()
+	# Source-qualified before any SessionHost starts; failed setup rolls back the
+	# original EXP015 host-lease token without retaining a partial new service.
+	if enable_field_tools:
+		field_tools = FieldTools.new()
+		var tools_review: Dictionary = field_tools.configure(level_id)
+		if not bool(tools_review.get("ok", false)):
+			return _fail("EXP019_A03_TOOL_SOURCE_INVALID", tools_review)
+		_definitions["field_tools"] = field_tools.snapshot()
+	if enable_site_mechanics:
+		site_mechanics = Mechanics.new()
+		var mechanics_review: Dictionary = site_mechanics.configure(plan)
+		if not bool(mechanics_review.get("ok", false)):
+			return _fail("EXP019_A05_PROFILE_INVALID", mechanics_review)
+		_definitions["site_mechanics"] = site_mechanics.snapshot()
 	_position_source = host_position
 	_physics_visibility = physics_visibility
 	_account_key = account_key
@@ -965,6 +993,8 @@ func _start_unchecked(level_id: String, host_position: Callable,
 		"regional_entry_active": regional_entry != null,
 		"regional_settlement_active": regional_settlement != null,
 		"regional_anchor_recovery_active": regional_anchor_recovery != null,
+		"field_tools_active": field_tools != null,
+		"site_mechanics_active": site_mechanics != null,
 		"qualification": "AUTHORITY_SOURCE_HEADLESS_ONLY_NO_PLAYABILITY"}
 
 
@@ -1015,7 +1045,9 @@ func start_exp016_source_qualification(level_id: String,
 func start_exp018_authenticated_finale(level_id: String,
 		host_position: Callable, account_key: String,
 		campaign_root: String,
-		physics_visibility: Callable = Callable()) -> Dictionary:
+		physics_visibility: Callable = Callable(),
+		enable_field_tools: bool = false,
+		enable_site_mechanics: bool = false) -> Dictionary:
 	var site_number: int = int(level_id.trim_prefix("LV_"))
 	if level_id != "LV_%03d" % site_number or site_number < 8 or 			site_number > 200 or site_number % 8 != 0:
 		return _fail("EXP018_A03_ORIGINAL_FINALE_REQUIRED")
@@ -1054,7 +1086,53 @@ func start_exp018_authenticated_finale(level_id: String,
 		true,  # EXP016 finite equipment
 		true,  # EXP016 source policy
 		true,  # EXP016 original feeder cascade
-		true   # EXP016 authenticated lore
+		true,  # EXP016 authenticated lore
+		enable_field_tools, # EXP019 authenticated tools
+		enable_site_mechanics # EXP019 source-verified field procedure
+	)
+
+
+## Named opt-in stage entrypoint prevents EXP015/EXP016 positional shifts.
+## All 32 existing options retain their original order, opt-in and hashes.
+func start_exp019_expedition(level_id: String, host_position: Callable,
+		physics_visibility: Callable, account_key: String,
+		enforce_campaign: bool, enable_regional_networks: bool) -> Dictionary:
+	return start(level_id, host_position, physics_visibility,
+		account_key, enforce_campaign, "",
+		true, # enable_bespoke
+		true, # enable_devices
+		true, # enable_faults
+		true, # enable_consequences
+		true, # enable_logistics
+		true, # enable_balance
+		true, # enable_worksite
+		true, # enable_site_a02
+		true, # enable_site_exp013
+		true, # enable_site_contingency
+		true, # enable_site_approach
+		true, # enable_site_outcomes
+		true, # enable_site_hazards
+		true, # enable_site_puzzles
+		enable_regional_networks, # enable_regional_networks
+		false, # enable_incident_response
+		false, # enable_service_cascade
+		false, # enable_regional_finale
+		false, # enable_regional_aftercare
+		false, # enable_regional_assurance
+		false, # enable_alternate_routes
+		false, # enable_regional_rejoins
+		false, # enable_regional_entries
+		false, # enable_regional_settlement
+		false, # enable_anchor_recovery
+		false, # enable_advanced_cases
+		false, # enable_advanced_fault_layers
+		false, # enable_advanced_environment
+		false, # enable_advanced_equipment
+		false, # enable_advanced_policy
+		false, # enable_advanced_cascade
+		false, # enable_advanced_discoveries
+		true, # enable_field_tools
+		true # enable_site_mechanics
 	)
 
 
@@ -1062,7 +1140,26 @@ func _session_id() -> String:
 	return "S_EXP03_" + str(_definitions.get("level_id", "UNKNOWN"))
 
 
+## The original EXP018 digest remains part of every EXP019 revision; this
+## never hashes mutable kit state, which changes during authenticated repair.
 func _content_revision() -> String:
+	var original: String = _source_content_revision()
+	if site_mechanics != null:
+		return "EXP019_A05_" + JSON.stringify({
+			"original_source_revision": original,
+			"source_structure": str(_definitions["site_mechanics"]["source_structure"]),
+			"field_protocol": "five_tool_procedure_v1" if field_tools != null else ""
+		}).sha256_text()
+	if field_tools != null:
+		return "EXP019_A03_" + JSON.stringify({
+			"original_source_revision": original,
+			"level_id": str(_definitions.get("level_id", "")),
+			"field_protocol": "five_tool_procedure_v1"
+		}).sha256_text()
+	return original
+
+
+func _source_content_revision() -> String:
 	# Combined regional+casework clients must reject either outdated source.
 	# Do not change the original standalone EXP015 or EXP016 wire revisions.
 	if advanced_cases != null and regional_network != null:
@@ -1274,6 +1371,11 @@ func receive(peer_id: int, message: PackedByteArray) -> Dictionary:
 			var snapshots: Dictionary = meter.canonical_state()["snapshots"]
 			if snapshots.has(panel):
 				_observed_inspections[panel] = true
+	if field_tools != null and command is Dictionary and \
+			str(command.get("type", "")) == "equip":
+		# Only an accepted, nonduplicate host ingress may update equipped state.
+		var equip_payload: Dictionary = command.get("payload", {})
+		field_tools.accepted_equip(str(equip_payload.get("tool", "")))
 	if bespoke != null and command is Dictionary:
 		bespoke.accepted(str(command.get("type", "")),
 			str(command.get("entity", "")), command.get("payload", {}),
@@ -1304,6 +1406,22 @@ func _bespoke_guard(player_id: String, kind: String, entity: String,
 		if kind == "request_extract":
 			return _fail("EXP015_A12_9_STALE_HOST_DISPATCH")
 		return _fail("EXP015_A12_10_STALE_HOST_INTENT")
+	# EXP019 is evaluated only after the original obsolete-host fence.
+	if site_mechanics != null and kind == "request_extract" and not site_mechanics.solved():
+		return _fail("EXP019_A05_MECHANICAL_PROOF_REQUIRED")
+	if site_mechanics != null and kind == "operate_worksite" and \
+			str(_payload.get("action", "")).begins_with("site_") and \
+			(worksite == null or entity != str(worksite.definition_snapshot()["board"])):
+		return _fail("EXP019_A05_WRONG_AUTHORIZED_WORKSITE_BOARD")
+	if field_tools != null and kind == "operate_worksite" and entity == "R_WEST":
+		var original_hazard: Dictionary = bespoke.preflight("repair_step", "R_WEST")
+		if not bool(original_hazard.get("ok", false)):
+			return original_hazard
+		return field_tools.preflight_action(str(_payload.get("action", "")), _tool_facts())
+	if field_tools != null and kind == "repair_step" and entity == "R_WEST":
+		var tool_gate: Dictionary = field_tools.preflight_step(str(_payload.get("step", "")))
+		if not bool(tool_gate.get("ok", false)):
+			return tool_gate
 	# Opt-in A09 extraction MUST be independently gated by a host-owned
 	# regional decision. Never trust a client-supplied preparation boolean.
 	if kind == "request_extract" and regional_network != null \
@@ -1545,6 +1663,25 @@ func _regional_dispatch_current() -> bool:
 		regional_network.current_dispatch_epoch() == _bound_regional_dispatch_epoch)
 
 
+func _tool_facts() -> Dictionary:
+	var west: Dictionary = grid.canonical_state()["nodes"]["WEST"]
+	return {"repair_state": interaction.repair_state("R_WEST"),
+		"isolated": bool(west["isolated"]), "west_failed": bool(west["failed"]),
+		"inspected": _observed_inspections.has("PANEL_WEST") and \
+			meter.canonical_state()["snapshots"].has("PANEL_WEST")}
+
+
+func _mechanic_facts() -> Dictionary:
+	var state: Dictionary = grid.canonical_state()
+	return {"grid_verified": mission.verified(),
+		"risk_class": str(site_hazards.snapshot().get("risk_class", "")) if site_hazards != null else "",
+		"worksite_solved": worksite != null and worksite.solved(),
+		"environment_safe": site_hazards != null and site_hazards.solved(),
+		"east_enabled": bool(state["edges"]["E_GRID_EAST"]["enabled"]),
+		"west_restored": interaction.repair_state("R_WEST") == "restored",
+		"diagnosis_confirmed": _observed_inspections.has("PANEL_WEST")}
+
+
 func _operate_worksite(player_id: String, entity: String, action: String) -> Dictionary:
 	if player_id != PLAYER_ID or worksite == null:
 		return _fail("EXP012_HOST_PRINCIPAL_INVALID")
@@ -1640,6 +1777,13 @@ func _operate_worksite(player_id: String, entity: String, action: String) -> Dic
 		if action.begins_with("regional_release:"):
 			return regional_network.host_transition("release_tie",
 				action.get_slice(":", 1))
+	# Preserve every prior regional/EXP015 protected-asset guard above this.
+	if entity == "R_WEST" and field_tools != null:
+		return field_tools.operate(action, _tool_facts())
+	if site_mechanics != null and action.begins_with("site_"):
+		if entity != str(worksite.definition_snapshot()["board"]):
+			return _fail("EXP019_A05_WRONG_SOURCE_TARGET")
+		return site_mechanics.operate(action.trim_prefix("site_"), _mechanic_facts())
 	var active: SiteA02 = site_exp013 if site_exp013 != null else site_a02
 	if active != null and active.target_ids().has(entity):
 		if site_approach != null and not site_approach.solved():
@@ -1795,6 +1939,10 @@ func _worksite_snapshot() -> Dictionary:
 		state["regional_settlement"] = regional_settlement.snapshot()
 	if regional_anchor_recovery != null:
 		state["regional_anchor_recovery"] = regional_anchor_recovery.snapshot()
+	if field_tools != null:
+		state["field_tools"] = field_tools.snapshot()
+	if site_mechanics != null:
+		state["site_mechanics"] = site_mechanics.snapshot()
 	return state
 
 
