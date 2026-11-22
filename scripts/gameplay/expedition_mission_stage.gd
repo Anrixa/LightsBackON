@@ -11,6 +11,7 @@ const SiteComposition := preload("res://scripts/world/expedition_site_compositio
 const EnvironmentFeedback := preload("res://scripts/world/expedition_environment_feedback.gd")
 const ApproachView := preload("res://scripts/world/expedition_approach_view.gd")
 const Runtime := preload("res://scripts/gameplay/expedition_host_session.gd")
+const RegionalPanel := preload("res://scripts/ui/expedition_regional_panel.gd")
 const PlayerController := preload("res://scripts/actors/first_person_controller.gd")
 const TargetSelector := preload("res://scripts/interaction/target_selector.gd")
 const Visibility := preload("res://scripts/interaction/interaction_visibility.gd")
@@ -54,6 +55,8 @@ var _outcome_choice: String = "buffer"
 var _hazard_choice: String = "engineered"
 var _puzzle_path: String = "forensic"
 var _puzzle_option: int = 0
+var _regional_panel: RegionalPanel
+var _regional_requested: bool = false
 var _fault_route: String = "isolate"
 var _consequence_choice: String = "isolate"
 var _logistics_route: String = "direct"
@@ -67,6 +70,8 @@ func _ready() -> void:
 	get_tree().remove_meta("expedition_requested_level")
 	_expedition_account = str(get_tree().get_meta("expedition_account_key", ""))
 	get_tree().remove_meta("expedition_account_key")
+	_regional_requested = bool(get_tree().get_meta("exp014_regional_networks_enabled", false))
+	get_tree().remove_meta("exp014_regional_networks_enabled")
 	if _expedition_account != "":
 		_expedition_saves = SaveService.new()
 		_expedition_saves.configure(1, OfflinePersistence.SAVE_BUILD_ID,
@@ -123,7 +128,7 @@ func _ready() -> void:
 	runtime = Runtime.new()
 	var result: Dictionary = runtime.start(
 		level_id, Callable(self, "_host_position"), Callable(self, "_world_sight"),
-		_expedition_account, _expedition_account != "", "", true, true, true, true, true, true, true, true, true, true, true, true, true, true)
+		_expedition_account, _expedition_account != "", "", true, true, true, true, true, true, true, true, true, true, true, true, true, true, _regional_requested)
 	if not bool(result.get("ok", false)):
 		push_error("EXP03_HOST_START_FAILED: " + str(result))
 		return
@@ -337,6 +342,10 @@ func _build_overlay(level: Dictionary) -> void:
 	controls.add_theme_color_override("font_color", Color("#D9E3EC"))
 	controls.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(controls)
+	if runtime.regional_network != null:
+		_regional_panel = RegionalPanel.new()
+		box.add_child(_regional_panel)
+		_regional_panel.action_requested.connect(_regional_action_requested)
 	_back = Button.new()
 	_back.name = "ReturnToDispatchButton"
 	_back.text = "Return to dispatch atlas (original C01 save unchanged)"
@@ -345,6 +354,17 @@ func _build_overlay(level: Dictionary) -> void:
 	box.add_child(_back)
 	_back.mouse_filter = Control.MOUSE_FILTER_STOP
 	_back.focus_mode = Control.FOCUS_NONE
+
+
+## A09 controls only submit existing worksite board commands. Real SessionHost
+## validates entity, host-authoritative range, peer, sequence and dedupe.
+func _regional_action_requested(action: String) -> void:
+	if runtime == null or runtime.regional_network == null or runtime.worksite == null:
+		return
+	var board_id: String = str(runtime.worksite.definition_snapshot()["board"])
+	var reply: Dictionary = _send("operate_worksite", board_id, {"action": action})
+	if _regional_panel != null:
+		_regional_panel.show_reply(reply)
 
 
 func _return_to_menu() -> void:
@@ -1140,6 +1160,8 @@ func _refresh() -> void:
 		elif bool(puzzle["solved"]):
 			lines.append("A08 HOST-VERIFIED INVESTIGATION COMPLETE; existing worksite route remains locked.")
 	_task_label.text = "\n".join(lines)
+	if _regional_panel != null and board.has("regional_network"):
+		_regional_panel.show_network(board["regional_network"])
 	if _target_label != null:
 		_target_label.text = "Target: %s  /  tool: %s  /  host revision: %d" % [
 			_target if _target != "" else "(aim at numbered station)",

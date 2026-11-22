@@ -348,6 +348,8 @@ func _launch_experimental_dispatch(level_id: String) -> void:
 	# The same existing pseudonymous local identity is reused. An unreadable
 	# identity does not authorize creation of an alternate expedition profile.
 	get_tree().set_meta("expedition_requested_level", level_id)
+	get_tree().set_meta("exp014_regional_networks_enabled",
+		bool(_dispatch_atlas_panel.get("regional_networks_enabled")) and _save_ready)
 	get_tree().set_meta("expedition_account_key",
 		_store.account_key if _save_ready and _store != null else "")
 	get_tree().change_scene_to_file(EXP03_STAGE_PATH)
