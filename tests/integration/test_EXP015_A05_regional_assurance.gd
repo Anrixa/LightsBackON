@@ -99,6 +99,9 @@ func _prepare(finale: Finale, aftercare: Aftercare, mode: String) -> void:
 
 func _send(host: Runtime, seq: int, board: String, action: String,
 		peer: int = 1) -> Dictionary:
+	# Real authoritative grid tick at 10 Hz before each authenticated command.
+	# Respect the production 20-commands/10-tick limiter, never disable it.
+	host.host.tick(seq)
 	return host.receive(peer, JSON.stringify({
 		"session": host.session_id(), "seq": seq, "type": "operate_worksite",
 		"entity": board, "payload": {"action": action}
