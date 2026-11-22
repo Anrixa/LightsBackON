@@ -1,0 +1,37 @@
+extends "res://tests/test_case.gd"
+const Flow := preload("res://scripts/gameplay/expedition_run_flow.gd")
+const Atlas := preload("res://scripts/world/dispatch_atlas.gd")
+
+
+func test_EXP020_A05_pause_resume_save_hold_and_restart_recover() -> void:
+	var run: Flow = Flow.new()
+	assert_false(bool(run.pause().get("ok",false)))
+	assert_true(bool(run.begin("LV_001","EXP020_TEST",Atlas.load_catalog()).get("ok",false)))
+	assert_false(bool(run.begin("LV_001","EXP020_TEST",Atlas.load_catalog()).get("ok",false)))
+	assert_true(run.onboarding({"tasks":[{"completed":false}]}).contains("field notes"))
+	run.observe_host_reply({"ok":false,"code":"OUT_OF_RANGE"})
+	assert_eq(str(run.source_snapshot()["last_denial"]),"OUT_OF_RANGE")
+	assert_false(bool(run.gate_departure(0,"","restart").get("ok",false)))
+	assert_true(bool(run.pause().get("ok",false)))
+	assert_true(run.paused())
+	assert_false(bool(run.gate_departure(1,"","restart").get("ok",false)))
+	assert_eq(run.state(),Flow.SAVE_HOLD)
+	assert_false(bool(run.gate_departure(0,"DISK_FULL","return").get("ok",false)))
+	assert_true(bool(run.resume().get("ok",false)))
+	assert_eq(run.state(),Flow.RUNNING)
+	assert_true(bool(run.pause().get("ok",false)))
+	assert_true(bool(run.gate_departure(0,"","restart").get("ok",false)))
+	assert_eq(run.state(),Flow.RESTARTING)
+	assert_false(bool(run.resume().get("ok",false)))
+
+
+func test_EXP020_A05_anonymous_solo_can_return_no_save_migration() -> void:
+	var run: Flow = Flow.new()
+	assert_false(bool(run.begin("LV_999","",Atlas.load_catalog()).get("ok",false)))
+	assert_true(bool(run.begin("LV_200","",Atlas.load_catalog()).get("ok",false)))
+	assert_true(bool(run.pause().get("ok",false)))
+	assert_false(bool(run.gate_departure(0,"","wipe").get("ok",false)))
+	assert_true(bool(run.gate_departure(0,"","return").get("ok",false)))
+	assert_eq(run.state(),Flow.RETURNING)
+	assert_true(bool(run.source_snapshot()["solo_local_host"]))
+	assert_false(bool(run.source_snapshot()["save_schema_changed"]))

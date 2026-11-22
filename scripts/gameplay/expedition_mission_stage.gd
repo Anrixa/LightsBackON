@@ -24,6 +24,7 @@ const FieldGuidance := preload("res://scripts/ui/expedition_field_guidance.gd")
 const FieldOps := preload("res://scripts/ui/expedition_field_ops.gd")
 const RewardFeedback := preload("res://scripts/progression/expedition_reward_feedback.gd")
 const StoryWorkOrders := preload("res://scripts/gameplay/expedition_story_workorders.gd")
+const RunFlow := preload("res://scripts/gameplay/expedition_run_flow.gd")
 const SaveService := preload("res://scripts/persistence/save_service.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
@@ -58,6 +59,11 @@ var _exp020_reward_notice: String = ""
 var _exp020_story_book: Dictionary = {}
 var _exp020_story_label: Label
 var _exp020_story_marker: Label3D
+var _exp020_run: RunFlow = RunFlow.new()
+var _exp020_pause_panel: PanelContainer
+var _exp020_pause_notice: Label
+var _exp020_hint_label: Label
+var _exp020_hints_enabled: bool = true
 var _hazard_marker: MeshInstance3D
 var _site_composition: Node3D
 var _environmental_feedback: Node3D
@@ -134,6 +140,10 @@ func _ready() -> void:
 		if not bool(_exp020_campaign_consequences.get("ok", false)):
 			push_error("EXP020_A01_CAMPAIGN_CONSEQUENCE_HOLD: " + str(_exp020_campaign_consequences))
 			return
+	var flow_started: Dictionary = _exp020_run.begin(requested,_expedition_account,catalog)
+	if not bool(flow_started.get("ok",false)):
+		push_error("EXP020_A05_FLOW_HOLD: "+str(flow_started))
+		return
 	var location: Dictionary = Atlas.find_location(catalog, str(level["location_id"]))
 	var plan: Dictionary = Plan.make_plan(level, location)
 	if not bool(plan.get("ok", false)):
@@ -378,6 +388,11 @@ func _build_overlay(level: Dictionary) -> void:
 	_exp020_story_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_exp020_story_label.add_theme_color_override("font_color", Color("#EBC4A4"))
 	box.add_child(_exp020_story_label)
+	_exp020_hint_label = Label.new()
+	_exp020_hint_label.name = "EXP020_SoloOnboarding"
+	_exp020_hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_exp020_hint_label.add_theme_color_override("font_color",Color("#9BE4D9"))
+	box.add_child(_exp020_hint_label)
 	_task_label = Label.new()
 	_task_label.name = "TaskStatuses"
 	_task_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -393,7 +408,7 @@ func _build_overlay(level: Dictionary) -> void:
 	_feedback.add_theme_color_override("font_color", Color("#F1D6B2"))
 	box.add_child(_feedback)
 	var controls: Label = Label.new()
-	controls.text = "M field tablet • WASD move • mouse aim • E interact / EXP011 energize or shed • R EXP08 route • T EXP009 response • U EXP010 direct/relay • Y EXP010 shipment A/B • K recall depot shipment • 1–5 tools • V EXP012 route • B EXP012 method • Esc atlas\nEXP06–EXP009: Complete equipment, stability and service recovery. EXP010: Open depot manifest, allocate one direct and one relay shipment from finite stocks, wait for host transit, receive each cargo, certify the logistics board. Unsafe supply pauses transit and reopens completed deliveries for recheck. EXP011: Open load board, allocate no more than 6 PU, stabilize each service through host ticks, shed and latch, then certify. EXP012: Open review board after live EXP011 certification; select priority/resilience route at strategy marker; complete source-linked checkpoint reviews using precise or finite-cell rapid sampling, then certify. Supply loss requires rechecks. Source/headless only; physical playability remains held."
+	controls.text = "Esc pause • F2 hints • M field tablet • WASD move • mouse aim • E interact / EXP011 energize or shed • R EXP08 route • T EXP009 response • U EXP010 direct/relay • Y EXP010 shipment A/B • K recall depot shipment • 1–5 tools • V EXP012 route • B EXP012 method • Esc atlas\nEXP06–EXP009: Complete equipment, stability and service recovery. EXP010: Open depot manifest, allocate one direct and one relay shipment from finite stocks, wait for host transit, receive each cargo, certify the logistics board. Unsafe supply pauses transit and reopens completed deliveries for recheck. EXP011: Open load board, allocate no more than 6 PU, stabilize each service through host ticks, shed and latch, then certify. EXP012: Open review board after live EXP011 certification; select priority/resilience route at strategy marker; complete source-linked checkpoint reviews using precise or finite-cell rapid sampling, then certify. Supply loss requires rechecks. Source/headless only; physical playability remains held."
 	controls.add_theme_color_override("font_color", Color("#D9E3EC"))
 	controls.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(controls)
@@ -409,6 +424,7 @@ func _build_overlay(level: Dictionary) -> void:
 	box.add_child(_back)
 	_back.mouse_filter = Control.MOUSE_FILTER_STOP
 	_back.focus_mode = Control.FOCUS_NONE
+	_build_exp020_pause_controls()
 	# EXP020 A02: independent right-side tablet; the original left-side
 	# diagnostics and all authoritative input paths remain untouched.
 	_exp020_field_ops = FieldOps.new()
@@ -429,6 +445,104 @@ func _regional_action_requested(action: String) -> void:
 		_regional_panel.show_reply(reply)
 
 
+## Pause controls are independent of the experimental debug/task overlay.
+## Neither SceneTree nor the original SessionHost is destroyed on pause.
+func _build_exp020_pause_controls() -> void:
+	var layer: CanvasLayer = CanvasLayer.new()
+	layer.name = "EXP020_PauseLayer"
+	add_child(layer)
+	_exp020_pause_panel = PanelContainer.new()
+	_exp020_pause_panel.name = "EXP020_PauseAndRecovery"
+	_exp020_pause_panel.set_anchors_preset(Control.PRESET_CENTER)
+	_exp020_pause_panel.position = Vector2(-235.0,-160.0)
+	_exp020_pause_panel.custom_minimum_size = Vector2(470.0,320.0)
+	layer.add_child(_exp020_pause_panel)
+	var stack: VBoxContainer = VBoxContainer.new()
+	stack.add_theme_constant_override("separation",12)
+	_exp020_pause_panel.add_child(stack)
+	var title: Label = Label.new()
+	title.text = "DISPATCH PAUSED / LOCAL HOST"
+	title.add_theme_font_size_override("font_size",22)
+	stack.add_child(title)
+	_exp020_pause_notice = Label.new()
+	_exp020_pause_notice.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	stack.add_child(_exp020_pause_notice)
+	var actions: Array[Dictionary] = [
+		{"title":"Continue Solo / Resume","method":"_exp020_resume"},
+		{"title":"Retry Pending Reward Save","method":"_exp020_retry_save"},
+		{"title":"Restart Dispatch (unbanked steps reset)","method":"_exp020_restart"},
+		{"title":"Return to Dispatch Atlas","method":"_return_to_menu"}
+	]
+	for item: Dictionary in actions:
+		var button: Button = Button.new()
+		button.text = str(item["title"])
+		button.pressed.connect(Callable(self,str(item["method"])))
+		stack.add_child(button)
+	_exp020_pause_panel.visible = false
+
+
+func _exp020_pause() -> void:
+	if not bool(_exp020_run.pause().get("ok",false)):
+		return
+	if _exp020_field_ops != null:
+		_exp020_field_ops.visible = false
+	if player != null:
+		player.process_mode = Node.PROCESS_MODE_DISABLED
+	_exp020_pause_panel.visible = true
+	_exp020_pause_notice.text = "Host time stopped; previously archived score is retained.\n" + \
+		"Restart resets unbanked local worksite steps, not saved receipts."
+	if DisplayServer.get_name() != "headless":
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+
+func _exp020_resume() -> void:
+	if not bool(_exp020_run.resume().get("ok",false)):
+		return
+	if player != null:
+		player.process_mode = Node.PROCESS_MODE_INHERIT
+	_exp020_pause_panel.visible = false
+	if DisplayServer.get_name() != "headless":
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+
+func _exp020_retry_save() -> void:
+	if not _exp020_run.paused():
+		return
+	_persist_rewards()
+	var remaining: int = runtime.pending_rewards(_expedition_account).size() \
+		if _expedition_account != "" else 0
+	_exp020_pause_notice.text = "Pending host receipts: %d / save gate: %s" % [
+		remaining, "READY" if _reward_error == "" else _reward_error]
+
+
+## A departure must not silently discard a host reward or corrupt a save.
+func _exp020_departure_ready(choice: String) -> bool:
+	if not _exp020_run.paused():
+		_exp020_pause()
+	if not _exp020_run.paused():
+		return false
+	_persist_rewards()
+	var remaining: int = runtime.pending_rewards(_expedition_account).size() \
+		if _expedition_account != "" else 0
+	var gate: Dictionary = _exp020_run.gate_departure(remaining,_reward_error,choice)
+	if not bool(gate.get("ok",false)):
+		_exp020_pause_notice.text = "DEPARTURE HELD: %s\nResume or retry save." % \
+			str(gate.get("code","UNKNOWN"))
+		return false
+	return true
+
+
+func _exp020_restart() -> void:
+	if not _exp020_departure_ready("restart"):
+		return
+	get_tree().set_meta("expedition_requested_level",level_id)
+	get_tree().set_meta("expedition_account_key",_expedition_account)
+	get_tree().set_meta("exp014_regional_networks_enabled",_regional_requested)
+	if DisplayServer.get_name() != "headless":
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	get_tree().reload_current_scene()
+
+
 func _close_field_ops() -> void:
 	if _exp020_field_ops != null:
 		_exp020_field_ops.visible = false
@@ -447,6 +561,8 @@ func _toggle_field_ops() -> void:
 
 
 func _return_to_menu() -> void:
+	if not _exp020_departure_ready("return"):
+		return
 	if DisplayServer.get_name() != "headless":
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	get_tree().set_meta("expedition_reopen_atlas", true)
@@ -454,7 +570,7 @@ func _return_to_menu() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if not _loaded:
+	if not _loaded or _exp020_run.paused():
 		return
 	_tick_accumulator += delta
 	while _tick_accumulator >= HOST_STEP_SECONDS:
@@ -501,6 +617,7 @@ func _send(kind: String, entity: String, payload: Dictionary = {}) -> Dictionary
 	var envelope: Dictionary = {"session": runtime.session_id(), "seq": _sequence,
 		"type": kind, "entity": entity, "payload": payload}
 	var reply: Dictionary = runtime.receive(1, JSON.stringify(envelope).to_utf8_buffer())
+	_exp020_run.observe_host_reply(reply)
 	_persist_rewards()
 	if _feedback != null:
 		_feedback.text = ("%s: %s" % [kind, "ACCEPTED" if reply.get("ok", false) else
@@ -875,12 +992,22 @@ func _select_tool(index: int) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not _loaded or not event.is_pressed() or event.is_echo():
 		return
-	if event is InputEventKey and event.physical_keycode == KEY_M and 			not event.ctrl_pressed and not event.alt_pressed:
-		_toggle_field_ops()
+	if event.is_action_pressed("ui_cancel") or event.is_action_pressed("pause"):
+		if _exp020_run.paused():
+			_exp020_resume()
+		else:
+			_exp020_pause()
 		get_viewport().set_input_as_handled()
 		return
-	if event.is_action_pressed("ui_cancel") or event.is_action_pressed("pause"):
-		_return_to_menu()
+	if _exp020_run.paused():
+		return
+	if event is InputEventKey and event.physical_keycode == KEY_F2:
+		_exp020_hints_enabled = not _exp020_hints_enabled
+		_refresh()
+		get_viewport().set_input_as_handled()
+		return
+	if event is InputEventKey and event.physical_keycode == KEY_M and 			not event.ctrl_pressed and not event.alt_pressed:
+		_toggle_field_ops()
 		get_viewport().set_input_as_handled()
 		return
 	if event is InputEventKey and event.physical_keycode == KEY_V and not event.ctrl_pressed and not event.alt_pressed:
@@ -1022,6 +1149,9 @@ func _refresh() -> void:
 	if not _loaded or _task_label == null:
 		return
 	var board: Dictionary = runtime.task_board()
+	if _exp020_hint_label != null:
+		_exp020_hint_label.text = ("F2 hints: " + _exp020_run.onboarding(board)) if \
+			_exp020_hints_enabled else "F2: show field onboarding guidance"
 	var narrative: Dictionary = StoryWorkOrders.compose(
 		_exp020_story_book, _exp020_atlas, level_id, board)
 	if _exp020_story_label != null:
