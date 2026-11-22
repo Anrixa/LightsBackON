@@ -95,6 +95,12 @@ if [ -n "$PY" ]; then
   "$PY" tools/qualify_exp014_a10.py --report build/exp014-a10-4/source-gate.json || FAIL=1
 fi
 
+echo "== EXP016 A02: 50 source-bound cases, 100 distinct host-authoritative routes =="
+if [ -n "$PY" ]; then
+  "$PY" tools/validate_exp016_casework.py || FAIL=1
+  "$PY" -m unittest discover -s tools -p 'test_exp016_casework.py' -v || FAIL=1
+fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 

@@ -37,6 +37,7 @@ const SiteApproach := preload("res://scripts/gameplay/expedition_approach_intell
 const SiteOutcomes := preload("res://scripts/gameplay/expedition_operational_consequences.gd")
 const SiteHazards := preload("res://scripts/gameplay/expedition_environment_hazards.gd")
 const SitePuzzles := preload("res://scripts/gameplay/expedition_investigation_chains.gd")
+const AdvancedCases := preload("res://scripts/gameplay/expedition_advanced_casework.gd")
 const RegionalNetworks := preload("res://scripts/gameplay/expedition_regional_network.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
@@ -70,6 +71,7 @@ var site_approach: SiteApproach
 var site_outcomes: SiteOutcomes
 var site_hazards: SiteHazards
 var site_puzzles: SitePuzzles
+var advanced_cases: AdvancedCases
 var regional_network: RegionalNetworks
 
 var _definitions: Dictionary = {}
@@ -111,7 +113,8 @@ func start(level_id: String, host_position: Callable,
 		enable_site_outcomes: bool = false,
 		enable_site_hazards: bool = false,
 		enable_site_puzzles: bool = false,
-		enable_regional_networks: bool = false) -> Dictionary:
+		enable_regional_networks: bool = false,
+		enable_advanced_cases: bool = false) -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
 	if enable_devices and not enable_bespoke:
@@ -140,6 +143,8 @@ func start(level_id: String, host_position: Callable,
 		return _fail("EXP014_A07_REQUIRES_A06_OUTCOMES")
 	if enable_site_puzzles and not enable_site_hazards:
 		return _fail("EXP014_A08_REQUIRES_A07_ENVIRONMENT")
+	if enable_advanced_cases and not enable_site_puzzles:
+		return _fail("EXP016_A02_REQUIRES_A08_HOST_INVESTIGATION")
 	if enable_regional_networks and (not enable_site_puzzles or not enforce_campaign):
 		return _fail("EXP014_A09_REQUIRES_A08_AND_HOST_CAMPAIGN")
 	if account_key != "" and not SaveService.is_valid_key(account_key):
@@ -440,6 +445,20 @@ func start(level_id: String, host_position: Callable,
 		if not bool(puzzle_gate.get("ok", false)):
 			return _fail("EXP014_A08_SOURCE_INVALID", puzzle_gate)
 		_definitions["site_puzzles"] = site_puzzles.definition_snapshot()
+	# EXP016 cases are opt-in and source-pinned to the original A08 evidence graph.
+	if enable_advanced_cases:
+		var advanced_book: Dictionary = AdvancedCases.load_book()
+		var case_audit: Dictionary = AdvancedCases.inspect(atlas, SitePuzzles.load_book(), advanced_book)
+		if not bool(case_audit.get("ok", false)):
+			return _fail("EXP016_A02_SOURCE_INVALID", case_audit)
+		var selected_case: Dictionary = AdvancedCases.entry_for(advanced_book, level_id)
+		if selected_case.is_empty():
+			return _fail("EXP016_A02_CASE_NOT_AUTHORED")
+		advanced_cases = AdvancedCases.new()
+		var case_config: Dictionary = advanced_cases.configure(selected_case)
+		if not bool(case_config.get("ok", false)):
+			return _fail("EXP016_A02_CONFIG_FAILED", case_config)
+		_definitions["advanced_cases"] = advanced_cases.definition_snapshot()
 	_position_source = host_position
 	_physics_visibility = physics_visibility
 	_account_key = account_key
@@ -527,6 +546,10 @@ func _session_id() -> String:
 
 
 func _content_revision() -> String:
+	if advanced_cases != null:
+		return "EXP016_A02_" + ("%s|%s" % [
+			str(_definitions.get("source_fingerprint", "")),
+			JSON.stringify(advanced_cases.definition_snapshot())]).sha256_text()
 	if regional_network != null:
 		return "EXP014_A09_" + ("%s|%s|%s" % [
 			str(_definitions.get("source_fingerprint", "")),
@@ -903,6 +926,11 @@ func _operate_worksite(player_id: String, entity: String, action: String) -> Dic
 			return site_hazards.operate(entity, action, _hazard_facts())
 		if site_puzzles != null and site_puzzles.needs_action():
 			return site_puzzles.operate(entity, action, _puzzle_facts())
+		if advanced_cases != null and site_puzzles != null and site_puzzles.solved():
+			if not advanced_cases.started():
+				advanced_cases.begin()
+			if advanced_cases.needs_action():
+				return advanced_cases.operate(entity, action, _puzzle_facts())
 		if site_outcomes != null and site_outcomes.needs_action():
 			return site_outcomes.operate(entity, action, _outcome_facts())
 		if site_contingency != null and active.solved():
@@ -917,6 +945,10 @@ func _operate_worksite(player_id: String, entity: String, action: String) -> Dic
 			entity != str(worksite.definition_snapshot()["board"]) and \
 			not site_hazards.can_operate():
 		return _fail("EXP014_A07_HAZARD_LOCKED")
+	if advanced_cases != null and worksite.target_ids().has(entity) and \
+			entity != str(worksite.definition_snapshot()["board"]) and \
+			not advanced_cases.solved():
+		return _fail("EXP016_A02_CASEWORK_REQUIRED")
 	# Existing work order cannot bypass a newly required investigation graph.
 	if site_puzzles != null and worksite.target_ids().has(entity) and \
 			entity != str(worksite.definition_snapshot()["board"]) and \
@@ -970,6 +1002,9 @@ func _worksite_tick() -> void:
 		if not site_hazards.started() and site_outcomes.prepared():
 			site_hazards.begin(site_outcomes.snapshot())
 		site_hazards.advance(_hazard_facts())
+	if advanced_cases != null and site_puzzles != null and site_puzzles.solved() and \
+			not advanced_cases.started():
+		advanced_cases.begin()
 	if site_puzzles != null:
 		if not site_puzzles.started() and str(site_hazards.snapshot().get("phase", "")) == "contained":
 			site_puzzles.begin(site_hazards.snapshot())
@@ -994,6 +1029,8 @@ func _worksite_snapshot() -> Dictionary:
 		state["site_hazards"] = site_hazards.snapshot()
 	if site_puzzles != null:
 		state["site_puzzles"] = site_puzzles.snapshot()
+	if advanced_cases != null:
+		state["advanced_cases"] = advanced_cases.snapshot()
 	if regional_network != null:
 		state["regional_network"] = regional_network.snapshot()
 	return state
@@ -1144,6 +1181,9 @@ func _update_progress() -> void:
 			not mission.results().is_empty() and \
 			(regional_network == null or regional_network.site_prepared()):
 		_completed[last] = true
+	# Original EXP04 reward receipts cannot precede an opt-in EXP016 interlock.
+	if advanced_cases != null and not advanced_cases.solved():
+		return
 	_issue_task_rewards()
 
 
@@ -1187,6 +1227,8 @@ func task_board() -> Dictionary:
 		board["balancing"] = balancing.snapshot()
 	if worksite != null:
 		board["worksite"] = _worksite_snapshot()
+	if advanced_cases != null:
+		board["advanced_cases"] = advanced_cases.snapshot()
 	if regional_network != null:
 		board["regional_network"] = regional_network.snapshot()
 	return board
@@ -1213,6 +1255,8 @@ func state_hash() -> String:
 
 func completed() -> bool:
 	if not _ready or mission.results().is_empty():
+		return false
+	if advanced_cases != null and not advanced_cases.solved():
 		return false
 	if regional_network != null:
 		return _tasks.size() == 5 and _completed.has(str(_tasks[4]["id"]))
