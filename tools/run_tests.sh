@@ -172,6 +172,10 @@ echo "== EXP015 A12.3: adversarial original feeder recovery versus missing recei
 if [ -n "$PY" ]; then
   "$PY" tools/validate_exp015_anchor_recovery.py --report build/exp015-a12-3/source-audit.json || FAIL=1
 fi
+echo "== EXP018 A01: regression repairs, immutable source, dual-platform CI gate =="
+if [ -n "$PY" ]; then
+  "$PY" tools/qualify_exp018_a01.py --report build/exp018-a01/qualification.json || FAIL=1
+fi
 echo "== python reference model (re-derived, reference/tests) =="
 if [ -d reference/tests ] && [ -n "$PY" ]; then
   ( cd reference && "$PY" -m unittest discover -s tests -v ) || FAIL=1
