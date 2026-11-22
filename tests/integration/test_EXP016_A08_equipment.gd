@@ -29,14 +29,27 @@ func test_EXP016_A08_200_equipment_manifests_and_real_step_tool_gates() -> void:
 		assert_true(bool(work.configure(entry).get("ok",false)))
 		assert_true(bool(work.bind_equipment_manifest(manifest).get("ok",false)))
 		assert_true(bool(work.begin().get("ok",false)))
+		if entry.has("diagnosis"):
+			assert_true(bool(work.operate(str(entry["targets"]["A"]),
+				"case_probe_a", _facts()).get("ok",false)))
+			assert_true(bool(work.operate(str(entry["targets"]["B"]),
+				"case_probe_b", _facts()).get("ok",false)))
+			assert_true(bool(work.operate(str(entry["targets"]["C"]),
+				"case_identify:" + str(entry["diagnosis"]["fault_class"]),
+				_facts()).get("ok",false)))
 		assert_true(bool(work.operate(str(entry["targets"]["A"]),
 			"case_forensic",_facts()).get("ok",false)))
 		var steps: Array = entry["routes"]["forensic"]["steps"]
 		for step: Dictionary in steps:
 			var target: String = str(entry["targets"][str(step["station"])])
 			var action: String = "case_" + str(step["kind"])
-			assert_false(bool(work.operate(target,action,_facts()).get("ok",true)))
 			var tool: String = str(manifest["required_tools"][str(step["kind"])])
+			# Force an admitted but incorrect tool, even if the previous
+			# accepted step left the correct tool equipped.
+			var wrong: String = "meter" if tool != "meter" else "screwdriver"
+			assert_true(bool(work.operate(str(entry["targets"]["A"]),
+				"case_equip:" + wrong,_facts()).get("ok",false)))
+			assert_false(bool(work.operate(target,action,_facts()).get("ok",true)))
 			assert_false(bool(work.operate("SC_FORGED","case_equip:" + tool,
 				_facts()).get("ok",true)))
 			assert_true(bool(work.operate(str(entry["targets"]["A"]),"case_equip:" + tool,

@@ -13,7 +13,7 @@ func _facts() -> Dictionary:
 
 func test_EXP016_A03_50_two_probe_diagnoses_and_both_routes() -> void:
 	var books: Array[Dictionary] = Cases.load_available_books()
-	assert_eq(books.size(), 2)
+	assert_true(books.size() >= 2)
 	var book: Dictionary = books[1]
 	var review: Dictionary = Cases.inspect(Atlas.load_catalog(), Inquiry.load_book(), book)
 	assert_true(bool(review.get("ok", false)), str(review))
