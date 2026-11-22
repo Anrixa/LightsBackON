@@ -11,6 +11,7 @@ const SiteComposition := preload("res://scripts/world/expedition_site_compositio
 const EnvironmentFeedback := preload("res://scripts/world/expedition_environment_feedback.gd")
 const ApproachView := preload("res://scripts/world/expedition_approach_view.gd")
 const Exp017Presentation := preload("res://scripts/world/exp017_restoration_feedback.gd")
+const Exp018Presentation := preload("res://scripts/world/exp018_host_presentation.gd")
 const Runtime := preload("res://scripts/gameplay/expedition_host_session.gd")
 const RegionalPanel := preload("res://scripts/ui/expedition_regional_panel.gd")
 const PlayerController := preload("res://scripts/actors/first_person_controller.gd")
@@ -59,6 +60,7 @@ var _puzzle_path: String = "forensic"
 var _puzzle_option: int = 0
 var _regional_panel: RegionalPanel
 var _regional_requested: bool = false
+var _exp018_requested: bool = false
 var _fault_route: String = "isolate"
 var _consequence_choice: String = "isolate"
 var _logistics_route: String = "direct"
@@ -74,6 +76,9 @@ func _ready() -> void:
 	get_tree().remove_meta("expedition_account_key")
 	_regional_requested = bool(get_tree().get_meta("exp014_regional_networks_enabled", false))
 	get_tree().remove_meta("exp014_regional_networks_enabled")
+	# Owner opt-in; existing legacy/EXP014 stage behavior remains unchanged.
+	_exp018_requested = bool(get_tree().get_meta("exp018_integrated_enabled", false))
+	get_tree().remove_meta("exp018_integrated_enabled")
 	if _expedition_account != "":
 		_expedition_saves = SaveService.new()
 		_expedition_saves.configure(1, OfflinePersistence.SAVE_BUILD_ID,
@@ -128,9 +133,30 @@ func _ready() -> void:
 	var start: Vector3 = (plan["stations"] as Array)[0]["position"]
 	player.global_position = Vector3(start.x, 0.91, start.z + 1.70)
 	runtime = Runtime.new()
-	var result: Dictionary = runtime.start(
-		level_id, Callable(self, "_host_position"), Callable(self, "_world_sight"),
-		_expedition_account, _expedition_account != "", "", true, true, true, true, true, true, true, true, true, true, true, true, true, true, _regional_requested)
+	var result: Dictionary = {}
+	if _exp018_requested and _regional_requested:
+		# The A03 regional+casework preset uses the real profile receipt gate.
+		# Never silently drop regional authority for a requested nonfinale.
+		result = runtime.start_exp018_authenticated_finale(level_id,
+			Callable(self, "_host_position"), _expedition_account,
+			OfflinePersistence.runtime_root(), Callable(self, "_world_sight"))
+	elif _exp018_requested:
+		# Source-bound advanced missions remain opt-in at all 200 sites.
+		# The same physical sight provider and host intent API are retained.
+		result = runtime.start(
+			level_id, Callable(self, "_host_position"), Callable(self, "_world_sight"),
+			_expedition_account, _expedition_account != "", "",
+			true, true, true, true, true, true, true,
+			true, true, true, true, true, true, true,
+			false, # regional network requires original authenticated dispatch
+			false, false, false, false, false, false, false, false, false, false,
+			true, true, true, true, true, false, true)
+	else:
+		result = runtime.start(
+			level_id, Callable(self, "_host_position"), Callable(self, "_world_sight"),
+			_expedition_account, _expedition_account != "", "",
+			true, true, true, true, true, true, true,
+			true, true, true, true, true, true, true, _regional_requested)
 	if not bool(result.get("ok", false)):
 		push_error("EXP03_HOST_START_FAILED: " + str(result))
 		return
@@ -1171,6 +1197,20 @@ func _refresh() -> void:
 				str(puzzle["fault"]), str(puzzle["recovery_target"])])
 		elif bool(puzzle["solved"]):
 			lines.append("A08 HOST-VERIFIED INVESTIGATION COMPLETE; existing worksite route remains locked.")
+	if board.has("advanced_cases"):
+		var advanced: Dictionary = board["advanced_cases"]
+		lines.append("EXP018 BESPOKE %s • route %s • tools %s • kits %d • faults %d / recoveries %d" % [
+			str(advanced["phase"]).to_upper(), str(advanced["route"]),
+			str(advanced["equipped_tool"]), int(advanced["kits"]),
+			int(advanced["faults"]), int(advanced["recoveries"])])
+		lines.append("SOURCE CASE %s • evidence tokens %d • liabilities %d • spare cells %d" % [
+			str(advanced["level_id"]),
+			(advanced["evidence_tokens"] as Dictionary).size(),
+			int(advanced["liabilities"]), int(advanced["worksite_spare_cells"])])
+		if board.has("advanced_cascade"):
+			var pressure: Dictionary = board["advanced_cascade"]
+			lines.append("REGIONAL CASE PRESSURE %d • process-local, not persistent" % [
+				int(pressure["inherited_pressure"])])
 	_task_label.text = "\n".join(lines)
 	if _regional_panel != null and board.has("regional_network"):
 		_regional_panel.show_network(board["regional_network"])
@@ -1193,8 +1233,8 @@ func _refresh() -> void:
 			var contingency_state: Dictionary = runtime.site_contingency.snapshot() if runtime.site_contingency != null else {}
 			EnvironmentFeedback.reflect(_environmental_feedback, active_source.snapshot(), contingency_state)
 	if _exp017_feedback != null:
-		var presented: Dictionary = Exp017Presentation.reflect(
-			_exp017_feedback, board, runtime.grid.canonical_state())
-		if not presented.get("ok", false):
-			push_error("EXP017_A03_HOST_PRESENTATION_HOLD: " + str(presented))
+		var presented: Dictionary = Exp018Presentation.reflect(
+			_exp017_feedback, runtime, _exp018_requested)
+		if not bool(presented.get("ok", false)):
+			push_error("EXP018_A04_HOST_PRESENTATION_HOLD: " + str(presented))
 	set_meta("display_revision", int(board["host_revision"]))
