@@ -11,9 +11,14 @@ import copy
 import json
 from pathlib import Path
 
-from tools import qualify_exp015_integration as a15
-from tools import exp015_stacked_qualification as stack
-from tools import qualify_exp014_a10 as baseline
+if __package__:
+    from . import qualify_exp015_integration as a15
+    from . import exp015_stacked_qualification as stack
+    from . import qualify_exp014_a10 as baseline
+else:
+    import qualify_exp015_integration as a15
+    import exp015_stacked_qualification as stack
+    import qualify_exp014_a10 as baseline
 
 ROOT = Path(__file__).resolve().parents[1]
 SUITE = "tests/integration/test_EXP015_A12_13_stale_snapshots.gd"
