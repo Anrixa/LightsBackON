@@ -668,7 +668,8 @@ func start_exp016_source_qualification(level_id: String,
 		true,  # enable_advanced_equipment
 		true,  # enable_advanced_policy
 		false,  # enable_advanced_cascade
-		true  # enable_advanced_discoveries)
+		true  # enable_advanced_discoveries
+	)
 
 
 func _session_id() -> String:
