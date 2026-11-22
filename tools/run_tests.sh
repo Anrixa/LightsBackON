@@ -426,6 +426,14 @@ else
   echo "skipped: no project.godot yet (task F01)"
 fi
 
+echo "== EXP021 A04: independent source/batch preflight and post-Godot stress evidence =="
+if [ -n "$PY" ]; then
+  "$PY" tools/qualify_exp021_a04.py --report build/exp021-a04/preflight.json || FAIL=1
+  "$PY" tools/qualify_exp021_a04.py --post-run --report build/exp021-a04/independent.json || FAIL=1
+else
+  echo "FAIL: Python required for EXP021 A04 evidence gate"; FAIL=1
+fi
+
 echo "== EXP018 A05: independent verification of Godot host replay evidence =="
 if [ -n "$PY" ]; then
   "$PY" tools/qualify_exp018_a05.py --post-run --report build/exp018-a05/independent-verification.json || FAIL=1

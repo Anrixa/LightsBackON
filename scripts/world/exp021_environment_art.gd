@@ -7,6 +7,7 @@ const Identity := preload("res://scripts/world/exp017_region_identity.gd")
 const Access := preload("res://scripts/world/exp017_site_access.gd")
 const WEATHER_SHADER: Shader = preload("res://assets/shaders/exp021_weathered_facility.gdshader")
 const QUALIFICATION: String = "SOURCE_HEADLESS_ONLY_PHYSICAL_HARDWARE_RELEASE_HELD"
+static var _shared_box_meshes: Dictionary = {}
 const CATEGORY_SHAPES: Array[String] = [
 	"distribution", "transport", "health", "commerce", "waterworks",
 	"communications", "education", "shelter"
@@ -52,8 +53,14 @@ static func _material(base_color: Color, rust_color: Color,
 
 static func _box(parent: Node3D, name: String, position: Vector3,
 		size: Vector3, material: Material) -> void:
-	var mesh: BoxMesh = BoxMesh.new()
-	mesh.size = size
+	# Immutable box templates are shared across the 200 authored sites. Their
+	# material instances remain site-specific and never leak host state.
+	var key: String = "%.3f|%.3f|%.3f" % [size.x, size.y, size.z]
+	if not _shared_box_meshes.has(key):
+		var built: BoxMesh = BoxMesh.new()
+		built.size = size
+		_shared_box_meshes[key] = built
+	var mesh: BoxMesh = _shared_box_meshes[key]
 	var visual: MeshInstance3D = MeshInstance3D.new()
 	visual.name = name
 	visual.mesh = mesh
@@ -146,3 +153,8 @@ static func attach(plan: Dictionary, regional: Node3D) -> Node3D:
 			Vector3(0.95, 0.07, 0.05), panel_mat)
 	regional.add_child(root)
 	return root
+
+
+## Bounded variant count is useful for source/headless memory diagnostics.
+static func cached_box_mesh_count() -> int:
+	return _shared_box_meshes.size()

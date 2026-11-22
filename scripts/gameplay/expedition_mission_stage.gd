@@ -14,6 +14,7 @@ const Exp017Presentation := preload("res://scripts/world/exp017_restoration_feed
 const Exp018Presentation := preload("res://scripts/world/exp018_host_presentation.gd")
 const Exp021Audio := preload("res://scripts/world/exp021_spatial_audio.gd")
 const Exp021Effects := preload("res://scripts/world/exp021_restoration_effects.gd")
+const Exp021Batch := preload("res://scripts/world/exp021_render_batch.gd")
 const Runtime := preload("res://scripts/gameplay/expedition_host_session.gd")
 const RegionalPanel := preload("res://scripts/ui/expedition_regional_panel.gd")
 const PlayerController := preload("res://scripts/actors/first_person_controller.gd")
@@ -129,6 +130,13 @@ func _ready() -> void:
 		return
 	world.name = "ExpeditionWorld"
 	add_child(world)
+	# EXP021 A04: optimize only the presentation-only art subtree.
+	# Preserve all host scene nodes, world colliders, task targets and identities.
+	var batch_report: Dictionary = Exp021Batch.optimize(world, plan)
+	if not bool(batch_report.get("ok", false)):
+		push_error("EXP021_A04_BATCH_SOURCE_HOLD: " + str(batch_report))
+	else:
+		set_meta("exp021_art_batch_count", int(batch_report["draw_batches"]))
 	# The stage is not derived from any C01/C03/C04 scene and has no save
 	# service. It cannot overwrite or migrate a completed campaign checkpoint.
 	player = PlayerController.new()
