@@ -679,11 +679,22 @@ func _bespoke_guard(player_id: String, kind: String, entity: String,
 		return _fail("EXP06_INVALID_HOST_PRINCIPAL")
 	if field_tools != null:
 		if kind == "operate_worksite" and entity == "R_WEST":
-			return field_tools.preflight_action(str(_payload.get("action", "")), _tool_facts())
+			# An auxiliary tool action is electrical work on the same real repair.
+			# Reuse the original hazard gate FIRST. Returning a positive tool
+			# verdict here would silently bypass the EXP06 repair lockout.
+			var electrical_safety: Dictionary = bespoke.preflight("repair_step", "R_WEST")
+			if not electrical_safety.get("ok", false):
+				return electrical_safety
+			var tool_safety: Dictionary = field_tools.preflight_action(
+				str(_payload.get("action", "")), _tool_facts())
+			if not tool_safety.get("ok", false):
+				return tool_safety
 		if kind == "repair_step" and entity == "R_WEST":
 			var guarded: Dictionary = field_tools.preflight_step(str(_payload.get("step", "")))
 			if not guarded.get("ok", false):
 				return guarded
+	# Keep all pre-existing EXP06 extraction, hazard and route checks active.
+	# No positive EXP019 tool decision may skip the original policy.
 	# Opt-in A09 extraction MUST be independently gated by a host-owned
 	# regional decision. Never trust a client-supplied preparation boolean.
 	if kind == "request_extract" and regional_network != null \

@@ -33,8 +33,11 @@ func configure(level_id: String) -> Dictionary:
 	return {"ok": true, "qualification": QUALIFICATION}
 
 
+## The host accepts an explicit empty equip to put the tool away. Mirror that
+## accepted transition too: retaining the previous item would authorize
+## a field action after a successful unequip.
 func accepted_equip(tool: String) -> void:
-	if ACTION_TO_TOOL.values().has(tool):
+	if tool == "" or ACTION_TO_TOOL.values().has(tool):
 		_equipped = tool
 
 

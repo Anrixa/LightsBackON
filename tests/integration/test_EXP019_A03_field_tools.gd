@@ -58,3 +58,51 @@ func test_EXP019_A03_stage_has_host_tool_authority_and_range_gate() -> void:
 	stage.free()
 	holder.get_parent().remove_child(holder)
 	holder.free()
+
+
+func test_EXP019_A03_accepted_unequip_revokes_tool_privileges() -> void:
+	var service: Tools = Tools.new()
+	assert_true(service.configure("LV_001").get("ok", false))
+	service.accepted_equip("meter")
+	assert_true(service.preflight_action("measure", _facts("undiagnosed")).get("ok", false))
+	service.accepted_equip("")
+	assert_eq(str(service.snapshot()["equipped"]), "")
+	assert_false(service.preflight_action("measure", _facts("undiagnosed")).get("ok", false))
+	assert_eq(int(service.snapshot()["revision"]), 0)
+	# A refused / unknown equip must not silently reactivate the old tool.
+	service.accepted_equip("unlisted_tool")
+	assert_eq(str(service.snapshot()["equipped"]), "")
+	assert_false(service.preflight_step("diagnose").get("ok", false))
+
+
+func test_EXP019_A03_original_hazard_lockout_also_blocks_field_operations() -> void:
+	# LV_005 is source-authored with hazard.blocks=both, active_ticks=10,
+	# phase_offset=4: repair access is forbidden on the first host tick.
+	var tree: SceneTree = Engine.get_main_loop() as SceneTree
+	var holder: Node3D = Node3D.new()
+	tree.root.add_child(holder)
+	var stage: Node3D = Scene.instantiate()
+	stage.set("level_id", "LV_005")
+	holder.add_child(stage)
+	var session: Runtime = stage.get("runtime") as Runtime
+	assert_true(session != null)
+	if session != null and session.bespoke != null:
+		var original: Dictionary = session.bespoke.preflight("repair_step", "R_WEST")
+		assert_false(bool(original.get("ok", false)))
+		assert_eq(str(original.get("code", "")), "EXP06_UNSAFE_HAZARD_WINDOW")
+		var sidecar: Dictionary = session.call("_bespoke_guard", Runtime.PLAYER_ID,
+			"operate_worksite", "R_WEST", {"action": "measure"})
+		assert_false(bool(sidecar.get("ok", false)))
+		assert_eq(str(sidecar.get("code", "")), str(original.get("code", "")),
+			"EXP019 field actions must not bypass original EXP06 hazard fencing")
+		# Real SessionHost ingress must reject the same operation before any
+		# accepted command can mutate the host-owned field-tool ledger.
+		var received: Dictionary = stage.call(
+			"_send", "operate_worksite", "R_WEST", {"action": "measure"})
+		assert_false(bool(received.get("ok", false)))
+		assert_eq(str(received.get("code", "")), str(original.get("code", "")))
+		assert_eq(int(session.field_tools.snapshot()["revision"]), 0)
+	holder.remove_child(stage)
+	stage.free()
+	holder.get_parent().remove_child(holder)
+	holder.free()
