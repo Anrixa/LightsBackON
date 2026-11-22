@@ -31,7 +31,10 @@ func test_EXP020_A01_real_persistent_receipts_project_25_regions_and_linked_site
 	assert_eq(int(one["restored_receipts"]), 1)
 	assert_eq(int(one["regions"]["REG_01"]["receipt_connected_sites"]), 1)
 	assert_false(bool(one["regions"]["REG_01"]["sites"]["LV_002"]["normal_path_receipt_connected"]))
-	assert_true(bool(one["regions"]["REG_01"]["sites"]["LV_002"]["potential_connected_gain"]) > 0)
+	# Gain is a cardinality, not a truth flag. Preserve its numeric source contract.
+	var projected_gain: Variant = one["regions"]["REG_01"]["sites"]["LV_002"]["potential_connected_gain"]
+	assert_eq(typeof(projected_gain), TYPE_INT, "source-derived planning gain must be an integer")
+	assert_true(int(projected_gain) > 0, "restoring the next available linked site has a positive gain")
 	_restore(profile, atlas, "LV_002")
 	var two: Dictionary = Consequences.evaluate(profile, atlas, routes, source)
 	assert_eq(int(two["regions"]["REG_01"]["receipt_connected_sites"]), 2)
