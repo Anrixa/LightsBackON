@@ -38,6 +38,7 @@ const SiteOutcomes := preload("res://scripts/gameplay/expedition_operational_con
 const SiteHazards := preload("res://scripts/gameplay/expedition_environment_hazards.gd")
 const SitePuzzles := preload("res://scripts/gameplay/expedition_investigation_chains.gd")
 const RegionalNetworks := preload("res://scripts/gameplay/expedition_regional_network.gd")
+const FieldTools := preload("res://scripts/gameplay/exp019_field_tools.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
 
@@ -71,6 +72,7 @@ var site_outcomes: SiteOutcomes
 var site_hazards: SiteHazards
 var site_puzzles: SitePuzzles
 var regional_network: RegionalNetworks
+var field_tools: FieldTools
 
 var _definitions: Dictionary = {}
 var _position_source: Callable
@@ -111,9 +113,12 @@ func start(level_id: String, host_position: Callable,
 		enable_site_outcomes: bool = false,
 		enable_site_hazards: bool = false,
 		enable_site_puzzles: bool = false,
-		enable_regional_networks: bool = false) -> Dictionary:
+		enable_regional_networks: bool = false,
+		enable_field_tools: bool = false) -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
+	if enable_field_tools and (not enable_worksite or not enable_bespoke):
+		return _fail("EXP019_A03_REQUIRES_HOST_WORKSITE")
 	if enable_devices and not enable_bespoke:
 		return _fail("EXP07_REQUIRES_EXP06")
 	if enable_faults and not enable_devices:
@@ -440,6 +445,12 @@ func start(level_id: String, host_position: Callable,
 		if not bool(puzzle_gate.get("ok", false)):
 			return _fail("EXP014_A08_SOURCE_INVALID", puzzle_gate)
 		_definitions["site_puzzles"] = site_puzzles.definition_snapshot()
+	if enable_field_tools:
+		field_tools = FieldTools.new()
+		var inspected: Dictionary = field_tools.configure(level_id)
+		if not inspected.get("ok", false):
+			return _fail("EXP019_A03_TOOL_SOURCE_INVALID", inspected)
+		_definitions["field_tools"] = field_tools.snapshot()
 	_position_source = host_position
 	_physics_visibility = physics_visibility
 	_account_key = account_key
@@ -519,6 +530,7 @@ func start(level_id: String, host_position: Callable,
 		"site_hazards_active": site_hazards != null,
 		"site_puzzles_active": site_puzzles != null,
 		"regional_network_active": regional_network != null,
+		"field_tools_active": field_tools != null,
 		"qualification": "AUTHORITY_SOURCE_HEADLESS_ONLY_NO_PLAYABILITY"}
 
 
@@ -527,6 +539,8 @@ func _session_id() -> String:
 
 
 func _content_revision() -> String:
+	if field_tools != null:
+		return "EXP019_A03_" + ("%s|five_tool_procedure_v1" % str(_definitions.get("source_fingerprint", ""))).sha256_text()
 	if regional_network != null:
 		return "EXP014_A09_" + ("%s|%s|%s" % [
 			str(_definitions.get("source_fingerprint", "")),
@@ -647,6 +661,9 @@ func receive(peer_id: int, message: PackedByteArray) -> Dictionary:
 			var snapshots: Dictionary = meter.canonical_state()["snapshots"]
 			if snapshots.has(panel):
 				_observed_inspections[panel] = true
+	if field_tools != null and command is Dictionary and \
+			str(command.get("type", "")) == "equip":
+		field_tools.accepted_equip(str((command.get("payload", {}) as Dictionary).get("tool", "")))
 	if bespoke != null and command is Dictionary:
 		bespoke.accepted(str(command.get("type", "")),
 			str(command.get("entity", "")), command.get("payload", {}),
@@ -660,6 +677,13 @@ func _bespoke_guard(player_id: String, kind: String, entity: String,
 		_payload: Dictionary) -> Dictionary:
 	if player_id != PLAYER_ID or bespoke == null:
 		return _fail("EXP06_INVALID_HOST_PRINCIPAL")
+	if field_tools != null:
+		if kind == "operate_worksite" and entity == "R_WEST":
+			return field_tools.preflight_action(str(_payload.get("action", "")), _tool_facts())
+		if kind == "repair_step" and entity == "R_WEST":
+			var guarded: Dictionary = field_tools.preflight_step(str(_payload.get("step", "")))
+			if not guarded.get("ok", false):
+				return guarded
 	# Opt-in A09 extraction MUST be independently gated by a host-owned
 	# regional decision. Never trust a client-supplied preparation boolean.
 	if kind == "request_extract" and regional_network != null \
@@ -856,9 +880,19 @@ func _puzzle_facts() -> Dictionary:
 	return facts
 
 
+func _tool_facts() -> Dictionary:
+	var west: Dictionary = grid.canonical_state()["nodes"]["WEST"]
+	return {"repair_state": interaction.repair_state("R_WEST"),
+		"isolated": bool(west["isolated"]), "west_failed": bool(west["failed"]),
+		"inspected": _observed_inspections.has("PANEL_WEST") and \
+			meter.canonical_state()["snapshots"].has("PANEL_WEST")}
+
+
 func _operate_worksite(player_id: String, entity: String, action: String) -> Dictionary:
 	if player_id != PLAYER_ID or worksite == null:
 		return _fail("EXP012_HOST_PRINCIPAL_INVALID")
+	if entity == "R_WEST" and field_tools != null:
+		return field_tools.operate(action, _tool_facts())
 	# These requests enter only through the existing SessionHost worksite intent,
 	# after its principal, sequence, dedupe, range and rate validation. The
 	# original board target is reused; there is no new network action RPC.
@@ -996,6 +1030,8 @@ func _worksite_snapshot() -> Dictionary:
 		state["site_puzzles"] = site_puzzles.snapshot()
 	if regional_network != null:
 		state["regional_network"] = regional_network.snapshot()
+	if field_tools != null:
+		state["field_tools"] = field_tools.snapshot()
 	return state
 
 

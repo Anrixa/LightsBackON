@@ -13,6 +13,7 @@ const ApproachView := preload("res://scripts/world/expedition_approach_view.gd")
 const Exp017Presentation := preload("res://scripts/world/exp017_restoration_feedback.gd")
 const Exp019Physical := preload("res://scripts/world/exp019_physical_worksite.gd")
 const Exp019Spatial := preload("res://scripts/world/exp019_spatial_tasks.gd")
+const Exp019FieldTools := preload("res://scripts/gameplay/exp019_field_tools.gd")
 const Runtime := preload("res://scripts/gameplay/expedition_host_session.gd")
 const RegionalPanel := preload("res://scripts/ui/expedition_regional_panel.gd")
 const PlayerController := preload("res://scripts/actors/first_person_controller.gd")
@@ -134,7 +135,7 @@ func _ready() -> void:
 	runtime = Runtime.new()
 	var result: Dictionary = runtime.start(
 		level_id, Callable(self, "_host_position"), Callable(self, "_world_sight"),
-		_expedition_account, _expedition_account != "", "", true, true, true, true, true, true, true, true, true, true, true, true, true, true, _regional_requested)
+		_expedition_account, _expedition_account != "", "", true, true, true, true, true, true, true, true, true, true, true, true, true, true, _regional_requested, true)
 	if not bool(result.get("ok", false)):
 		push_error("EXP03_HOST_START_FAILED: " + str(result))
 		return
@@ -465,12 +466,21 @@ func _next_repair() -> void:
 	if runtime.interaction.lock_owner("R_WEST") != Runtime.PLAYER_ID:
 		_send("request_lock", "R_WEST")
 		return
+	if runtime.field_tools != null:
+		var pending: Dictionary = runtime.field_tools.next_action(state)
+		if not pending.is_empty():
+			if TOOL_IDS[_selected_tool] != str(pending["tool"]):
+				_feedback.text = "Field procedure: equip %s, then interact to %s." % [pending["tool"], pending["action"]]
+				return
+			_send("operate_worksite", "R_WEST", {"action": pending["action"]})
+			return
 	var index: int = Interaction.STATES.find(state)
 	if index < 0 or index >= Interaction.STEPS.size():
 		return
 	var step: String = Interaction.STEPS[index]
 	var definition: Dictionary = (_definitions["repairs"]["repairs"] as Array)[0]
-	var required: String = str((definition["tools"] as Dictionary).get(step, ""))
+	var required: String = Exp019FieldTools.required_for_step(step) if runtime.field_tools != null else \
+		str((definition["tools"] as Dictionary).get(step, ""))
 	if required != "" and TOOL_IDS[_selected_tool] != required:
 		_feedback.text = "Equip %s before the %s repair step." % [required, step]
 		return
@@ -977,6 +987,10 @@ func _refresh() -> void:
 			str(status["hazard_kind"]), str(status["hazard_blocks"]),
 			"UNSAFE" if status["hazard_active"] else "SAFE",
 			int(status["safe_in_ticks"]), int(status["exposure_ticks"])])
+	if runtime.field_tools != null:
+		var gear: Dictionary = runtime.field_tools.snapshot()
+		lines.append("EXP019 FIVE TOOLS %d/6 operations • equipped %s • authenticated" % [
+			int(gear["completed_operations"]), str(gear["equipped"])])
 	if board.has("devices"):
 		var graph: Dictionary = board["devices"]
 		var done: int = 0
