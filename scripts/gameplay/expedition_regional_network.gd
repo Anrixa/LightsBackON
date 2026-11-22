@@ -222,6 +222,62 @@ func _live_nodes(include_ties: bool) -> Dictionary:
 	return energized
 
 
+## EXP015 A12.1: read-only source-derived anchor route and true blockers.
+## Never accepts a client-provided route or fabricates an EXP04 receipt.
+## Future authenticated host recovery actions must consume this original path.
+func anchor_route_snapshot() -> Dictionary:
+	if not _ready:
+		return _fail("NOT_CONFIGURED")
+	var root: String = str(_region["root_source_id"])
+	var anchor: String = str(_region["reserve_anchor_site"])
+	var incoming: Dictionary = {}
+	for edge: Dictionary in _region["primary_feeders"]:
+		var target: String = str(edge["to"])
+		if incoming.has(target):
+			return _fail("ANCHOR_ROUTE_DUPLICATE_SOURCE")
+		incoming[target] = edge
+	var current: String = anchor
+	var visited: Dictionary = {}
+	var reversed_edges: Array[Dictionary] = []
+	while current != root:
+		if not incoming.has(current) or visited.has(current):
+			return _fail("ANCHOR_ROUTE_SOURCE_DISCONNECTED")
+		visited[current] = true
+		var original: Dictionary = incoming[current]
+		reversed_edges.append(original)
+		current = str(original["from"])
+	reversed_edges.reverse()
+	var nodes: Array[String] = [root]
+	var edges: Array[Dictionary] = []
+	var blockers: Array[Dictionary] = []
+	if not _restored.has(root):
+		blockers.append({"code": "ORIGINAL_RECEIPT_MISSING", "site_id": root})
+	for original: Dictionary in reversed_edges:
+		var key: String = str(original["edge_id"])
+		var target: String = str(original["to"])
+		nodes.append(target)
+		edges.append({"edge_id": key, "from": str(original["from"]),
+			"to": target, "isolated": _isolated.has(key),
+			"fault": str(_faulted.get(key, ""))})
+		if not _restored.has(target):
+			blockers.append({"code": "ORIGINAL_RECEIPT_MISSING", "site_id": target})
+		if _isolated.has(key):
+			blockers.append({"code": "ORIGINAL_FEEDER_FAULT" if _faulted.has(key)
+				else "ORIGINAL_FEEDER_ISOLATED", "edge_id": key})
+	var live: Dictionary = _live_nodes(true)
+	var energized: bool = live.has(anchor)
+	var at_finale: bool = _site_id == str(_region["shelter_service_site"])
+	var can_pay: bool = at_finale and energized and _engaged.is_empty() \
+		and _service_debt > 0 and _reserve >= _service_debt
+	return {"ok": true, "region_id": str(_region["region_id"]),
+		"level_id": _site_id, "root_source_site_id": root,
+		"reserve_anchor_site_id": anchor, "original_site_path": nodes,
+		"original_feeder_path": edges, "blockers": blockers,
+		"anchor_energized": energized, "debt_settlement_eligible": can_pay,
+		"reserve_pu": _reserve, "service_debt_pu": _service_debt,
+		"standby_engaged": not _engaged.is_empty(), "qualification": QUALIFICATION}
+
+
 func _record(action: String, edge: String) -> void:
 	_events.append({"sequence": _events.size() + 1, "action": action, "asset": edge})
 
