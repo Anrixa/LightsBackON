@@ -86,6 +86,10 @@ if [ -n "$PY" ]; then
   "$PY" tools/validate_exp014_a10.py --report build/exp014-a10-1/source-audit.json || FAIL=1
 fi
 
+echo "== EXP016 A01: semantic mechanics variation and duplicate diagnosis =="
+if [ -n "$PY" ]; then
+  "$PY" tools/audit_exp016_mechanical_diversity.py --report build/exp016-a01/mechanical-diversity.json || FAIL=1
+fi
 echo "== EXP014 A10.4: source/legacy baseline, A10 host test inventory and release hold gate =="
 if [ -n "$PY" ]; then
   "$PY" tools/qualify_exp014_a10.py --report build/exp014-a10-4/source-gate.json || FAIL=1
@@ -136,6 +140,48 @@ if [ -n "$PY" ]; then
   "$PY" tools/validate_exp015_entries.py --report build/exp015-a09/source-audit.json || FAIL=1
 fi
 
+echo "== EXP016 A02: 50 source-bound cases, 100 distinct host-authoritative routes =="
+if [ -n "$PY" ]; then
+  "$PY" tools/validate_exp016_casework.py || FAIL=1
+  "$PY" -m unittest discover -s tools -p 'test_exp016_casework.py' -v || FAIL=1
+fi
+
+echo "== EXP016 A03: source-validated dual-probe diagnoses, 50 levels and 100 recovery routes =="
+if [ -n "$PY" ]; then "$PY" tools/validate_exp016_a03.py || FAIL=1; fi
+
+echo "== EXP016 A04: 50 finite host-evidence graphs, both routes and token conservation =="
+if [ -n "$PY" ]; then "$PY" tools/validate_exp016_a04.py || FAIL=1; fi
+
+echo "== EXP016 A05: LV_151-LV_200 finite source-attested case completion =="
+if [ -n "$PY" ]; then "$PY" tools/validate_exp016_a05.py || FAIL=1; fi
+
+echo "== EXP016 A06: 200 source-pinned concurrent fault conditions =="
+if [ -n "$PY" ]; then
+  "$PY" tools/validate_exp016_a06.py || FAIL=1
+  "$PY" -m unittest discover -s tools -p 'test_exp016_a06.py' -v || FAIL=1
+fi
+
+echo "== EXP016 A07: source-pinned hazard operation order and preemption, 200 sites =="
+if [ -n "$PY" ]; then "$PY" tools/validate_exp016_a07.py || FAIL=1; fi
+
+echo "== EXP016 A08: host-admitted tool selection and bounded genuine worksite reserves =="
+if [ -n "$PY" ]; then "$PY" tools/validate_exp016_a08.py || FAIL=1; fi
+
+echo "== EXP016 A09: 400 source-pinned nonlinear priority/resilience policy outcomes =="
+if [ -n "$PY" ]; then "$PY" tools/validate_exp016_a09.py || FAIL=1; fi
+
+echo "== EXP016 A10: 25-region owner-scoped source graph cascade continuity =="
+if [ -n "$PY" ]; then "$PY" tools/validate_exp016_a10.py || FAIL=1; fi
+
+echo "== EXP016 A11: 200 source-attested optional discoveries and preserved lore receipts =="
+if [ -n "$PY" ]; then "$PY" tools/validate_exp016_a11.py || FAIL=1; fi
+
+echo "== EXP016 A12: all 200 cases, 400 host operation routes, full original-source oracles =="
+if [ -n "$PY" ]; then
+  "$PY" tools/qualify_exp016_a12.py --report build/exp016-a12/qualification.json || FAIL=1
+  "$PY" -m unittest discover -s tools -p 'test_exp016_a12.py' -v || FAIL=1
+fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 
@@ -175,6 +221,10 @@ fi
 echo "== EXP018 A01: regression repairs, immutable source, dual-platform CI gate =="
 if [ -n "$PY" ]; then
   "$PY" tools/qualify_exp018_a01.py --report build/exp018-a01/qualification.json || FAIL=1
+fi
+echo "== EXP018 A02: integration ancestry and immutable source bindings =="
+if [ -n "$PY" ]; then
+  "$PY" tools/qualify_exp018_a02.py --report build/exp018-a02/qualification.json || FAIL=1
 fi
 echo "== python reference model (re-derived, reference/tests) =="
 if [ -d reference/tests ] && [ -n "$PY" ]; then
