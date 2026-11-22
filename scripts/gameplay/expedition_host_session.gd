@@ -641,6 +641,36 @@ func start(level_id: String, host_position: Callable,
 		"qualification": "AUTHORITY_SOURCE_HEADLESS_ONLY_NO_PLAYABILITY"}
 
 
+## EXP016 A12 internal source/headless qualifier. Not a player-launch path:
+## opt-in full EXP016 source stack excluding authenticated regional campaigns.
+## No new RPC, production save, credits, or release/certification promise.
+func start_exp016_source_qualification(level_id: String,
+		host_position: Callable) -> Dictionary:
+	return start(level_id, host_position, Callable(), "", false, "",
+		true,  # enable_bespoke
+		true,  # enable_devices
+		true,  # enable_faults
+		true,  # enable_consequences
+		true,  # enable_logistics
+		true,  # enable_balance
+		true,  # enable_worksite
+		true,  # enable_site_a02
+		true,  # enable_site_exp013
+		true,  # enable_site_contingency
+		true,  # enable_site_approach
+		true,  # enable_site_outcomes
+		true,  # enable_site_hazards
+		true,  # enable_site_puzzles
+		false,  # enable_regional_networks
+		true,  # enable_advanced_cases
+		true,  # enable_advanced_fault_layers
+		true,  # enable_advanced_environment
+		true,  # enable_advanced_equipment
+		true,  # enable_advanced_policy
+		false,  # enable_advanced_cascade
+		true  # enable_advanced_discoveries)
+
+
 func _session_id() -> String:
 	return "S_EXP03_" + str(_definitions.get("level_id", "UNKNOWN"))
 

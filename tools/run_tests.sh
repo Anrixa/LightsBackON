@@ -131,6 +131,12 @@ if [ -n "$PY" ]; then "$PY" tools/validate_exp016_a10.py || FAIL=1; fi
 echo "== EXP016 A11: 200 source-attested optional discoveries and preserved lore receipts =="
 if [ -n "$PY" ]; then "$PY" tools/validate_exp016_a11.py || FAIL=1; fi
 
+echo "== EXP016 A12: all 200 cases, 400 host operation routes, full original-source oracles =="
+if [ -n "$PY" ]; then
+  "$PY" tools/qualify_exp016_a12.py --report build/exp016-a12/qualification.json || FAIL=1
+  "$PY" -m unittest discover -s tools -p 'test_exp016_a12.py' -v || FAIL=1
+fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 

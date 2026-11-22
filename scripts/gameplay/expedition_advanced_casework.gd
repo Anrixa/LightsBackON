@@ -463,7 +463,8 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 		_route = chosen
 		var route: Dictionary = _spec["routes"][_route]
 		_kits = int(route["initial_kits"])
-		_liabilities = int(route["liability_on_select"])
+		# Preserve previously incurred diagnosis and hazard liabilities.
+		_liabilities += int(route["liability_on_select"])
 		_tokens.clear()
 		for item: String in route.get("initial_tokens", []):
 			_tokens[item] = int(_tokens.get(item, 0)) + 1
@@ -480,7 +481,10 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 		else:
 			# Before route choice there is no allocated kit; incorrect diagnosis
 			# already debits one safety liability and is recoverable once re-probed.
-			_probes.clear()
+			if _recovery_phase == "layered_evidence":
+				_layer_probes.clear()
+			else:
+				_probes.clear()
 		_recoveries += 1
 		_phase = _recovery_phase
 		_record("recovered")
