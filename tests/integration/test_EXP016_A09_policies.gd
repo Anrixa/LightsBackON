@@ -31,6 +31,14 @@ func test_EXP016_A09_200_real_nonlinear_service_policies() -> void:
 			assert_true(bool(work.configure(case_source).get("ok",false)))
 			assert_true(bool(work.bind_source_policy(policy).get("ok",false)))
 			assert_true(bool(work.begin().get("ok",false)))
+			if case_source.has("diagnosis"):
+				assert_true(bool(work.operate(str(targets["A"]),
+					"case_probe_a",_facts()).get("ok",false)))
+				assert_true(bool(work.operate(str(targets["B"]),
+					"case_probe_b",_facts()).get("ok",false)))
+				assert_true(bool(work.operate(str(targets["C"]),
+					"case_identify:" + str(case_source["diagnosis"]["fault_class"]),
+					_facts()).get("ok",false)))
 			assert_eq(str(work.snapshot()["phase"]),"policy_choose")
 			var mode: String = str(policy["options"][choice]["route"])
 			assert_false(bool(work.operate(str(targets["A"]),
