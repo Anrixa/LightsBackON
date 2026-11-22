@@ -160,6 +160,10 @@ echo "== EXP015 A12.1: 25 original reserve-anchor feeder paths, real dark-route 
 if [ -n "$PY" ]; then
   "$PY" tools/validate_exp015_anchor_routes.py --report build/exp015-a12/source-audit.json || FAIL=1
 fi
+echo "== EXP015 A12.16: protected-source and inherited CI coverage gate =="
+if [ -n "$PY" ]; then
+  "$PY" tools/exp015_stacked_qualification.py --report build/exp015-a12-16/source-gate.json || FAIL=1
+fi
 echo "== EXP015 A12.3: adversarial original feeder recovery versus missing receipts =="
 if [ -n "$PY" ]; then
   "$PY" tools/validate_exp015_anchor_recovery.py --report build/exp015-a12-3/source-audit.json || FAIL=1
