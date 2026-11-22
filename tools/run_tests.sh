@@ -60,6 +60,10 @@ if [ -n "$PY" ]; then "$PY" tools/validate_exp014_composition.py || FAIL=1; fi
 echo "== EXP014 A02: 200 source-pinned host contingencies, all 400 route oracles and >=150 noncosmetic structures =="
 if [ -n "$PY" ]; then "$PY" tools/validate_exp014_contingencies.py || FAIL=1; fi
 
+echo "== EXP017 A01: 25 distinct source-matched regional landmark mesh structures =="
+if [ -n "$PY" ]; then
+  "$PY" tools/validate_exp017_landmarks.py --report build/exp017-a01/visual-morphology.json || FAIL=1
+fi
 echo "== EXP014 A03: 25 authored regional facility geometries, all 200 source sites, task standoffs =="
 if [ -n "$PY" ]; then "$PY" tools/validate_exp014_regions.py || FAIL=1; fi
 

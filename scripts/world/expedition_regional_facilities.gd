@@ -1,4 +1,5 @@
 extends RefCounted
+const Landmarks := preload("res://scripts/world/expedition_regional_landmarks.gd")
 ## EXP014 A03: 25 source-pinned regional facility families with environmental
 ## evidence. Entirely visual and deterministic: no CollisionObject3D, Area3D,
 ## navigation, player commands, host verdicts, save or network interaction.
@@ -115,6 +116,11 @@ static func inspect(plan: Dictionary) -> Dictionary:
 	if region != "REG_%02d" % region_number or not RECIPES.has(region):
 		return _reject("EXP014_A03_FOREIGN_REGION")
 	var recipe: Dictionary = RECIPES[region]
+	# EXP017 only extends source-matched visual detail; an injected region
+	# must not choose a foreign landmark or alter a host hazard state.
+	var landmark: Dictionary = Landmarks.inspect(region, str(recipe["cue"]))
+	if not bool(landmark.get("ok", false)):
+		return _reject("EXP017_A01_LANDMARK_SOURCE_DRIFT")
 	if plan.get("hazard") != recipe["risk"] or \
 			not SITE_CATEGORIES.has(str(plan.get("category", ""))):
 		return _reject("EXP014_A03_SOURCE_RISK_DRIFT")
@@ -143,8 +149,9 @@ static func inspect(plan: Dictionary) -> Dictionary:
 	var form_names: Array[String] = []
 	for form: Variant in forms:
 		form_names.append(str(form))
-	var geometry_sig: String = ("%s|%s" % [
-		",".join(form_names), str(recipe["cue"])]).sha256_text()
+	var geometry_sig: String = ("%s|%s|%s" % [
+		",".join(form_names), str(recipe["cue"]),
+		str(landmark["structural_signature"])]).sha256_text()
 	var site_sig: String = ("%s|%s|%s|%s" % [
 		level, region, str(site["anchor"]), geometry_sig]).sha256_text()
 	return {"ok": true, "region_id": region, "level_id": level,
@@ -340,6 +347,14 @@ static func build(plan: Dictionary) -> Node3D:
 		unit.set_meta("source_region", str(audit["region_id"]))
 		complex.add_child(unit)
 		_form(unit, str(forms[i]), color)
+	# Keep the certified A03 scene hierarchy intact (two root groups,
+	# exactly four original facility nodes). Add the visual-only landmark
+	# under the first structural form; source/world authority is untouched.
+	var original_unit: Node3D = complex.get_child(0) as Node3D
+	var hero: Node3D = Landmarks.build(str(audit["region_id"]),
+		str(recipe["cue"]), color)
+	if hero != null:
+		original_unit.add_child(hero)
 	var encounter: Node3D = Node3D.new()
 	encounter.name = "EnvironmentalEncounter"
 	root.add_child(encounter)
