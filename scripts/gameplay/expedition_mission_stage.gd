@@ -770,7 +770,7 @@ func _refresh() -> void:
 		if worksite.has("site_a02") or worksite.has("site_exp013"):
 			var new_site: bool = worksite.has("site_exp013")
 			var authored: Dictionary = worksite["site_exp013"] if new_site else worksite["site_a02"]
-			var badge: String = "EXP013 A01" if new_site else "EXP012 A02"
+			var badge: String = ("EXP013 " + str(_definitions.get("site_exp013_phase", "A01"))) if new_site else "EXP012 A02"
 			lines.append("%s / %s / %s" % [badge,
 				str(authored["title"]), str(authored["stakes"])])
 			lines.append("%s route %s / procedure %d/%d / %s / failure %s / recovery %d" % [

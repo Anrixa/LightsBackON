@@ -48,6 +48,9 @@ if [ -n "$PY" ]; then "$PY" tools/validate_exp012_a02_sites.py || FAIL=1; fi
 echo "== EXP013 A01: 40 additional authored sites / 80 route replays / source pins =="
 if [ -n "$PY" ]; then "$PY" tools/validate_exp013_sites.py || FAIL=1; fi
 
+echo "== EXP013 A02-A04: all available 40-site expansions and recovery oracles =="
+if [ -n "$PY" ]; then "$PY" tools/validate_exp013_expansions.py || FAIL=1; fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 
