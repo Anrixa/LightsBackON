@@ -981,10 +981,23 @@ func _bespoke_guard(player_id: String, kind: String, entity: String,
 		_payload: Dictionary) -> Dictionary:
 	if player_id != PLAYER_ID or bespoke == null:
 		return _fail("EXP06_INVALID_HOST_PRINCIPAL")
-	# An obsolete campaign dispatch may not request extraction from an
-	# earlier worksite state. This is source-only, not a new client RPC.
-	if kind == "request_extract" and not _regional_dispatch_current():
-		return _fail("EXP015_A12_9_STALE_HOST_DISPATCH")
+	# A12.10: SessionHost invokes this guard AFTER principal, session ID,
+	# sequence and dedupe checks, BEFORE dispatching any host intent.
+	# Worksite and extraction retain the A12.9 denial code; obsolete
+	# anchor_* continues to reach the A12.6 controller's original fence.
+	# All other intents (including collectible, grid, repair and devices)
+	# are denied before they can mutate the earlier session's state.
+	if not _regional_dispatch_current():
+		if kind == "operate_worksite":
+			var old_anchor: bool = regional_anchor_recovery != null and \
+				entity == str(worksite.definition_snapshot()["board"]) and \
+				str(_payload.get("action", "")).begins_with("anchor_")
+			if old_anchor:
+				return {"ok": true}
+			return _fail("EXP015_A12_9_STALE_HOST_DISPATCH")
+		if kind == "request_extract":
+			return _fail("EXP015_A12_9_STALE_HOST_DISPATCH")
+		return _fail("EXP015_A12_10_STALE_HOST_INTENT")
 	# Opt-in A09 extraction MUST be independently gated by a host-owned
 	# regional decision. Never trust a client-supplied preparation boolean.
 	if kind == "request_extract" and regional_network != null \
