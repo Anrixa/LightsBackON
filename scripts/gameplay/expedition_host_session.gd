@@ -36,6 +36,7 @@ const SiteContingencies := preload("res://scripts/gameplay/expedition_site_conti
 const SiteApproach := preload("res://scripts/gameplay/expedition_approach_intelligence.gd")
 const SiteOutcomes := preload("res://scripts/gameplay/expedition_operational_consequences.gd")
 const SiteHazards := preload("res://scripts/gameplay/expedition_environment_hazards.gd")
+const SitePuzzles := preload("res://scripts/gameplay/expedition_investigation_chains.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
 
@@ -67,6 +68,7 @@ var site_contingency: SiteContingencies
 var site_approach: SiteApproach
 var site_outcomes: SiteOutcomes
 var site_hazards: SiteHazards
+var site_puzzles: SitePuzzles
 
 var _definitions: Dictionary = {}
 var _position_source: Callable
@@ -105,7 +107,8 @@ func start(level_id: String, host_position: Callable,
 		enable_site_contingency: bool = false,
 		enable_site_approach: bool = false,
 		enable_site_outcomes: bool = false,
-		enable_site_hazards: bool = false) -> Dictionary:
+		enable_site_hazards: bool = false,
+		enable_site_puzzles: bool = false) -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
 	if enable_devices and not enable_bespoke:
@@ -132,6 +135,8 @@ func start(level_id: String, host_position: Callable,
 		return _fail("EXP014_A06_REQUIRES_A05_RECON")
 	if enable_site_hazards and not enable_site_outcomes:
 		return _fail("EXP014_A07_REQUIRES_A06_OUTCOMES")
+	if enable_site_puzzles and not enable_site_hazards:
+		return _fail("EXP014_A08_REQUIRES_A07_ENVIRONMENT")
 	if account_key != "" and not SaveService.is_valid_key(account_key):
 		return _fail("INVALID_ACCOUNT_KEY")
 	if not host_position.is_valid() or (physics_visibility.is_valid() and not host_position.is_valid()):
@@ -410,6 +415,17 @@ func start(level_id: String, host_position: Callable,
 		if not bool(hazard_gate.get("ok", false)):
 			return _fail("EXP014_A07_SOURCE_INVALID", hazard_gate)
 		_definitions["site_hazards"] = site_hazards.definition_snapshot()
+	# Explicit per-case evidence graphs retain existing SC target authority.
+	if enable_site_puzzles:
+		var puzzle_book: Dictionary = SitePuzzles.load_book()
+		var case_source: Dictionary = site_contingency.definition_snapshot()
+		var puzzle_entry: Dictionary = SitePuzzles.entry_for(puzzle_book, level_id)
+		site_puzzles = SitePuzzles.new()
+		var puzzle_gate: Dictionary = site_puzzles.configure(
+			case_source, puzzle_entry, site_hazards.definition_snapshot())
+		if not bool(puzzle_gate.get("ok", false)):
+			return _fail("EXP014_A08_SOURCE_INVALID", puzzle_gate)
+		_definitions["site_puzzles"] = site_puzzles.definition_snapshot()
 	_position_source = host_position
 	_physics_visibility = physics_visibility
 	_account_key = account_key
@@ -487,6 +503,7 @@ func start(level_id: String, host_position: Callable,
 		"site_approach_active": site_approach != null,
 		"site_outcomes_active": site_outcomes != null,
 		"site_hazards_active": site_hazards != null,
+		"site_puzzles_active": site_puzzles != null,
 		"qualification": "AUTHORITY_SOURCE_HEADLESS_ONLY_NO_PLAYABILITY"}
 
 
@@ -495,6 +512,12 @@ func _session_id() -> String:
 
 
 func _content_revision() -> String:
+	if site_puzzles != null:
+		return "EXP014_A08_" + ("%s|%s|%s|%s" % [
+			str(_definitions.get("source_fingerprint", "")),
+			JSON.stringify(site_approach.definition_snapshot()),
+			JSON.stringify(site_hazards.definition_snapshot()),
+			JSON.stringify(site_puzzles.definition_snapshot())]).sha256_text()
 	if site_hazards != null:
 		return "EXP014_A07_" + ("%s|%s|%s|%s" % [
 			str(_definitions.get("source_fingerprint", "")),
@@ -640,6 +663,8 @@ func _bespoke_guard(player_id: String, kind: String, entity: String,
 		return _fail("EXP014_A06_OUTCOMES_INCOMPLETE")
 	if kind == "request_extract" and site_hazards != null and not site_hazards.solved():
 		return _fail("EXP014_A07_ENVIRONMENT_UNVERIFIED")
+	if kind == "request_extract" and site_puzzles != null and not site_puzzles.solved():
+		return _fail("EXP014_A08_INVESTIGATION_INCOMPLETE")
 	if kind == "operate_worksite" and (worksite == null or \
 			(not worksite.target_ids().has(entity) and \
 			(site_a02 == null or not site_a02.target_ids().has(entity)) and \
@@ -798,6 +823,13 @@ func _hazard_facts() -> Dictionary:
 	return facts
 
 
+func _puzzle_facts() -> Dictionary:
+	var facts: Dictionary = _hazard_facts()
+	facts["hazard_safe"] = site_hazards != null and site_hazards.can_operate()
+	facts["recon_route"] = site_approach.selected_route() if site_approach != null else ""
+	return facts
+
+
 func _operate_worksite(player_id: String, entity: String, action: String) -> Dictionary:
 	if player_id != PLAYER_ID or worksite == null:
 		return _fail("EXP012_HOST_PRINCIPAL_INVALID")
@@ -815,6 +847,8 @@ func _operate_worksite(player_id: String, entity: String, action: String) -> Dic
 			return plan_reply
 		if site_hazards != null and site_hazards.needs_action():
 			return site_hazards.operate(entity, action, _hazard_facts())
+		if site_puzzles != null and site_puzzles.needs_action():
+			return site_puzzles.operate(entity, action, _puzzle_facts())
 		if site_outcomes != null and site_outcomes.needs_action():
 			return site_outcomes.operate(entity, action, _outcome_facts())
 		if site_contingency != null and active.solved():
@@ -826,6 +860,11 @@ func _operate_worksite(player_id: String, entity: String, action: String) -> Dic
 			entity != str(worksite.definition_snapshot()["board"]) and \
 			not site_hazards.can_operate():
 		return _fail("EXP014_A07_HAZARD_LOCKED")
+	# Existing work order cannot bypass a newly required investigation graph.
+	if site_puzzles != null and worksite.target_ids().has(entity) and \
+			entity != str(worksite.definition_snapshot()["board"]) and \
+			not site_puzzles.solved():
+		return _fail("EXP014_A08_INVESTIGATION_REQUIRED")
 	# The A01 choice and one authored site overlay must agree atomically.
 	# An attempted reroute after intervention begins cannot fork host states.
 	if active != null and entity == str(worksite.definition_snapshot()["decision"]) and \
@@ -874,6 +913,10 @@ func _worksite_tick() -> void:
 		if not site_hazards.started() and site_outcomes.prepared():
 			site_hazards.begin(site_outcomes.snapshot())
 		site_hazards.advance(_hazard_facts())
+	if site_puzzles != null:
+		if not site_puzzles.started() and str(site_hazards.snapshot().get("phase", "")) == "contained":
+			site_puzzles.begin(site_hazards.snapshot())
+		site_puzzles.advance(_puzzle_facts())
 
 
 func _worksite_snapshot() -> Dictionary:
@@ -892,6 +935,8 @@ func _worksite_snapshot() -> Dictionary:
 		state["site_outcomes"] = site_outcomes.snapshot()
 	if site_hazards != null:
 		state["site_hazards"] = site_hazards.snapshot()
+	if site_puzzles != null:
+		state["site_puzzles"] = site_puzzles.snapshot()
 	return state
 
 

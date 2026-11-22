@@ -52,6 +52,8 @@ var _approach_view: Node3D
 var _approach_choice: String = "guarded"
 var _outcome_choice: String = "buffer"
 var _hazard_choice: String = "engineered"
+var _puzzle_path: String = "forensic"
+var _puzzle_option: int = 0
 var _fault_route: String = "isolate"
 var _consequence_choice: String = "isolate"
 var _logistics_route: String = "direct"
@@ -121,7 +123,7 @@ func _ready() -> void:
 	runtime = Runtime.new()
 	var result: Dictionary = runtime.start(
 		level_id, Callable(self, "_host_position"), Callable(self, "_world_sight"),
-		_expedition_account, _expedition_account != "", "", true, true, true, true, true, true, true, true, true, true, true, true, true)
+		_expedition_account, _expedition_account != "", "", true, true, true, true, true, true, true, true, true, true, true, true, true, true)
 	if not bool(result.get("ok", false)):
 		push_error("EXP03_HOST_START_FAILED: " + str(result))
 		return
@@ -545,6 +547,35 @@ func _activate_hazard_target() -> void:
 	_send("operate_worksite", _target, {"action": action})
 
 
+## A08 offers real parallel evidence choices. The host derives the available
+## DAG frontier; O cycles possible steps and P chooses the investigation path.
+func _activate_puzzle_target() -> void:
+	if runtime.site_puzzles == null:
+		return
+	var state: Dictionary = runtime.site_puzzles.snapshot()
+	var action: String = ""
+	if str(state["phase"]) == "fault":
+		if _target == str(state["recovery_target"]):
+			action = "recover"
+	elif str(state["phase"]) == "choose":
+		for item: Dictionary in state["choices"]:
+			if str(item["mode"]) == _puzzle_path and _target == str(item["target"]):
+				action = str(item["action"])
+				break
+	elif str(state["phase"]) == "running":
+		var options: Array = state["available"]
+		if not options.is_empty():
+			_puzzle_option = posmod(_puzzle_option, options.size())
+			var option: Dictionary = options[_puzzle_option]
+			if _target == str(option["target"]):
+				action = str(option["action"])
+	if action != "":
+		_send("operate_worksite", _target, {"action": action})
+		_puzzle_option = 0
+	elif _feedback != null:
+		_feedback.text = "A08: follow host evidence frontier; P path / O next proof."
+
+
 func _activate_target() -> void:
 	if _target == "":
 		return
@@ -557,6 +588,9 @@ func _activate_target() -> void:
 			return
 		if runtime.site_hazards != null and runtime.site_hazards.needs_action():
 			_activate_hazard_target()
+			return
+		if runtime.site_puzzles != null and runtime.site_puzzles.needs_action():
+			_activate_puzzle_target()
 			return
 		if runtime.site_outcomes != null and runtime.site_outcomes.needs_action():
 			_activate_outcome_target()
@@ -771,6 +805,22 @@ func _unhandled_input(event: InputEvent) -> void:
 		_hazard_choice = "temporary" if _hazard_choice == "engineered" else "engineered"
 		if _feedback != null:
 			_feedback.text = "EXP014 A07 containment choice: " + _hazard_choice.to_upper()
+		_refresh()
+		get_viewport().set_input_as_handled()
+		return
+	if event is InputEventKey and event.physical_keycode == KEY_P and not event.ctrl_pressed and not event.alt_pressed:
+		_puzzle_path = "field" if _puzzle_path == "forensic" else "forensic"
+		_puzzle_option = 0
+		if _feedback != null:
+			_feedback.text = "EXP014 A08 investigation choice: " + _puzzle_path.to_upper()
+		_refresh()
+		get_viewport().set_input_as_handled()
+		return
+	if event is InputEventKey and event.physical_keycode == KEY_O and not event.ctrl_pressed and not event.alt_pressed:
+		if runtime.site_puzzles != null:
+			var options: Array = runtime.site_puzzles.snapshot()["available"]
+			if not options.is_empty():
+				_puzzle_option = (_puzzle_option + 1) % options.size()
 		_refresh()
 		get_viewport().set_input_as_handled()
 		return
@@ -1061,6 +1111,34 @@ func _refresh() -> void:
 				str(hazard["fault"]) if hazard["fault"] != "" else "none"])
 		if bool(hazard["solved"]):
 			lines.append("A07 ENVIRONMENT VERIFIED BY HOST (source/headless only)")
+	if board.has("worksite") and board["worksite"].has("site_puzzles"):
+		var puzzle: Dictionary = board["worksite"]["site_puzzles"]
+		lines.append("EXP014 A08 EVIDENCE %s • %s • %d/%d verified • kits %d • liabilities %d • failures %d / recoveries %d" % [
+			str(puzzle["phase"]).to_upper(), str(puzzle["mode"]),
+			int(puzzle["completed"]), int(puzzle["total"]),
+			int(puzzle["kits"]), int(puzzle["liabilities"]),
+			int(puzzle["failures"]), int(puzzle["recoveries"])])
+		if str(puzzle["phase"]) == "choose":
+			lines.append("A08 path P: %s • FORENSIC uses finite instrument kits / FIELD uses seven source witnesses" % _puzzle_path.to_upper())
+			for option: Dictionary in puzzle["choices"]:
+				lines.append("  %s • begin at %s (%d evidence nodes)" % [
+					str(option["mode"]), str(option["target"]), int(option["steps"])])
+		elif str(puzzle["phase"]) == "running":
+			var ready: Array = puzzle["available"]
+			if not ready.is_empty():
+				_puzzle_option = posmod(_puzzle_option, ready.size())
+				for i: int in range(ready.size()):
+					var proof: Dictionary = ready[i]
+					lines.append("%s %s at %s • source %s • guard %s • kit %d" % [
+						"SELECTED" if i == _puzzle_option else "READY",
+						str(proof["kind"]), str(proof["target"]),
+						str(proof["source_action"]), str(proof["guard"]), int(proof["cost"])])
+			lines.append("O: cycle independent evidence • E: submit host proof at selected station")
+		elif str(puzzle["phase"]) == "fault":
+			lines.append("A08 FAULT %s • recover at %s, retained kit costs" % [
+				str(puzzle["fault"]), str(puzzle["recovery_target"])])
+		elif bool(puzzle["solved"]):
+			lines.append("A08 HOST-VERIFIED INVESTIGATION COMPLETE; existing worksite route remains locked.")
 	_task_label.text = "\n".join(lines)
 	if _target_label != null:
 		_target_label.text = "Target: %s  /  tool: %s  /  host revision: %d" % [
