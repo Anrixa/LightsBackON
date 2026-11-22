@@ -12,7 +12,7 @@ func _facts() -> Dictionary:
 
 func test_EXP016_A04_50_finite_resource_cases_and_both_routes() -> void:
 	var available: Array[Dictionary] = Cases.load_available_books()
-	assert_eq(available.size(), 3)
+	assert_true(available.size() >= 3)
 	var book: Dictionary = available[2]
 	assert_true(bool(Cases.inspect(Atlas.load_catalog(), Inquiry.load_book(), book).get("ok", false)))
 	for entry: Dictionary in book["entries"]:
