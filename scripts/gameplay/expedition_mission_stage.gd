@@ -137,7 +137,7 @@ func _ready() -> void:
 	runtime = Runtime.new()
 	var result: Dictionary = runtime.start(
 		level_id, Callable(self, "_host_position"), Callable(self, "_world_sight"),
-		_expedition_account, _expedition_account != "", "", true, true, true, true, true, true, true, true, true, true, true, true, true, true, _regional_requested, true)
+		_expedition_account, _expedition_account != "", "", true, true, true, true, true, true, true, true, true, true, true, true, true, true, _regional_requested, true, true)
 	if not bool(result.get("ok", false)):
 		push_error("EXP03_HOST_START_FAILED: " + str(result))
 		return
@@ -709,7 +709,13 @@ func _activate_target() -> void:
 		var order: Dictionary = runtime.worksite.definition_snapshot()
 		var state: Dictionary = runtime.worksite.snapshot()
 		if _target == str(order["board"]):
-			_send("operate_worksite", _target, {"action": "open"})
+			if runtime.site_mechanics != null and bool(state.get("opened", false)) and \
+					not runtime.site_mechanics.solved():
+				var requested_mechanic: Dictionary = runtime.site_mechanics.next_operation()
+				if not requested_mechanic.is_empty():
+					_send("operate_worksite", _target, {"action": "site_" + str(requested_mechanic["action"])})
+			else:
+				_send("operate_worksite", _target, {"action": "open"})
 		elif _target == str(order["decision"]):
 			_send("operate_worksite", _target, {"action": _worksite_route})
 		elif _target == str(order["console"]):
@@ -994,6 +1000,12 @@ func _refresh() -> void:
 			str(status["hazard_kind"]), str(status["hazard_blocks"]),
 			"UNSAFE" if status["hazard_active"] else "SAFE",
 			int(status["safe_in_ticks"]), int(status["exposure_ticks"])])
+	if runtime.site_mechanics != null:
+		var mechanical: Dictionary = runtime.site_mechanics.snapshot()
+		lines.append("EXP019 A05 AUTHORED PROCEDURE %d/%d • %s • kits %d • spare %d" % [
+			(mechanical["completed"] as Array).size(), (mechanical["sequence"] as Array).size(),
+			str(mechanical["next"].get("action", "COMPLETE")).to_upper(),
+			int(mechanical["kits"]), int(mechanical["reserve"])])
 	if runtime.field_tools != null:
 		var gear: Dictionary = runtime.field_tools.snapshot()
 		lines.append("EXP019 FIVE TOOLS %d/6 operations • equipped %s • authenticated" % [

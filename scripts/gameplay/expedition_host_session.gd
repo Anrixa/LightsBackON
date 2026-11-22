@@ -39,6 +39,7 @@ const SiteHazards := preload("res://scripts/gameplay/expedition_environment_haza
 const SitePuzzles := preload("res://scripts/gameplay/expedition_investigation_chains.gd")
 const RegionalNetworks := preload("res://scripts/gameplay/expedition_regional_network.gd")
 const FieldTools := preload("res://scripts/gameplay/exp019_field_tools.gd")
+const Mechanics := preload("res://scripts/gameplay/exp019_mechanical_pass.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
 
@@ -73,6 +74,7 @@ var site_hazards: SiteHazards
 var site_puzzles: SitePuzzles
 var regional_network: RegionalNetworks
 var field_tools: FieldTools
+var site_mechanics: Mechanics
 
 var _definitions: Dictionary = {}
 var _position_source: Callable
@@ -114,9 +116,12 @@ func start(level_id: String, host_position: Callable,
 		enable_site_hazards: bool = false,
 		enable_site_puzzles: bool = false,
 		enable_regional_networks: bool = false,
-		enable_field_tools: bool = false) -> Dictionary:
+		enable_field_tools: bool = false,
+		enable_site_mechanics: bool = false) -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
+	if enable_site_mechanics and (not enable_worksite or not enable_site_hazards):
+		return _fail("EXP019_A05_REQUIRES_HOST_HAZARD_WORKSITE")
 	if enable_field_tools and (not enable_worksite or not enable_bespoke):
 		return _fail("EXP019_A03_REQUIRES_HOST_WORKSITE")
 	if enable_devices and not enable_bespoke:
@@ -451,6 +456,12 @@ func start(level_id: String, host_position: Callable,
 		if not inspected.get("ok", false):
 			return _fail("EXP019_A03_TOOL_SOURCE_INVALID", inspected)
 		_definitions["field_tools"] = field_tools.snapshot()
+	if enable_site_mechanics:
+		site_mechanics = Mechanics.new()
+		var mechanism_check: Dictionary = site_mechanics.configure(plan)
+		if not mechanism_check.get("ok", false):
+			return _fail("EXP019_A05_PROFILE_INVALID", mechanism_check)
+		_definitions["site_mechanics"] = site_mechanics.snapshot()
 	_position_source = host_position
 	_physics_visibility = physics_visibility
 	_account_key = account_key
@@ -531,6 +542,7 @@ func start(level_id: String, host_position: Callable,
 		"site_puzzles_active": site_puzzles != null,
 		"regional_network_active": regional_network != null,
 		"field_tools_active": field_tools != null,
+		"site_mechanics_active": site_mechanics != null,
 		"qualification": "AUTHORITY_SOURCE_HEADLESS_ONLY_NO_PLAYABILITY"}
 
 
@@ -539,6 +551,8 @@ func _session_id() -> String:
 
 
 func _content_revision() -> String:
+	if site_mechanics != null:
+		return "EXP019_A05_" + ("%s|%s" % [str(_definitions.get("source_fingerprint", "")), str(site_mechanics.snapshot()["source_structure"])]).sha256_text()
 	if field_tools != null:
 		return "EXP019_A03_" + ("%s|five_tool_procedure_v1" % str(_definitions.get("source_fingerprint", ""))).sha256_text()
 	if regional_network != null:
@@ -679,9 +693,7 @@ func _bespoke_guard(player_id: String, kind: String, entity: String,
 		return _fail("EXP06_INVALID_HOST_PRINCIPAL")
 	if field_tools != null:
 		if kind == "operate_worksite" and entity == "R_WEST":
-			# An auxiliary tool action is electrical work on the same real repair.
-			# Reuse the original hazard gate FIRST. Returning a positive tool
-			# verdict here would silently bypass the EXP06 repair lockout.
+			# Preserve EXP06 repair hazard authority for newly added field intents.
 			var electrical_safety: Dictionary = bespoke.preflight("repair_step", "R_WEST")
 			if not electrical_safety.get("ok", false):
 				return electrical_safety
@@ -693,8 +705,12 @@ func _bespoke_guard(player_id: String, kind: String, entity: String,
 			var guarded: Dictionary = field_tools.preflight_step(str(_payload.get("step", "")))
 			if not guarded.get("ok", false):
 				return guarded
-	# Keep all pre-existing EXP06 extraction, hazard and route checks active.
-	# No positive EXP019 tool decision may skip the original policy.
+	# An accepted sidecar tool command cannot skip EXP06 or EXP019 A05 guards.
+	if site_mechanics != null and kind == "request_extract" and not site_mechanics.solved():
+		return _fail("EXP019_A05_MECHANICAL_PROOF_REQUIRED")
+	if site_mechanics != null and kind == "operate_worksite" and str(_payload.get("action", "")).begins_with("site_"):
+		if entity != str(worksite.definition_snapshot()["board"]):
+			return _fail("EXP019_A05_WRONG_AUTHORIZED_WORKSITE_BOARD")
 	# Opt-in A09 extraction MUST be independently gated by a host-owned
 	# regional decision. Never trust a client-supplied preparation boolean.
 	if kind == "request_extract" and regional_network != null \
@@ -899,11 +915,26 @@ func _tool_facts() -> Dictionary:
 			meter.canonical_state()["snapshots"].has("PANEL_WEST")}
 
 
+func _mechanic_facts() -> Dictionary:
+	var state: Dictionary = grid.canonical_state()
+	return {"grid_verified": mission.verified(),
+		"risk_class": str(site_hazards.snapshot().get("risk_class", "")) if site_hazards != null else "",
+		"worksite_solved": worksite != null and worksite.solved(),
+		"environment_safe": site_hazards != null and site_hazards.solved(),
+		"east_enabled": bool(state["edges"]["E_GRID_EAST"]["enabled"]),
+		"west_restored": interaction.repair_state("R_WEST") == "restored",
+		"diagnosis_confirmed": _observed_inspections.has("PANEL_WEST")}
+
+
 func _operate_worksite(player_id: String, entity: String, action: String) -> Dictionary:
 	if player_id != PLAYER_ID or worksite == null:
 		return _fail("EXP012_HOST_PRINCIPAL_INVALID")
 	if entity == "R_WEST" and field_tools != null:
 		return field_tools.operate(action, _tool_facts())
+	if site_mechanics != null and action.begins_with("site_"):
+		if entity != str(worksite.definition_snapshot()["board"]):
+			return _fail("EXP019_A05_WRONG_SOURCE_TARGET")
+		return site_mechanics.operate(action.trim_prefix("site_"), _mechanic_facts())
 	# These requests enter only through the existing SessionHost worksite intent,
 	# after its principal, sequence, dedupe, range and rate validation. The
 	# original board target is reused; there is no new network action RPC.
@@ -1043,6 +1074,8 @@ func _worksite_snapshot() -> Dictionary:
 		state["regional_network"] = regional_network.snapshot()
 	if field_tools != null:
 		state["field_tools"] = field_tools.snapshot()
+	if site_mechanics != null:
+		state["site_mechanics"] = site_mechanics.snapshot()
 	return state
 
 
