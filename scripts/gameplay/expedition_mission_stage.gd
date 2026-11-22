@@ -22,6 +22,7 @@ const CampaignConsequences := preload("res://scripts/progression/expedition_camp
 const RegionalSource := preload("res://scripts/gameplay/expedition_regional_network.gd")
 const FieldGuidance := preload("res://scripts/ui/expedition_field_guidance.gd")
 const FieldOps := preload("res://scripts/ui/expedition_field_ops.gd")
+const RewardFeedback := preload("res://scripts/progression/expedition_reward_feedback.gd")
 const SaveService := preload("res://scripts/persistence/save_service.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
@@ -51,6 +52,8 @@ var _expedition_saves: SaveService
 var _expedition_profile: Dictionary = {}
 var _exp020_campaign_consequences: Dictionary = {}
 var _reward_error: String = ""
+var _exp020_reward_commit: Dictionary = {}
+var _exp020_reward_notice: String = ""
 var _hazard_marker: MeshInstance3D
 var _site_composition: Node3D
 var _environmental_feedback: Node3D
@@ -947,11 +950,21 @@ func _persist_rewards() -> void:
 	var pending: Array[Dictionary] = runtime.pending_rewards(_expedition_account)
 	if pending.is_empty():
 		return
+	var before: Dictionary = _expedition_profile.duplicate(true)
 	var result: Dictionary = Ledger.receive(_expedition_saves,
 		_expedition_account, OfflinePersistence.runtime_root(), pending, _utc_now())
 	if not result.get("ok", false):
 		_reward_error = str(result.get("code", "UNKNOWN_SAVE_ERROR"))
 		return
+	var commit_feedback: Dictionary = RewardFeedback.after_commit(
+		before, result["profile"], pending, Atlas.load_catalog(), _expedition_account)
+	if not bool(commit_feedback.get("ok", false)):
+		_reward_error = str(commit_feedback.get("code", "REWARD_FEEDBACK_HOLD"))
+		return
+	_exp020_reward_commit = commit_feedback
+	if int(commit_feedback.get("new_host_receipts", 0)) > 0:
+		_exp020_reward_notice = "+%d field points; %d newly archived host receipts" % [
+			int(commit_feedback["new_task_points"]), int(commit_feedback["new_host_receipts"])]
 	_reward_error = ""
 	_expedition_profile = result["profile"]
 	var atlas: Dictionary = Atlas.load_catalog()
@@ -990,6 +1003,13 @@ func _refresh() -> void:
 		lines.append("Field progression unavailable: existing local identity not ready")
 	if _reward_error != "":
 		lines.append("EXP04 SAVE HOLD: " + _reward_error)
+	if _expedition_account != "":
+		var rewards: Dictionary = RewardFeedback.summary(
+			_expedition_profile, _expedition_account, _exp020_reward_commit)
+		if bool(rewards.get("ok", false)):
+			lines.append("EXP020 BANKED SCORE %d • collectibles %d • %s" % [
+				int(rewards["field_points"]), int(rewards["collectibles"]),
+				_exp020_reward_notice if _exp020_reward_notice != "" else "no new reward"])
 	if bool(_exp020_campaign_consequences.get("ok", false)):
 		var chapters: Dictionary = _exp020_campaign_consequences["regions"]
 		var chapter_id: String = str(_definitions.get("region_id", ""))
@@ -1228,6 +1248,11 @@ func _refresh() -> void:
 		var verified_view: Dictionary = FieldGuidance.build(
 			_exp020_atlas, _exp020_routes, level_id, board,
 			_exp020_campaign_consequences, board.get("regional_network", {}))
+		if _expedition_account != "":
+			var reward_tab: Dictionary = RewardFeedback.summary(
+				_expedition_profile, _expedition_account, _exp020_reward_commit)
+			if bool(reward_tab.get("ok", false)):
+				verified_view["rewards"] = reward_tab["lines"]
 		_exp020_field_ops.show_data(verified_view)
 	if _regional_panel != null and board.has("regional_network"):
 		_regional_panel.show_network(board["regional_network"])

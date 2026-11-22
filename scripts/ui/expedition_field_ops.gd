@@ -31,7 +31,7 @@ func _init() -> void:
 	stack.add_child(_title)
 	var tabs: HBoxContainer = HBoxContainer.new()
 	stack.add_child(tabs)
-	for tab: String in ["briefing", "objectives", "network", "evidence"]:
+	for tab: String in ["briefing", "objectives", "network", "evidence", "rewards"]:
 		var button: Button = Button.new()
 		button.text = tab.capitalize()
 		button.pressed.connect(_select_tab.bind(tab))
@@ -54,7 +54,7 @@ func _init() -> void:
 
 
 func _select_tab(tab: String) -> void:
-	if not ["briefing", "objectives", "network", "evidence"].has(tab):
+	if not ["briefing", "objectives", "network", "evidence", "rewards"].has(tab):
 		return
 	_current_tab = tab
 	_render()
