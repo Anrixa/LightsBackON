@@ -771,7 +771,7 @@ func _session_id() -> String:
 
 func _content_revision() -> String:
 	if regional_anchor_recovery != null:
-		return "EXP015_A12_2_" + ("%s|%s|%s" % [
+		return "EXP015_A12_3_" + ("%s|%s|%s" % [
 			str(_definitions.get("source_fingerprint", "")),
 			JSON.stringify(regional_settlement.definition_snapshot()),
 			JSON.stringify(regional_anchor_recovery.definition_snapshot())]).sha256_text()
@@ -1211,6 +1211,9 @@ func _operate_worksite(player_id: String, entity: String, action: String) -> Dic
 	if regional_anchor_recovery != null and entity == str(worksite.definition_snapshot()["board"]) \
 			and action.begins_with("anchor_"):
 		return regional_anchor_recovery.operate(action)
+	if regional_anchor_recovery != null and entity == str(worksite.definition_snapshot()["board"]) \
+			and regional_anchor_recovery.protects_original_asset(action):
+		return _fail("EXP015_A12_PROTECTED_ORIGINAL_PATH")
 	if regional_settlement != null and entity == str(worksite.definition_snapshot()["board"]) \
 			and action.begins_with("settlement_"):
 		return regional_settlement.operate(action)
