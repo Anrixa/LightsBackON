@@ -5,6 +5,7 @@ extends RefCounted
 const Ledger := preload("res://scripts/progression/expedition_ledger.gd")
 const Atlas := preload("res://scripts/world/dispatch_atlas.gd")
 const SaveService := preload("res://scripts/persistence/save_service.gd")
+const PowerGrid := preload("res://scripts/simulation/power_grid.gd")
 
 const AUTHORITY: String = "EXP020_A03_COMMITTED_LEDGER_DISPLAY_ONLY"
 
@@ -14,7 +15,10 @@ static func _fail(code: String) -> Dictionary:
 
 
 static func _valid_profile(profile: Dictionary, account: String) -> bool:
-	return SaveService.is_valid_key(account) and 		profile.get("expedition_schema") == Ledger.SCHEMA and 		profile.get("account_key") == account and 		profile.get("earned_tasks") is Dictionary and 		profile.get("lore_finds") is Dictionary and 		profile.get("completed_levels") is Dictionary and 		profile.get("applied_receipts") is Dictionary and 		(profile["earned_tasks"] as Dictionary).size() <= Ledger.MAX_TASKS and 		(profile["lore_finds"] as Dictionary).size() <= Ledger.MAX_FINDS and 		(profile["completed_levels"] as Dictionary).size() <= Ledger.MAX_LEVELS and 		typeof(profile.get("field_points")) == TYPE_INT and 		int(profile["field_points"]) >= 0 and 		int(profile["field_points"]) <= Ledger.MAX_FIELD_POINTS
+	# JSON loading may represent an integral score as float. Mirror the
+	# existing EXP04 ledger's strict integral parser, never TYPE_INT alone.
+	var verified_points: Variant = PowerGrid.to_int(profile.get("field_points"))
+	return verified_points != null and SaveService.is_valid_key(account) and 		profile.get("expedition_schema") == Ledger.SCHEMA and 		profile.get("account_key") == account and 		profile.get("earned_tasks") is Dictionary and 		profile.get("lore_finds") is Dictionary and 		profile.get("completed_levels") is Dictionary and 		profile.get("applied_receipts") is Dictionary and 		(profile["earned_tasks"] as Dictionary).size() <= Ledger.MAX_TASKS and 		(profile["lore_finds"] as Dictionary).size() <= Ledger.MAX_FINDS and 		(profile["completed_levels"] as Dictionary).size() <= Ledger.MAX_LEVELS and 		int(verified_points) == verified_points and 		int(profile["field_points"]) >= 0 and 		int(profile["field_points"]) <= Ledger.MAX_FIELD_POINTS
 
 
 ## Before/after are committed local profile snapshots. This function has no
