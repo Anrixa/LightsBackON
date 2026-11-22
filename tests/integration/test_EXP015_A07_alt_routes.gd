@@ -202,7 +202,9 @@ func test_EXP015_A07_150_authentic_role_and_branch_mechanical_replays() -> void:
 	var rapid: int = 0
 	for region: int in range(25):
 		for slot: int in [1, 2, 4, 5]:
-			var routes: Array[String] = ["a", "b"] if slot >= 4 else ["a"]
+			var routes: Array[String] = ["a"]
+			if slot >= 4:
+				routes.append("b")
 			for route: String in routes:
 				var result: Dictionary = _run_source_scenario(region, slot, route)
 				assert_true(bool(result.get("ok", false)), str(result))
@@ -265,9 +267,11 @@ func test_EXP015_A07_authenticated_worksite_on_four_real_alternate_roles() -> vo
 		assert_false(bool(_send(host, 1, board, "route_survey", 999).get("ok", false)))
 		assert_eq(str(_send(host, 1, board, "route_reset").get("code", "")),
 			"ALT_RESET_NOT_READY")
+		# Existing A09 source-preparation gate intentionally precedes A07,
+		# and must remain authoritative until actual A09 preparation occurs.
 		assert_eq(str(host._bespoke_guard(Runtime.PLAYER_ID,
 			"request_extract", "ZONE_EXTRACT", {}).get("code", "")),
-			"EXP015_A07_ORIGINAL_ROUTE_RECOVERY_REQUIRED")
+			"EXP014_A09_PREPARATION_REQUIRED")
 		var actions: Array[String] = ["route_survey", "route_trip"]
 		var role: String = str(recipe["campaign_role"])
 		if role == "first_route_a":
