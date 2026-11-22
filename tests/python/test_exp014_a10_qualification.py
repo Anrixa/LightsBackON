@@ -25,6 +25,25 @@ class QualificationSourceTests(unittest.TestCase):
             q.PROTECTED_GIT_OBJECTS["content/contracts"],
         )
 
+    def test_exact_post_baseline_host_revision_is_pinned_not_certified(self) -> None:
+        audited = q.protected_git_audit()
+        host_path = "scripts/network/session_host.gd"
+        host_oid = audited["protected_objects"][host_path]
+        allowed = {q.PROTECTED_GIT_OBJECTS[host_path],
+                   *q.PINNED_SESSION_HOST_EVOLUTIONS.values()}
+        self.assertIn(host_oid, allowed)
+        self.assertFalse(audited["source_host_evolution_independently_reviewed"])
+        if host_oid != q.PROTECTED_GIT_OBJECTS[host_path]:
+            self.assertEqual(audited["source_host_evolution"],
+                             "EXP015_A12_11_HOST_TICK_FENCE")
+
+    def test_unlisted_host_revision_is_rejected_fail_closed(self) -> None:
+        with patch.dict(q.PINNED_SESSION_HOST_EVOLUTIONS,
+                        {"EXP015_A12_11_HOST_TICK_FENCE": "f" * 40}):
+            with self.assertRaisesRegex(q.QualificationError,
+                                        "PROTECTED_SOURCE_DRIFT"):
+                q.protected_git_audit()
+
     def test_original_contract_tree_drift_is_rejected(self) -> None:
         with patch.dict(q.PROTECTED_GIT_OBJECTS,
                         {"content/contracts": "0" * 40}):
