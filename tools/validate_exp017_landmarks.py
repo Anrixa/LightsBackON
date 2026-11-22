@@ -7,7 +7,10 @@ import json
 from pathlib import Path
 import re
 
-from tools.validate_exp014_regions import read_recipes
+if __package__:
+    from .validate_exp014_regions import read_recipes
+else:
+    from validate_exp014_regions import read_recipes
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts/world/expedition_regional_landmarks.gd"
