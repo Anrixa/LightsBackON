@@ -18,6 +18,8 @@ const Visibility := preload("res://scripts/interaction/interaction_visibility.gd
 const Interaction := preload("res://scripts/interaction/interaction_service.gd")
 const Ledger := preload("res://scripts/progression/expedition_ledger.gd")
 const Campaign := preload("res://scripts/progression/expedition_campaign.gd")
+const CampaignConsequences := preload("res://scripts/progression/expedition_campaign_consequences.gd")
+const RegionalSource := preload("res://scripts/gameplay/expedition_regional_network.gd")
 const SaveService := preload("res://scripts/persistence/save_service.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
@@ -45,6 +47,7 @@ var _loaded: bool = false
 var _expedition_account: String = ""
 var _expedition_saves: SaveService
 var _expedition_profile: Dictionary = {}
+var _exp020_campaign_consequences: Dictionary = {}
 var _reward_error: String = ""
 var _hazard_marker: MeshInstance3D
 var _site_composition: Node3D
@@ -105,6 +108,11 @@ func _ready() -> void:
 			Campaign.load_routes(), requested)
 		if not bool(access.get("ok", false)):
 			push_error("EXP05_LEVEL_GATE_HOLD: " + str(access))
+			return
+		_exp020_campaign_consequences = CampaignConsequences.evaluate(
+			_expedition_profile, catalog, Campaign.load_routes(), RegionalSource.load_book())
+		if not bool(_exp020_campaign_consequences.get("ok", false)):
+			push_error("EXP020_A01_CAMPAIGN_CONSEQUENCE_HOLD: " + str(_exp020_campaign_consequences))
 			return
 	var location: Dictionary = Atlas.find_location(catalog, str(level["location_id"]))
 	var plan: Dictionary = Plan.make_plan(level, location)
@@ -911,6 +919,12 @@ func _persist_rewards() -> void:
 		return
 	_reward_error = ""
 	_expedition_profile = result["profile"]
+	var atlas: Dictionary = Atlas.load_catalog()
+	_exp020_campaign_consequences = CampaignConsequences.evaluate(
+		_expedition_profile, atlas, Campaign.load_routes(), RegionalSource.load_book())
+	if not bool(_exp020_campaign_consequences.get("ok", false)):
+		_reward_error = str(_exp020_campaign_consequences.get("code", "CAMPAIGN_PROJECTION_HOLD"))
+		return
 	for key: String in result["acks"]:
 		runtime.ack_reward(_expedition_account, key)
 
@@ -941,6 +955,21 @@ func _refresh() -> void:
 		lines.append("Field progression unavailable: existing local identity not ready")
 	if _reward_error != "":
 		lines.append("EXP04 SAVE HOLD: " + _reward_error)
+	if bool(_exp020_campaign_consequences.get("ok", false)):
+		var chapters: Dictionary = _exp020_campaign_consequences["regions"]
+		var chapter_id: String = str(_definitions.get("region_id", ""))
+		if chapter_id.is_empty():
+			var level: Dictionary = Atlas.find_level(Atlas.load_catalog(), level_id)
+			chapter_id = str(level.get("region_id", ""))
+		if chapters.has(chapter_id):
+			var chapter: Dictionary = chapters[chapter_id]
+			var current: Dictionary = chapter["sites"].get(level_id, {})
+			lines.append("EXP020 CAMPAIGN %s • receipt-restored %d/8 • connected normal paths %d/8" % [
+				str(chapter["region_name"]), int(chapter["restored_receipts"]),
+				int(chapter["receipt_connected_sites"])])
+			lines.append("This worksite: %s • normal receipt path %s • live grid state NOT inferred" % [
+				str(current.get("status", "UNKNOWN")),
+				"linked" if bool(current.get("normal_path_receipt_connected", false)) else "unverified"])
 	if board.has("bespoke"):
 		var status: Dictionary = board["bespoke"]
 		lines.append("EXP06 %s • PUZZLE %s" % [str(status["family"]),
