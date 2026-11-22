@@ -26,6 +26,7 @@ func test_EXP017_A01_200_sites_25_architectural_silhouettes() -> void:
 		if not audit.get("ok", false):
 			continue
 		signatures[str(audit["region_id"])] = audit["signature"]
+		assert_eq(str(audit["name"]), str(atlas["regions"][int(i / 8)]["name"]))
 		var region: Node3D = Regional.build(plan)
 		assert_true(region != null)
 		if region == null:

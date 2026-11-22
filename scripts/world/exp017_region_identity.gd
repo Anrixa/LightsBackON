@@ -20,16 +20,16 @@ const PROFILES: Dictionary = {
 	"REG_13": {"name": "Sunrise Breakwater", "kit": ["seawall", "lock_gate", "beacon"], "accent": "#E1BE84"},
 	"REG_14": {"name": "Briar Valley", "kit": ["terrace", "trellis", "footbridge"], "accent": "#A9B887"},
 	"REG_15": {"name": "Cinder Hill", "kit": ["furnace", "retaining_wall", "chimney"], "accent": "#CA795E"},
-	"REG_16": {"name": "Ferry Reach", "kit": ["pier", "harbor_crane", "hoist"], "accent": "#B9AC91"},
-	"REG_17": {"name": "Cloudglass Gardens", "kit": ["greenhouse", "canopy", "trellis"], "accent": "#86BE9E"},
-	"REG_18": {"name": "Coalwater Basin", "kit": ["mill", "aqueduct", "furnace"], "accent": "#8F9A8D"},
-	"REG_19": {"name": "River Inlet", "kit": ["aqueduct", "lock_gate", "levee"], "accent": "#73BCD1"},
-	"REG_20": {"name": "Rootbank Hills", "kit": ["trellis", "terrace", "cable_tower"], "accent": "#AA967E"},
-	"REG_21": {"name": "Old Wire Ward", "kit": ["arcade", "gantry", "signal"], "accent": "#CEB27B"},
-	"REG_22": {"name": "Dyeworks Canal", "kit": ["mill", "greenhouse", "aqueduct"], "accent": "#B4A1D0"},
-	"REG_23": {"name": "Stormwatch Heights", "kit": ["cable_tower", "beacon", "signal"], "accent": "#C4C9A7"},
-	"REG_24": {"name": "Dune Passage", "kit": ["retaining_wall", "stilt_hut", "seawall"], "accent": "#D7C092"},
-	"REG_25": {"name": "Beacon Stair", "kit": ["terrace", "beacon", "canopy"], "accent": "#CD9DA3"}
+	"REG_16": {"name": "Merrow Island", "kit": ["pier", "harbor_crane", "hoist"], "accent": "#B9AC91"},
+	"REG_17": {"name": "Greenhouse Quarter", "kit": ["greenhouse", "canopy", "trellis"], "accent": "#86BE9E"},
+	"REG_18": {"name": "Blackstone Works", "kit": ["mill", "aqueduct", "furnace"], "accent": "#8F9A8D"},
+	"REG_19": {"name": "Crescent Reservoir", "kit": ["aqueduct", "lock_gate", "levee"], "accent": "#73BCD1"},
+	"REG_20": {"name": "Wrenwood Heights", "kit": ["trellis", "terrace", "cable_tower"], "accent": "#AA967E"},
+	"REG_21": {"name": "Tallow Market", "kit": ["arcade", "gantry", "signal"], "accent": "#CEB27B"},
+	"REG_22": {"name": "Foxglove Basin", "kit": ["mill", "greenhouse", "aqueduct"], "accent": "#B4A1D0"},
+	"REG_23": {"name": "Cedar Observatory", "kit": ["cable_tower", "beacon", "signal"], "accent": "#C4C9A7"},
+	"REG_24": {"name": "Hollowpoint Dunes", "kit": ["retaining_wall", "stilt_hut", "seawall"], "accent": "#D7C092"},
+	"REG_25": {"name": "Old Beacon Terrace", "kit": ["terrace", "beacon", "canopy"], "accent": "#CD9DA3"}
 }
 const KITS: Array[String] = [
 	"arcade", "chimney", "levee", "harbor_crane", "pier", "beacon",
@@ -52,12 +52,14 @@ static func inspect(plan: Dictionary) -> Dictionary:
 	if kits.size() != 3 or str(profile["name"]).is_empty():
 		return {"ok": false, "code": "EXP017_A01_BAD_KIT"}
 	var unique: Dictionary = {}
+	var kit_names: Array[String] = []
 	for item: Variant in kits:
 		if not KITS.has(str(item)) or unique.has(str(item)):
 			return {"ok": false, "code": "EXP017_A01_DUPLICATE_OR_UNSUPPORTED_FORM"}
 		unique[str(item)] = true
+		kit_names.append(str(item))
 	var signature: String = ("%s|%s|%s|%s" % [
-		id, ",".join(kits), str(profile["accent"]), str(regional["geometry_signature"])
+		id, ",".join(kit_names), str(profile["accent"]), str(regional["geometry_signature"])
 	]).sha256_text()
 	return {"ok": true, "level_id": regional["level_id"],
 		"region_id": id, "name": profile["name"], "kit": kits,
