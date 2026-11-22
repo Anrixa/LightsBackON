@@ -611,7 +611,9 @@ func _return_to_menu() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if not _loaded or _exp020_run.paused():
+	# Neither a paused nor an already-authorized scene departure may issue
+	# another host tick after the reward flush and before scene replacement.
+	if not _loaded or _exp020_run.state() != RunFlow.RUNNING:
 		return
 	_tick_accumulator += delta
 	while _tick_accumulator >= HOST_STEP_SECONDS:
@@ -1032,6 +1034,9 @@ func _select_tool(index: int) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not _loaded or not event.is_pressed() or event.is_echo():
+		return
+	# Do not admit late tools/host actions while scene replacement is queued.
+	if [RunFlow.RESTARTING, RunFlow.RETURNING].has(_exp020_run.state()):
 		return
 	if event.is_action_pressed("ui_cancel") or event.is_action_pressed("pause"):
 		if _exp020_run.paused():
