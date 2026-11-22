@@ -101,6 +101,11 @@ if [ -n "$PY" ]; then
   "$PY" tools/validate_exp015_cascades.py --report build/exp015-a02/source-audit.json || FAIL=1
 fi
 
+echo "== EXP015 A03: 25 regional finale closeouts and 50 original strategy supply paths =="
+if [ -n "$PY" ]; then
+  "$PY" tools/validate_exp015_finales.py --report build/exp015-a03/source-audit.json || FAIL=1
+fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 
@@ -127,7 +132,32 @@ echo "== godot =="
 if [ -f project.godot ] && [ -z "$GODOT_BIN" ]; then
   echo "FAIL: Godot 4.7.2 not found; set GODOT_BIN to the console exe (see docs/PC-RUNBOOK.md A.3)"; FAIL=1
 elif [ -f project.godot ]; then
-  "$GODOT_BIN" --headless --path . --import >/dev/null 2>&1 || true   # builds the class cache on a fresh clone
+  # Godot import errors must be visible and actionable. Do not swallow parser failures.
+  IMPORT_OUT="$(mktemp)"
+  if ! "$GODOT_BIN" --headless --path . --import >"$IMPORT_OUT" 2>&1; then
+    echo "FAIL: Godot import returned non-zero (details below)"
+    cat "$IMPORT_OUT"
+    FAIL=1
+  elif grep -qE "SCRIPT ERROR|Parse Error" "$IMPORT_OUT"; then
+    echo "FAIL: Godot import reported script/parser errors (details below)"
+    cat "$IMPORT_OUT"
+    FAIL=1
+  fi
+  rm -f "$IMPORT_OUT"
+  echo "== EXP015 A03: direct Godot host script parser preflight =="
+  HOST_PARSE_OUT="$(mktemp)"
+  if ! "$GODOT_BIN" --headless --path . --check-only --script res://scripts/gameplay/expedition_host_session.gd >"$HOST_PARSE_OUT" 2>&1; then
+    echo "FAIL: Godot host script parser rejected expedition_host_session.gd"
+    cat "$HOST_PARSE_OUT"
+    FAIL=1
+  elif grep -qE "SCRIPT ERROR|Parse Error" "$HOST_PARSE_OUT"; then
+    echo "FAIL: Godot host script parser reported source errors"
+    cat "$HOST_PARSE_OUT"
+    FAIL=1
+  else
+    echo "EXP015_A03_HOST_SCRIPT_PARSE=PASS"
+  fi
+  rm -f "$HOST_PARSE_OUT"
   # Every Godot run below (tests, solution traces, cross-check) gets its own empty user:// (SAVE22).
   isolate_godot_user_dir || { echo "FAIL: cannot create an isolated Godot user dir"; exit 1; }
   trap 'rm -rf "$LBO_TEST_USER_ROOT"' EXIT

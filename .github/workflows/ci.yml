@@ -40,6 +40,14 @@ jobs:
           path: build/exp014-a10-4/source-gate.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Retain EXP015 A03 Linux original-route evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exp015-a03-source-linux-${{ github.sha }}
+          path: build/exp015-a03/source-audit.json
+          if-no-files-found: warn
+          retention-days: 14
 
   windows:
     runs-on: windows-latest
@@ -129,4 +137,5 @@ jobs:
             build/smoke.log
             build/SHA256SUMS.txt
             build/exp014-a10-4/
+            build/exp015-a03/
           retention-days: 14
