@@ -28,7 +28,7 @@ static func reflect(view: Node3D, runtime: Runtime,
 		var authority: Dictionary = runtime.authoritative_state()
 		if str(cases.get("level_id", "")) != level_id or 				not authority.get("exp018_advanced_cases") is Dictionary or 				authority["exp018_advanced_cases"] != cases:
 			return _fail("EXP018_A04_ADVANCED_AUTHORITY_DRIFT")
-		var revision: String = str(runtime.host.content_revision)
+		var revision: String = str(runtime._content_revision())
 		if runtime.regional_network != null:
 			var region_id: String = str(view.get_meta("source_region_id", ""))
 			if not revision.begins_with("EXP018_A03_") or 					not authority.get("exp014_regional_network") is Dictionary or 					str(authority["exp014_regional_network"].get("region_id", "")) != region_id:
