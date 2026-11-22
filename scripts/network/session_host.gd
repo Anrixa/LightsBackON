@@ -107,6 +107,11 @@ func _regional_lifecycle_revoked() -> bool:
 func configure(limits: Dictionary, protocol_version: int, content_revision: String, new_session_id: String,
 		grid: PowerGrid, meter: MeterModel, interaction: Interaction, equipment: Equipment,
 		switches_def: Dictionary, range_check: Callable) -> Array[Dictionary]:
+	# Reconfiguration after a successor owns the source must never replace
+	# the old transport's grid, session ID, limits, callbacks or mission.
+	if _regional_lifecycle_revoked():
+		return [PowerGrid.diag("EXP015_A12_17_STALE_HOST_RECONFIGURE",
+			"regional dispatch ownership has changed", [])]
 	_limits = {}
 	var errs: Array[Dictionary] = []
 	for key: String in ["max_message_bytes", "max_payload_keys", "max_string_length", "dedupe_window", "rate_limit_commands",
@@ -666,12 +671,18 @@ func authoritative_state() -> Dictionary:
 ## Only an explicit expedition instance attaches this extension. Legacy campaigns
 ## continue to reject collect_lore and preserve their canonical snapshots.
 func set_collectible_authority(handler: Callable, state_provider: Callable) -> void:
+	# A12.17: a retired dispatch cannot rewire even host-owned callbacks.
+	if _regional_lifecycle_revoked():
+		return
 	_collectible_handler = handler
 	_collectible_state = state_provider
 
 
 ## EXP07 is opt-in per experimental expedition session. Every other host is unchanged.
 func set_expedition_device_authority(handler: Callable, state_provider: Callable) -> void:
+	# A12.17: a retired dispatch cannot rewire even host-owned callbacks.
+	if _regional_lifecycle_revoked():
+		return
 	_device_handler = handler
 	_device_state = state_provider
 
@@ -679,6 +690,9 @@ func set_expedition_device_authority(handler: Callable, state_provider: Callable
 ## Isolated EXP08 extension. Legacy hosts do not install these callbacks.
 func set_expedition_fault_authority(handler: Callable, state_provider: Callable,
 		tick_provider: Callable) -> void:
+	# A12.17: a retired dispatch cannot rewire even host-owned callbacks.
+	if _regional_lifecycle_revoked():
+		return
 	_fault_handler = handler
 	_fault_state = state_provider
 	_fault_tick = tick_provider
@@ -687,6 +701,9 @@ func set_expedition_fault_authority(handler: Callable, state_provider: Callable,
 ## EXP009 only attaches to explicit experimental expedition sessions.
 func set_expedition_consequence_authority(handler: Callable, state_provider: Callable,
 		tick_provider: Callable) -> void:
+	# A12.17: a retired dispatch cannot rewire even host-owned callbacks.
+	if _regional_lifecycle_revoked():
+		return
 	_consequence_handler = handler
 	_consequence_state = state_provider
 	_consequence_tick = tick_provider
@@ -695,6 +712,9 @@ func set_expedition_consequence_authority(handler: Callable, state_provider: Cal
 ## EXP010 is disabled in all legacy and non-EXP010 sessions.
 func set_expedition_logistics_authority(handler: Callable, state_provider: Callable,
 		tick_provider: Callable) -> void:
+	# A12.17: a retired dispatch cannot rewire even host-owned callbacks.
+	if _regional_lifecycle_revoked():
+		return
 	_logistics_handler = handler
 	_logistics_state = state_provider
 	_logistics_tick = tick_provider
@@ -703,6 +723,9 @@ func set_expedition_logistics_authority(handler: Callable, state_provider: Calla
 ## EXP011 is explicitly opt-in; no original campaign or earlier EXP session binds it.
 func set_expedition_balance_authority(handler: Callable, state_provider: Callable,
 		tick_provider: Callable) -> void:
+	# A12.17: a retired dispatch cannot rewire even host-owned callbacks.
+	if _regional_lifecycle_revoked():
+		return
 	_balance_handler = handler
 	_balance_state = state_provider
 	_balance_tick = tick_provider
@@ -711,6 +734,9 @@ func set_expedition_balance_authority(handler: Callable, state_provider: Callabl
 ## EXP012 only attaches to explicitly opted-in expedition instances.
 func set_expedition_worksite_authority(handler: Callable, state_provider: Callable,
 		tick_provider: Callable) -> void:
+	# A12.17: a retired dispatch cannot rewire even host-owned callbacks.
+	if _regional_lifecycle_revoked():
+		return
 	_worksite_handler = handler
 	_worksite_state = state_provider
 	_worksite_tick = tick_provider
@@ -718,11 +744,17 @@ func set_expedition_worksite_authority(handler: Callable, state_provider: Callab
 
 ## Attach crew communication (V06).
 func set_comms(comms: Comms) -> void:
+	# A12.17: a retired dispatch cannot rewire even host-owned callbacks.
+	if _regional_lifecycle_revoked():
+		return
 	_comms = comms
 
 
 ## Host movement supplies player positions (integer cm) used for item drops; until V01 every player is at the origin.
 func set_position_provider(position_of: Callable) -> void:
+	# A12.17: a retired dispatch cannot rewire even host-owned callbacks.
+	if _regional_lifecycle_revoked():
+		return
 	_position_of = position_of
 
 
@@ -740,6 +772,9 @@ func _recover_player(player: String) -> Dictionary:
 
 ## Attach the contract's mission director (V02). Players already admitted are reported to it.
 func set_mission(mission: MissionDirector) -> void:
+	# A12.17: a retired dispatch cannot rewire even host-owned callbacks.
+	if _regional_lifecycle_revoked():
+		return
 	_mission = mission
 	for peer: int in _members:
 		_mission.player_joined(_members[peer])

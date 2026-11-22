@@ -4,6 +4,7 @@ const Atlas := preload("res://scripts/world/dispatch_atlas.gd")
 const Ledger := preload("res://scripts/progression/expedition_ledger.gd")
 const Network := preload("res://scripts/gameplay/expedition_regional_network.gd")
 const Runtime := preload("res://scripts/gameplay/expedition_host_session.gd")
+const MissionDirector := preload("res://scripts/simulation/mission_director.gd")
 const Saves := preload("res://scripts/persistence/save_service.gd")
 const Offline := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
@@ -358,3 +359,63 @@ func test_EXP015_A12_15_legacy_duplicate_reply_remains_idempotent() -> void:
 	assert_true(bool(replayed.get("ok", false)), str(replayed))
 	assert_true(bool(replayed.get("duplicate", false)),
 		"legacy clients must still receive exact replay acknowledgements")
+
+
+
+## A12.17: stale callbacks/configuration must not rewrite obsolete host
+## components, and the A09 successor remains an operational owner.
+func test_EXP015_A12_17_25_regions_reject_stale_reconfiguration() -> void:
+	var atlas: Dictionary = Atlas.load_catalog()
+	var qualified: int = 0
+	for region: int in range(25):
+		Network.clear_host_memory_for_test()
+		var account: String = "a12_17_%02d" % region
+		var profile: Dictionary = _profile(atlas, region, account)
+		var old_context: Dictionary = _start(region, profile, "config_old")
+		if old_context.is_empty():
+			continue
+		var previous: Runtime = old_context["session"]
+		var original_id: String = previous.session_id()
+		var original_mission: MissionDirector = previous.mission
+		var original_revision: int = previous.host.revision
+		var original_hash: String = previous.host.state_hash()
+		var new_context: Dictionary = _start(region, profile, "config_new")
+		if new_context.is_empty():
+			continue
+		var active: Runtime = new_context["session"]
+		assert_true(active.regional_network == previous.regional_network)
+		var refused: Array[Dictionary] = previous.host.configure(
+			{}, 1, "FORGED", "REPLACED", previous.grid,
+			previous.meter, previous.interaction, previous.equipment,
+			{}, Callable())
+		assert_eq(refused.size(), 1)
+		if refused.size() == 1:
+			assert_eq(str(refused[0].get("code", "")),
+				"EXP015_A12_17_STALE_HOST_RECONFIGURE")
+		previous.host.set_mission(null)
+		previous.host.set_position_provider(Callable())
+		previous.host.set_collectible_authority(Callable(), Callable())
+		previous.host.set_expedition_worksite_authority(Callable(), Callable(),
+			Callable())
+		assert_true(previous.host._mission == original_mission)
+		assert_eq(previous.session_id(), original_id)
+		assert_eq(previous.host.revision, original_revision)
+		assert_eq(previous.host.state_hash(), original_hash)
+		assert_true(active.host.snapshot().has("manifest"))
+		qualified += 1
+		print("EXP015_A12_17 region=%02d stale_config=DENIED new_host=ACTIVE" %
+			[region + 1])
+	assert_eq(qualified, 25)
+
+
+func test_EXP015_A12_17_nonregional_setup_compatibility() -> void:
+	var legacy: Runtime = Runtime.new()
+	var started: Dictionary = legacy.start("LV_001",
+		Callable(self, "_position_for"))
+	assert_true(bool(started.get("ok", false)), str(started))
+	if not bool(started.get("ok", false)):
+		return
+	assert_true(legacy.regional_network == null)
+	legacy.host.set_position_provider(Callable(self, "_position_for"))
+	assert_true(legacy.host._position_of.is_valid())
+	assert_true(legacy.host.snapshot().has("manifest"))
