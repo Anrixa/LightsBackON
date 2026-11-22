@@ -92,6 +92,10 @@ var regional_entry: Entry
 var regional_settlement: Settlement
 var regional_anchor_recovery: AnchorRecovery
 
+## A12.9: capture the host-owned A09 dispatch identity at successful acquire.
+## An older process-local SessionHost must not alter a shared region network.
+var _bound_regional_dispatch_epoch: int = 0
+
 var _definitions: Dictionary = {}
 var _position_source: Callable
 var _physics_visibility: Callable
@@ -228,6 +232,7 @@ func start(level_id: String, host_position: Callable,
 			if not bool(regional_gate.get("ok", false)):
 				return _fail("EXP014_A09_REGIONAL_PROFILE_HOLD", regional_gate)
 			regional_network = regional_gate["network"]
+			_bound_regional_dispatch_epoch = regional_network.current_dispatch_epoch()
 	var location: Dictionary = Atlas.find_location(atlas, str(level["location_id"]))
 	var plan: Dictionary = Plan.make_plan(level, location)
 	_definitions = Factory.build(level, plan)
@@ -771,7 +776,7 @@ func _session_id() -> String:
 
 func _content_revision() -> String:
 	if regional_anchor_recovery != null:
-		return "EXP015_A12_6_" + ("%s|%s|%s" % [
+		return "EXP015_A12_9_" + ("%s|%s|%s" % [
 			str(_definitions.get("source_fingerprint", "")),
 			JSON.stringify(regional_settlement.definition_snapshot()),
 			JSON.stringify(regional_anchor_recovery.definition_snapshot())]).sha256_text()
@@ -976,6 +981,10 @@ func _bespoke_guard(player_id: String, kind: String, entity: String,
 		_payload: Dictionary) -> Dictionary:
 	if player_id != PLAYER_ID or bespoke == null:
 		return _fail("EXP06_INVALID_HOST_PRINCIPAL")
+	# An obsolete campaign dispatch may not request extraction from an
+	# earlier worksite state. This is source-only, not a new client RPC.
+	if kind == "request_extract" and not _regional_dispatch_current():
+		return _fail("EXP015_A12_9_STALE_HOST_DISPATCH")
 	# Opt-in A09 extraction MUST be independently gated by a host-owned
 	# regional decision. Never trust a client-supplied preparation boolean.
 	if kind == "request_extract" and regional_network != null \
@@ -1202,6 +1211,12 @@ func _puzzle_facts() -> Dictionary:
 	return facts
 
 
+func _regional_dispatch_current() -> bool:
+	return regional_network == null or (
+		_bound_regional_dispatch_epoch > 0 and \
+		regional_network.current_dispatch_epoch() == _bound_regional_dispatch_epoch)
+
+
 func _operate_worksite(player_id: String, entity: String, action: String) -> Dictionary:
 	if player_id != PLAYER_ID or worksite == null:
 		return _fail("EXP012_HOST_PRINCIPAL_INVALID")
@@ -1211,6 +1226,11 @@ func _operate_worksite(player_id: String, entity: String, action: String) -> Dic
 	if regional_anchor_recovery != null and entity == str(worksite.definition_snapshot()["board"]) \
 			and action.begins_with("anchor_"):
 		return regional_anchor_recovery.operate(action)
+	# A12.6 retains its existing anchor-specific stale error. Everything
+	# else on an obsolete A09/EXP015 worksite is fenced here, before any
+	# controller can spend reserve, alter debt, switch feeders or sign off.
+	if not _regional_dispatch_current():
+		return _fail("EXP015_A12_9_STALE_HOST_DISPATCH")
 	if regional_anchor_recovery != null and entity == str(worksite.definition_snapshot()["board"]) \
 			and regional_anchor_recovery.protects_original_asset(action):
 		return _fail("EXP015_A12_PROTECTED_ORIGINAL_PATH")
