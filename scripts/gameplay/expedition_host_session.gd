@@ -447,13 +447,20 @@ func start(level_id: String, host_position: Callable,
 		_definitions["site_puzzles"] = site_puzzles.definition_snapshot()
 	# EXP016 cases are opt-in and source-pinned to the original A08 evidence graph.
 	if enable_advanced_cases:
-		var advanced_book: Dictionary = AdvancedCases.load_book()
-		var case_audit: Dictionary = AdvancedCases.inspect(atlas, SitePuzzles.load_book(), advanced_book)
-		if not bool(case_audit.get("ok", false)):
-			return _fail("EXP016_A02_SOURCE_INVALID", case_audit)
-		var selected_case: Dictionary = AdvancedCases.entry_for(advanced_book, level_id)
+		var advanced_books: Array[Dictionary] = AdvancedCases.load_available_books()
+		var selected_case: Dictionary = {}
+		for advanced_book: Dictionary in advanced_books:
+			var case_audit: Dictionary = AdvancedCases.inspect(atlas, SitePuzzles.load_book(), advanced_book)
+			if not bool(case_audit.get("ok", false)):
+				return _fail("EXP016_SOURCE_INVALID", case_audit)
+			var candidate: Dictionary = AdvancedCases.entry_for(advanced_book, level_id)
+			if not candidate.is_empty():
+				if not selected_case.is_empty():
+					return _fail("EXP016_OVERLAPPING_CASEBOOKS")
+				selected_case = candidate
 		if selected_case.is_empty():
-			return _fail("EXP016_A02_CASE_NOT_AUTHORED")
+			return _fail("EXP016_CASE_NOT_AUTHORED")
+		_definitions["advanced_case_phase"] = "A%02d" % ((int(level_id.trim_prefix("LV_")) - 1) / 50 + 2)
 		advanced_cases = AdvancedCases.new()
 		var case_config: Dictionary = advanced_cases.configure(selected_case)
 		if not bool(case_config.get("ok", false)):
@@ -547,7 +554,7 @@ func _session_id() -> String:
 
 func _content_revision() -> String:
 	if advanced_cases != null:
-		return "EXP016_A02_" + ("%s|%s" % [
+		return "EXP016_" + str(_definitions.get("advanced_case_phase", "A02")) + "_" + ("%s|%s" % [
 			str(_definitions.get("source_fingerprint", "")),
 			JSON.stringify(advanced_cases.definition_snapshot())]).sha256_text()
 	if regional_network != null:

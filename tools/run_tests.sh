@@ -101,6 +101,9 @@ if [ -n "$PY" ]; then
   "$PY" -m unittest discover -s tools -p 'test_exp016_casework.py' -v || FAIL=1
 fi
 
+echo "== EXP016 A03: source-validated dual-probe diagnoses, 50 levels and 100 recovery routes =="
+if [ -n "$PY" ]; then "$PY" tools/validate_exp016_a03.py || FAIL=1; fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 
