@@ -419,3 +419,74 @@ func test_EXP015_A12_17_nonregional_setup_compatibility() -> void:
 	legacy.host.set_position_provider(Callable(self, "_position_for"))
 	assert_true(legacy.host._position_of.is_valid())
 	assert_true(legacy.host.snapshot().has("manifest"))
+
+
+## EXP015 A14: a failed would-be successor after a real reserve expenditure
+## cannot steal the dispatch epoch, import forged receipt availability,
+## duplicate an accepted debit or break later legitimate successor activation.
+func test_EXP015_A14_25_region_adverse_recovery_preserves_finite_source() -> void:
+	var atlas: Dictionary = Atlas.load_catalog()
+	var qualified: int = 0
+	for region: int in range(25):
+		Network.clear_host_memory_for_test()
+		var account: String = "a14_adverse_%02d" % region
+		var profile: Dictionary = _profile(atlas, region, account)
+		var initial: Dictionary = _start(region, profile, "adverse_live")
+		if initial.is_empty():
+			continue
+		var live: Runtime = initial["session"]
+		var board: String = str(initial["board"])
+		var source: Network = live.regional_network
+		var initial_reserve: int = int(source.snapshot()["reserve_pu"])
+		var accepted: Dictionary = _send(live, 1, "operate_worksite",
+			board, {"action": "regional_critical"})
+		assert_true(bool(accepted.get("ok", false)), str(accepted))
+		assert_eq(int(source.snapshot()["reserve_pu"]), initial_reserve - 2)
+		var paid_snapshot: Dictionary = source.snapshot()
+		var epoch: int = source.current_dispatch_epoch()
+		var modified_receipts: Dictionary = profile.duplicate(true)
+		_restore(atlas, modified_receipts, 8 * region + 5)
+		var aborted: Dictionary = _start_invalid(region, modified_receipts,
+			"adverse_abort")
+		assert_eq(str(aborted["result"].get("code", "")),
+			"EXP015_SITE_NOT_AUTHORED")
+		assert_true(aborted["runtime"].regional_network == null)
+		assert_eq(source.snapshot(), paid_snapshot,
+			"failed takeover cannot rewrite original reserve, receipts or events")
+		assert_eq(source.current_dispatch_epoch(), epoch)
+		assert_true(live._regional_dispatch_current())
+		# Real receiver refuses forged peers/session envelopes without charging
+		# reserve and allows exact duplicate replies while this owner is live.
+		var bad_peer: Dictionary = _send(live, 2, "operate_worksite",
+			board, {"action": "regional_critical"}, 999)
+		assert_eq(str(bad_peer.get("code", "")), "UNKNOWN_PEER")
+		var bad_session: Dictionary = _send(live, 2, "operate_worksite",
+			board, {"action": "regional_critical"}, 1, "FOREIGN_SESSION")
+		assert_eq(str(bad_session.get("code", "")), "WRONG_SESSION")
+		var once_only: Dictionary = _send(live, 1, "operate_worksite",
+			board, {"action": "regional_critical"})
+		assert_true(bool(once_only.get("duplicate", false)),
+			"still-current old host must preserve exactly-once acknowledgement")
+		assert_eq(source.snapshot(), paid_snapshot)
+		var successor: Dictionary = _start(region, profile, "adverse_recovered")
+		if successor.is_empty():
+			continue
+		var current: Runtime = successor["session"]
+		assert_true(current.regional_network == source)
+		assert_eq(source.current_dispatch_epoch(), epoch + 1)
+		assert_eq(int(source.snapshot()["reserve_pu"]),
+			int(paid_snapshot["reserve_pu"]))
+		assert_eq(str(_send(live, 1, "operate_worksite", board,
+			{"action": "regional_critical"}).get("code", "")),
+			"EXP015_A12_15_STALE_REPLAY")
+		assert_eq(str(_send(live, 2, "operate_worksite", board,
+			{"action": "regional_critical"}).get("code", "")),
+			"EXP015_A12_9_STALE_HOST_DISPATCH")
+		assert_eq(source.snapshot()["reserve_pu"], paid_snapshot["reserve_pu"])
+		assert_eq(live.host.publish(), {})
+		assert_true(current.host.snapshot().has("manifest"))
+		assert_eq(current.pending_rewards(account).size(), 0)
+		qualified += 1
+		print("EXP015_A14 region=%02d failed_takeover=ROLLED_BACK finite_source=PASS" %
+			[region + 1])
+	assert_eq(qualified, 25)

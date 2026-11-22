@@ -34,6 +34,7 @@ REQUIRED_TESTS: dict[str, tuple[str, ...]] = {
         "test_EXP015_A12_15_legacy_duplicate_reply_remains_idempotent",
         "test_EXP015_A12_17_25_regions_reject_stale_reconfiguration",
         "test_EXP015_A12_17_nonregional_setup_compatibility",
+        "test_EXP015_A14_25_region_adverse_recovery_preserves_finite_source",
     ),
 }
 REQUIRED_OWNER_HOLDS = tuple(sorted(baseline.HOLDS))
