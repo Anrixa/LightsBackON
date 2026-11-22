@@ -51,6 +51,13 @@ PROTECTED_GIT_OBJECTS: dict[str, str] = {
     "scripts/network/session_host.gd": "e6e5be08fca46d7307396245cd5fdfc1715d2577",
 }
 
+# Preserve A10.3's exact host baseline while recognizing one source-only
+# later host authorization revision. Any other SessionHost blob is refused.
+# This is a hash exception, not an independent review or production approval.
+PINNED_SESSION_HOST_EVOLUTIONS: dict[str, str] = {
+    "EXP015_A12_11_HOST_TICK_FENCE": "c42c0b89bd8a798e242cf6f512b1c2d435ed80bf",
+}
+
 # Exact, descriptive tests are pinned, not just total test counts. All run in
 # the unmodified recursive Godot suite; this inventory proves their presence,
 # not their execution. Exact-head CI must prove execution separately.
@@ -123,18 +130,32 @@ def protected_git_audit() -> dict[str, Any]:
     dirty = git("status", "--porcelain", "--untracked-files=all", "--", *paths)
     require(not dirty, "PROTECTED_WORKTREE_DIRTY", dirty[:500])
     found: dict[str, str] = {}
+    host_evolution: str | None = None
+    host_path = "scripts/network/session_host.gd"
     for path, expected in PROTECTED_GIT_OBJECTS.items():
         actual = git("rev-parse", f"HEAD:{path}")
-        require(actual == expected, "PROTECTED_SOURCE_DRIFT",
-                f"{path}: expected={expected}, actual={actual}")
+        accepted = actual == expected
+        if path == host_path and not accepted:
+            for label, pinned_oid in PINNED_SESSION_HOST_EVOLUTIONS.items():
+                if actual == pinned_oid:
+                    accepted = True
+                    host_evolution = label
+                    break
+        require(accepted, "PROTECTED_SOURCE_DRIFT",
+                f"{path}: baseline={expected}, actual={actual}")
         # For the tree, Git status above checks tracked/untracked modifications.
+        # Check the actual accepted blob rather than overwriting the A10.3
+        # protected-source baseline with a newly generated value.
         if path != "content/contracts":
             disk_oid = git("hash-object", "--", path)
-            require(disk_oid == expected, "PROTECTED_DISK_DRIFT", path)
+            require(disk_oid == actual, "PROTECTED_DISK_DRIFT", path)
         found[path] = actual
     return {"head_commit": head, "baseline": "A10.3_EXACT_HEAD",
             "original_contract_tree_object": found["content/contracts"],
-            "protected_objects": found, "protected_worktree_clean": True}
+            "protected_objects": found, "protected_worktree_clean": True,
+            "source_host_baseline_oid": PROTECTED_GIT_OBJECTS[host_path],
+            "source_host_evolution": host_evolution,
+            "source_host_evolution_independently_reviewed": False}
 
 
 def mechanical_structure(contingency: dict, inquiry: dict) -> dict[str, Any]:
