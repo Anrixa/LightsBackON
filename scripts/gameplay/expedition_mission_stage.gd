@@ -13,6 +13,7 @@ const ApproachView := preload("res://scripts/world/expedition_approach_view.gd")
 const Exp017Presentation := preload("res://scripts/world/exp017_restoration_feedback.gd")
 const Exp018Presentation := preload("res://scripts/world/exp018_host_presentation.gd")
 const Exp021Audio := preload("res://scripts/world/exp021_spatial_audio.gd")
+const Exp021Effects := preload("res://scripts/world/exp021_restoration_effects.gd")
 const Runtime := preload("res://scripts/gameplay/expedition_host_session.gd")
 const RegionalPanel := preload("res://scripts/ui/expedition_regional_panel.gd")
 const PlayerController := preload("res://scripts/actors/first_person_controller.gd")
@@ -54,6 +55,7 @@ var _site_composition: Node3D
 var _environmental_feedback: Node3D
 var _exp017_feedback: Node3D
 var _exp021_sound: RefCounted
+var _exp021_fx: RefCounted
 var _approach_view: Node3D
 var _approach_choice: String = "guarded"
 var _outcome_choice: String = "buffer"
@@ -167,6 +169,7 @@ func _ready() -> void:
 	_add_site_composition(plan)
 	_add_exp017_presentation(plan)
 	_add_exp021_sound(plan)
+	_add_exp021_effects(plan)
 	_add_hazard_marker()
 	_build_overlay(level)
 	# An original Compatibility scene with no extra lights or game-state
@@ -329,6 +332,24 @@ func _add_exp021_sound(plan: Dictionary) -> void:
 		_exp021_sound = null
 
 
+## EXP021 A03: material/light transition driven only by source-canonical host
+## state. Uses existing lamps, so it adds zero extra light emitters.
+func _add_exp021_effects(plan: Dictionary) -> void:
+	_exp021_fx = Exp021Effects.new()
+	var result: Dictionary = _exp021_fx.setup(world, plan)
+	if not bool(result.get("ok", false)):
+		push_error("EXP021_A03_EFFECTS_SOURCE_HOLD: " + str(result))
+		_exp021_fx = null
+		return
+	# These presentation preferences are intentionally session-local until a
+	# qualified settings handoff is integrated. No user profile is mutated.
+	var preferences: Variant = get_tree().get_meta("exp021_display_preferences", {})
+	if preferences is Dictionary and not (preferences as Dictionary).is_empty():
+		if not _exp021_fx.set_preferences(preferences):
+			push_error("EXP021_A03_INVALID_PRESENTATION_SETTINGS")
+			_exp021_fx = null
+
+
 ## A visible diagnostic marker, not a damage collider or tested path blocker.
 ## Host timing and permission checks remain authoritative independently.
 func _add_hazard_marker() -> void:
@@ -430,6 +451,8 @@ func _physics_process(delta: float) -> void:
 		return
 	if _exp021_sound != null:
 		_exp021_sound.advance(delta)
+	if _exp021_fx != null:
+		_exp021_fx.advance(delta)
 	_tick_accumulator += delta
 	while _tick_accumulator >= HOST_STEP_SECONDS:
 		_tick_accumulator -= HOST_STEP_SECONDS
@@ -1256,9 +1279,16 @@ func _refresh() -> void:
 			_exp017_feedback, runtime, _exp018_requested)
 		if not bool(presented.get("ok", false)):
 			push_error("EXP018_A04_HOST_PRESENTATION_HOLD: " + str(presented))
-		elif _exp021_sound != null:
-			var audio_projection: Dictionary = _exp021_sound.reflect(
-				board, runtime.grid.canonical_state())
-			if not bool(audio_projection.get("ok", false)):
-				push_error("EXP021_A02_AUDIO_SOURCE_HOLD: " + str(audio_projection))
+		else:
+			var canonical_grid: Dictionary = runtime.grid.canonical_state()
+			if _exp021_sound != null:
+				var audio_projection: Dictionary = _exp021_sound.reflect(
+					board, canonical_grid)
+				if not bool(audio_projection.get("ok", false)):
+					push_error("EXP021_A02_AUDIO_SOURCE_HOLD: " + str(audio_projection))
+			if _exp021_fx != null:
+				var fx_projection: Dictionary = _exp021_fx.reflect(
+					board, canonical_grid)
+				if not bool(fx_projection.get("ok", false)):
+					push_error("EXP021_A03_FX_SOURCE_HOLD: " + str(fx_projection))
 	set_meta("display_revision", int(board["host_revision"]))
