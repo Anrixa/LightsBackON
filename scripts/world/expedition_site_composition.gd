@@ -281,3 +281,50 @@ static func reflect(root: Node3D, host_state: Dictionary) -> void:
 			str(next.get("mode", "")).to_upper(),
 			str(host_state.get("phase", ""))]
 		label.modulate = COLOR_ACTIVE
+
+
+## EXP014 A02: after the four original host-authoritative intervention
+## operations finish, reuse the same route display to expose three new
+## conditional mechanical stages. No scene or host state is mutated.
+static func reflect_contingency(root: Node3D, host_state: Dictionary) -> void:
+	if root == null or not bool(root.get_meta("presentation_only", false)):
+		return
+	if str(root.get_meta("source_level_id", "")) != str(host_state.get("level_id", "")):
+		return
+	var route: String = str(host_state.get("route", ""))
+	var step_index: int = clampi(int(host_state.get("step", 0)), 0, 3)
+	var faulted: bool = str(host_state.get("fault", "")) != ""
+	var solved: bool = bool(host_state.get("solved", false))
+	for route_name: String in ROUTES:
+		var group: Node3D = root.get_node("Procedures/" + route_name) as Node3D
+		group.visible = route == "" or route == route_name
+		for i: int in range(4):
+			var line: MeshInstance3D = group.get_node("Operation_%d" % i) as MeshInstance3D
+			var tint: Color = COLOR_IDLE
+			var phase: String = "inactive"
+			if route == route_name:
+				if i == 3 or i < step_index:
+					tint = COLOR_DONE
+					phase = "complete"
+				elif i == step_index and not solved:
+					tint = COLOR_FAULT if faulted else COLOR_ACTIVE
+					phase = "fault" if faulted else "active"
+			line.set_meta("contingency_status", phase)
+			line.material_override = _material(tint)
+	var label: Label3D = root.get_node("ProcedureStatus") as Label3D
+	if solved:
+		label.text = "CONTINGENCY VERIFIED / SOURCE AUTHORITY"
+		label.modulate = COLOR_DONE
+	elif faulted:
+		label.text = "CONTINGENCY FAULT / RETURN TO STATION C"
+		label.modulate = COLOR_FAULT
+	elif route == "":
+		label.text = "CHOOSE OPERATING STRATEGY AT WORKSITE BOARD"
+		label.modulate = COLOR_IDLE
+	else:
+		var next: Dictionary = host_state.get("next", {})
+		label.text = "CONTINGENCY %s %d/3 • %s • %s" % [
+			route.to_upper(), step_index + 1,
+			str(next.get("mode", "")).to_upper(),
+			str(host_state.get("phase", ""))]
+		label.modulate = COLOR_ACTIVE
