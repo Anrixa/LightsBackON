@@ -1,5 +1,5 @@
 extends RefCounted
-## EXP015 A12.2: original reserve-anchor feeder incident, host only.
+## EXP015 A12.4: source-epoch-bound original reserve-anchor signoff, host only.
 ## Only SessionHost's existing authenticated worksite board may expose this.
 ## Never creates restoration receipts, reserves, rewards, new RPCs or saves.
 const Atlas := preload("res://scripts/world/dispatch_atlas.gd")
@@ -17,6 +17,7 @@ var _original_feeder: String = ""
 var _recovery_feeder: String = ""
 var _phase: String = "inactive"
 var _policy: String = ""
+var _verified_source_revision: int = -1
 var _events: Array[Dictionary] = []
 
 
@@ -134,11 +135,41 @@ func definition_snapshot() -> Dictionary:
 		"risk_class": _source["risk_class"], "qualification": QUALIFICATION}
 
 
+## A12.4: Only ORIGINAL root-to-anchor feeders and ties capable of
+## feeding that path contribute to the source revision. The network's
+## authoritative append-only event log makes even trip-then-reset visible.
+## Current electricity alone cannot prove the source stayed stable.
+func _source_revision() -> int:
+	if _network == null or _source.is_empty():
+		return -1
+	var route: Dictionary = _network.anchor_route_snapshot()
+	if not _path_matches_original(route):
+		return -1
+	var tracked_assets: Dictionary = {}
+	var original_nodes: Dictionary = {}
+	for edge: Dictionary in route["original_feeder_path"]:
+		tracked_assets[str(edge["edge_id"])] = true
+	for node: String in route["original_site_path"]:
+		original_nodes[node] = true
+	for tie: Dictionary in _source["standby_ties"]:
+		if original_nodes.has(str(tie["to"])):
+			tracked_assets[str(tie["edge_id"])] = true
+	var count: int = 0
+	for event: Dictionary in _network.snapshot().get("events", []):
+		if tracked_assets.has(str(event.get("asset", ""))):
+			count += 1
+	return count
+
+
 func _source_valid() -> bool:
 	if _network == null or _source.is_empty() or _policy.is_empty():
 		return false
 	var plan: Dictionary = _network.anchor_route_snapshot()
 	if not _path_matches_original(plan):
+		return false
+	if (_phase == "verified" or _phase == "signed_off") and \
+			(_verified_source_revision < 0 or \
+			_source_revision() != _verified_source_revision):
 		return false
 	if _policy == "restored_original_feeder":
 		var state: Dictionary = _network.snapshot()
@@ -164,6 +195,8 @@ func snapshot() -> Dictionary:
 		"original_region_id": _source["region_id"],
 		"original_incoming_feeder": _original_feeder,
 		"active_recovery_feeder": _recovery_feeder,
+		"verified_source_revision": _verified_source_revision,
+		"current_source_revision": _source_revision(),
 		"original_route": _network.anchor_route_snapshot(),
 		"events": _events.duplicate(true), "qualification": QUALIFICATION}
 
@@ -174,6 +207,17 @@ func operate(action: String) -> Dictionary:
 	if not ACTIONS.has(action) and \
 			action != "anchor_proof:" + str(_source["recovery_procedure"]):
 		return _fail("ANCHOR_UNKNOWN_OR_FORGED_PROOF")
+	if _phase == "verified" and _source_revision() != _verified_source_revision:
+		# A path can become healthy again after a transient trip. The old
+		# verification is still stale and may not be signed off.
+		_phase = "audit_pending"
+		_policy = ""
+		_recovery_feeder = ""
+		_verified_source_revision = -1
+		_events.append({"sequence": _events.size() + 1,
+			"action": "source_invalidation", "phase": _phase,
+			"reason": "PATH_CHANGED_AFTER_VERIFICATION"})
+		return _fail("ANCHOR_SOURCE_CHANGED_AFTER_VERIFY")
 	if _phase == "signed_off":
 		if _source_valid():
 			return _fail("ANCHOR_ALREADY_SIGNED_OFF")
@@ -182,7 +226,10 @@ func operate(action: String) -> Dictionary:
 		_phase = "audit_pending"
 		_policy = ""
 		_recovery_feeder = ""
-		_events.append({"action": "source_invalidation", "phase": _phase})
+		_verified_source_revision = -1
+		_events.append({"sequence": _events.size() + 1,
+			"action": "source_invalidation", "phase": _phase,
+			"reason": "SIGNED_SOURCE_CHANGED"})
 	var plan: Dictionary = _network.anchor_route_snapshot()
 	if not _path_matches_original(plan) or \
 			plan.get("level_id") != _source["shelter_service_site"]:
@@ -245,6 +292,10 @@ func operate(action: String) -> Dictionary:
 		"anchor_verify":
 			if _phase != "verification_pending" or not _source_valid():
 				return _fail("ANCHOR_LIVE_SOURCE_PROOF_REQUIRED")
+			var current_revision: int = _source_revision()
+			if current_revision < 0:
+				return _fail("ANCHOR_SOURCE_REVISION_UNAVAILABLE")
+			_verified_source_revision = current_revision
 			_phase = "verified"
 		"anchor_signoff":
 			if _phase != "verified" or not _source_valid():
