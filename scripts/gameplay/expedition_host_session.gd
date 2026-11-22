@@ -37,6 +37,7 @@ const SiteApproach := preload("res://scripts/gameplay/expedition_approach_intell
 const SiteOutcomes := preload("res://scripts/gameplay/expedition_operational_consequences.gd")
 const SiteHazards := preload("res://scripts/gameplay/expedition_environment_hazards.gd")
 const SitePuzzles := preload("res://scripts/gameplay/expedition_investigation_chains.gd")
+const AdvancedPolicies := preload("res://scripts/gameplay/expedition_advanced_policies.gd")
 const AdvancedEquipment := preload("res://scripts/gameplay/expedition_advanced_equipment.gd")
 const AdvancedHazards := preload("res://scripts/gameplay/expedition_advanced_hazards.gd")
 const AdvancedFaults := preload("res://scripts/gameplay/expedition_advanced_fault_layers.gd")
@@ -120,7 +121,8 @@ func start(level_id: String, host_position: Callable,
 		enable_advanced_cases: bool = false,
 		enable_advanced_fault_layers: bool = false,
 		enable_advanced_environment: bool = false,
-		enable_advanced_equipment: bool = false) -> Dictionary:
+		enable_advanced_equipment: bool = false,
+		enable_advanced_policy: bool = false) -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
 	if enable_devices and not enable_bespoke:
@@ -149,6 +151,8 @@ func start(level_id: String, host_position: Callable,
 		return _fail("EXP014_A07_REQUIRES_A06_OUTCOMES")
 	if enable_site_puzzles and not enable_site_hazards:
 		return _fail("EXP014_A08_REQUIRES_A07_ENVIRONMENT")
+	if enable_advanced_policy and not enable_advanced_equipment:
+		return _fail("EXP016_A09_REQUIRES_A08_AUTHENTICATED_GEAR")
 	if enable_advanced_equipment and not enable_advanced_environment:
 		return _fail("EXP016_A08_REQUIRES_A07_HAZARD_INTERLOCK")
 	if enable_advanced_environment and not enable_advanced_fault_layers:
@@ -507,6 +511,16 @@ func start(level_id: String, host_position: Callable,
 			var accepted_gear: Dictionary = advanced_cases.bind_equipment_manifest(gear)
 			if not bool(accepted_gear.get("ok", false)):
 				return _fail("EXP016_A08_EQUIPMENT_BIND_FAILED", accepted_gear)
+		if enable_advanced_policy:
+			var policy_book: Dictionary = AdvancedPolicies.load_book()
+			var policy_audit: Dictionary = AdvancedPolicies.inspect(
+				atlas, SiteContingencies.load_book(), policy_book)
+			if not bool(policy_audit.get("ok", false)):
+				return _fail("EXP016_A09_POLICY_SOURCE_INVALID", policy_audit)
+			var policy_spec: Dictionary = AdvancedPolicies.entry_for(policy_book, level_id)
+			var policy_bound: Dictionary = advanced_cases.bind_source_policy(policy_spec)
+			if not bool(policy_bound.get("ok", false)):
+				return _fail("EXP016_A09_POLICY_BIND_FAILED", policy_bound)
 		_definitions["advanced_cases"] = advanced_cases.definition_snapshot()
 	_position_source = host_position
 	_physics_visibility = physics_visibility
@@ -924,6 +938,12 @@ func _hazard_facts() -> Dictionary:
 # Original tool admission is host-owned; never sourced from client command.
 func _puzzle_facts() -> Dictionary:
 	var facts: Dictionary = _hazard_facts()
+	if advanced_cases != null:
+		# Source-owned upstream worksite guard, not an arbitrary client boolean.
+		facts["load_balanced"] = balancing != null and balancing.solved()
+		facts["supplies_ready"] = logistics != null and logistics.solved()
+		facts["cascade_stable"] = consequences != null and consequences.solved()
+		facts["fault_clear"] = faults != null and faults.solved()
 	if advanced_cases != null:
 		facts["authorized_tools"] = TOOLS.duplicate()
 	facts["hazard_safe"] = site_hazards != null and site_hazards.can_operate()

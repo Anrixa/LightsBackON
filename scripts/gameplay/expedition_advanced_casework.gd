@@ -21,6 +21,10 @@ var _kits: int = 0
 var _liabilities: int = 0
 var _faults: int = 0
 var _recoveries: int = 0
+var _policy_spec: Dictionary = {}
+var _policy: String = ""
+var _policy_debt: int = 0
+var _policy_assurance: bool = false
 var _equipment_manifest: Dictionary = {}
 var _equipped_tool: String = ""
 var _spare_cells: int = 0
@@ -176,6 +180,15 @@ func configure(entry: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 
+func bind_source_policy(policy: Dictionary) -> Dictionary:
+	if _spec.is_empty() or not _policy_spec.is_empty() or \
+			policy.get("level_id") != _spec.get("level_id") or \
+			not policy.has("options"):
+		return _reject("POLICY_SOURCE_MISMATCH")
+	_policy_spec = policy.duplicate(true)
+	return {"ok": true, "code": "SOURCE_POLICY_BOUND"}
+
+
 func bind_equipment_manifest(manifest: Dictionary) -> Dictionary:
 	if _spec.is_empty() or not _equipment_manifest.is_empty() or \
 			manifest.get("level_id") != _spec.get("level_id") or \
@@ -209,6 +222,8 @@ func definition_snapshot() -> Dictionary:
 	var copy: Dictionary = _spec.duplicate(true)
 	if not _fault_layer.is_empty():
 		copy["source_fault_layer"] = _fault_layer.duplicate(true)
+	if not _policy_spec.is_empty():
+		copy["source_service_policy"] = _policy_spec.duplicate(true)
 	if not _equipment_manifest.is_empty():
 		copy["source_equipment_manifest"] = _equipment_manifest.duplicate(true)
 	if not _hazard_protocol.is_empty():
@@ -236,7 +251,8 @@ func begin() -> Dictionary:
 	if _spec.is_empty() or _phase != "locked":
 		return _reject("BEGIN_UNAVAILABLE")
 	var next_phase: String = "layered_evidence" if not _fault_layer.is_empty() else \
-		"evidence" if _spec.has("diagnosis") else "choose"
+		"evidence" if _spec.has("diagnosis") else \
+		"policy_choose" if not _policy_spec.is_empty() else "choose"
 	_return_phase_after_hazard = next_phase
 	_phase = "hazard_preflight" if not _hazard_protocol.is_empty() else next_phase
 	return {"ok": true, "code": "CASE_OPEN"}
@@ -284,6 +300,16 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 			_hazard_progress = 0
 		return {"ok": true, "code": "HAZARD_ACCESS_RESTORED" if _hazard_progress == 0 else \
 			"HAZARD_SEQUENCE_ADVANCED"}
+	if _phase == "resilience_crosscheck":
+		if action != "case_resilience_crosscheck" or \
+				entity != str(targets["C"]) or \
+				not bool(facts.get("balancing_solved", false)) or \
+				not bool(facts.get("consequences_solved", false)):
+			return _reject("RESILIENCE_ASSURANCE_SOURCE_REQUIRED")
+		_policy_assurance = true
+		_phase = "signoff" if _spec.has("final_signoff_station") else "solved"
+		_record("resilience_rechecked")
+		return {"ok": true, "code": "SOURCE_RESILIENCE_ASSURED"}
 	if _phase == "signoff":
 		var required: String = str(_spec.get("final_signoff_station", ""))
 		if entity != str(targets.get(required, "")) or action != "case_signoff":
@@ -319,7 +345,8 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 				_record("incorrect_dual_fault")
 				return _reject("DUAL_FAULT_DIAGNOSIS_RECOVERABLE")
 			_layer_diagnosed = true
-			_phase = "evidence" if _spec.has("diagnosis") else "choose"
+			_phase = "evidence" if _spec.has("diagnosis") else \
+				"policy_choose" if not _policy_spec.is_empty() else "choose"
 			_record("source_dual_fault_accepted")
 			return {"ok": true, "code": "DUAL_FAULT_SOURCE_VERIFIED"}
 		return _reject("DUAL_FAULT_ACTION_REQUIRED")
@@ -343,15 +370,34 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 				_record("incorrect_diagnosis")
 				return _reject("INCORRECT_DIAGNOSIS_RECOVERABLE")
 			_diagnosed = true
-			_phase = "choose"
+			_phase = "policy_choose" if not _policy_spec.is_empty() else "choose"
 			_record("source_diagnosis_verified")
 			return {"ok": true, "code": "CASE_DIAGNOSIS_VERIFIED"}
 		return _reject("EVIDENCE_ACTION_REQUIRED")
+	if _phase == "policy_choose":
+		var choice: String = action.trim_prefix("case_policy:")
+		if not ["priority", "resilience"].has(choice) or \
+				action != "case_policy:" + choice:
+			return _reject("ORIGINAL_SOURCE_POLICY_REQUIRED")
+		var policy_option: Dictionary = _policy_spec["options"][choice]
+		if entity != str(targets[str(policy_option["station"])]) or \
+				not bool(facts.get(str(_policy_spec["original_guard"]), false)):
+			return _reject("POLICY_SOURCE_GUARD_OR_STATION_INVALID")
+		_policy = choice
+		_policy_debt = int(policy_option["service_debt"])
+		_policy_assurance = false
+		_phase = "choose"
+		_record("committed_service_" + choice)
+		return {"ok": true, "code": "SOURCE_POLICY_COMMITTED",
+			"service_debt": _policy_debt, "policy": choice}
 	if _phase == "choose":
 		var chosen: String = action.trim_prefix("case_")
 		if not ["forensic", "field"].has(chosen) or \
 				entity != str(targets["A" if chosen == "forensic" else "B"]):
 			return _reject("INVALID_ROUTE")
+		if not _policy_spec.is_empty() and \
+				str(_policy_spec["options"][_policy]["route"]) != chosen:
+			return _reject("POLICY_ROUTE_CONSEQUENCE_MISMATCH")
 		_route = chosen
 		var route: Dictionary = _spec["routes"][_route]
 		_kits = int(route["initial_kits"])
@@ -438,7 +484,8 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 		_completed[str(step["id"])] = true
 		_record("verified_" + str(step["kind"]))
 		if _completed.size() == steps.size():
-			_phase = "signoff" if _spec.has("final_signoff_station") else "solved"
+			_phase = "resilience_crosscheck" if _policy == "resilience" else \
+				"signoff" if _spec.has("final_signoff_station") else "solved"
 		return {"ok": true, "code": "CASE_SOLVED" if solved() else "CASE_STEP_VERIFIED",
 			"completed": _completed.size(), "kits": _kits}
 	return _reject("STEP_OR_DEPENDENCY_LOCKED")
@@ -455,5 +502,7 @@ func snapshot() -> Dictionary:
 		"hazard_progress": _hazard_progress, "hazard_interruptions": _hazard_interruptions,
 		"source_hazard_kind": _hazard_protocol.get("source_hazard_kind", ""),
 		"equipped_tool": _equipped_tool, "worksite_spare_cells": _spare_cells,
+		"service_policy": _policy, "service_debt": _policy_debt,
+		"source_resilience_assured": _policy_assurance,
 		"worksite_spares_debited": _spares_debited,
 		"history": _history.duplicate(true)}
