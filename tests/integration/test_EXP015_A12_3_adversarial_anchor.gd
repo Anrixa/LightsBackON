@@ -220,7 +220,7 @@ func test_EXP015_A12_3_authenticated_host_rejects_bypass_and_repairs_fault() -> 
 	assert_true(bool(ready.get("ok", false)), str(ready))
 	if not bool(ready.get("ok", false)):
 		return
-	assert_true(str(ready["content_revision"]).begins_with("EXP015_A12_6_"))
+	assert_true(str(ready["content_revision"]).begins_with("EXP015_A12_9_"))
 	var board: String = str(host.worksite.definition_snapshot()["board"])
 	_position = host.definition_snapshot()["positions"][board]
 	var network: Network = host.regional_network

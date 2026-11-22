@@ -66,7 +66,7 @@ func _session(case_id: String) -> Dictionary:
 	assert_true(bool(started.get("ok", false)), str(started))
 	if not bool(started.get("ok", false)):
 		return {}
-	assert_true(str(started["content_revision"]).begins_with("EXP015_A12_6_"))
+	assert_true(str(started["content_revision"]).begins_with("EXP015_A12_9_"))
 	var board: String = str(session.worksite.definition_snapshot()["board"])
 	_position = session.definition_snapshot()["positions"][board]
 	var network: Network = session.regional_network
