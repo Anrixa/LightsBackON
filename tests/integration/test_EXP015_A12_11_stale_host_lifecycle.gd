@@ -117,7 +117,6 @@ func test_EXP015_A12_11_25_regions_stale_tick_reward_and_receipt_continuity() ->
 		var warm: Dictionary = old.tick_host()
 		assert_true(bool(warm.get("ok", false)), str(warm))
 		var old_ticks: int = old._tick
-		var old_hash: String = old.state_hash()
 		var new_ctx: Dictionary = _start(region, profile, "new")
 		if new_ctx.is_empty():
 			continue
@@ -125,6 +124,9 @@ func test_EXP015_A12_11_25_regions_stale_tick_reward_and_receipt_continuity() ->
 		assert_true(current.regional_network == network)
 		assert_eq(network.current_dispatch_epoch(), 2)
 		var source_before: Dictionary = network.snapshot()
+		# Reattachment legitimately changes shared network state. Assert that
+		# obsolete ticks add no further state change AFTER that transition.
+		var old_hash: String = old.state_hash()
 		# All three host-only paths must refuse obsolete lifecycle changes.
 		for attempt: int in range(3):
 			var denied: Dictionary = old.tick_host()
