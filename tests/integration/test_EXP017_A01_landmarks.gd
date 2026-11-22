@@ -46,10 +46,10 @@ func test_EXP017_A01_25_source_pinned_visible_landmark_structures() -> void:
 			continue
 		assert_eq(world.get_child_count(), 2,
 			"A03 root geometry groups must remain unchanged")
-		var base: Node3D = world.get_node("FacilitySilhouettes")
+		var base: Node3D = world.get_node("FacilitySilhouettes") as Node3D
 		assert_eq(base.get_child_count(), 4)
 		var hero: Node3D = base.get_child(0).get_node(
-			"EXP017_A01_RegionalLandmark")
+			"EXP017_A01_RegionalLandmark") as Node3D
 		assert_true(hero != null)
 		if hero != null:
 			assert_true(hero.get_child_count() >= 3)
