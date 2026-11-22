@@ -111,6 +111,11 @@ if [ -n "$PY" ]; then
   "$PY" tools/validate_exp015_aftercare.py --report build/exp015-a04/source-audit.json || FAIL=1
 fi
 
+echo "== EXP015 A05: 25 source-bound critical-service incidents and reserve assurance =="
+if [ -n "$PY" ]; then
+  "$PY" tools/validate_exp015_assurance.py --report build/exp015-a05/source-audit.json || FAIL=1
+fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 
@@ -163,6 +168,20 @@ elif [ -f project.godot ]; then
     echo "EXP015_A03_HOST_SCRIPT_PARSE=PASS"
   fi
   rm -f "$HOST_PARSE_OUT"
+  echo "== EXP015 A05: direct Godot critical-service assurance script parse preflight =="
+  ASSURANCE_PARSE_OUT="$(mktemp)"
+  if ! "$GODOT_BIN" --headless --path . --check-only --script res://scripts/gameplay/expedition_regional_assurance.gd >"$ASSURANCE_PARSE_OUT" 2>&1; then
+    echo "FAIL: Godot assurance script parser rejected expedition_regional_assurance.gd"
+    cat "$ASSURANCE_PARSE_OUT"
+    FAIL=1
+  elif grep -qE "SCRIPT ERROR|Parse Error" "$ASSURANCE_PARSE_OUT"; then
+    echo "FAIL: Godot assurance script parser reported source errors"
+    cat "$ASSURANCE_PARSE_OUT"
+    FAIL=1
+  else
+    echo "EXP015_A05_ASSURANCE_SCRIPT_PARSE=PASS"
+  fi
+  rm -f "$ASSURANCE_PARSE_OUT"
   echo "== EXP015 A04: direct Godot post-finale controller parse preflight =="
   AFTERCARE_PARSE_OUT="$(mktemp)"
   if ! "$GODOT_BIN" --headless --path . --check-only --script res://scripts/gameplay/expedition_regional_aftercare.gd >"$AFTERCARE_PARSE_OUT" 2>&1; then
