@@ -117,6 +117,16 @@ func _ready() -> void:
 	var catalog: Dictionary = Atlas.load_catalog()
 	_exp020_atlas = catalog
 	_exp020_routes = Campaign.load_routes()
+	if _expedition_account == "":
+		# Anonymous single-player is deliberately unsaved; create a fresh
+		# read-only planning profile so M still has task/region context.
+		# This is never sent to Ledger.receive or treated as real rewards.
+		_exp020_campaign_consequences = CampaignConsequences.evaluate(
+			Ledger.new_profile("EXP020_SOLO_VIEW"), catalog, _exp020_routes,
+			RegionalSource.load_book())
+		if not bool(_exp020_campaign_consequences.get("ok",false)):
+			push_error("EXP020_SOLO_SOURCE_HOLD: " + str(_exp020_campaign_consequences))
+			return
 	_exp020_story_book = StoryWorkOrders.load_book()
 	var source_story: Dictionary = StoryWorkOrders.inspect(
 		catalog, _exp020_routes, RegionalSource.load_book(), _exp020_story_book)
