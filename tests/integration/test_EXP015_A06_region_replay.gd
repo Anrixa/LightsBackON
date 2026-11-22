@@ -82,6 +82,9 @@ func _new_host(region: int, mode: String, account: String, stage: int) -> Dictio
 
 func _send(host: Runtime, seq: int, board: String,
 		action: String, peer: int = 1) -> Dictionary:
+	# Drive authentic host ticks before each envelope; no reduced network
+	# protection or direct controller shortcut in the 150-session replay.
+	host.host.tick(seq)
 	return host.receive(peer, JSON.stringify({
 		"session": host.session_id(), "seq": seq,
 		"type": "operate_worksite", "entity": board,
