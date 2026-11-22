@@ -14,6 +14,7 @@ const Exp017Presentation := preload("res://scripts/world/exp017_restoration_feed
 const Exp019Physical := preload("res://scripts/world/exp019_physical_worksite.gd")
 const Exp019Spatial := preload("res://scripts/world/exp019_spatial_tasks.gd")
 const Exp019FieldTools := preload("res://scripts/gameplay/exp019_field_tools.gd")
+const Exp019Environment := preload("res://scripts/world/exp019_environment_physics.gd")
 const Runtime := preload("res://scripts/gameplay/expedition_host_session.gd")
 const RegionalPanel := preload("res://scripts/ui/expedition_regional_panel.gd")
 const PlayerController := preload("res://scripts/actors/first_person_controller.gd")
@@ -56,6 +57,7 @@ var _environmental_feedback: Node3D
 var _exp017_feedback: Node3D
 var _exp019_physical: Node3D
 var _exp019_spatial: Node3D
+var _exp019_environment: Node3D
 var _approach_view: Node3D
 var _approach_choice: String = "guarded"
 var _outcome_choice: String = "buffer"
@@ -152,6 +154,11 @@ func _ready() -> void:
 		push_error("EXP019_A02_SPATIAL_HOST_BINDINGS_HOLD")
 		return
 	world.add_child(_exp019_spatial)
+	_exp019_environment = Exp019Environment.build(plan, world)
+	if _exp019_environment == null:
+		push_error("EXP019_A04_ENVIRONMENT_PHYSICS_HOLD")
+		return
+	world.add_child(_exp019_environment)
 	_add_site_composition(plan)
 	_add_exp017_presentation(plan)
 	_add_hazard_marker()
@@ -1230,4 +1237,8 @@ func _refresh() -> void:
 		var spatial_status: Dictionary = Exp019Spatial.reflect(_exp019_spatial, board)
 		if not spatial_status.get("ok", false):
 			push_error("EXP019_A02_HOST_TASK_PRESENTATION_HOLD: " + str(spatial_status))
+	if _exp019_environment != null:
+		var env_result: Dictionary = Exp019Environment.reflect(_exp019_environment, board, runtime.grid.canonical_state())
+		if not env_result.get("ok", false):
+			push_error("EXP019_A04_HOST_COLLISION_PROJECTION_HOLD: " + str(env_result))
 	set_meta("display_revision", int(board["host_revision"]))
