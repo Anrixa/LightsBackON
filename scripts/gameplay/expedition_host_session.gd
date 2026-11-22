@@ -46,6 +46,7 @@ const Assurance := preload("res://scripts/gameplay/expedition_regional_assurance
 const AltRoute := preload("res://scripts/gameplay/expedition_regional_alt_routes.gd")
 const Rejoin := preload("res://scripts/gameplay/expedition_regional_rejoin_consequences.gd")
 const Entry := preload("res://scripts/gameplay/expedition_regional_entry_commissioning.gd")
+const Settlement := preload("res://scripts/gameplay/expedition_regional_debt_settlement.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
 
@@ -87,6 +88,7 @@ var regional_assurance: Assurance
 var alternate_route: AltRoute
 var regional_rejoin: Rejoin
 var regional_entry: Entry
+var regional_settlement: Settlement
 
 var _definitions: Dictionary = {}
 var _position_source: Callable
@@ -135,7 +137,8 @@ func start(level_id: String, host_position: Callable,
 		enable_regional_assurance: bool = false,
 		enable_alternate_routes: bool = false,
 		enable_regional_rejoins: bool = false,
-		enable_regional_entries: bool = false) -> Dictionary:
+		enable_regional_entries: bool = false,
+		enable_regional_settlement: bool = false) -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
 	if enable_devices and not enable_bespoke:
@@ -183,6 +186,8 @@ func start(level_id: String, host_position: Callable,
 		return _fail("EXP015_A08_REQUIRES_A07_AND_A01_A02")
 	if enable_regional_entries and not enable_regional_networks:
 		return _fail("EXP015_A09_REQUIRES_ORIGINAL_A09_NETWORK")
+	if enable_regional_settlement and not enable_regional_assurance:
+		return _fail("EXP015_A10_REQUIRES_A05_CRITICAL_ASSURANCE")
 	if account_key != "" and not SaveService.is_valid_key(account_key):
 		return _fail("INVALID_ACCOUNT_KEY")
 	if not host_position.is_valid() or (physics_visibility.is_valid() and not host_position.is_valid()):
@@ -517,6 +522,23 @@ func start(level_id: String, host_position: Callable,
 			if not bool(configured_entry.get("ok", false)):
 				return _fail("EXP015_A09_ENTRY_CONFIG_INVALID", configured_entry)
 			_definitions["regional_entry"] = regional_entry.definition_snapshot()
+	# A10: optional real reserve/debt settlement, only at the source finale
+	# after A05 assurance. No new RPC or invented restoration receipt.
+	if enable_regional_settlement and regional_assurance != null:
+		var settlement_book: Dictionary = Settlement.load_book()
+		var settlement_audit: Dictionary = Settlement.inspect(
+			atlas, settlement_book, RegionalNetworks.load_book(), Assurance.load_book())
+		if not bool(settlement_audit.get("ok", false)):
+			return _fail("EXP015_A10_SOURCE_INVALID", settlement_audit)
+		var settlement_recipe: Dictionary = Settlement.entry_for(settlement_book, level_id)
+		if settlement_recipe.is_empty():
+			return _fail("EXP015_A10_FINALE_SOURCE_MISSING")
+		regional_settlement = Settlement.new()
+		var settlement_gate: Dictionary = regional_settlement.configure(
+			settlement_recipe, regional_network, regional_assurance)
+		if not bool(settlement_gate.get("ok", false)):
+			return _fail("EXP015_A10_CONFIG_INVALID", settlement_gate)
+		_definitions["regional_settlement"] = regional_settlement.definition_snapshot()
 	# The A02 overlay is available only for the 40 explicitly authored
 	# source-linked locations. The other 160 remain unchanged A01 sessions.
 	if enable_site_a02:
@@ -726,6 +748,7 @@ func start(level_id: String, host_position: Callable,
 		"alternate_route_active": alternate_route != null,
 		"regional_rejoin_active": regional_rejoin != null,
 		"regional_entry_active": regional_entry != null,
+		"regional_settlement_active": regional_settlement != null,
 		"qualification": "AUTHORITY_SOURCE_HEADLESS_ONLY_NO_PLAYABILITY"}
 
 
@@ -734,6 +757,13 @@ func _session_id() -> String:
 
 
 func _content_revision() -> String:
+	if regional_settlement != null:
+		return "EXP015_A10_" + ("%s|%s|%s|%s" % [
+			str(_definitions.get("source_fingerprint", "")),
+			JSON.stringify(RegionalNetworks.entry_for(
+				RegionalNetworks.load_book(), str(_definitions.get("level_id", "")))),
+			JSON.stringify(regional_assurance.definition_snapshot()),
+			JSON.stringify(regional_settlement.definition_snapshot())]).sha256_text()
 	if regional_entry != null:
 		return "EXP015_A09_" + ("%s|%s|%s" % [
 			str(_definitions.get("source_fingerprint", "")),
@@ -957,6 +987,9 @@ func _bespoke_guard(player_id: String, kind: String, entity: String,
 	if kind == "request_extract" and regional_entry != null \
 			and not regional_entry.closed():
 		return _fail("EXP015_A09_COLD_ROOT_COMMISSION_REQUIRED")
+	if kind == "request_extract" and regional_settlement != null \
+			and not regional_settlement.closed():
+		return _fail("EXP015_A10_DEBT_SETTLEMENT_REQUIRED")
 	if kind == "request_extract" and devices != null and not devices.solved():
 		return _fail("EXP07_DEVICES_INCOMPLETE")
 	if kind == "request_extract" and faults != null and not faults.solved():
@@ -1154,6 +1187,12 @@ func _operate_worksite(player_id: String, entity: String, action: String) -> Dic
 	# These requests enter only through the existing SessionHost worksite intent,
 	# after its principal, sequence, dedupe, range and rate validation. The
 	# original board target is reused; there is no new network action RPC.
+	if regional_settlement != null and entity == str(worksite.definition_snapshot()["board"]) \
+			and action.begins_with("settlement_"):
+		return regional_settlement.operate(action)
+	if regional_settlement != null and entity == str(worksite.definition_snapshot()["board"]) \
+			and regional_settlement.protects_original_action(action):
+		return _fail("EXP015_A10_PROTECTED_RESERVE")
 	if regional_entry != null and entity == str(worksite.definition_snapshot()["board"]) \
 			and action.begins_with("entry_"):
 		return regional_entry.operate(action)
@@ -1351,6 +1390,8 @@ func _worksite_snapshot() -> Dictionary:
 		state["regional_rejoin"] = regional_rejoin.snapshot()
 	if regional_entry != null:
 		state["regional_entry"] = regional_entry.snapshot()
+	if regional_settlement != null:
+		state["regional_settlement"] = regional_settlement.snapshot()
 	return state
 
 
@@ -1568,6 +1609,8 @@ func task_board() -> Dictionary:
 		board["regional_rejoin"] = regional_rejoin.snapshot()
 	if regional_entry != null:
 		board["regional_entry"] = regional_entry.snapshot()
+	if regional_settlement != null:
+		board["regional_settlement"] = regional_settlement.snapshot()
 	return board
 
 
@@ -1595,6 +1638,8 @@ func authoritative_state() -> Dictionary:
 		state["exp015_regional_rejoin"] = regional_rejoin.snapshot()
 	if regional_entry != null:
 		state["exp015_regional_entry"] = regional_entry.snapshot()
+	if regional_settlement != null:
+		state["exp015_regional_settlement"] = regional_settlement.snapshot()
 	return state
 
 

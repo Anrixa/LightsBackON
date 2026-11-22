@@ -298,6 +298,21 @@ func host_transition(action: String, asset: String, proof: String = "") -> Dicti
 			else:
 				_service_debt += 2
 			_entry_commitment = action
+		"retire_service_debt":
+			# EXP015 A10: finite, host-only settlement; never an RPC or
+			# fabricated recharge. A restored AND electrically live original
+			# reserve anchor is mandatory. Debt is retired once, using real PU.
+			var anchor: String = str(_region["reserve_anchor_site"])
+			if asset != anchor or _site_id != str(_region["shelter_service_site"]) or \
+					not _restored.has(str(_region["root_source_id"])) or \
+						 not _restored.has(anchor) or \
+						 not _live_nodes(true).has(anchor) or \
+						 not _engaged.is_empty() or _service_debt <= 0 or \
+						 _reserve < _service_debt:
+				return _fail("DEBT_SETTLEMENT_SOURCE_OR_RESERVE_DENIED")
+			var retired_pu: int = _service_debt
+			_reserve -= retired_pu
+			_service_debt = 0
 		"recharge_reserve":
 			if asset != str(_region["reserve_anchor_site"]) or _recharged \
 					or not _restored.has(asset) or not _engaged.is_empty() \
