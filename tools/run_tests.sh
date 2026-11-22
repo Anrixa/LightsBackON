@@ -226,6 +226,10 @@ echo "== EXP018 A02: integration ancestry and immutable source bindings =="
 if [ -n "$PY" ]; then
   "$PY" tools/qualify_exp018_a02.py --report build/exp018-a02/qualification.json || FAIL=1
 fi
+echo "== EXP018 A03: authenticated original regional + bespoke mission host integration =="
+if [ -n "$PY" ]; then
+  "$PY" tools/qualify_exp018_a03.py --report build/exp018-a03/qualification.json || FAIL=1
+fi
 echo "== python reference model (re-derived, reference/tests) =="
 if [ -d reference/tests ] && [ -n "$PY" ]; then
   ( cd reference && "$PY" -m unittest discover -s tests -v ) || FAIL=1
