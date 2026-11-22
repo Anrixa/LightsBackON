@@ -249,3 +249,99 @@ func test_EXP015_A06_separate_accounts_do_not_share_network_state() -> void:
 	assert_true(str(b.regional_network.snapshot()["strategy"]).is_empty())
 	assert_eq(int(a.regional_network.snapshot()["reserve_pu"]), first_reserve)
 	assert_eq(b.pending_rewards("a06_isolated_other").size(), 0)
+
+
+## EXP015 A13 — complete original source across *three* dispatch epochs.
+## Unlike A06 this probes interleaved stale replays after each actual phase
+## transition, without direct controller shortcuts or synthetic reward claims.
+func test_EXP015_A13_50_region_branch_replays_refuse_two_retired_hosts() -> void:
+	var qualified: int = 0
+	for region: int in range(25):
+		for mode: String in ["critical_first", "resilience_first"]:
+			Network.clear_host_memory_for_test()
+			var account: String = "a13_%02d_%s" % [region, mode]
+			var root_ctx: Dictionary = _new_host(region, mode, account, 4)
+			assert_true(bool(root_ctx["reply"].get("ok", false)),
+				str(root_ctx["reply"]))
+			if not bool(root_ctx["reply"].get("ok", false)):
+				continue
+			var root: Runtime = root_ctx["host"]
+			var network: Network = root.regional_network
+			var root_board: String = _board(root)
+			_replay(root, root_board, [
+				"regional_critical" if mode == "critical_first" else
+					"regional_resilience",
+				"incident_survey", "incident_isolate", "incident_managed",
+				"incident_prepare", "incident_recover", "incident_certify"
+			])
+			assert_true(root.incident_response.certified())
+			var after_root: Dictionary = network.snapshot()
+			var second_ctx: Dictionary = _new_host(region, mode, account, 7)
+			assert_true(bool(second_ctx["reply"].get("ok", false)),
+				str(second_ctx["reply"]))
+			if not bool(second_ctx["reply"].get("ok", false)):
+				continue
+			var second: Runtime = second_ctx["host"]
+			assert_true(second.regional_network == network)
+			assert_eq(int(network.snapshot()["reserve_pu"]),
+				int(after_root["reserve_pu"]))
+			var retired_root_hash: String = root.host.state_hash()
+			var stale_root_duplicate: Dictionary = _send(root, 1, root_board,
+				"incident_survey")
+			assert_eq(str(stale_root_duplicate.get("code", "")),
+				"EXP015_A12_15_STALE_REPLAY")
+			var stale_root_fresh: Dictionary = _send(root, 8, root_board,
+				"incident_survey")
+			assert_eq(str(stale_root_fresh.get("code", "")),
+				"EXP015_A12_9_STALE_HOST_DISPATCH")
+			assert_eq(root.host.state_hash(), retired_root_hash)
+			assert_eq(root.host.publish(), {})
+			assert_eq(str(root.host.snapshot().get("code", "")),
+				"EXP015_A12_13_STALE_HOST_SNAPSHOT")
+			var middle_board: String = _board(second)
+			_replay(second, middle_board, [
+				"cascade_assess", "cascade_trip", "cascade_managed",
+				"cascade_prepare", "cascade_clear", "cascade_reconnect",
+				"cascade_attest"
+			])
+			assert_true(second.service_cascade.resolved())
+			var after_second: Dictionary = network.snapshot()
+			assert_true(after_second["events"].size() >
+				after_root["events"].size())
+			var finale_ctx: Dictionary = _new_host(region, mode, account, 8)
+			assert_true(bool(finale_ctx["reply"].get("ok", false)),
+				str(finale_ctx["reply"]))
+			if not bool(finale_ctx["reply"].get("ok", false)):
+				continue
+			var finale: Runtime = finale_ctx["host"]
+			assert_true(finale.regional_network == network)
+			var retired_middle_hash: String = second.host.state_hash()
+			assert_eq(str(_send(second, 1, middle_board,
+				"cascade_assess").get("code", "")),
+				"EXP015_A12_15_STALE_REPLAY")
+			assert_eq(str(_send(second, 8, middle_board,
+				"cascade_assess").get("code", "")),
+				"EXP015_A12_9_STALE_HOST_DISPATCH")
+			assert_eq(second.host.state_hash(), retired_middle_hash)
+			assert_eq(root.host.state_hash(), retired_root_hash)
+			var before_finale: int = int(network.snapshot()["reserve_pu"])
+			assert_eq(before_finale, int(after_second["reserve_pu"]))
+			var final_board: String = _board(finale)
+			_replay(finale, final_board, [
+				"finale_assess",
+				"finale_critical_verified" if mode == "critical_first" else
+					"finale_critical_contingency",
+				"finale_buffer" if mode == "critical_first" else
+					"finale_managed",
+				"finale_verify", "finale_signoff"
+			])
+			assert_true(finale.regional_finale.closed())
+			assert_eq(str(network.snapshot()["strategy"]), mode)
+			assert_true(int(network.snapshot()["reserve_pu"]) >= 0)
+			assert_true(finale.host.snapshot().has("manifest"))
+			assert_eq(finale.pending_rewards(account).size(), 0)
+			assert_false(finale.completed())
+			qualified += 1
+			print("EXP015_A13 region=%02d branch=%s epochs=%d old_replay=DENIED" %
+				[region + 1, mode, network.current_dispatch_epoch()])
+	assert_eq(qualified, 50)

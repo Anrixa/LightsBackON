@@ -23,6 +23,7 @@ REQUIRED_TESTS: dict[str, tuple[str, ...]] = {
     "tests/integration/test_EXP015_A06_region_replay.gd": (
         "test_EXP015_A06_50_auth_host_cross_dispatch_full_region_chains",
         "test_EXP015_A06_separate_accounts_do_not_share_network_state",
+        "test_EXP015_A13_50_region_branch_replays_refuse_two_retired_hosts",
     ),
     "tests/integration/test_EXP015_A12_13_stale_snapshots.gd": (
         "test_EXP015_A12_13_25_region_stale_host_snapshots_fail_closed",
