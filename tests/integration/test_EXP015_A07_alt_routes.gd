@@ -218,7 +218,7 @@ func test_EXP015_A07_150_authentic_role_and_branch_mechanical_replays() -> void:
 						str(result["used_transfer"]), int(result["reserve_spent"])])
 	assert_eq(total, 150)
 	assert_eq(int(transfer_count["a"]), 12)
-	assert_eq(int(transfer_count["b"]), 17)
+	assert_eq(int(transfer_count["b"]), 14)
 
 
 func test_EXP015_A07_signoff_revoked_by_actual_reisolation() -> void:

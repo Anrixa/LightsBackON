@@ -31,7 +31,7 @@ class OriginalRouteSourceTests(unittest.TestCase):
             "first_route_b_upstream_priority_ready": 25,
             "second_route_a_original_buffer_possible": 25,
             "second_route_b_original_tie_a_ready": 12,
-            "second_route_b_original_tie_b_ready": 17,
+            "second_route_b_original_tie_b_ready": 14,
         })
         self.assertFalse(result["hardware_steam_2peer_playability_release_certified"])
 

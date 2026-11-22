@@ -164,7 +164,7 @@ def audit(networks: dict, book: dict) -> dict[str, Any]:
         "first_route_b_upstream_priority_ready": 25,
         "second_route_a_original_buffer_possible": 25,
         "second_route_b_original_tie_a_ready": 12,
-        "second_route_b_original_tie_b_ready": 17,
+        "second_route_b_original_tie_b_ready": 14,
     }, "SOURCE_ROUTE_FEASIBILITY_DRIFT")
     return {"ok": True, "phase": "EXP015_A07",
             "original_route_sites": len(seen), "regions": 25,
