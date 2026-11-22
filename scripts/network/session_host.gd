@@ -84,6 +84,13 @@ func set_expedition_tick_authority(authority: Callable) -> void:
 	_expedition_tick_authority = authority
 
 
+## All A09-only host lifecycle hooks share the owner-issued dispatch epoch.
+## Unbound original campaign SessionHost objects remain unchanged.
+func _regional_lifecycle_revoked() -> bool:
+	return _expedition_tick_authority.is_valid() and \
+		not bool(_expedition_tick_authority.call())
+
+
 func configure(limits: Dictionary, protocol_version: int, content_revision: String, new_session_id: String,
 		grid: PowerGrid, meter: MeterModel, interaction: Interaction, equipment: Equipment,
 		switches_def: Dictionary, range_check: Callable) -> Array[Dictionary]:
@@ -128,6 +135,10 @@ func configure(limits: Dictionary, protocol_version: int, content_revision: Stri
 
 ## Join handshake (NET08 logic): rejects before spawning on any version mismatch, with a reason.
 func admit(peer_id: int, player_id: String, protocol_version: int, content_revision: String, tools: Array[String]) -> Dictionary:
+	# A12.14: no new peer/mission authority after dispatch replacement.
+	if _regional_lifecycle_revoked():
+		return _refuse("EXP015_A12_14_STALE_HOST_LIFECYCLE",
+			"regional dispatch ownership has changed", [])
 	if protocol_version != _protocol_version:
 		return _refuse("PROTOCOL_MISMATCH", "this game version uses protocol %d, the host uses %d" % [protocol_version, _protocol_version], [])
 	if content_revision != _content_revision:
@@ -160,6 +171,10 @@ func admit(peer_id: int, player_id: String, protocol_version: int, content_revis
 ## Revision barrier: a joining peer may send commands only after confirming it applied a snapshot at or after its
 ## admission revision (it sat in the joining screen until then).
 func confirm_synced(peer_id: int, applied_revision: int) -> Dictionary:
+	# No stale snapshot barrier acknowledgement from an obsolete host.
+	if _regional_lifecycle_revoked():
+		return _refuse("EXP015_A12_14_STALE_HOST_LIFECYCLE",
+			"regional dispatch ownership has changed", [])
 	if not _members.has(peer_id):
 		return _refuse("UNKNOWN_PEER", "sender is not a member of this session", [])
 	if applied_revision < int(_join_revision[peer_id]) or applied_revision > revision:
@@ -170,6 +185,9 @@ func confirm_synced(peer_id: int, applied_revision: int) -> Dictionary:
 
 ## Transport reports a disconnect: locks release and carried items return to a pad.
 func remove(peer_id: int) -> Array[Dictionary]:
+	# Old transport teardown must not mutate obsolete mission/equipment state.
+	if _regional_lifecycle_revoked():
+		return []
 	if not _members.has(peer_id):
 		return []
 	var player: String = _members[peer_id]
@@ -566,6 +584,10 @@ func _dispatch(player: String, msg: Dictionary) -> Dictionary:
 ## Host-only lifecycle gate, not an untrusted client intent. Called once the
 ## briefing overlay is dismissed and every joined peer confirmed its snapshot.
 func begin_after_briefing() -> Dictionary:
+	# Old host cannot re-arm mission state after successor activation.
+	if _regional_lifecycle_revoked():
+		return _refuse("EXP015_A12_14_STALE_HOST_LIFECYCLE",
+			"regional dispatch ownership has changed", [])
 	if _mission == null:
 		return _refuse("NO_MISSION", "no mission to start", [])
 	if _members.is_empty():
@@ -703,6 +725,9 @@ func set_mission(mission: MissionDirector) -> void:
 
 ## Host movement reports zone presence; leaving the extraction zone cancels a running countdown (MIS04).
 func set_in_zone(player: String, zone: String, inside: bool) -> Array[Dictionary]:
+	# Reject old host-owned zone presence without touching the mission.
+	if _regional_lifecycle_revoked():
+		return []
 	if _mission == null:
 		return []
 	var before: String = state_hash()

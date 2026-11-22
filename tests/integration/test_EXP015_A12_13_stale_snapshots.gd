@@ -187,3 +187,77 @@ func test_EXP015_A12_13_no_A09_legacy_snapshots_still_work() -> void:
 	assert_true(state.has("grid"))
 	assert_false(state.has("authority"))
 	assert_true(original.task_board().get("ok", false))
+
+
+
+## A12.14 checks every original region with an obsolete transport owner and
+## verifies that the current dispatcher and non-A09 legacy retain normal hooks.
+func test_EXP015_A12_14_all_25_regions_block_obsolete_host_lifecycle() -> void:
+	var atlas: Dictionary = Atlas.load_catalog()
+	var qualified: int = 0
+	for region: int in range(25):
+		Network.clear_host_memory_for_test()
+		var account: String = "a12_14_%02d" % region
+		var profile: Dictionary = _profile(atlas, region, account)
+		var prior_ctx: Dictionary = _start(region, profile, "prior_lifecycle")
+		if prior_ctx.is_empty():
+			continue
+		var prior: Runtime = prior_ctx["session"]
+		var old_manifest: Dictionary = prior.host.snapshot()["manifest"]
+		var original_member: String = prior.host.member(1)
+		assert_false(original_member.is_empty())
+		var current_ctx: Dictionary = _start(region, profile, "current_lifecycle")
+		if current_ctx.is_empty():
+			continue
+		var current: Runtime = current_ctx["session"]
+		var revision_before: int = prior.host.revision
+		var hash_before: String = prior.host.state_hash()
+		var denied: Dictionary = prior.host.admit(2, "PEER_2",
+			int(old_manifest["protocol_version"]),
+			str(old_manifest["content_revision"]), [] as Array[String])
+		assert_eq(str(denied.get("code", "")),
+			"EXP015_A12_14_STALE_HOST_LIFECYCLE")
+		denied = prior.host.confirm_synced(1, prior.host.revision)
+		assert_eq(str(denied.get("code", "")),
+			"EXP015_A12_14_STALE_HOST_LIFECYCLE")
+		denied = prior.host.begin_after_briefing()
+		assert_eq(str(denied.get("code", "")),
+			"EXP015_A12_14_STALE_HOST_LIFECYCLE")
+		assert_eq(prior.host.set_in_zone(original_member, "ZONE_EXTRACT", true), [])
+		assert_eq(prior.host.remove(1), [])
+		assert_eq(prior.host.member(1), original_member,
+			"obsolete teardown cannot rewrite previous host membership")
+		assert_eq(prior.host.revision, revision_before)
+		assert_eq(prior.host.state_hash(), hash_before,
+			"old authority remains a stable stale marker")
+		var current_manifest: Dictionary = current.host.snapshot()["manifest"]
+		var live_join: Dictionary = current.host.admit(2, "PEER_2",
+			int(current_manifest["protocol_version"]),
+			str(current_manifest["content_revision"]), [] as Array[String])
+		assert_true(bool(live_join.get("ok", false)), str(live_join))
+		assert_true(bool(current.host.confirm_synced(2,
+			current.host.revision).get("ok", false)))
+		current.host.remove(2)
+		assert_eq(current.host.member(2), "")
+		qualified += 1
+		print("EXP015_A12_14 region=%02d old_transport=DENIED current=PASS" %
+			[region + 1])
+	assert_eq(qualified, 25)
+
+
+func test_EXP015_A12_14_non_regional_transport_lifecycle_unchanged() -> void:
+	var legacy: Runtime = Runtime.new()
+	var started: Dictionary = legacy.start("LV_001", Callable(self, "_position_for"))
+	assert_true(bool(started.get("ok", false)), str(started))
+	if not bool(started.get("ok", false)):
+		return
+	assert_true(legacy.regional_network == null)
+	var manifest: Dictionary = legacy.host.snapshot()["manifest"]
+	var join: Dictionary = legacy.host.admit(2, "PEER_2",
+		int(manifest["protocol_version"]),
+		str(manifest["content_revision"]), [] as Array[String])
+	assert_true(bool(join.get("ok", false)), str(join))
+	assert_true(bool(legacy.host.confirm_synced(2,
+		legacy.host.revision).get("ok", false)))
+	legacy.host.remove(2)
+	assert_eq(legacy.host.member(2), "")
