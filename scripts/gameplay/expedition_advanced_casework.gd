@@ -94,6 +94,10 @@ static func inspect(atlas: Dictionary, investigation_book: Dictionary, book: Dic
 				item.get("targets") != old["targets"] or \
 				item.get("recovery_target") != old["recovery_target"]:
 			return _reject("SOURCE_DRIFT")
+		if item.has("final_signoff_station"):
+			var signoff_station: String = str(item["final_signoff_station"])
+			if not ["A", "B", "C"].has(signoff_station):
+				return _reject("INVALID_SOURCE_SIGNOFF_STATION")
 		if item.has("diagnosis"):
 			var old_fault: Dictionary = JSON.parse_string(
 				FileAccess.get_file_as_string("res://scenes/expeditions/fault_diagnostics.json")
@@ -201,6 +205,16 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 	var targets: Dictionary = _spec["targets"]
 	if not targets.values().has(entity):
 		return _reject("FOREIGN_TARGET")
+	if _phase == "signoff":
+		var required: String = str(_spec.get("final_signoff_station", ""))
+		if entity != str(targets.get(required, "")) or action != "case_signoff":
+			return _reject("SOURCE_SIGNOFF_STATION_REQUIRED")
+		if not bool(facts.get("faults_solved", false)) or \
+				not bool(facts.get("consequences_solved", false)):
+			return _reject("SOURCE_SIGNOFF_GUARDS_REQUIRED")
+		_phase = "solved"
+		_record("source_signed_off")
+		return {"ok": true, "code": "CASE_SOURCE_SIGNOFF", "liabilities": _liabilities}
 	if _phase == "evidence":
 		if action == "case_probe_a" and entity == str(targets["A"]):
 			_probes["A"] = str(_spec["diagnosis"]["signal_a"])
@@ -294,7 +308,7 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 		_completed[str(step["id"])] = true
 		_record("verified_" + str(step["kind"]))
 		if _completed.size() == steps.size():
-			_phase = "solved"
+			_phase = "signoff" if _spec.has("final_signoff_station") else "solved"
 		return {"ok": true, "code": "CASE_SOLVED" if solved() else "CASE_STEP_VERIFIED",
 			"completed": _completed.size(), "kits": _kits}
 	return _reject("STEP_OR_DEPENDENCY_LOCKED")
