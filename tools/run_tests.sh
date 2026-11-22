@@ -104,6 +104,9 @@ fi
 echo "== EXP016 A03: source-validated dual-probe diagnoses, 50 levels and 100 recovery routes =="
 if [ -n "$PY" ]; then "$PY" tools/validate_exp016_a03.py || FAIL=1; fi
 
+echo "== EXP016 A04: 50 finite host-evidence graphs, both routes and token conservation =="
+if [ -n "$PY" ]; then "$PY" tools/validate_exp016_a04.py || FAIL=1; fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 

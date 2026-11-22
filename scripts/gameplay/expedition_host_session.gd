@@ -460,7 +460,7 @@ func start(level_id: String, host_position: Callable,
 				selected_case = candidate
 		if selected_case.is_empty():
 			return _fail("EXP016_CASE_NOT_AUTHORED")
-		_definitions["advanced_case_phase"] = "A%02d" % ((int(level_id.trim_prefix("LV_")) - 1) / 50 + 2)
+		_definitions["advanced_case_phase"] = "A%02d" % (int((int(level_id.trim_prefix("LV_")) - 1) / 50.0) + 2)
 		advanced_cases = AdvancedCases.new()
 		var case_config: Dictionary = advanced_cases.configure(selected_case)
 		if not bool(case_config.get("ok", false)):

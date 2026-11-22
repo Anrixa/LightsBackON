@@ -21,6 +21,7 @@ var _kits: int = 0
 var _liabilities: int = 0
 var _faults: int = 0
 var _recoveries: int = 0
+var _tokens: Dictionary = {}
 var _probes: Dictionary = {}
 var _diagnosed: bool = false
 var _recovery_phase: String = "working"
@@ -74,7 +75,7 @@ static func inspect(atlas: Dictionary, investigation_book: Dictionary, book: Dic
 	var bounds: Array = book.get("range", [])
 	if bounds.size() != 2 or int(bounds[0]) < 1 or int(bounds[1]) > 200 or \
 			int(bounds[1]) - int(bounds[0]) != 49 or \
-			book.get("authority") != "EXP016_%s_AUTHENTICATED_CASEWORK" % ("A%02d" % ((int(bounds[0]) - 1) / 50 + 2)) or \
+			book.get("authority") != "EXP016_%s_AUTHENTICATED_CASEWORK" % ("A%02d" % (int((int(bounds[0]) - 1) / 50.0) + 2)) or \
 			book.get("qualification") != QUALIFICATION or \
 			not book.get("entries") is Array or book["entries"].size() != 50:
 		return _reject("BOOK_HEADER")
@@ -121,13 +122,30 @@ static func inspect(atlas: Dictionary, investigation_book: Dictionary, book: Dic
 						return _reject("NON_DAG")
 				known[id] = true
 				total_cost += int(step.get("cost", -1))
+			# Source-only static token-consumption proof. No token can be spent
+			# unless earned by an earlier source-bound step.
+			var held: Dictionary = {}
+			for token: String in route.get("initial_tokens", []):
+				held[token] = int(held.get(token, 0)) + 1
+			for step: Dictionary in steps:
+				for required_token: String in step.get("requires_tokens", []):
+					if int(held.get(required_token, 0)) < 1:
+						return _reject("UNSATISFIABLE_EVIDENCE_TOKEN")
+				for token: String in step.get("consumes_tokens", []):
+					if int(held.get(token, 0)) < 1:
+						return _reject("DOUBLE_SPEND_EVIDENCE_TOKEN")
+					held[token] = int(held.get(token, 0)) - 1
+				for token: String in step.get("grants_tokens", []):
+					held[token] = int(held.get(token, 0)) + 1
 			if total_cost > int(route["initial_kits"]) or total_cost < 0:
 				return _reject("UNSOLVABLE_KITS")
 		# Source-free: station/guards/actions/edges/actual costs, never titles, IDs or clocks.
 		var canonical: Array = []
 		for route_key: String in ["forensic", "field"]:
 			for node: Dictionary in item["routes"][route_key]["steps"]:
-				canonical.append([node["kind"], node["station"], node["requires"], node["guard"], node["cost"]])
+				canonical.append([node["kind"], node["station"], node["requires"], node["guard"], node["cost"],
+					node.get("requires_tokens", []), node.get("consumes_tokens", []),
+					node.get("grants_tokens", [])])
 		var fingerprint: String = JSON.stringify(canonical)
 		if signatures.has(fingerprint):
 			return _reject("MECHANICAL_CLONE")
@@ -216,6 +234,9 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 		var route: Dictionary = _spec["routes"][_route]
 		_kits = int(route["initial_kits"])
 		_liabilities = int(route["liability_on_select"])
+		_tokens.clear()
+		for item: String in route.get("initial_tokens", []):
+			_tokens[item] = int(_tokens.get(item, 0)) + 1
 		_phase = "working"
 		_record("choose_" + chosen)
 		return {"ok": true, "code": "CASE_ROUTE_SELECTED", "route": chosen}
@@ -251,6 +272,9 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 		if entity != str(targets[str(step["station"])]) or \
 				action != "case_" + str(step["kind"]):
 			continue
+		for needed: String in step.get("requires_tokens", []):
+			if int(_tokens.get(needed, 0)) < 1:
+				return _reject("EVIDENCE_TOKEN_UNAVAILABLE")
 		if not bool(facts.get(str(step["guard"]), false)):
 			_recovery_phase = "working"
 			_phase = "fault"
@@ -261,6 +285,11 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 		var cost: int = int(step["cost"])
 		if _kits < cost:
 			return _reject("INSUFFICIENT_KITS")
+		# Consume and grant tokens only after all gates and kit checks pass.
+		for used: String in step.get("consumes_tokens", []):
+			_tokens[used] = int(_tokens.get(used, 0)) - 1
+		for earned: String in step.get("grants_tokens", []):
+			_tokens[earned] = int(_tokens.get(earned, 0)) + 1
 		_kits -= cost
 		_completed[str(step["id"])] = true
 		_record("verified_" + str(step["kind"]))
@@ -277,4 +306,5 @@ func snapshot() -> Dictionary:
 		"faults": _faults, "recoveries": _recoveries,
 		"completed_steps": _completed.keys().duplicate(),
 		"probes": _probes.duplicate(true), "diagnosed": _diagnosed,
+		"evidence_tokens": _tokens.duplicate(true),
 		"history": _history.duplicate(true)}
