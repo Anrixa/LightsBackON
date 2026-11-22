@@ -23,6 +23,7 @@ const RegionalSource := preload("res://scripts/gameplay/expedition_regional_netw
 const FieldGuidance := preload("res://scripts/ui/expedition_field_guidance.gd")
 const FieldOps := preload("res://scripts/ui/expedition_field_ops.gd")
 const RewardFeedback := preload("res://scripts/progression/expedition_reward_feedback.gd")
+const StoryWorkOrders := preload("res://scripts/gameplay/expedition_story_workorders.gd")
 const SaveService := preload("res://scripts/persistence/save_service.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
@@ -54,6 +55,9 @@ var _exp020_campaign_consequences: Dictionary = {}
 var _reward_error: String = ""
 var _exp020_reward_commit: Dictionary = {}
 var _exp020_reward_notice: String = ""
+var _exp020_story_book: Dictionary = {}
+var _exp020_story_label: Label
+var _exp020_story_marker: Label3D
 var _hazard_marker: MeshInstance3D
 var _site_composition: Node3D
 var _environmental_feedback: Node3D
@@ -104,6 +108,12 @@ func _ready() -> void:
 	var catalog: Dictionary = Atlas.load_catalog()
 	_exp020_atlas = catalog
 	_exp020_routes = Campaign.load_routes()
+	_exp020_story_book = StoryWorkOrders.load_book()
+	var source_story: Dictionary = StoryWorkOrders.inspect(
+		catalog, _exp020_routes, RegionalSource.load_book(), _exp020_story_book)
+	if not bool(source_story.get("ok", false)):
+		push_error("EXP020_A04_STORY_SOURCE_HOLD: " + str(source_story))
+		return
 	if not bool(Atlas.inspect(catalog).get("ok", false)):
 		push_error("EXP03_ATLAS_INVALID")
 		return
@@ -152,6 +162,7 @@ func _ready() -> void:
 		return
 	_definitions = runtime.definition_snapshot()
 	_add_host_targets()
+	_add_story_signage()
 	_add_site_composition(plan)
 	_add_hazard_marker()
 	_build_overlay(level)
@@ -266,6 +277,27 @@ func _add_host_targets() -> void:
 ## EXP014: build only a non-colliding, source-bound field presentation.
 ## Validation uses the same host positions and inspected route definitions;
 ## this layer cannot register network entities or change host authority.
+## Narrative signage is visual-only and anchored to a real host worksite.
+## Its label is public briefing text; it is never an RPC/selectable target.
+func _add_story_signage() -> void:
+	var work_order: Dictionary = StoryWorkOrders.entry_for(_exp020_story_book, level_id)
+	if work_order.is_empty() or not _definitions.get("positions") is Dictionary:
+		return
+	var positions: Dictionary = _definitions["positions"]
+	if not positions.has("PANEL_WEST"):
+		return
+	_exp020_story_marker = Label3D.new()
+	_exp020_story_marker.name = "EXP020_SourceWorkOrderPlacard"
+	_exp020_story_marker.text = "FIELD WORK ORDER\n" + str(work_order["location_name"]) + \
+		"\n" + str(work_order["worksite_family"]).to_upper() + " / " + \
+		str(work_order["site_hazard"])
+	_exp020_story_marker.font_size = 40
+	_exp020_story_marker.pixel_size = 0.003
+	_exp020_story_marker.position = positions["PANEL_WEST"] + Vector3(0.0, 1.0, 0.0)
+	_exp020_story_marker.set_meta("presentation_only", true)
+	world.add_child(_exp020_story_marker)
+
+
 func _add_site_composition(plan: Dictionary) -> void:
 	var active: Variant = runtime.site_exp013 if runtime.site_exp013 != null else runtime.site_a02
 	if active == null:
@@ -341,6 +373,11 @@ func _build_overlay(level: Dictionary) -> void:
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	title.add_theme_color_override("font_color", Color("#F3D396"))
 	box.add_child(title)
+	_exp020_story_label = Label.new()
+	_exp020_story_label.name = "EXP020_PublicWorkOrder"
+	_exp020_story_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_exp020_story_label.add_theme_color_override("font_color", Color("#EBC4A4"))
+	box.add_child(_exp020_story_label)
 	_task_label = Label.new()
 	_task_label.name = "TaskStatuses"
 	_task_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -985,6 +1022,11 @@ func _refresh() -> void:
 	if not _loaded or _task_label == null:
 		return
 	var board: Dictionary = runtime.task_board()
+	var narrative: Dictionary = StoryWorkOrders.compose(
+		_exp020_story_book, _exp020_atlas, level_id, board)
+	if _exp020_story_label != null:
+		_exp020_story_label.text = "\n".join(
+			(narrative.get("story_lines", []) as Array).slice(0, 4)) if 			bool(narrative.get("ok", false)) else "Work order evidence unavailable"
 	var lines: Array[String] = []
 	for task: Dictionary in board["tasks"]:
 		var icon: String = "DONE" if task["completed"] else "OPTIONAL" if not task["required"] else "PENDING"
@@ -1253,6 +1295,8 @@ func _refresh() -> void:
 				_expedition_profile, _expedition_account, _exp020_reward_commit)
 			if bool(reward_tab.get("ok", false)):
 				verified_view["rewards"] = reward_tab["lines"]
+		if bool(narrative.get("ok", false)):
+			verified_view["story"] = narrative["story_lines"]
 		_exp020_field_ops.show_data(verified_view)
 	if _regional_panel != null and board.has("regional_network"):
 		_regional_panel.show_network(board["regional_network"])
