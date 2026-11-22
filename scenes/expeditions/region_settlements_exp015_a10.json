@@ -1,0 +1,461 @@
+{
+  "schema_version": 1,
+  "authority": "EXP015_A10_SOURCE_BOUND_FINITE_DEBT_SETTLEMENT",
+  "predecessor": "EXP015_A09",
+  "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD",
+  "legacy_campaign_contracts_unchanged": true,
+  "original_settlement_sites": 25,
+  "notes": "25 original A09 finale roles; finite reserve can retire only real accrued service debt when restored original reserve anchor is genuinely live, or debt remains outstanding without invented electrical supply or rewards.",
+  "entries": [
+    {
+      "region_id": "REG_01",
+      "finale_site_id": "LV_008",
+      "root_source_site_id": "LV_001",
+      "reserve_anchor_site_id": "LV_006",
+      "critical_service_site_id": "LV_003",
+      "risk_class": "depth",
+      "audit_proof": "settle_dry_feeder_audit",
+      "original_finale_task_ids": [
+        "JOB_008_1",
+        "JOB_008_2",
+        "JOB_008_3",
+        "JOB_008_4",
+        "JOB_008_5"
+      ],
+      "initial_reserve_pu": 6,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_02",
+      "finale_site_id": "LV_016",
+      "root_source_site_id": "LV_009",
+      "reserve_anchor_site_id": "LV_014",
+      "critical_service_site_id": "LV_011",
+      "risk_class": "conductivity",
+      "audit_proof": "settle_insulation_audit",
+      "original_finale_task_ids": [
+        "JOB_016_1",
+        "JOB_016_2",
+        "JOB_016_3",
+        "JOB_016_4",
+        "JOB_016_5"
+      ],
+      "initial_reserve_pu": 8,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_03",
+      "finale_site_id": "LV_024",
+      "root_source_site_id": "LV_017",
+      "reserve_anchor_site_id": "LV_022",
+      "critical_service_site_id": "LV_019",
+      "risk_class": "mechanical",
+      "audit_proof": "settle_interlock_audit",
+      "original_finale_task_ids": [
+        "JOB_024_1",
+        "JOB_024_2",
+        "JOB_024_3",
+        "JOB_024_4",
+        "JOB_024_5"
+      ],
+      "initial_reserve_pu": 10,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_04",
+      "finale_site_id": "LV_032",
+      "root_source_site_id": "LV_025",
+      "reserve_anchor_site_id": "LV_030",
+      "critical_service_site_id": "LV_027",
+      "risk_class": "depth",
+      "audit_proof": "settle_dry_feeder_audit",
+      "original_finale_task_ids": [
+        "JOB_032_1",
+        "JOB_032_2",
+        "JOB_032_3",
+        "JOB_032_4",
+        "JOB_032_5"
+      ],
+      "initial_reserve_pu": 12,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_05",
+      "finale_site_id": "LV_040",
+      "root_source_site_id": "LV_033",
+      "reserve_anchor_site_id": "LV_038",
+      "critical_service_site_id": "LV_035",
+      "risk_class": "structure",
+      "audit_proof": "settle_structure_audit",
+      "original_finale_task_ids": [
+        "JOB_040_1",
+        "JOB_040_2",
+        "JOB_040_3",
+        "JOB_040_4",
+        "JOB_040_5"
+      ],
+      "initial_reserve_pu": 6,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_06",
+      "finale_site_id": "LV_048",
+      "root_source_site_id": "LV_041",
+      "reserve_anchor_site_id": "LV_046",
+      "critical_service_site_id": "LV_043",
+      "risk_class": "conductivity",
+      "audit_proof": "settle_insulation_audit",
+      "original_finale_task_ids": [
+        "JOB_048_1",
+        "JOB_048_2",
+        "JOB_048_3",
+        "JOB_048_4",
+        "JOB_048_5"
+      ],
+      "initial_reserve_pu": 8,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_07",
+      "finale_site_id": "LV_056",
+      "root_source_site_id": "LV_049",
+      "reserve_anchor_site_id": "LV_054",
+      "critical_service_site_id": "LV_051",
+      "risk_class": "depth",
+      "audit_proof": "settle_dry_feeder_audit",
+      "original_finale_task_ids": [
+        "JOB_056_1",
+        "JOB_056_2",
+        "JOB_056_3",
+        "JOB_056_4",
+        "JOB_056_5"
+      ],
+      "initial_reserve_pu": 10,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_08",
+      "finale_site_id": "LV_064",
+      "root_source_site_id": "LV_057",
+      "reserve_anchor_site_id": "LV_062",
+      "critical_service_site_id": "LV_059",
+      "risk_class": "mechanical",
+      "audit_proof": "settle_interlock_audit",
+      "original_finale_task_ids": [
+        "JOB_064_1",
+        "JOB_064_2",
+        "JOB_064_3",
+        "JOB_064_4",
+        "JOB_064_5"
+      ],
+      "initial_reserve_pu": 12,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_09",
+      "finale_site_id": "LV_072",
+      "root_source_site_id": "LV_065",
+      "reserve_anchor_site_id": "LV_070",
+      "critical_service_site_id": "LV_067",
+      "risk_class": "weather",
+      "audit_proof": "settle_exposure_audit",
+      "original_finale_task_ids": [
+        "JOB_072_1",
+        "JOB_072_2",
+        "JOB_072_3",
+        "JOB_072_4",
+        "JOB_072_5"
+      ],
+      "initial_reserve_pu": 6,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_10",
+      "finale_site_id": "LV_080",
+      "root_source_site_id": "LV_073",
+      "reserve_anchor_site_id": "LV_078",
+      "critical_service_site_id": "LV_075",
+      "risk_class": "mechanical",
+      "audit_proof": "settle_interlock_audit",
+      "original_finale_task_ids": [
+        "JOB_080_1",
+        "JOB_080_2",
+        "JOB_080_3",
+        "JOB_080_4",
+        "JOB_080_5"
+      ],
+      "initial_reserve_pu": 8,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_11",
+      "finale_site_id": "LV_088",
+      "root_source_site_id": "LV_081",
+      "reserve_anchor_site_id": "LV_086",
+      "critical_service_site_id": "LV_083",
+      "risk_class": "weather",
+      "audit_proof": "settle_exposure_audit",
+      "original_finale_task_ids": [
+        "JOB_088_1",
+        "JOB_088_2",
+        "JOB_088_3",
+        "JOB_088_4",
+        "JOB_088_5"
+      ],
+      "initial_reserve_pu": 10,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_12",
+      "finale_site_id": "LV_096",
+      "root_source_site_id": "LV_089",
+      "reserve_anchor_site_id": "LV_094",
+      "critical_service_site_id": "LV_091",
+      "risk_class": "weather",
+      "audit_proof": "settle_exposure_audit",
+      "original_finale_task_ids": [
+        "JOB_096_1",
+        "JOB_096_2",
+        "JOB_096_3",
+        "JOB_096_4",
+        "JOB_096_5"
+      ],
+      "initial_reserve_pu": 12,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_13",
+      "finale_site_id": "LV_104",
+      "root_source_site_id": "LV_097",
+      "reserve_anchor_site_id": "LV_102",
+      "critical_service_site_id": "LV_099",
+      "risk_class": "depth",
+      "audit_proof": "settle_dry_feeder_audit",
+      "original_finale_task_ids": [
+        "JOB_104_1",
+        "JOB_104_2",
+        "JOB_104_3",
+        "JOB_104_4",
+        "JOB_104_5"
+      ],
+      "initial_reserve_pu": 6,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_14",
+      "finale_site_id": "LV_112",
+      "root_source_site_id": "LV_105",
+      "reserve_anchor_site_id": "LV_110",
+      "critical_service_site_id": "LV_107",
+      "risk_class": "structure",
+      "audit_proof": "settle_structure_audit",
+      "original_finale_task_ids": [
+        "JOB_112_1",
+        "JOB_112_2",
+        "JOB_112_3",
+        "JOB_112_4",
+        "JOB_112_5"
+      ],
+      "initial_reserve_pu": 8,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_15",
+      "finale_site_id": "LV_120",
+      "root_source_site_id": "LV_113",
+      "reserve_anchor_site_id": "LV_118",
+      "critical_service_site_id": "LV_115",
+      "risk_class": "conductivity",
+      "audit_proof": "settle_insulation_audit",
+      "original_finale_task_ids": [
+        "JOB_120_1",
+        "JOB_120_2",
+        "JOB_120_3",
+        "JOB_120_4",
+        "JOB_120_5"
+      ],
+      "initial_reserve_pu": 10,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_16",
+      "finale_site_id": "LV_128",
+      "root_source_site_id": "LV_121",
+      "reserve_anchor_site_id": "LV_126",
+      "critical_service_site_id": "LV_123",
+      "risk_class": "mechanical",
+      "audit_proof": "settle_interlock_audit",
+      "original_finale_task_ids": [
+        "JOB_128_1",
+        "JOB_128_2",
+        "JOB_128_3",
+        "JOB_128_4",
+        "JOB_128_5"
+      ],
+      "initial_reserve_pu": 12,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_17",
+      "finale_site_id": "LV_136",
+      "root_source_site_id": "LV_129",
+      "reserve_anchor_site_id": "LV_134",
+      "critical_service_site_id": "LV_131",
+      "risk_class": "weather",
+      "audit_proof": "settle_exposure_audit",
+      "original_finale_task_ids": [
+        "JOB_136_1",
+        "JOB_136_2",
+        "JOB_136_3",
+        "JOB_136_4",
+        "JOB_136_5"
+      ],
+      "initial_reserve_pu": 6,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_18",
+      "finale_site_id": "LV_144",
+      "root_source_site_id": "LV_137",
+      "reserve_anchor_site_id": "LV_142",
+      "critical_service_site_id": "LV_139",
+      "risk_class": "depth",
+      "audit_proof": "settle_dry_feeder_audit",
+      "original_finale_task_ids": [
+        "JOB_144_1",
+        "JOB_144_2",
+        "JOB_144_3",
+        "JOB_144_4",
+        "JOB_144_5"
+      ],
+      "initial_reserve_pu": 8,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_19",
+      "finale_site_id": "LV_152",
+      "root_source_site_id": "LV_145",
+      "reserve_anchor_site_id": "LV_150",
+      "critical_service_site_id": "LV_147",
+      "risk_class": "depth",
+      "audit_proof": "settle_dry_feeder_audit",
+      "original_finale_task_ids": [
+        "JOB_152_1",
+        "JOB_152_2",
+        "JOB_152_3",
+        "JOB_152_4",
+        "JOB_152_5"
+      ],
+      "initial_reserve_pu": 10,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_20",
+      "finale_site_id": "LV_160",
+      "root_source_site_id": "LV_153",
+      "reserve_anchor_site_id": "LV_158",
+      "critical_service_site_id": "LV_155",
+      "risk_class": "structure",
+      "audit_proof": "settle_structure_audit",
+      "original_finale_task_ids": [
+        "JOB_160_1",
+        "JOB_160_2",
+        "JOB_160_3",
+        "JOB_160_4",
+        "JOB_160_5"
+      ],
+      "initial_reserve_pu": 12,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_21",
+      "finale_site_id": "LV_168",
+      "root_source_site_id": "LV_161",
+      "reserve_anchor_site_id": "LV_166",
+      "critical_service_site_id": "LV_163",
+      "risk_class": "conductivity",
+      "audit_proof": "settle_insulation_audit",
+      "original_finale_task_ids": [
+        "JOB_168_1",
+        "JOB_168_2",
+        "JOB_168_3",
+        "JOB_168_4",
+        "JOB_168_5"
+      ],
+      "initial_reserve_pu": 6,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_22",
+      "finale_site_id": "LV_176",
+      "root_source_site_id": "LV_169",
+      "reserve_anchor_site_id": "LV_174",
+      "critical_service_site_id": "LV_171",
+      "risk_class": "conductivity",
+      "audit_proof": "settle_insulation_audit",
+      "original_finale_task_ids": [
+        "JOB_176_1",
+        "JOB_176_2",
+        "JOB_176_3",
+        "JOB_176_4",
+        "JOB_176_5"
+      ],
+      "initial_reserve_pu": 8,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_23",
+      "finale_site_id": "LV_184",
+      "root_source_site_id": "LV_177",
+      "reserve_anchor_site_id": "LV_182",
+      "critical_service_site_id": "LV_179",
+      "risk_class": "weather",
+      "audit_proof": "settle_exposure_audit",
+      "original_finale_task_ids": [
+        "JOB_184_1",
+        "JOB_184_2",
+        "JOB_184_3",
+        "JOB_184_4",
+        "JOB_184_5"
+      ],
+      "initial_reserve_pu": 10,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_24",
+      "finale_site_id": "LV_192",
+      "root_source_site_id": "LV_185",
+      "reserve_anchor_site_id": "LV_190",
+      "critical_service_site_id": "LV_187",
+      "risk_class": "structure",
+      "audit_proof": "settle_structure_audit",
+      "original_finale_task_ids": [
+        "JOB_192_1",
+        "JOB_192_2",
+        "JOB_192_3",
+        "JOB_192_4",
+        "JOB_192_5"
+      ],
+      "initial_reserve_pu": 12,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_25",
+      "finale_site_id": "LV_200",
+      "root_source_site_id": "LV_193",
+      "reserve_anchor_site_id": "LV_198",
+      "critical_service_site_id": "LV_195",
+      "risk_class": "depth",
+      "audit_proof": "settle_dry_feeder_audit",
+      "original_finale_task_ids": [
+        "JOB_200_1",
+        "JOB_200_2",
+        "JOB_200_3",
+        "JOB_200_4",
+        "JOB_200_5"
+      ],
+      "initial_reserve_pu": 6,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    }
+  ]
+}
