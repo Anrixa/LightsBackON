@@ -106,6 +106,11 @@ if [ -n "$PY" ]; then
   "$PY" tools/validate_exp015_finales.py --report build/exp015-a03/source-audit.json || FAIL=1
 fi
 
+echo "== EXP015 A04: 25 post-finale true feeder trips and two recovery routes =="
+if [ -n "$PY" ]; then
+  "$PY" tools/validate_exp015_aftercare.py --report build/exp015-a04/source-audit.json || FAIL=1
+fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 
@@ -158,6 +163,20 @@ elif [ -f project.godot ]; then
     echo "EXP015_A03_HOST_SCRIPT_PARSE=PASS"
   fi
   rm -f "$HOST_PARSE_OUT"
+  echo "== EXP015 A04: direct Godot post-finale controller parse preflight =="
+  AFTERCARE_PARSE_OUT="$(mktemp)"
+  if ! "$GODOT_BIN" --headless --path . --check-only --script res://scripts/gameplay/expedition_regional_aftercare.gd >"$AFTERCARE_PARSE_OUT" 2>&1; then
+    echo "FAIL: Godot aftercare script parser rejected expedition_regional_aftercare.gd"
+    cat "$AFTERCARE_PARSE_OUT"
+    FAIL=1
+  elif grep -qE "SCRIPT ERROR|Parse Error" "$AFTERCARE_PARSE_OUT"; then
+    echo "FAIL: Godot aftercare script parser reported source errors"
+    cat "$AFTERCARE_PARSE_OUT"
+    FAIL=1
+  else
+    echo "EXP015_A04_AFTERCARE_SCRIPT_PARSE=PASS"
+  fi
+  rm -f "$AFTERCARE_PARSE_OUT"
   # Every Godot run below (tests, solution traces, cross-check) gets its own empty user:// (SAVE22).
   isolate_godot_user_dir || { echo "FAIL: cannot create an isolated Godot user dir"; exit 1; }
   trap 'rm -rf "$LBO_TEST_USER_ROOT"' EXIT

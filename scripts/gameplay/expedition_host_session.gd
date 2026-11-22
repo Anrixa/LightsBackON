@@ -41,6 +41,7 @@ const RegionalNetworks := preload("res://scripts/gameplay/expedition_regional_ne
 const Incident := preload("res://scripts/gameplay/expedition_regional_emergencies.gd")
 const Cascade := preload("res://scripts/gameplay/expedition_regional_cascades.gd")
 const Finale := preload("res://scripts/gameplay/expedition_regional_finales.gd")
+const Aftercare := preload("res://scripts/gameplay/expedition_regional_aftercare.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
 
@@ -77,6 +78,7 @@ var regional_network: RegionalNetworks
 var incident_response: Incident
 var service_cascade: Cascade
 var regional_finale: Finale
+var regional_aftercare: Aftercare
 
 var _definitions: Dictionary = {}
 var _position_source: Callable
@@ -120,7 +122,8 @@ func start(level_id: String, host_position: Callable,
 		enable_regional_networks: bool = false,
 		enable_incident_response: bool = false,
 		enable_service_cascade: bool = false,
-		enable_regional_finale: bool = false) -> Dictionary:
+		enable_regional_finale: bool = false,
+		enable_regional_aftercare: bool = false) -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
 	if enable_devices and not enable_bespoke:
@@ -157,6 +160,8 @@ func start(level_id: String, host_position: Callable,
 		return _fail("EXP015_A02_REQUIRES_A09_REGIONAL_NETWORK")
 	if enable_regional_finale and not enable_regional_networks:
 		return _fail("EXP015_A03_REQUIRES_A09_REGIONAL_NETWORK")
+	if enable_regional_aftercare and not enable_regional_finale:
+		return _fail("EXP015_A04_REQUIRES_A03_FINALE")
 	if account_key != "" and not SaveService.is_valid_key(account_key):
 		return _fail("INVALID_ACCOUNT_KEY")
 	if not host_position.is_valid() or (physics_visibility.is_valid() and not host_position.is_valid()):
@@ -398,6 +403,23 @@ func start(level_id: String, host_position: Callable,
 			if not bool(approved.get("ok", false)):
 				return _fail("EXP015_A03_FINALE_CONFIG_INVALID", approved)
 			_definitions["regional_finale"] = regional_finale.definition_snapshot()
+	# EXP015 A04: same original finale site, after A03 signoff, not a new level.
+	# On earlier A01/A02 sites this global opt-in is inactive by design.
+	if enable_regional_aftercare and regional_finale != null:
+		var aftercare_book: Dictionary = Aftercare.load_book()
+		var aftercare_audit: Dictionary = Aftercare.inspect(
+			atlas, aftercare_book, RegionalNetworks.load_book(), Finale.load_book())
+		if not bool(aftercare_audit.get("ok", false)):
+			return _fail("EXP015_A04_SOURCE_INVALID", aftercare_audit)
+		var aftercare_recipe: Dictionary = Aftercare.entry_for(aftercare_book, level_id)
+		if aftercare_recipe.is_empty():
+			return _fail("EXP015_A04_FINALE_SOURCE_MISSING")
+		regional_aftercare = Aftercare.new()
+		var aftercare_gate: Dictionary = regional_aftercare.configure(
+			aftercare_recipe, regional_network, regional_finale)
+		if not bool(aftercare_gate.get("ok", false)):
+			return _fail("EXP015_A04_CONFIG_INVALID", aftercare_gate)
+		_definitions["regional_aftercare"] = regional_aftercare.definition_snapshot()
 	# The A02 overlay is available only for the 40 explicitly authored
 	# source-linked locations. The other 160 remain unchanged A01 sessions.
 	if enable_site_a02:
@@ -602,6 +624,7 @@ func start(level_id: String, host_position: Callable,
 		"incident_response_active": incident_response != null,
 		"service_cascade_active": service_cascade != null,
 		"regional_finale_active": regional_finale != null,
+		"regional_aftercare_active": regional_aftercare != null,
 		"qualification": "AUTHORITY_SOURCE_HEADLESS_ONLY_NO_PLAYABILITY"}
 
 
@@ -610,6 +633,14 @@ func _session_id() -> String:
 
 
 func _content_revision() -> String:
+	if regional_aftercare != null:
+		return "EXP015_A04_" + ("%s|%s|%s|%s|%s" % [
+			str(_definitions.get("source_fingerprint", "")),
+			JSON.stringify(site_puzzles.definition_snapshot()),
+			JSON.stringify(RegionalNetworks.entry_for(RegionalNetworks.load_book(),
+				str(_definitions.get("level_id", "")))),
+			JSON.stringify(regional_finale.definition_snapshot()),
+			JSON.stringify(regional_aftercare.definition_snapshot())]).sha256_text()
 	if regional_finale != null:
 		return "EXP015_A03_" + ("%s|%s|%s|%s" % [
 			str(_definitions.get("source_fingerprint", "")),
@@ -781,6 +812,9 @@ func _bespoke_guard(player_id: String, kind: String, entity: String,
 	if kind == "request_extract" and regional_finale != null \
 			and not regional_finale.closed():
 		return _fail("EXP015_A03_FINALE_NOT_SIGNED_OFF")
+	if kind == "request_extract" and regional_aftercare != null \
+			and not regional_aftercare.closed():
+		return _fail("EXP015_A04_STABILIZATION_REQUIRED")
 	if kind == "request_extract" and devices != null and not devices.solved():
 		return _fail("EXP07_DEVICES_INCOMPLETE")
 	if kind == "request_extract" and faults != null and not faults.solved():
@@ -989,6 +1023,12 @@ func _operate_worksite(player_id: String, entity: String, action: String) -> Dic
 	if service_cascade != null and entity == str(worksite.definition_snapshot()["board"]) \
 			and service_cascade.protects_original_asset(action):
 		return _fail("EXP015_A02_PROTECTED_NETWORK_ASSET")
+	if regional_aftercare != null and entity == str(worksite.definition_snapshot()["board"]) \
+			and action.begins_with("aftercare_"):
+		return regional_aftercare.operate(action)
+	if regional_aftercare != null and entity == str(worksite.definition_snapshot()["board"]) \
+			and regional_aftercare.protects_original_action(action):
+		return _fail("EXP015_A04_PROTECTED_RESERVE")
 	if regional_finale != null and entity == str(worksite.definition_snapshot()["board"]) \
 			and action.begins_with("finale_"):
 		return regional_finale.operate(action)
@@ -1135,6 +1175,8 @@ func _worksite_snapshot() -> Dictionary:
 		state["service_cascade"] = service_cascade.snapshot()
 	if regional_finale != null:
 		state["regional_finale"] = regional_finale.snapshot()
+	if regional_aftercare != null:
+		state["regional_aftercare"] = regional_aftercare.snapshot()
 	return state
 
 
@@ -1284,7 +1326,8 @@ func _update_progress() -> void:
 			(regional_network == null or regional_network.site_prepared()) and \
 			(incident_response == null or incident_response.certified()) and \
 			(service_cascade == null or service_cascade.resolved()) and \
-			(regional_finale == null or regional_finale.closed()):
+			(regional_finale == null or regional_finale.closed()) and \
+			(regional_aftercare == null or regional_aftercare.closed()):
 		_completed[last] = true
 	_issue_task_rewards()
 
@@ -1337,6 +1380,8 @@ func task_board() -> Dictionary:
 		board["service_cascade"] = service_cascade.snapshot()
 	if regional_finale != null:
 		board["regional_finale"] = regional_finale.snapshot()
+	if regional_aftercare != null:
+		board["regional_aftercare"] = regional_aftercare.snapshot()
 	return board
 
 
@@ -1354,6 +1399,8 @@ func authoritative_state() -> Dictionary:
 		state["exp015_service_cascade"] = service_cascade.snapshot()
 	if regional_finale != null:
 		state["exp015_regional_finale"] = regional_finale.snapshot()
+	if regional_aftercare != null:
+		state["exp015_regional_aftercare"] = regional_aftercare.snapshot()
 	return state
 
 
