@@ -57,6 +57,8 @@ var _worksite_state: Callable = Callable()  # canonical state and host hash
 var _worksite_tick: Callable = Callable()  # after EXP011 critical loads tick
 var _expedition_intent_guard: Callable = Callable()  # optional EXP06 policy; checked after host dedupe
 var _expedition_tick_authority: Callable = Callable()  # A12.11 host-only lifecycle owner, never wire-supplied
+var _expedition_intent_guard_bound: bool = false  # A12.15: valid policy cannot be cleared or rebound
+var _regional_dispatch_epoch_bound: bool = false  # A12.15: a lost callback fails closed
 var _switches: Dictionary = {}  # switch id -> {"target", "field"}
 var _members: Dictionary = {}  # transport peer id (int) -> player id
 var _last_seq: Dictionary = {}  # peer id -> highest accepted seq
@@ -75,20 +77,31 @@ var _published_revision: int = 0
 ## Optional source-engineered policy hook. Normal C01-C12 sessions leave it unset.
 ## Invoked only for a validated, nonduplicate SessionHost command.
 func set_expedition_intent_guard(guard: Callable) -> void:
+	# Set once during session construction. A stale caller cannot replace
+	# the original-source intent guard with a permissive or empty callable.
+	if _expedition_intent_guard_bound or not guard.is_valid():
+		return
 	_expedition_intent_guard = guard
+	_expedition_intent_guard_bound = true
 
 
 ## Host-only ownership fence, opt-in for A09 regional networks. Obsolete
 ## sessions may advance transport rate time but not world/mission ticks.
 func set_expedition_tick_authority(authority: Callable) -> void:
+	# Never allow rebinding or clearing the original-region ownership epoch.
+	# Failed or freed callbacks remain revoked rather than becoming legacy.
+	if _regional_dispatch_epoch_bound or not authority.is_valid():
+		return
 	_expedition_tick_authority = authority
+	_regional_dispatch_epoch_bound = true
 
 
 ## All A09-only host lifecycle hooks share the owner-issued dispatch epoch.
 ## Unbound original campaign SessionHost objects remain unchanged.
 func _regional_lifecycle_revoked() -> bool:
-	return _expedition_tick_authority.is_valid() and \
-		not bool(_expedition_tick_authority.call())
+	return _regional_dispatch_epoch_bound and \
+		(not _expedition_tick_authority.is_valid() or \
+		not bool(_expedition_tick_authority.call()))
 
 
 func configure(limits: Dictionary, protocol_version: int, content_revision: String, new_session_id: String,
@@ -210,8 +223,7 @@ func tick(now: int) -> Array[Dictionary]:
 	# A12.11: a superseded regional host cannot advance grid trips, mission
 	# deadlines, repair locks, regional overlays or checkpoint revisions.
 	# Keep only transport rate-window time moving for authenticated denials.
-	if _expedition_tick_authority.is_valid() and \
-			not bool(_expedition_tick_authority.call()):
+	if _regional_lifecycle_revoked():
 		return []
 	var before: String = state_hash()
 	var events: Array[Dictionary] = _grid.step()
@@ -247,7 +259,7 @@ func tick(now: int) -> Array[Dictionary]:
 func publish() -> Dictionary:
 	# An obsolete A09 SessionHost must not publish the replacement dispatch's
 	# shared source through its old session ID. The current host is unaffected.
-	if _expedition_tick_authority.is_valid() and 			not bool(_expedition_tick_authority.call()):
+	if _regional_lifecycle_revoked():
 		return {}
 	if revision == _published_revision and not _published_state.is_empty():
 		return {}
@@ -266,7 +278,7 @@ func publish() -> Dictionary:
 func snapshot() -> Dictionary:
 	# Reconnection to an obsolete original-region session must not reveal
 	# newer regional feeder/reserve/debt state or an untrusted old manifest.
-	if _expedition_tick_authority.is_valid() and 			not bool(_expedition_tick_authority.call()):
+	if _regional_lifecycle_revoked():
 		return _refuse("EXP015_A12_13_STALE_HOST_SNAPSHOT",
 			"regional dispatch ownership has changed", [])
 	var flushed: Dictionary = publish()
@@ -329,6 +341,11 @@ func receive(peer_id: int, bytes: PackedByteArray) -> Dictionary:
 	var cache: Dictionary = _replies[peer_id]
 	if seq <= int(_last_seq[peer_id]):
 		if cache.has(seq):
+			# Deduplication is not authorization: never replay an earlier
+			# successful response after the original dispatch loses ownership.
+			if _regional_lifecycle_revoked():
+				return _refuse("EXP015_A12_15_STALE_REPLAY",
+					"regional dispatch ownership has changed", [])
 			var again: Dictionary = (cache[seq] as Dictionary).duplicate(true)
 			again["duplicate"] = true
 			return again
@@ -390,7 +407,12 @@ func _dispatch(player: String, msg: Dictionary) -> Dictionary:
 		return _refuse("UNKNOWN_INTENT", "unknown intent %s" % kind, [])
 	# Sequence and dedupe have already been processed. No denied command may
 	# reach a grid or repair side effect. The guard uses only host-owned state.
-	if _expedition_intent_guard.is_valid():
+	if _expedition_intent_guard_bound:
+		# A guard that was valid at bind time must never silently become
+		# a bypass if its callable target later disappears.
+		if not _expedition_intent_guard.is_valid():
+			return _refuse("EXP015_A12_15_INTENT_GUARD_UNAVAILABLE",
+				"host intent authority is unavailable", [entity])
 		var policy_reply: Variant = _expedition_intent_guard.call(player, kind, entity, payload)
 		if not policy_reply is Dictionary:
 			return _refuse("EXP06_POLICY_DENIED", "expedition intent policy denied", [entity])
@@ -610,7 +632,7 @@ func state_hash() -> String:
 func authoritative_state() -> Dictionary:
 	# Direct read access is host-internal, but must be safe even if an
 	# obsolete session remains referenced after a newer A09 dispatch.
-	if _expedition_tick_authority.is_valid() and 			not bool(_expedition_tick_authority.call()):
+	if _regional_lifecycle_revoked():
 		return {"authority": "EXP015_A12_13_STALE_HOST_SNAPSHOT"}
 	var repairs: Dictionary = _interaction.canonical_state()
 	repairs.erase("revision")

@@ -261,3 +261,100 @@ func test_EXP015_A12_14_non_regional_transport_lifecycle_unchanged() -> void:
 		legacy.host.revision).get("ok", false)))
 	legacy.host.remove(2)
 	assert_eq(legacy.host.member(2), "")
+
+
+
+## A12.15 hostile reuse of host setup methods and cached command replies.
+func _a12_15_permit_all(_player: String, _kind: String,
+		_entity: String, _payload: Dictionary) -> Dictionary:
+	return {"ok": true}
+
+
+func _a12_15_bypass_epoch() -> bool:
+	return true
+
+
+func test_EXP015_A12_15_25_regions_reject_rebound_guards_and_cached_success() -> void:
+	var atlas: Dictionary = Atlas.load_catalog()
+	var qualified: int = 0
+	for region: int in range(25):
+		Network.clear_host_memory_for_test()
+		var account: String = "a12_15_%02d" % region
+		var profile: Dictionary = _profile(atlas, region, account)
+		var old_ctx: Dictionary = _start(region, profile, "replay_old")
+		if old_ctx.is_empty():
+			continue
+		var old: Runtime = old_ctx["session"]
+		var old_board: String = str(old_ctx["board"])
+		var first_command: Dictionary = {
+			"session": old.session_id(), "seq": 1,
+			"type": "operate_worksite", "entity": old_board,
+			"payload": {"action": "regional_critical"}
+		}
+		old.host.tick(1)
+		var initial: Dictionary = old.receive(1,
+			JSON.stringify(first_command).to_utf8_buffer())
+		assert_true(bool(initial.get("ok", false)),
+			"original accepted action required before preemption: " + str(initial))
+		var network: Network = old.regional_network
+		var reserve_after_first: int = int(network.snapshot()["reserve_pu"])
+		var successor_ctx: Dictionary = _start(region, profile, "replay_new")
+		if successor_ctx.is_empty():
+			continue
+		var successor: Runtime = successor_ctx["session"]
+		assert_true(successor.regional_network == network)
+		var stale_revision: int = old.host.revision
+		var stale_hash: String = old.host.state_hash()
+		# Public setup methods cannot transform an old owner into a new one.
+		old.host.set_expedition_tick_authority(Callable())
+		old.host.set_expedition_tick_authority(
+			Callable(self, "_a12_15_bypass_epoch"))
+		old.host.set_expedition_intent_guard(Callable())
+		old.host.set_expedition_intent_guard(
+			Callable(self, "_a12_15_permit_all"))
+		assert_eq(str(old.host.snapshot().get("code", "")),
+			"EXP015_A12_13_STALE_HOST_SNAPSHOT")
+		assert_eq(old.host.tick(2), [])
+		var replayed: Dictionary = old.receive(1,
+			JSON.stringify(first_command).to_utf8_buffer())
+		assert_eq(str(replayed.get("code", "")),
+			"EXP015_A12_15_STALE_REPLAY")
+		assert_false(bool(replayed.get("ok", false)),
+			"old successful reply must not resurface after replacement")
+		var fresh_command: Dictionary = first_command.duplicate(true)
+		fresh_command["seq"] = 2
+		var denied: Dictionary = old.receive(1,
+			JSON.stringify(fresh_command).to_utf8_buffer())
+		assert_eq(str(denied.get("code", "")),
+			"EXP015_A12_9_STALE_HOST_DISPATCH")
+		assert_eq(old.host.revision, stale_revision)
+		assert_eq(old.host.state_hash(), stale_hash)
+		assert_eq(int(network.snapshot()["reserve_pu"]), reserve_after_first,
+			"no stale replay may charge finite original reserve")
+		var live: Dictionary = successor.host.snapshot()
+		assert_true(live.has("manifest"), str(live))
+		qualified += 1
+		print("EXP015_A12_15 region=%02d bind_once=PASS replay=DENIED" %
+			[region + 1])
+	assert_eq(qualified, 25)
+
+
+func test_EXP015_A12_15_legacy_duplicate_reply_remains_idempotent() -> void:
+	var legacy: Runtime = Runtime.new()
+	var started: Dictionary = legacy.start("LV_001",
+		Callable(self, "_position_for"))
+	assert_true(bool(started.get("ok", false)), str(started))
+	if not bool(started.get("ok", false)):
+		return
+	assert_true(legacy.regional_network == null)
+	_position = legacy.definition_snapshot()["positions"]["PANEL_WEST"]
+	legacy.host.tick(1)
+	var intent: Dictionary = {"session": legacy.session_id(), "seq": 1,
+		"type": "inspect", "entity": "PANEL_WEST", "payload": {}}
+	var raw: PackedByteArray = JSON.stringify(intent).to_utf8_buffer()
+	var first: Dictionary = legacy.receive(1, raw)
+	assert_true(bool(first.get("ok", false)), str(first))
+	var replayed: Dictionary = legacy.receive(1, raw)
+	assert_true(bool(replayed.get("ok", false)), str(replayed))
+	assert_true(bool(replayed.get("duplicate", false)),
+		"legacy clients must still receive exact replay acknowledgements")

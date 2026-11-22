@@ -58,6 +58,7 @@ PINNED_SESSION_HOST_EVOLUTIONS: dict[str, str] = {
     "EXP015_A12_11_HOST_TICK_FENCE": "c42c0b89bd8a798e242cf6f512b1c2d435ed80bf",
     "EXP015_A12_13_STALE_SNAPSHOT_FENCE": "892734a303dc2fdeec414c7f83d86cdb1c3c8083",
     "EXP015_A12_14_STALE_LIFECYCLE_FENCE": "e9ab7d3f409537070d48c792f8a1e889279f54c8",
+    "EXP015_A12_15_BIND_ONCE_REPLAY_FENCE": "78001f7c3cd360226440f6fa8483f9395bbfaa9c",
 }
 
 # Exact, descriptive tests are pinned, not just total test counts. All run in
