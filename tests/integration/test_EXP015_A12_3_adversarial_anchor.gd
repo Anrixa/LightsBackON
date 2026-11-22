@@ -114,7 +114,8 @@ func test_EXP015_A12_3_real_25_region_external_source_faults() -> void:
 		assert_true(bool(network.host_transition("isolate_feeder", affected).get("ok", false)))
 		assert_false(controller.closed(), "new real feeder isolation revokes closeout")
 		assert_true(bool(network.host_transition("reset_feeder", affected).get("ok", false)))
-		assert_true(controller.closed())
+		assert_false(controller.closed(),
+			"recovered power never resurrects a signoff after an intervening isolation")
 		recovered += 1
 	assert_eq(recovered, 25)
 
@@ -219,7 +220,7 @@ func test_EXP015_A12_3_authenticated_host_rejects_bypass_and_repairs_fault() -> 
 	assert_true(bool(ready.get("ok", false)), str(ready))
 	if not bool(ready.get("ok", false)):
 		return
-	assert_true(str(ready["content_revision"]).begins_with("EXP015_A12_3_"))
+	assert_true(str(ready["content_revision"]).begins_with("EXP015_A12_4_"))
 	var board: String = str(host.worksite.definition_snapshot()["board"])
 	_position = host.definition_snapshot()["positions"][board]
 	var network: Network = host.regional_network

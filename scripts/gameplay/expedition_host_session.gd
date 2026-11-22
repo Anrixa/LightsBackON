@@ -771,7 +771,7 @@ func _session_id() -> String:
 
 func _content_revision() -> String:
 	if regional_anchor_recovery != null:
-		return "EXP015_A12_3_" + ("%s|%s|%s" % [
+		return "EXP015_A12_4_" + ("%s|%s|%s" % [
 			str(_definitions.get("source_fingerprint", "")),
 			JSON.stringify(regional_settlement.definition_snapshot()),
 			JSON.stringify(regional_anchor_recovery.definition_snapshot())]).sha256_text()
