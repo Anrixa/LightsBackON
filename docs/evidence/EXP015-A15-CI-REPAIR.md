@@ -1,0 +1,3 @@
+# EXP015 A15 — Exact-source corrected stack
+
+Append-only integration atop corrected A14 `f7abe83f4ea44e48ea09023d813bec2a306d2f4d`, keeping original A15 `45a010949eb9fb528274dad38c3a75ec9931a908` as an ancestor. Preserves original C01–C12, the authored 25/200/1000 source graph and finite supply, original A13/A14 host replays, and all hold gates. The host now refuses replay of accepted commands after regional preemption, but faithfully replays already-refused answers; stale refusal cannot observe or mutate retired mission state. A12.17 tests correctly compare hash from the revoked-state marker after takeover. Source checks are not CI, real gameplay or release certification.
