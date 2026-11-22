@@ -11,6 +11,7 @@ const SiteComposition := preload("res://scripts/world/expedition_site_compositio
 const EnvironmentFeedback := preload("res://scripts/world/expedition_environment_feedback.gd")
 const ApproachView := preload("res://scripts/world/expedition_approach_view.gd")
 const Exp017Presentation := preload("res://scripts/world/exp017_restoration_feedback.gd")
+const Exp019Physical := preload("res://scripts/world/exp019_physical_worksite.gd")
 const Runtime := preload("res://scripts/gameplay/expedition_host_session.gd")
 const RegionalPanel := preload("res://scripts/ui/expedition_regional_panel.gd")
 const PlayerController := preload("res://scripts/actors/first_person_controller.gd")
@@ -51,6 +52,7 @@ var _hazard_marker: MeshInstance3D
 var _site_composition: Node3D
 var _environmental_feedback: Node3D
 var _exp017_feedback: Node3D
+var _exp019_physical: Node3D
 var _approach_view: Node3D
 var _approach_choice: String = "guarded"
 var _outcome_choice: String = "buffer"
@@ -135,6 +137,12 @@ func _ready() -> void:
 		push_error("EXP03_HOST_START_FAILED: " + str(result))
 		return
 	_definitions = runtime.definition_snapshot()
+	_exp019_physical = Exp019Physical.build(plan, world)
+	if _exp019_physical == null:
+		push_error("EXP019_A01_PHYSICAL_SOURCE_HOLD")
+		return
+	world.add_child(_exp019_physical)
+	player.floor_snap_length = 0.30
 	_add_host_targets()
 	_add_site_composition(plan)
 	_add_exp017_presentation(plan)
