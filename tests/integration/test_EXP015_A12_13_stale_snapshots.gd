@@ -305,6 +305,7 @@ func test_EXP015_A12_15_25_regions_reject_rebound_guards_and_cached_success() ->
 		assert_true(successor.regional_network == network)
 		var stale_revision: int = old.host.revision
 		var stale_hash: String = old.host.state_hash()
+		var old_mission_before: Dictionary = old.mission.canonical_state()
 		# Public setup methods cannot transform an old owner into a new one.
 		old.host.set_expedition_tick_authority(Callable())
 		old.host.set_expedition_tick_authority(
@@ -327,8 +328,18 @@ func test_EXP015_A12_15_25_regions_reject_rebound_guards_and_cached_success() ->
 			JSON.stringify(fresh_command).to_utf8_buffer())
 		assert_eq(str(denied.get("code", "")),
 			"EXP015_A12_9_STALE_HOST_DISPATCH")
+		# Repeating a *refused* stale intent preserves the original denial,
+		# rather than masking it with an unrelated stale-success code.
+		var denied_again: Dictionary = old.receive(1,
+			JSON.stringify(fresh_command).to_utf8_buffer())
+		assert_true(bool(denied_again.get("duplicate", false)))
+		assert_false(bool(denied_again.get("ok", false)))
+		assert_eq(str(denied_again.get("code", "")),
+			"EXP015_A12_9_STALE_HOST_DISPATCH")
 		assert_eq(old.host.revision, stale_revision)
 		assert_eq(old.host.state_hash(), stale_hash)
+		assert_eq(old.mission.canonical_state(), old_mission_before,
+			"obsolete host must not observe live supply on refused commands")
 		assert_eq(int(network.snapshot()["reserve_pu"]), reserve_after_first,
 			"no stale replay may charge finite original reserve")
 		var live: Dictionary = successor.host.snapshot()

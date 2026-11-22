@@ -341,9 +341,14 @@ func receive(peer_id: int, bytes: PackedByteArray) -> Dictionary:
 	var cache: Dictionary = _replies[peer_id]
 	if seq <= int(_last_seq[peer_id]):
 		if cache.has(seq):
-			# Deduplication is not authorization: never replay an earlier
-			# successful response after the original dispatch loses ownership.
-			if _regional_lifecycle_revoked():
+			# Deduplication must preserve the original *denial* (and its
+			# domain-specific reason). A refused command has no accepted
+			# world side effect. Only a previously successful response is
+			# revoked when the regional host loses source ownership.
+			# This retains A12.10 anchor expiry diagnostics while preventing
+			# old authenticated successes from being falsely replayed.
+			var cached_reply: Dictionary = cache[seq]
+			if _regional_lifecycle_revoked() and bool(cached_reply.get("ok", false)):
 				return _refuse("EXP015_A12_15_STALE_REPLAY",
 					"regional dispatch ownership has changed", [])
 			var again: Dictionary = (cache[seq] as Dictionary).duplicate(true)
@@ -360,7 +365,10 @@ func receive(peer_id: int, bytes: PackedByteArray) -> Dictionary:
 	_last_seq[peer_id] = seq
 	var before: String = state_hash()
 	var reply: Dictionary = _dispatch(_members[peer_id], msg)
-	if _mission != null:
+	# A refused stale regional intent must not cause even indirect mission
+	# observation or evidence changes. Older owners may retain their mission
+	# object after takeover; only a current owner may observe live supply.
+	if _mission != null and not _regional_lifecycle_revoked():
 		_mission.observe_supply_state()
 	# A refused reset can still consume a C07 evidence-before-reset bonus;
 	# the host revision must reflect any authorized mission fact change.

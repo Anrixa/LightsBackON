@@ -80,7 +80,7 @@ def qualify(root: Path = ROOT) -> dict[str, Any]:
         raise ValueError(f"{PHASE}_ROOT_MISMATCH")
     protected = baseline.protected_git_audit()
     expected_host = baseline.PINNED_SESSION_HOST_EVOLUTIONS[
-        "EXP015_A12_15_BIND_ONCE_REPLAY_FENCE"
+        "EXP015_A12_15_DENIED_REPLAY_AND_MISSION_FENCE"
     ]
     if protected["protected_objects"]["scripts/network/session_host.gd"] != expected_host:
         raise ValueError(f"{PHASE}_UNEXPECTED_SESSION_HOST_OBJECT")

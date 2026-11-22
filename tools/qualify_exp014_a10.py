@@ -59,6 +59,9 @@ PINNED_SESSION_HOST_EVOLUTIONS: dict[str, str] = {
     "EXP015_A12_13_STALE_SNAPSHOT_FENCE": "892734a303dc2fdeec414c7f83d86cdb1c3c8083",
     "EXP015_A12_14_STALE_LIFECYCLE_FENCE": "e9ab7d3f409537070d48c792f8a1e889279f54c8",
     "EXP015_A12_15_BIND_ONCE_REPLAY_FENCE": "78001f7c3cd360226440f6fa8483f9395bbfaa9c",
+    # Original baseline preserved. A12.15 CI repair adds the exact revised blob.
+    "EXP015_A12_15_DENIED_REPLAY_COMPAT": "53b34e5680e1774930c77c974433cde315f3a0b6",
+    "EXP015_A12_15_DENIED_REPLAY_AND_MISSION_FENCE": "69a1ac7ca3602b2f318298ee335d4143c78bd592",
 }
 
 # Exact, descriptive tests are pinned, not just total test counts. All run in
