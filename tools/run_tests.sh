@@ -148,6 +148,10 @@ if [ -n "$PY" ]; then "$PY" tools/check_ct_l3_gate.py || FAIL=1; fi
 echo "== UI token contrast (WCAG 2.2 AA, ADR-004) =="
 if [ -n "$PY" ]; then "$PY" tools/check_contrast.py | tail -1; [ "${PIPESTATUS[0]}" -eq 0 ] || FAIL=1; fi
 
+echo "== EXP015 A10: 25 original finale debt-settlement source and conservation oracle =="
+if [ -n "$PY" ]; then
+  "$PY" tools/validate_exp015_settlements.py --report build/exp015-a10/source-audit.json || FAIL=1
+fi
 echo "== python reference model (re-derived, reference/tests) =="
 if [ -d reference/tests ] && [ -n "$PY" ]; then
   ( cd reference && "$PY" -m unittest discover -s tests -v ) || FAIL=1
