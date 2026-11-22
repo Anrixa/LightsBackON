@@ -23,6 +23,9 @@ func test_EXP020_A05_pause_resume_save_hold_and_restart_recover() -> void:
 	assert_true(bool(run.gate_departure(0,"","restart").get("ok",false)))
 	assert_eq(run.state(),Flow.RESTARTING)
 	assert_false(bool(run.resume().get("ok",false)))
+	assert_true(bool(run.abort_departure().get("ok",false)))
+	assert_eq(run.state(),Flow.PAUSED)
+	assert_true(bool(run.resume().get("ok",false)))
 
 
 func test_EXP020_A05_anonymous_solo_can_return_no_save_migration() -> void:

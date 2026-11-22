@@ -94,6 +94,15 @@ func gate_departure(pending: int, save_error: String, intent: String) -> Diction
 		"account_key": _account, "unbanked_session_resets": intent == "restart"}
 
 
+## Scene transitions may fail (missing scene/resource). Restore the paused
+## state and keep the same host so the player is never stranded.
+func abort_departure() -> Dictionary:
+	if not [RESTARTING,RETURNING].has(_state):
+		return _fail("NO_PENDING_DEPARTURE")
+	_state = PAUSED
+	return {"ok":true,"state":_state}
+
+
 func source_snapshot() -> Dictionary:
 	return {"state":_state,"level_id":_level,"account_key":_account,
 		"denials":_denied,"last_denial":_last_code,

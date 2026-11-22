@@ -524,6 +524,22 @@ func _exp020_retry_save() -> void:
 	if not _exp020_run.paused():
 		return
 	_persist_rewards()
+	# A crash may have persisted the inbox before the profile was committed.
+	# Re-run original idempotent inbox recovery without any forged host action.
+	if _expedition_account != "" and _expedition_saves != null and \
+			runtime.pending_rewards(_expedition_account).is_empty():
+		var recovered: Dictionary = Ledger.receive(_expedition_saves,
+			_expedition_account,OfflinePersistence.runtime_root(),[],_utc_now())
+		if bool(recovered.get("ok",false)):
+			_expedition_profile = recovered["profile"]
+			var rebuilt: Dictionary = CampaignConsequences.evaluate(
+				_expedition_profile,_exp020_atlas,_exp020_routes,
+				RegionalSource.load_book())
+			_exp020_campaign_consequences = rebuilt
+			_reward_error = "" if bool(rebuilt.get("ok",false)) else \
+				str(rebuilt.get("code","CAMPAIGN_SOURCE_HOLD"))
+		else:
+			_reward_error = str(recovered.get("code","INBOX_RECOVERY_HOLD"))
 	var remaining: int = runtime.pending_rewards(_expedition_account).size() \
 		if _expedition_account != "" else 0
 	_exp020_pause_notice.text = "Pending host receipts: %d / save gate: %s" % [
@@ -555,7 +571,13 @@ func _exp020_restart() -> void:
 	get_tree().set_meta("exp014_regional_networks_enabled",_regional_requested)
 	if DisplayServer.get_name() != "headless":
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	get_tree().reload_current_scene()
+	var restarted: Error = get_tree().reload_current_scene()
+	if restarted != OK:
+		get_tree().remove_meta("expedition_requested_level")
+		get_tree().remove_meta("expedition_account_key")
+		get_tree().remove_meta("exp014_regional_networks_enabled")
+		_exp020_run.abort_departure()
+		_exp020_pause_notice.text = "RESTART FAILED: %d. Original paused host preserved." % restarted
 
 
 func _close_field_ops() -> void:
@@ -581,7 +603,11 @@ func _return_to_menu() -> void:
 	if DisplayServer.get_name() != "headless":
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	get_tree().set_meta("expedition_reopen_atlas", true)
-	get_tree().change_scene_to_file(MENU_PATH)
+	var changed: Error = get_tree().change_scene_to_file(MENU_PATH)
+	if changed != OK:
+		get_tree().remove_meta("expedition_reopen_atlas")
+		_exp020_run.abort_departure()
+		_exp020_pause_notice.text = "ATLAS TRANSITION FAILED: %d. Original paused host preserved." % changed
 
 
 func _physics_process(delta: float) -> void:
