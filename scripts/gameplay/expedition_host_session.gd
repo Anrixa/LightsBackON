@@ -716,6 +716,9 @@ func start(level_id: String, host_position: Callable,
 	host.set_collectible_authority(Callable(self, "_claim_lore"), Callable(self, "_lore_state"))
 	if bespoke != null:
 		host.set_expedition_intent_guard(Callable(self, "_bespoke_guard"))
+	if regional_network != null:
+		# Only the trusted host can bind its A09 dispatch epoch to tick authority.
+		host.set_expedition_tick_authority(Callable(self, "_regional_dispatch_current"))
 	if devices != null:
 		host.set_expedition_device_authority(Callable(self, "_operate_device"),
 			Callable(devices, "snapshot"))
@@ -1460,6 +1463,8 @@ func _worksite_snapshot() -> Dictionary:
 ## Called by SessionHost ONLY after its existing transport/session/sequence,
 ## rate, proximity and optional physics line-of-sight gates all passed.
 func _claim_lore(player_id: String, item_id: String) -> Dictionary:
+	if not _regional_dispatch_current():
+		return _fail("EXP015_A12_11_STALE_HOST_LIFECYCLE")
 	if player_id != PLAYER_ID or item_id != str(_collectible.get("id", "")):
 		return _fail("UNKNOWN_COLLECTIBLE")
 	if _lore_claimed:
@@ -1481,7 +1486,9 @@ func _lore_state() -> Dictionary:
 
 ## Only accepted new task facts become personal field-point receipts.
 func _issue_task_rewards() -> void:
-	if _account_key == "":
+	# Preserve receipts earned before preemption, but never mint new ones
+	# from an obsolete regional SessionHost or an old callback.
+	if _account_key == "" or not _regional_dispatch_current():
 		return
 	var batch: Array[Dictionary] = []
 	for task: Dictionary in _tasks:
@@ -1564,6 +1571,8 @@ func _inside_extraction(player_id: String) -> bool:
 func tick_host() -> Dictionary:
 	if not _ready:
 		return _fail("SESSION_NOT_READY")
+	if not _regional_dispatch_current():
+		return _fail("EXP015_A12_11_STALE_HOST_LIFECYCLE")
 	_tick += 1
 	host.set_in_zone(PLAYER_ID, "ZONE_EXTRACT", _inside_extraction(PLAYER_ID))
 	host.tick(_tick)
@@ -1577,7 +1586,7 @@ func tick_host() -> Dictionary:
 
 
 func _update_progress() -> void:
-	if not _ready:
+	if not _ready or not _regional_dispatch_current():
 		return
 	var bindings: Dictionary = _definitions["bindings"]
 	var first: String = str(_tasks[0]["id"])

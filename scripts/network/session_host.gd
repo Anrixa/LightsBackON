@@ -56,6 +56,7 @@ var _worksite_handler: Callable = Callable()  # EXP012 source-pinned field order
 var _worksite_state: Callable = Callable()  # canonical state and host hash
 var _worksite_tick: Callable = Callable()  # after EXP011 critical loads tick
 var _expedition_intent_guard: Callable = Callable()  # optional EXP06 policy; checked after host dedupe
+var _expedition_tick_authority: Callable = Callable()  # A12.11 host-only lifecycle owner, never wire-supplied
 var _switches: Dictionary = {}  # switch id -> {"target", "field"}
 var _members: Dictionary = {}  # transport peer id (int) -> player id
 var _last_seq: Dictionary = {}  # peer id -> highest accepted seq
@@ -75,6 +76,12 @@ var _published_revision: int = 0
 ## Invoked only for a validated, nonduplicate SessionHost command.
 func set_expedition_intent_guard(guard: Callable) -> void:
 	_expedition_intent_guard = guard
+
+
+## Host-only ownership fence, opt-in for A09 regional networks. Obsolete
+## sessions may advance transport rate time but not world/mission ticks.
+func set_expedition_tick_authority(authority: Callable) -> void:
+	_expedition_tick_authority = authority
 
 
 func configure(limits: Dictionary, protocol_version: int, content_revision: String, new_session_id: String,
@@ -182,6 +189,12 @@ func remove(peer_id: int) -> Array[Dictionary]:
 ## Returns this tick's events; trips and lock releases are durable and advance the revision with the tick itself.
 func tick(now: int) -> Array[Dictionary]:
 	_now = now
+	# A12.11: a superseded regional host cannot advance grid trips, mission
+	# deadlines, repair locks, regional overlays or checkpoint revisions.
+	# Keep only transport rate-window time moving for authenticated denials.
+	if _expedition_tick_authority.is_valid() and \
+			not bool(_expedition_tick_authority.call()):
+		return []
 	var before: String = state_hash()
 	var events: Array[Dictionary] = _grid.step()
 	_meter.record_events(events, _grid)
