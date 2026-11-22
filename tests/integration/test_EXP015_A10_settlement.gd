@@ -48,6 +48,38 @@ func _cold_profile(atlas: Dictionary, region: int, account: String) -> Dictionar
 	return profile
 
 
+func _restore_required_anchor_ancestors(profile: Dictionary, atlas: Dictionary,
+		region: int) -> void:
+	# The original primary tree can route the reserve anchor through the
+	# alternate slot-5 site. Never invent an energized anchor or weaken the
+	# production settlement interlock to compensate for a missing receipt.
+	var root: String = "LV_%03d" % (region * 8 + 1)
+	var source: Dictionary = Network.entry_for(Network.load_book(), root)
+	assert_false(source.is_empty(), "original regional network is mandatory")
+	if source.is_empty():
+		return
+	var incoming: Dictionary = {}
+	for edge: Dictionary in source["primary_feeders"]:
+		incoming[str(edge["to"])] = str(edge["from"])
+	var cursor: String = str(source["reserve_anchor_site"])
+	var ancestors: Array[String] = []
+	var visited: Dictionary = {}
+	while cursor != root:
+		assert_true(incoming.has(cursor) and not visited.has(cursor),
+			"anchor must have a finite original primary feeder path")
+		if not incoming.has(cursor) or visited.has(cursor):
+			return
+		visited[cursor] = true
+		ancestors.append(cursor)
+		cursor = str(incoming[cursor])
+	ancestors.reverse()
+	for site: String in ancestors:
+		var index: int = site.trim_prefix("LV_").to_int()
+		var slot: int = index - region * 8
+		if slot not in [1, 2, 3, 4, 6, 7]:
+			_restore(profile, atlas, index)
+
+
 func _commission(region: int, debt: bool, account: String) -> Dictionary:
 	var atlas: Dictionary = Atlas.load_catalog()
 	var profile: Dictionary = _cold_profile(atlas, region, account)
@@ -63,6 +95,7 @@ func _commission(region: int, debt: bool, account: String) -> Dictionary:
 	assert_true(bool(network.prepare_site("managed" if debt else "buffer").get("ok", false)))
 	for slot: int in [1, 2, 3, 4, 6, 7]:
 		_restore(profile, atlas, region * 8 + slot)
+	_restore_required_anchor_ancestors(profile, atlas, region)
 	var finale: String = "LV_%03d" % (region * 8 + 8)
 	var joined: Dictionary = network.attach_site(atlas, profile, finale)
 	assert_true(bool(joined.get("ok", false)), str(joined))
@@ -109,6 +142,37 @@ func test_EXP015_A10_25_real_debt_retirements_and_no_forged_supply() -> void:
 			"DEBT_SETTLEMENT_SOURCE_OR_RESERVE_DENIED")
 		successful += 1
 	assert_eq(successful, 25)
+
+
+func test_EXP015_A10_dark_original_anchor_requires_real_upstream_receipt() -> void:
+	# Two original primary trees require a restored slot-5 intermediate
+	# (LV_085 or LV_197); their restored anchors remain dark without it.
+	for region: int in [10, 24]:
+		var atlas: Dictionary = Atlas.load_catalog()
+		var profile: Dictionary = _cold_profile(atlas, region,
+			"a10_dark_source_%02d" % (region + 1))
+		var root: String = "LV_%03d" % (region * 8 + 1)
+		var network: Network = Network.new()
+		assert_true(bool(network.configure(atlas, profile, root).get("ok", false)))
+		assert_true(bool(network.host_transition("commit_entry_debt", root).get("ok", false)))
+		assert_true(bool(network.prepare_site("managed").get("ok", false)))
+		for slot: int in [1, 2, 3, 4, 6, 7]:
+			_restore(profile, atlas, region * 8 + slot)
+		var finale: String = "LV_%03d" % (region * 8 + 8)
+		assert_true(bool(network.attach_site(atlas, profile, finale).get("ok", false)))
+		var original: Dictionary = Network.entry_for(Network.load_book(), finale)
+		var anchor: String = str(original["reserve_anchor_site"])
+		assert_true(bool(network.snapshot()["sites"][anchor]["restored"]))
+		assert_false(bool(network.snapshot()["sites"][anchor]["energized"]))
+		var held: Dictionary = network.snapshot()
+		assert_eq(str(network.host_transition("retire_service_debt", anchor)["code"]),
+			"DEBT_SETTLEMENT_SOURCE_OR_RESERVE_DENIED")
+		assert_eq(network.snapshot(), held, "dark-anchor denial cannot spend reserve")
+		_restore(profile, atlas, region * 8 + 5)
+		assert_true(bool(network.refresh_receipts(atlas, profile).get("ok", false)))
+		assert_true(bool(network.snapshot()["sites"][anchor]["energized"]))
+		assert_true(bool(network.host_transition("retire_service_debt", anchor).get("ok", false)))
+		assert_eq(int(network.site_conditions()["service_debt"]), 0)
 
 
 func test_EXP015_A10_zero_debt_and_wrong_asset_fail_closed() -> void:
