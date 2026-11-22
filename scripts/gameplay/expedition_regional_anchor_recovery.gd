@@ -18,6 +18,7 @@ var _recovery_feeder: String = ""
 var _phase: String = "inactive"
 var _policy: String = ""
 var _verified_source_revision: int = -1
+var _bound_dispatch_epoch: int = 0
 var _events: Array[Dictionary] = []
 
 
@@ -118,6 +119,7 @@ func configure(network: Network) -> Dictionary:
 		_source = {}
 		_network = null
 		return _fail("ANCHOR_SOURCE_PATH_MISMATCH")
+	_bound_dispatch_epoch = network.current_dispatch_epoch()
 	_phase = "audit_pending"
 	return {"ok": true, "region_id": source["region_id"],
 		"original_anchor": source["reserve_anchor_site"]}
@@ -140,7 +142,8 @@ func definition_snapshot() -> Dictionary:
 ## authoritative append-only event log makes even trip-then-reset visible.
 ## Current electricity alone cannot prove the source stayed stable.
 func _source_revision() -> int:
-	if _network == null or _source.is_empty():
+	if _network == null or _source.is_empty() or \
+			_network.current_dispatch_epoch() != _bound_dispatch_epoch:
 		return -1
 	var route: Dictionary = _network.anchor_route_snapshot()
 	if not _path_matches_original(route):
@@ -162,10 +165,12 @@ func _source_revision() -> int:
 
 
 func _source_valid() -> bool:
-	if _network == null or _source.is_empty() or _policy.is_empty():
+	if _network == null or _source.is_empty() or _policy.is_empty() or \
+			_network.current_dispatch_epoch() != _bound_dispatch_epoch:
 		return false
 	var plan: Dictionary = _network.anchor_route_snapshot()
-	if not _path_matches_original(plan):
+	if not _path_matches_original(plan) or \
+			str(plan.get("level_id", "")) != str(_source["shelter_service_site"]):
 		return false
 	if (_phase == "verified" or _phase == "signed_off") and \
 			(_verified_source_revision < 0 or \
@@ -196,6 +201,8 @@ func snapshot() -> Dictionary:
 		"original_incoming_feeder": _original_feeder,
 		"active_recovery_feeder": _recovery_feeder,
 		"verified_source_revision": _verified_source_revision,
+		"bound_dispatch_epoch": _bound_dispatch_epoch,
+		"current_dispatch_epoch": _network.current_dispatch_epoch(),
 		"current_source_revision": _source_revision(),
 		"original_route": _network.anchor_route_snapshot(),
 		"events": _events.duplicate(true), "qualification": QUALIFICATION}
@@ -204,6 +211,8 @@ func snapshot() -> Dictionary:
 func operate(action: String) -> Dictionary:
 	if _source.is_empty() or _network == null:
 		return _fail("ANCHOR_NOT_CONFIGURED")
+	if _network.current_dispatch_epoch() != _bound_dispatch_epoch:
+		return _fail("ANCHOR_DISPATCH_CONTEXT_EXPIRED")
 	if not ACTIONS.has(action) and \
 			action != "anchor_proof:" + str(_source["recovery_procedure"]):
 		return _fail("ANCHOR_UNKNOWN_OR_FORGED_PROOF")

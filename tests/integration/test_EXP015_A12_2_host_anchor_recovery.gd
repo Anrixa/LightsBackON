@@ -128,7 +128,7 @@ func test_EXP015_A12_2_authenticated_host_board_and_opt_out() -> void:
 	if not bool(ready.get("ok", false)):
 		return
 	assert_true(bool(ready["regional_anchor_recovery_active"]))
-	assert_true(str(ready["content_revision"]).begins_with("EXP015_A12_4_"))
+	assert_true(str(ready["content_revision"]).begins_with("EXP015_A12_6_"))
 	var board: String = str(session.worksite.definition_snapshot()["board"])
 	_position = session.definition_snapshot()["positions"][board]
 	assert_false(bool(_send(session, 1, board, "anchor_audit", 999).get("ok", false)))

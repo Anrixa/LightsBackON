@@ -20,6 +20,7 @@ static var _host_regions: Dictionary = {}
 
 var _region: Dictionary = {}
 var _site_id: String = ""
+var _dispatch_epoch: int = 0  # Process-local; never saved or supplied by clients.
 var _restored: Dictionary = {}
 var _feeders: Dictionary = {}
 var _ties: Dictionary = {}
@@ -165,6 +166,7 @@ func configure(atlas: Dictionary, profile: Dictionary, level_id: String,
 		if board["states"][id]["status"] == "RESTORED":
 			_restored[id] = true
 	_ready = true
+	_dispatch_epoch = 1
 	return {"ok": true, "region_id": _region["region_id"], "restored": _restored.size()}
 
 
@@ -508,6 +510,12 @@ func prepare_site(mode: String) -> Dictionary:
 	return {"ok": true, "conditions": site_conditions()}
 
 
+## A12.6: each successful host dispatch attachment invalidates earlier
+## original-finale signoffs without changing power events or save schemas.
+func current_dispatch_epoch() -> int:
+	return _dispatch_epoch if _ready else 0
+
+
 ## Only the host reads/updates this ephemeral context. Every new dispatch
 ## revalidates the EXP04 receipt profile and the original EXP05 launch graph.
 func attach_site(atlas: Dictionary, profile: Dictionary, level_id: String) -> Dictionary:
@@ -524,6 +532,7 @@ func attach_site(atlas: Dictionary, profile: Dictionary, level_id: String) -> Di
 	if not bool(refreshed.get("ok", false)):
 		return refreshed
 	_site_id = level_id
+	_dispatch_epoch += 1
 	return {"ok": true, "level_id": _site_id, "restored": _restored.size()}
 
 
