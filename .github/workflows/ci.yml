@@ -103,6 +103,20 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Retain EXP018 A05 consolidated Linux host replay evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exp018-a05-linux-${{ github.sha }}
+          path: |
+            build/exp018-a01/
+            build/exp018-a02/
+            build/exp018-a03/
+            build/exp018-a04/
+            build/exp018-a05/
+          if-no-files-found: warn
+          retention-days: 21
+
   windows:
     runs-on: windows-latest
     timeout-minutes: 40
@@ -193,3 +207,17 @@ jobs:
             build/exp014-a10-4/
             build/exp015-a03/
           retention-days: 14
+
+      - name: Retain EXP018 A05 consolidated Windows host replay evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exp018-a05-windows-${{ github.sha }}
+          path: |
+            build/exp018-a01/
+            build/exp018-a02/
+            build/exp018-a03/
+            build/exp018-a04/
+            build/exp018-a05/
+          if-no-files-found: warn
+          retention-days: 21
