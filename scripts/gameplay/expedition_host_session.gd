@@ -1480,6 +1480,8 @@ func _worksite_tick() -> void:
 
 
 func _worksite_snapshot() -> Dictionary:
+	if not _regional_dispatch_current():
+		return _fail("EXP015_A12_13_STALE_HOST_SNAPSHOT")
 	if worksite == null:
 		return {}
 	var state: Dictionary = worksite.snapshot()
@@ -1688,6 +1690,8 @@ func _update_progress() -> void:
 func task_board() -> Dictionary:
 	if not _ready:
 		return _fail("SESSION_NOT_READY")
+	if not _regional_dispatch_current():
+		return _fail("EXP015_A12_13_STALE_HOST_SNAPSHOT")
 	var out: Array[Dictionary] = []
 	var required_done: int = 0
 	for task: Dictionary in _tasks:
@@ -1752,6 +1756,8 @@ func task_board() -> Dictionary:
 func authoritative_state() -> Dictionary:
 	if not _ready:
 		return {}
+	if not _regional_dispatch_current():
+		return _fail("EXP015_A12_13_STALE_HOST_SNAPSHOT")
 	var state: Dictionary = host.authoritative_state().duplicate(true)
 	if bespoke != null:
 		state["exp06"] = bespoke.snapshot()
