@@ -1,6 +1,7 @@
 extends RefCounted
 const Regional := preload("res://scripts/world/expedition_regional_facilities.gd")
 const RegionIdentity := preload("res://scripts/world/exp017_region_identity.gd")
+const SiteAccess := preload("res://scripts/world/exp017_site_access.gd")
 ## EXP02: original procedural 3D level-composition previews.
 ## One built world per selected dispatch; never launches a player, registers
 ## a host target or performs pickup/reward actions. Only the floor collides.
@@ -194,4 +195,9 @@ static func build(plan: Dictionary) -> Node3D:
 	if identity == null:
 		root.free()
 		return null
+	var access: Node3D = SiteAccess.build(plan, regional)
+	if access == null:
+		root.free()
+		return null
+	root.add_child(access)
 	return root
