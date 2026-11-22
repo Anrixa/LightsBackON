@@ -24,7 +24,7 @@ func test_EXP019_A01_all_200_routes_are_sourced_bounded_and_distinct() -> void:
 	assert_eq(signatures.size(), 200)
 
 
-func test_EXP019_A01_physical_colliders_and_elevated_ray_intersections() -> void:
+func test_EXP019_A01_registered_physics_colliders_have_elevated_decks() -> void:
 	var atlas: Dictionary = Atlas.load_catalog()
 	var tree: SceneTree = Engine.get_main_loop() as SceneTree
 	for index: int in [0, 27, 89, 141, 199]:
@@ -40,17 +40,20 @@ func test_EXP019_A01_physical_colliders_and_elevated_ray_intersections() -> void
 			world.add_child(geometry)
 			var colliders: Array[Node] = geometry.find_children("*", "CollisionShape3D", true, false)
 			assert_eq(colliders.size(), 4 * (3 + 2 + 1 + 7))
-			await tree.physics_frame
-			var audit: Dictionary = Physical.inspect(plan)
-			for lane: Dictionary in audit["routes"]:
-				var center: Vector3 = (lane["rise"] + lane["crest"]) * 0.5
-				var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
-					Vector3(center.x, 5.0, center.z), Vector3(center.x, -1.0, center.z), 1)
-				var hit: Dictionary = tree.root.get_world_3d().direct_space_state.intersect_ray(ray)
-				assert_true(not hit.is_empty(), "elevated deck has a physics surface")
-				if not hit.is_empty():
-					assert_true((hit["position"] as Vector3).y > 0.70,
-						"ray must hit the real raised deck, not just the base floor")
+			# Synchronous physics-server shape registration check: the Godot test
+			# runner does not await test coroutine bodies. An awaited physics frame
+			# would leave this temporary collision world alive during V01 tests.
+			var body: StaticBody3D = geometry.get_node("PhysicalSurfaces") as StaticBody3D
+			assert_true(body != null)
+			assert_eq(PhysicsServer3D.body_get_shape_count(body.get_rid()), 4 * (3 + 2 + 1 + 7))
+			for lane_index: int in range(4):
+				var collision: CollisionShape3D = body.get_node(
+					"Raised%02d_Segment1_Collision" % lane_index) as CollisionShape3D
+				assert_true(collision != null, "deck must own real collision")
+				if collision != null:
+					assert_true(collision.shape is BoxShape3D)
+					assert_true(collision.position.y > 0.75,
+						"raised deck collision must be above base ground")
 		tree.root.remove_child(world)
 		world.free()
 
