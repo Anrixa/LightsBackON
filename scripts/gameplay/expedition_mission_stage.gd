@@ -12,6 +12,7 @@ const EnvironmentFeedback := preload("res://scripts/world/expedition_environment
 const ApproachView := preload("res://scripts/world/expedition_approach_view.gd")
 const Exp017Presentation := preload("res://scripts/world/exp017_restoration_feedback.gd")
 const Exp018Presentation := preload("res://scripts/world/exp018_host_presentation.gd")
+const Exp021Audio := preload("res://scripts/world/exp021_spatial_audio.gd")
 const Runtime := preload("res://scripts/gameplay/expedition_host_session.gd")
 const RegionalPanel := preload("res://scripts/ui/expedition_regional_panel.gd")
 const PlayerController := preload("res://scripts/actors/first_person_controller.gd")
@@ -52,6 +53,7 @@ var _hazard_marker: MeshInstance3D
 var _site_composition: Node3D
 var _environmental_feedback: Node3D
 var _exp017_feedback: Node3D
+var _exp021_sound: RefCounted
 var _approach_view: Node3D
 var _approach_choice: String = "guarded"
 var _outcome_choice: String = "buffer"
@@ -164,6 +166,7 @@ func _ready() -> void:
 	_add_host_targets()
 	_add_site_composition(plan)
 	_add_exp017_presentation(plan)
+	_add_exp021_sound(plan)
 	_add_hazard_marker()
 	_build_overlay(level)
 	# An original Compatibility scene with no extra lights or game-state
@@ -316,6 +319,16 @@ func _add_exp017_presentation(plan: Dictionary) -> void:
 	world.add_child(_exp017_feedback)
 
 
+## EXP021 A02: spatial sound is initialized from the same verified plan.
+## No sound can award a task or claim a successful host operation.
+func _add_exp021_sound(plan: Dictionary) -> void:
+	_exp021_sound = Exp021Audio.new()
+	var result: Dictionary = _exp021_sound.setup(world, plan)
+	if not bool(result.get("ok", false)):
+		push_error("EXP021_A02_SOUND_SOURCE_HOLD: " + str(result))
+		_exp021_sound = null
+
+
 ## A visible diagnostic marker, not a damage collider or tested path blocker.
 ## Host timing and permission checks remain authoritative independently.
 func _add_hazard_marker() -> void:
@@ -415,6 +428,8 @@ func _return_to_menu() -> void:
 func _physics_process(delta: float) -> void:
 	if not _loaded:
 		return
+	if _exp021_sound != null:
+		_exp021_sound.advance(delta)
 	_tick_accumulator += delta
 	while _tick_accumulator >= HOST_STEP_SECONDS:
 		_tick_accumulator -= HOST_STEP_SECONDS
@@ -461,6 +476,10 @@ func _send(kind: String, entity: String, payload: Dictionary = {}) -> Dictionary
 		"type": kind, "entity": entity, "payload": payload}
 	var reply: Dictionary = runtime.receive(1, JSON.stringify(envelope).to_utf8_buffer())
 	_persist_rewards()
+	# An acknowledgement is not an audio success unless the host accepts it.
+	if _exp021_sound != null and player != null:
+		_exp021_sound.play_confirmed_command(
+			reply, kind, TOOL_IDS[_selected_tool], player.global_position)
 	if _feedback != null:
 		_feedback.text = ("%s: %s" % [kind, "ACCEPTED" if reply.get("ok", false) else
 			str(reply.get("code", "DENIED"))])
@@ -1237,4 +1256,9 @@ func _refresh() -> void:
 			_exp017_feedback, runtime, _exp018_requested)
 		if not bool(presented.get("ok", false)):
 			push_error("EXP018_A04_HOST_PRESENTATION_HOLD: " + str(presented))
+		elif _exp021_sound != null:
+			var audio_projection: Dictionary = _exp021_sound.reflect(
+				board, runtime.grid.canonical_state())
+			if not bool(audio_projection.get("ok", false)):
+				push_error("EXP021_A02_AUDIO_SOURCE_HOLD: " + str(audio_projection))
 	set_meta("display_revision", int(board["host_revision"]))
