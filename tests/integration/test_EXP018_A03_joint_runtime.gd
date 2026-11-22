@@ -5,6 +5,7 @@ extends "res://tests/test_case.gd"
 const Atlas := preload("res://scripts/world/dispatch_atlas.gd")
 const Ledger := preload("res://scripts/progression/expedition_ledger.gd")
 const Network := preload("res://scripts/gameplay/expedition_regional_network.gd")
+const Incident := preload("res://scripts/gameplay/expedition_regional_emergencies.gd")
 const Cascades := preload("res://scripts/gameplay/expedition_advanced_cascade.gd")
 const Runtime := preload("res://scripts/gameplay/expedition_host_session.gd")
 const Saves := preload("res://scripts/persistence/save_service.gd")
@@ -102,7 +103,12 @@ func test_EXP018_A03_25_region_finales_bind_original_resources_and_new_cases() -
 		var original: Runtime = first["session"]
 		var board: String = str(first["board"])
 		assert_true(original.regional_network != null)
-		assert_true(original.incident_response != null)
+		# A01 incidents are source-authored at slot 4, never assumed at finales.
+		var incident_at_finale: Dictionary = Incident.entry_for(
+			Incident.load_book(), "LV_%03d" % (8 * region + 8))
+		assert_eq(original.incident_response != null,
+			not incident_at_finale.is_empty(), "INCIDENT_SOURCE_BINDING_DRIFT")
+		assert_true(original.regional_finale != null, "FINALE_SOURCE_MISSING")
 		assert_true(original.advanced_cases != null)
 		assert_true(original.advanced_cascade != null)
 		assert_true(str(first["start"]["content_revision"]).begins_with("EXP018_A03_"))
