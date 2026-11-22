@@ -230,6 +230,10 @@ echo "== EXP018 A03: authenticated original regional + bespoke mission host inte
 if [ -n "$PY" ]; then
   "$PY" tools/qualify_exp018_a03.py --report build/exp018-a03/qualification.json || FAIL=1
 fi
+echo "== EXP018 A04: 25 region art identities / 200 host-grounded site visual bindings =="
+if [ -n "$PY" ]; then
+  "$PY" tools/qualify_exp018_a04.py --report build/exp018-a04/qualification.json || FAIL=1
+fi
 echo "== python reference model (re-derived, reference/tests) =="
 if [ -d reference/tests ] && [ -n "$PY" ]; then
   ( cd reference && "$PY" -m unittest discover -s tests -v ) || FAIL=1
