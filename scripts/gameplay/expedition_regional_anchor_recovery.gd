@@ -239,7 +239,7 @@ func operate(action: String) -> Dictionary:
 					not bool(updated["standby_engaged"]):
 				_policy = "restored_original_feeder"
 				_phase = "verification_pending"
-		else:
+			else:
 				_policy = ""
 				_phase = "choice_pending"
 		"anchor_verify":
