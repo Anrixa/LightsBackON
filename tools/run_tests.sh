@@ -131,6 +131,11 @@ if [ -n "$PY" ]; then
   "$PY" tools/validate_exp015_rejoins.py --report build/exp015-a08/source-audit.json || FAIL=1
 fi
 
+echo "== EXP015 A09: 25 source root commissions and 100 real regional entry options =="
+if [ -n "$PY" ]; then
+  "$PY" tools/validate_exp015_entries.py --report build/exp015-a09/source-audit.json || FAIL=1
+fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 
@@ -183,6 +188,34 @@ elif [ -f project.godot ]; then
     echo "EXP015_A03_HOST_SCRIPT_PARSE=PASS"
   fi
   rm -f "$HOST_PARSE_OUT"
+  echo "== EXP015 A09: Godot original root commissioning source parser =="
+  A09_PARSE_OUT="$(mktemp)"
+  if ! "$GODOT_BIN" --headless --path . --check-only --script res://scripts/gameplay/expedition_regional_entry_commissioning.gd >"$A09_PARSE_OUT" 2>&1; then
+    echo "FAIL: Godot cannot parse EXP015 A09 regional entry commissioning controller"
+    cat "$A09_PARSE_OUT"
+    FAIL=1
+  elif grep -qE "SCRIPT ERROR|Parse Error" "$A09_PARSE_OUT"; then
+    echo "FAIL: Godot A09 entry controller parser returned source errors"
+    cat "$A09_PARSE_OUT"
+    FAIL=1
+  else
+    echo "EXP015_A09_ENTRY_CONTROLLER_PARSE=PASS"
+  fi
+  rm -f "$A09_PARSE_OUT"
+  echo "== EXP015 A09: Godot authenticated root and 100 option regression parser =="
+  A09_TEST_OUT="$(mktemp)"
+  if ! "$GODOT_BIN" --headless --path . --check-only --script res://tests/integration/test_EXP015_A09_region_entries.gd >"$A09_TEST_OUT" 2>&1; then
+    echo "FAIL: Godot cannot parse EXP015 A09 root / host test"
+    cat "$A09_TEST_OUT"
+    FAIL=1
+  elif grep -qE "SCRIPT ERROR|Parse Error" "$A09_TEST_OUT"; then
+    echo "FAIL: Godot A09 root / host parser returned source errors"
+    cat "$A09_TEST_OUT"
+    FAIL=1
+  else
+    echo "EXP015_A09_ENTRY_REPLAY_PARSE=PASS"
+  fi
+  rm -f "$A09_TEST_OUT"
   echo "== EXP015 A08: direct Godot regional rejoin controller parse =="
   A08_PARSE_OUT="$(mktemp)"
   if ! "$GODOT_BIN" --headless --path . --check-only --script res://scripts/gameplay/expedition_regional_rejoin_consequences.gd >"$A08_PARSE_OUT" 2>&1; then
