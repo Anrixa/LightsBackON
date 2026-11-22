@@ -35,6 +35,7 @@ const SiteEXP013 := preload("res://scripts/gameplay/expedition_site_exp013.gd")
 const SiteContingencies := preload("res://scripts/gameplay/expedition_site_contingencies.gd")
 const SiteApproach := preload("res://scripts/gameplay/expedition_approach_intelligence.gd")
 const SiteOutcomes := preload("res://scripts/gameplay/expedition_operational_consequences.gd")
+const SiteHazards := preload("res://scripts/gameplay/expedition_environment_hazards.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
 
@@ -65,6 +66,7 @@ var site_exp013: SiteA02
 var site_contingency: SiteContingencies
 var site_approach: SiteApproach
 var site_outcomes: SiteOutcomes
+var site_hazards: SiteHazards
 
 var _definitions: Dictionary = {}
 var _position_source: Callable
@@ -102,7 +104,8 @@ func start(level_id: String, host_position: Callable,
 		enable_site_exp013: bool = false,
 		enable_site_contingency: bool = false,
 		enable_site_approach: bool = false,
-		enable_site_outcomes: bool = false) -> Dictionary:
+		enable_site_outcomes: bool = false,
+		enable_site_hazards: bool = false) -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
 	if enable_devices and not enable_bespoke:
@@ -127,6 +130,8 @@ func start(level_id: String, host_position: Callable,
 		return _fail("EXP014_A05_REQUIRES_A02_CONTINGENCY")
 	if enable_site_outcomes and not enable_site_approach:
 		return _fail("EXP014_A06_REQUIRES_A05_RECON")
+	if enable_site_hazards and not enable_site_outcomes:
+		return _fail("EXP014_A07_REQUIRES_A06_OUTCOMES")
 	if account_key != "" and not SaveService.is_valid_key(account_key):
 		return _fail("INVALID_ACCOUNT_KEY")
 	if not host_position.is_valid() or (physics_visibility.is_valid() and not host_position.is_valid()):
@@ -396,6 +401,15 @@ func start(level_id: String, host_position: Callable,
 		if not bool(outcome_gate.get("ok", false)):
 			return _fail("EXP014_A06_SOURCE_INVALID", outcome_gate)
 		_definitions["site_outcomes"] = site_outcomes.definition_snapshot()
+	# A07 binds to the original host source pair plus A06; no new targets.
+	if enable_site_hazards:
+		site_hazards = SiteHazards.new()
+		var hazard_gate: Dictionary = site_hazards.configure(
+			site_approach.definition_snapshot(), site_outcomes.definition_snapshot(),
+			site_contingency.definition_snapshot())
+		if not bool(hazard_gate.get("ok", false)):
+			return _fail("EXP014_A07_SOURCE_INVALID", hazard_gate)
+		_definitions["site_hazards"] = site_hazards.definition_snapshot()
 	_position_source = host_position
 	_physics_visibility = physics_visibility
 	_account_key = account_key
@@ -472,6 +486,7 @@ func start(level_id: String, host_position: Callable,
 		"site_exp013_active": site_exp013 != null, "site_contingency_active": site_contingency != null,
 		"site_approach_active": site_approach != null,
 		"site_outcomes_active": site_outcomes != null,
+		"site_hazards_active": site_hazards != null,
 		"qualification": "AUTHORITY_SOURCE_HEADLESS_ONLY_NO_PLAYABILITY"}
 
 
@@ -480,6 +495,12 @@ func _session_id() -> String:
 
 
 func _content_revision() -> String:
+	if site_hazards != null:
+		return "EXP014_A07_" + ("%s|%s|%s|%s" % [
+			str(_definitions.get("source_fingerprint", "")),
+			JSON.stringify(site_approach.definition_snapshot()),
+			JSON.stringify(site_outcomes.definition_snapshot()),
+			JSON.stringify(site_hazards.definition_snapshot())]).sha256_text()
 	if site_outcomes != null:
 		return "EXP014_A06_" + ("%s|%s|%s|%s" % [
 			str(_definitions.get("source_fingerprint", "")),
@@ -617,6 +638,8 @@ func _bespoke_guard(player_id: String, kind: String, entity: String,
 		return _fail("EXP014_A05_INTELLIGENCE_INCOMPLETE")
 	if kind == "request_extract" and site_outcomes != null and not site_outcomes.solved():
 		return _fail("EXP014_A06_OUTCOMES_INCOMPLETE")
+	if kind == "request_extract" and site_hazards != null and not site_hazards.solved():
+		return _fail("EXP014_A07_ENVIRONMENT_UNVERIFIED")
 	if kind == "operate_worksite" and (worksite == null or \
 			(not worksite.target_ids().has(entity) and \
 			(site_a02 == null or not site_a02.target_ids().has(entity)) and \
@@ -769,6 +792,12 @@ func _outcome_facts() -> Dictionary:
 	return facts
 
 
+func _hazard_facts() -> Dictionary:
+	var facts: Dictionary = _outcome_facts()
+	facts["outcome_mode"] = str(site_outcomes.snapshot().get("mode", "")) if site_outcomes != null else ""
+	return facts
+
+
 func _operate_worksite(player_id: String, entity: String, action: String) -> Dictionary:
 	if player_id != PLAYER_ID or worksite == null:
 		return _fail("EXP012_HOST_PRINCIPAL_INVALID")
@@ -779,11 +808,24 @@ func _operate_worksite(player_id: String, entity: String, action: String) -> Dic
 			if bool(recon_reply.get("ok", false)) and site_approach.solved() and site_outcomes != null:
 				site_outcomes.begin(site_approach.snapshot())
 			return recon_reply
+		if site_outcomes != null and not site_outcomes.prepared():
+			var plan_reply: Dictionary = site_outcomes.operate(entity, action, _outcome_facts())
+			if bool(plan_reply.get("ok", false)) and site_outcomes.prepared() and site_hazards != null:
+				site_hazards.begin(site_outcomes.snapshot())
+			return plan_reply
+		if site_hazards != null and site_hazards.needs_action():
+			return site_hazards.operate(entity, action, _hazard_facts())
 		if site_outcomes != null and site_outcomes.needs_action():
 			return site_outcomes.operate(entity, action, _outcome_facts())
 		if site_contingency != null and active.solved():
 			return site_contingency.operate(entity, action, _contingency_facts())
 		return active.operate(entity, action, _worksite_facts())
+	# A07 exposure/fault can block unsafe worksite operations and routing,
+	# but does not prevent opening the original source review board.
+	if site_hazards != null and worksite.target_ids().has(entity) and \
+			entity != str(worksite.definition_snapshot()["board"]) and \
+			not site_hazards.can_operate():
+		return _fail("EXP014_A07_HAZARD_LOCKED")
 	# The A01 choice and one authored site overlay must agree atomically.
 	# An attempted reroute after intervention begins cannot fork host states.
 	if active != null and entity == str(worksite.definition_snapshot()["decision"]) and \
@@ -828,6 +870,10 @@ func _worksite_tick() -> void:
 		if not site_outcomes.started() and site_approach.solved():
 			site_outcomes.begin(site_approach.snapshot())
 		site_outcomes.advance(_outcome_facts())
+	if site_hazards != null:
+		if not site_hazards.started() and site_outcomes.prepared():
+			site_hazards.begin(site_outcomes.snapshot())
+		site_hazards.advance(_hazard_facts())
 
 
 func _worksite_snapshot() -> Dictionary:
@@ -844,6 +890,8 @@ func _worksite_snapshot() -> Dictionary:
 		state["site_approach"] = site_approach.snapshot()
 	if site_outcomes != null:
 		state["site_outcomes"] = site_outcomes.snapshot()
+	if site_hazards != null:
+		state["site_hazards"] = site_hazards.snapshot()
 	return state
 
 
