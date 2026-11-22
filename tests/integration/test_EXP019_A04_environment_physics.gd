@@ -15,8 +15,19 @@ func test_EXP019_A04_200_source_specific_risk_access_profiles() -> void:
 		assert_true(result.get("ok", false), "LV_%03d: %s" % [i + 1, result.get("code", "")])
 		if not result.get("ok", false):
 			continue
-		seen[str(result["risk_class"])] = true
-		assert_true((result["closures"] as Array).size() >= 1)
+		var risk_class: String = str(result["risk_class"])
+		seen[risk_class] = true
+		var required_lanes: Array = Contingency.CLASS_LANES[risk_class]
+		var closures: Array = result["closures"]
+		assert_eq(closures.size(), required_lanes.size(), "region-specific closure count")
+		var visited_lanes: Dictionary = {}
+		for closure: Dictionary in closures:
+			var lane: int = int(closure["lane"])
+			assert_true(required_lanes.has(lane), "source policy lane")
+			assert_false(visited_lanes.has(lane), "no duplicate obstruction")
+			visited_lanes[lane] = true
+			assert_true((closure["position"] as Vector3).is_finite(), "finite physical geometry")
+		assert_true(visited_lanes.size() < 4, "one independent elevated route survives")
 	assert_eq(seen.size(), 5)
 
 
@@ -50,6 +61,17 @@ func test_EXP019_A04_live_host_hazard_changes_real_collision() -> void:
 		# do not yield this test, because unawaited coroutines leak live worlds.
 		assert_true(barrier.get_node_or_null("Collision") is CollisionShape3D)
 		assert_false((barrier.get_node("Barrier") as MeshInstance3D).visible)
+		# A stale grid revision and foreign host identity must be rejected before
+		# any collision/visual or revision metadata can change.
+		var stale_grid: Dictionary = grid.duplicate(true)
+		stale_grid["tick"] = -10
+		var revision_before: int = int(display.get_meta("last_host_revision"))
+		assert_false(Contingency.reflect(display, healed, stale_grid).get("ok", false))
+		assert_eq(int(display.get_meta("last_host_revision")), revision_before)
+		var foreign_board: Dictionary = healed.duplicate(true)
+		foreign_board["level_id"] = "LV_200"
+		assert_false(Contingency.reflect(display, foreign_board, grid).get("ok", false))
+		assert_false(bool(barrier.get_meta("closed_by_host")))
 	holder.remove_child(scene)
 	scene.free()
 	holder.get_parent().remove_child(holder)

@@ -7,6 +7,16 @@ const Profiles := preload("res://scripts/world/expedition_environment_feedback.g
 const QUALIFICATION: String = "AUTOMATED_HOST_SOURCED_COLLISION_CONTROLLER_RELEASE_HELD"
 const CLASSES: Array[String] = ["depth", "conductivity", "mechanical",
 	"structure", "weather"]
+## The Godot 4.7 ternary operator produces a dynamic Array, even when each
+## branch contains integers. Keep the authored lane policy as untyped source
+## data, validate it, then append each index into a typed Array[int].
+const CLASS_LANES: Dictionary = {
+	"depth": [0, 2],
+	"conductivity": [1, 3],
+	"mechanical": [2],
+	"structure": [3],
+	"weather": [1, 2]
+}
 
 
 static func _deny(code: String) -> Dictionary:
@@ -27,10 +37,20 @@ static func inspect(plan: Dictionary) -> Dictionary:
 	var restrictions: Array[Dictionary] = []
 	# Each class obstructs a different access segment; the collidable raised
 	# crossing on every route remains accessible for worksite recovery.
-	var lane_ids: Array[int] = [0, 2] if category == "depth" else \
-		[1, 3] if category == "conductivity" else \
-		[2] if category == "mechanical" else \
-		[3] if category == "structure" else [1, 2]
+	var raw_lanes: Variant = CLASS_LANES.get(category)
+	if not raw_lanes is Array or raw_lanes.is_empty():
+		return _deny("EXP019_A04_NO_SOURCE_LANES")
+	var lane_ids: Array[int] = []
+	var lane_seen: Dictionary = {}
+	for candidate: Variant in raw_lanes:
+		if typeof(candidate) != TYPE_INT or int(candidate) < 0 or \
+				int(candidate) >= routes.size() or lane_seen.has(candidate):
+			return _deny("EXP019_A04_UNSAFE_OR_DUPLICATE_LANE")
+		lane_seen[candidate] = true
+		lane_ids.append(int(candidate))
+	# An obstruction policy must leave an independent elevated route available.
+	if lane_seen.size() >= routes.size():
+		return _deny("EXP019_A04_ALL_ROUTES_BLOCKED")
 	for lane: int in lane_ids:
 		var original: Dictionary = routes[lane]
 		var point: Vector3 = original["start"].lerp(original["detour"], 0.84)
