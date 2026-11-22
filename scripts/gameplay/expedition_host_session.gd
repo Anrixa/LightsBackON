@@ -37,6 +37,7 @@ const SiteApproach := preload("res://scripts/gameplay/expedition_approach_intell
 const SiteOutcomes := preload("res://scripts/gameplay/expedition_operational_consequences.gd")
 const SiteHazards := preload("res://scripts/gameplay/expedition_environment_hazards.gd")
 const SitePuzzles := preload("res://scripts/gameplay/expedition_investigation_chains.gd")
+const AdvancedCascade := preload("res://scripts/gameplay/expedition_advanced_cascade.gd")
 const AdvancedPolicies := preload("res://scripts/gameplay/expedition_advanced_policies.gd")
 const AdvancedEquipment := preload("res://scripts/gameplay/expedition_advanced_equipment.gd")
 const AdvancedHazards := preload("res://scripts/gameplay/expedition_advanced_hazards.gd")
@@ -75,6 +76,7 @@ var site_approach: SiteApproach
 var site_outcomes: SiteOutcomes
 var site_hazards: SiteHazards
 var site_puzzles: SitePuzzles
+var advanced_cascade: AdvancedCascade
 var advanced_cases: AdvancedCases
 var regional_network: RegionalNetworks
 
@@ -122,7 +124,8 @@ func start(level_id: String, host_position: Callable,
 		enable_advanced_fault_layers: bool = false,
 		enable_advanced_environment: bool = false,
 		enable_advanced_equipment: bool = false,
-		enable_advanced_policy: bool = false) -> Dictionary:
+		enable_advanced_policy: bool = false,
+		enable_advanced_cascade: bool = false) -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
 	if enable_devices and not enable_bespoke:
@@ -151,6 +154,9 @@ func start(level_id: String, host_position: Callable,
 		return _fail("EXP014_A07_REQUIRES_A06_OUTCOMES")
 	if enable_site_puzzles and not enable_site_hazards:
 		return _fail("EXP014_A08_REQUIRES_A07_ENVIRONMENT")
+	if enable_advanced_cascade and (not enable_advanced_policy or \
+			not enable_regional_networks or not enforce_campaign or account_key == ""):
+		return _fail("EXP016_A10_REQUIRES_AUTHENTICATED_REGIONAL_CAMPAIGN")
 	if enable_advanced_policy and not enable_advanced_equipment:
 		return _fail("EXP016_A09_REQUIRES_A08_AUTHENTICATED_GEAR")
 	if enable_advanced_equipment and not enable_advanced_environment:
@@ -521,6 +527,22 @@ func start(level_id: String, host_position: Callable,
 			var policy_bound: Dictionary = advanced_cases.bind_source_policy(policy_spec)
 			if not bool(policy_bound.get("ok", false)):
 				return _fail("EXP016_A09_POLICY_BIND_FAILED", policy_bound)
+		if enable_advanced_cascade:
+			var cascade_book: Dictionary = AdvancedCascade.load_book()
+			var cascade_audit: Dictionary = AdvancedCascade.inspect(
+				atlas, RegionalNetworks.load_book(), cascade_book)
+			if not bool(cascade_audit.get("ok", false)):
+				return _fail("EXP016_A10_CASCADE_SOURCE_INVALID", cascade_audit)
+			var regional_source: Dictionary = AdvancedCascade.entry_for(cascade_book, level_id)
+			advanced_cascade = AdvancedCascade.new()
+			var inherited: Dictionary = advanced_cascade.configure(
+				regional_source, account_key, level_id)
+			if not bool(inherited.get("ok", false)):
+				return _fail("EXP016_A10_CASCADE_SCOPE_INVALID", inherited)
+			var carry: Dictionary = advanced_cases.bind_inherited_pressure(
+				int(inherited["inherited_pressure"]))
+			if not bool(carry.get("ok",false)):
+				return _fail("EXP016_A10_CASCADE_BIND_FAILED", carry)
 		_definitions["advanced_cases"] = advanced_cases.definition_snapshot()
 	_position_source = host_position
 	_physics_visibility = physics_visibility
@@ -1002,7 +1024,15 @@ func _operate_worksite(player_id: String, entity: String, action: String) -> Dic
 			if not advanced_cases.started():
 				advanced_cases.begin()
 			if advanced_cases.needs_action():
-				return advanced_cases.operate(entity, action, _puzzle_facts())
+				var case_reply: Dictionary = advanced_cases.operate(
+					entity, action, _puzzle_facts())
+				if bool(case_reply.get("ok",false)) and advanced_cases.solved() and \
+						advanced_cascade != null:
+					var carry_reply: Dictionary = advanced_cascade.record_host_completion(
+						advanced_cases.snapshot())
+					if not bool(carry_reply.get("ok", false)):
+						return _fail("EXP016_A10_CASCADE_WRITE_HOLD", carry_reply)
+				return case_reply
 		if site_outcomes != null and site_outcomes.needs_action():
 			return site_outcomes.operate(entity, action, _outcome_facts())
 		if site_contingency != null and active.solved():
@@ -1101,6 +1131,8 @@ func _worksite_snapshot() -> Dictionary:
 		state["site_hazards"] = site_hazards.snapshot()
 	if site_puzzles != null:
 		state["site_puzzles"] = site_puzzles.snapshot()
+	if advanced_cascade != null:
+		state["advanced_cascade"] = advanced_cascade.snapshot()
 	if advanced_cases != null:
 		state["advanced_cases"] = advanced_cases.snapshot()
 	if regional_network != null:
@@ -1299,6 +1331,8 @@ func task_board() -> Dictionary:
 		board["balancing"] = balancing.snapshot()
 	if worksite != null:
 		board["worksite"] = _worksite_snapshot()
+	if advanced_cascade != null:
+		board["advanced_cascade"] = advanced_cascade.snapshot()
 	if advanced_cases != null:
 		board["advanced_cases"] = advanced_cases.snapshot()
 	if regional_network != null:

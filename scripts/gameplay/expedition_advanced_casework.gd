@@ -21,6 +21,8 @@ var _kits: int = 0
 var _liabilities: int = 0
 var _faults: int = 0
 var _recoveries: int = 0
+var _inherited_pressure: int = 0
+var _inherited_pressure_settled: bool = true
 var _policy_spec: Dictionary = {}
 var _policy: String = ""
 var _policy_debt: int = 0
@@ -180,6 +182,14 @@ func configure(entry: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 
+func bind_inherited_pressure(pressure: int) -> Dictionary:
+	if _spec.is_empty() or pressure < 0 or pressure > 32 or started():
+		return _reject("INVALID_HOST_SOURCE_CASCADE")
+	_inherited_pressure = pressure
+	_inherited_pressure_settled = pressure == 0
+	return {"ok": true, "inherited_pressure": pressure}
+
+
 func bind_source_policy(policy: Dictionary) -> Dictionary:
 	if _spec.is_empty() or not _policy_spec.is_empty() or \
 			policy.get("level_id") != _spec.get("level_id") or \
@@ -300,6 +310,17 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 			_hazard_progress = 0
 		return {"ok": true, "code": "HAZARD_ACCESS_RESTORED" if _hazard_progress == 0 else \
 			"HAZARD_SEQUENCE_ADVANCED"}
+	if _phase == "cascade_settlement":
+		if entity != str(targets["C"]) or action != "case_settle_debt" or \
+				not bool(facts.get("logistics_solved",false)) or \
+				not bool(facts.get("consequences_solved",false)) or \
+				not bool(facts.get("hazard_safe",false)):
+			return _reject("REGIONAL_SOURCE_DEBT_SETTLEMENT_REQUIRED")
+		_inherited_pressure_settled = true
+		_phase = "signoff" if _spec.has("final_signoff_station") else "solved"
+		_record("source_cascade_settled")
+		return {"ok": true, "code":"SOURCE_CASCADE_SETTLED",
+			"inherited_pressure":_inherited_pressure}
 	if _phase == "resilience_crosscheck":
 		if action != "case_resilience_crosscheck" or \
 				entity != str(targets["C"]) or \
@@ -307,7 +328,8 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 				not bool(facts.get("consequences_solved", false)):
 			return _reject("RESILIENCE_ASSURANCE_SOURCE_REQUIRED")
 		_policy_assurance = true
-		_phase = "signoff" if _spec.has("final_signoff_station") else "solved"
+		_phase = "cascade_settlement" if not _inherited_pressure_settled else \
+			"signoff" if _spec.has("final_signoff_station") else "solved"
 		_record("resilience_rechecked")
 		return {"ok": true, "code": "SOURCE_RESILIENCE_ASSURED"}
 	if _phase == "signoff":
@@ -485,6 +507,7 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 		_record("verified_" + str(step["kind"]))
 		if _completed.size() == steps.size():
 			_phase = "resilience_crosscheck" if _policy == "resilience" else \
+				"cascade_settlement" if not _inherited_pressure_settled else \
 				"signoff" if _spec.has("final_signoff_station") else "solved"
 		return {"ok": true, "code": "CASE_SOLVED" if solved() else "CASE_STEP_VERIFIED",
 			"completed": _completed.size(), "kits": _kits}
@@ -503,6 +526,8 @@ func snapshot() -> Dictionary:
 		"source_hazard_kind": _hazard_protocol.get("source_hazard_kind", ""),
 		"equipped_tool": _equipped_tool, "worksite_spare_cells": _spare_cells,
 		"service_policy": _policy, "service_debt": _policy_debt,
+		"inherited_pressure": _inherited_pressure,
+		"inherited_pressure_settled": _inherited_pressure_settled,
 		"source_resilience_assured": _policy_assurance,
 		"worksite_spares_debited": _spares_debited,
 		"history": _history.duplicate(true)}

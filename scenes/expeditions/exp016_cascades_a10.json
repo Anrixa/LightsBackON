@@ -1,0 +1,2159 @@
+{
+  "schema_version": 1,
+  "authority": "EXP016_A10_PROCESS_LOCAL_SOURCE_CASCADE",
+  "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD",
+  "legacy_campaign_contracts_unchanged": true,
+  "not_durable_across_process_restarts": true,
+  "regions": [
+    {
+      "region_id": "REG_01",
+      "region_name": "Alder Reach",
+      "site_ids": [
+        "LV_001",
+        "LV_002",
+        "LV_003",
+        "LV_004",
+        "LV_005",
+        "LV_006",
+        "LV_007",
+        "LV_008"
+      ],
+      "root_source_id": "LV_001",
+      "finale_site_id": "LV_008",
+      "primary_feeder_edges": [
+        {
+          "id": "NET_01_F01",
+          "from": "LV_001",
+          "to": "LV_002",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_01_F02",
+          "from": "LV_001",
+          "to": "LV_003",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_01_F03",
+          "from": "LV_001",
+          "to": "LV_004",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_01_F04",
+          "from": "LV_002",
+          "to": "LV_005",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_01_F05",
+          "from": "LV_002",
+          "to": "LV_006",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_01_F06",
+          "from": "LV_002",
+          "to": "LV_007",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_01_F07",
+          "from": "LV_002",
+          "to": "LV_008",
+          "capacity_pu": 16
+        }
+      ],
+      "source_predecessors": {
+        "LV_001": [],
+        "LV_002": [
+          "LV_001"
+        ],
+        "LV_003": [
+          "LV_001"
+        ],
+        "LV_004": [
+          "LV_001"
+        ],
+        "LV_005": [
+          "LV_002"
+        ],
+        "LV_006": [
+          "LV_002"
+        ],
+        "LV_007": [
+          "LV_002"
+        ],
+        "LV_008": [
+          "LV_002"
+        ]
+      },
+      "initial_reserve_pu": 6,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_02",
+      "region_name": "Glasswater Quay",
+      "site_ids": [
+        "LV_009",
+        "LV_010",
+        "LV_011",
+        "LV_012",
+        "LV_013",
+        "LV_014",
+        "LV_015",
+        "LV_016"
+      ],
+      "root_source_id": "LV_009",
+      "finale_site_id": "LV_016",
+      "primary_feeder_edges": [
+        {
+          "id": "NET_02_F01",
+          "from": "LV_009",
+          "to": "LV_010",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_02_F02",
+          "from": "LV_009",
+          "to": "LV_011",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_02_F03",
+          "from": "LV_009",
+          "to": "LV_012",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_02_F04",
+          "from": "LV_010",
+          "to": "LV_013",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_02_F05",
+          "from": "LV_010",
+          "to": "LV_014",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_02_F06",
+          "from": "LV_010",
+          "to": "LV_015",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_02_F07",
+          "from": "LV_011",
+          "to": "LV_016",
+          "capacity_pu": 20
+        }
+      ],
+      "source_predecessors": {
+        "LV_009": [],
+        "LV_010": [
+          "LV_009"
+        ],
+        "LV_011": [
+          "LV_009"
+        ],
+        "LV_012": [
+          "LV_009"
+        ],
+        "LV_013": [
+          "LV_010"
+        ],
+        "LV_014": [
+          "LV_010"
+        ],
+        "LV_015": [
+          "LV_010"
+        ],
+        "LV_016": [
+          "LV_011"
+        ]
+      },
+      "initial_reserve_pu": 8,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_03",
+      "region_name": "Iron Viaduct",
+      "site_ids": [
+        "LV_017",
+        "LV_018",
+        "LV_019",
+        "LV_020",
+        "LV_021",
+        "LV_022",
+        "LV_023",
+        "LV_024"
+      ],
+      "root_source_id": "LV_017",
+      "finale_site_id": "LV_024",
+      "primary_feeder_edges": [
+        {
+          "id": "NET_03_F01",
+          "from": "LV_017",
+          "to": "LV_018",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_03_F02",
+          "from": "LV_017",
+          "to": "LV_019",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_03_F03",
+          "from": "LV_017",
+          "to": "LV_020",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_03_F04",
+          "from": "LV_018",
+          "to": "LV_021",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_03_F05",
+          "from": "LV_018",
+          "to": "LV_022",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_03_F06",
+          "from": "LV_019",
+          "to": "LV_023",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_03_F07",
+          "from": "LV_019",
+          "to": "LV_024",
+          "capacity_pu": 24
+        }
+      ],
+      "source_predecessors": {
+        "LV_017": [],
+        "LV_018": [
+          "LV_017"
+        ],
+        "LV_019": [
+          "LV_017"
+        ],
+        "LV_020": [
+          "LV_017"
+        ],
+        "LV_021": [
+          "LV_018"
+        ],
+        "LV_022": [
+          "LV_018"
+        ],
+        "LV_023": [
+          "LV_019"
+        ],
+        "LV_024": [
+          "LV_019"
+        ]
+      },
+      "initial_reserve_pu": 10,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_04",
+      "region_name": "Lantern Marsh",
+      "site_ids": [
+        "LV_025",
+        "LV_026",
+        "LV_027",
+        "LV_028",
+        "LV_029",
+        "LV_030",
+        "LV_031",
+        "LV_032"
+      ],
+      "root_source_id": "LV_025",
+      "finale_site_id": "LV_032",
+      "primary_feeder_edges": [
+        {
+          "id": "NET_04_F01",
+          "from": "LV_025",
+          "to": "LV_026",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_04_F02",
+          "from": "LV_025",
+          "to": "LV_027",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_04_F03",
+          "from": "LV_025",
+          "to": "LV_028",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_04_F04",
+          "from": "LV_026",
+          "to": "LV_029",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_04_F05",
+          "from": "LV_026",
+          "to": "LV_030",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_04_F06",
+          "from": "LV_027",
+          "to": "LV_031",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_04_F07",
+          "from": "LV_028",
+          "to": "LV_032",
+          "capacity_pu": 28
+        }
+      ],
+      "source_predecessors": {
+        "LV_025": [],
+        "LV_026": [
+          "LV_025"
+        ],
+        "LV_027": [
+          "LV_025"
+        ],
+        "LV_028": [
+          "LV_025"
+        ],
+        "LV_029": [
+          "LV_026"
+        ],
+        "LV_030": [
+          "LV_026"
+        ],
+        "LV_031": [
+          "LV_027"
+        ],
+        "LV_032": [
+          "LV_028"
+        ]
+      },
+      "initial_reserve_pu": 12,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_05",
+      "region_name": "Slate Ridge",
+      "site_ids": [
+        "LV_033",
+        "LV_034",
+        "LV_035",
+        "LV_036",
+        "LV_037",
+        "LV_038",
+        "LV_039",
+        "LV_040"
+      ],
+      "root_source_id": "LV_033",
+      "finale_site_id": "LV_040",
+      "primary_feeder_edges": [
+        {
+          "id": "NET_05_F01",
+          "from": "LV_033",
+          "to": "LV_034",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_05_F02",
+          "from": "LV_033",
+          "to": "LV_035",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_05_F03",
+          "from": "LV_034",
+          "to": "LV_036",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_05_F04",
+          "from": "LV_034",
+          "to": "LV_037",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_05_F05",
+          "from": "LV_034",
+          "to": "LV_038",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_05_F06",
+          "from": "LV_034",
+          "to": "LV_039",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_05_F07",
+          "from": "LV_035",
+          "to": "LV_040",
+          "capacity_pu": 12
+        }
+      ],
+      "source_predecessors": {
+        "LV_033": [],
+        "LV_034": [
+          "LV_033"
+        ],
+        "LV_035": [
+          "LV_033"
+        ],
+        "LV_036": [
+          "LV_034"
+        ],
+        "LV_037": [
+          "LV_034"
+        ],
+        "LV_038": [
+          "LV_034"
+        ],
+        "LV_039": [
+          "LV_034"
+        ],
+        "LV_040": [
+          "LV_035"
+        ]
+      },
+      "initial_reserve_pu": 6,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_06",
+      "region_name": "Bellfoundry Quarter",
+      "site_ids": [
+        "LV_041",
+        "LV_042",
+        "LV_043",
+        "LV_044",
+        "LV_045",
+        "LV_046",
+        "LV_047",
+        "LV_048"
+      ],
+      "root_source_id": "LV_041",
+      "finale_site_id": "LV_048",
+      "primary_feeder_edges": [
+        {
+          "id": "NET_06_F01",
+          "from": "LV_041",
+          "to": "LV_042",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_06_F02",
+          "from": "LV_041",
+          "to": "LV_043",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_06_F03",
+          "from": "LV_041",
+          "to": "LV_044",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_06_F04",
+          "from": "LV_042",
+          "to": "LV_045",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_06_F05",
+          "from": "LV_042",
+          "to": "LV_046",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_06_F06",
+          "from": "LV_043",
+          "to": "LV_047",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_06_F07",
+          "from": "LV_045",
+          "to": "LV_048",
+          "capacity_pu": 16
+        }
+      ],
+      "source_predecessors": {
+        "LV_041": [],
+        "LV_042": [
+          "LV_041"
+        ],
+        "LV_043": [
+          "LV_041"
+        ],
+        "LV_044": [
+          "LV_041"
+        ],
+        "LV_045": [
+          "LV_042"
+        ],
+        "LV_046": [
+          "LV_042"
+        ],
+        "LV_047": [
+          "LV_043"
+        ],
+        "LV_048": [
+          "LV_045"
+        ]
+      },
+      "initial_reserve_pu": 8,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_07",
+      "region_name": "Willow Floodplain",
+      "site_ids": [
+        "LV_049",
+        "LV_050",
+        "LV_051",
+        "LV_052",
+        "LV_053",
+        "LV_054",
+        "LV_055",
+        "LV_056"
+      ],
+      "root_source_id": "LV_049",
+      "finale_site_id": "LV_056",
+      "primary_feeder_edges": [
+        {
+          "id": "NET_07_F01",
+          "from": "LV_049",
+          "to": "LV_050",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_07_F02",
+          "from": "LV_049",
+          "to": "LV_051",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_07_F03",
+          "from": "LV_049",
+          "to": "LV_052",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_07_F04",
+          "from": "LV_050",
+          "to": "LV_053",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_07_F05",
+          "from": "LV_050",
+          "to": "LV_054",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_07_F06",
+          "from": "LV_051",
+          "to": "LV_055",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_07_F07",
+          "from": "LV_055",
+          "to": "LV_056",
+          "capacity_pu": 20
+        }
+      ],
+      "source_predecessors": {
+        "LV_049": [],
+        "LV_050": [
+          "LV_049"
+        ],
+        "LV_051": [
+          "LV_049"
+        ],
+        "LV_052": [
+          "LV_049"
+        ],
+        "LV_053": [
+          "LV_050"
+        ],
+        "LV_054": [
+          "LV_050"
+        ],
+        "LV_055": [
+          "LV_051"
+        ],
+        "LV_056": [
+          "LV_055"
+        ]
+      },
+      "initial_reserve_pu": 10,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_08",
+      "region_name": "North Lock",
+      "site_ids": [
+        "LV_057",
+        "LV_058",
+        "LV_059",
+        "LV_060",
+        "LV_061",
+        "LV_062",
+        "LV_063",
+        "LV_064"
+      ],
+      "root_source_id": "LV_057",
+      "finale_site_id": "LV_064",
+      "primary_feeder_edges": [
+        {
+          "id": "NET_08_F01",
+          "from": "LV_057",
+          "to": "LV_058",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_08_F02",
+          "from": "LV_057",
+          "to": "LV_059",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_08_F03",
+          "from": "LV_057",
+          "to": "LV_060",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_08_F04",
+          "from": "LV_058",
+          "to": "LV_061",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_08_F05",
+          "from": "LV_058",
+          "to": "LV_062",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_08_F06",
+          "from": "LV_061",
+          "to": "LV_063",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_08_F07",
+          "from": "LV_061",
+          "to": "LV_064",
+          "capacity_pu": 24
+        }
+      ],
+      "source_predecessors": {
+        "LV_057": [],
+        "LV_058": [
+          "LV_057"
+        ],
+        "LV_059": [
+          "LV_057"
+        ],
+        "LV_060": [
+          "LV_057"
+        ],
+        "LV_061": [
+          "LV_058"
+        ],
+        "LV_062": [
+          "LV_058"
+        ],
+        "LV_063": [
+          "LV_061"
+        ],
+        "LV_064": [
+          "LV_061"
+        ]
+      },
+      "initial_reserve_pu": 12,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_09",
+      "region_name": "Kestrel Falls",
+      "site_ids": [
+        "LV_065",
+        "LV_066",
+        "LV_067",
+        "LV_068",
+        "LV_069",
+        "LV_070",
+        "LV_071",
+        "LV_072"
+      ],
+      "root_source_id": "LV_065",
+      "finale_site_id": "LV_072",
+      "primary_feeder_edges": [
+        {
+          "id": "NET_09_F01",
+          "from": "LV_065",
+          "to": "LV_066",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_09_F02",
+          "from": "LV_065",
+          "to": "LV_067",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_09_F03",
+          "from": "LV_065",
+          "to": "LV_068",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_09_F04",
+          "from": "LV_066",
+          "to": "LV_069",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_09_F05",
+          "from": "LV_066",
+          "to": "LV_070",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_09_F06",
+          "from": "LV_069",
+          "to": "LV_071",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_09_F07",
+          "from": "LV_070",
+          "to": "LV_072",
+          "capacity_pu": 28
+        }
+      ],
+      "source_predecessors": {
+        "LV_065": [],
+        "LV_066": [
+          "LV_065"
+        ],
+        "LV_067": [
+          "LV_065"
+        ],
+        "LV_068": [
+          "LV_065"
+        ],
+        "LV_069": [
+          "LV_066"
+        ],
+        "LV_070": [
+          "LV_066"
+        ],
+        "LV_071": [
+          "LV_069"
+        ],
+        "LV_072": [
+          "LV_070"
+        ]
+      },
+      "initial_reserve_pu": 6,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_10",
+      "region_name": "Rainline Terminal",
+      "site_ids": [
+        "LV_073",
+        "LV_074",
+        "LV_075",
+        "LV_076",
+        "LV_077",
+        "LV_078",
+        "LV_079",
+        "LV_080"
+      ],
+      "root_source_id": "LV_073",
+      "finale_site_id": "LV_080",
+      "primary_feeder_edges": [
+        {
+          "id": "NET_10_F01",
+          "from": "LV_073",
+          "to": "LV_074",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_10_F02",
+          "from": "LV_073",
+          "to": "LV_075",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_10_F03",
+          "from": "LV_073",
+          "to": "LV_076",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_10_F04",
+          "from": "LV_074",
+          "to": "LV_077",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_10_F05",
+          "from": "LV_075",
+          "to": "LV_078",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_10_F06",
+          "from": "LV_077",
+          "to": "LV_079",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_10_F07",
+          "from": "LV_077",
+          "to": "LV_080",
+          "capacity_pu": 12
+        }
+      ],
+      "source_predecessors": {
+        "LV_073": [],
+        "LV_074": [
+          "LV_073"
+        ],
+        "LV_075": [
+          "LV_073"
+        ],
+        "LV_076": [
+          "LV_073"
+        ],
+        "LV_077": [
+          "LV_074"
+        ],
+        "LV_078": [
+          "LV_075"
+        ],
+        "LV_079": [
+          "LV_077"
+        ],
+        "LV_080": [
+          "LV_077"
+        ]
+      },
+      "initial_reserve_pu": 8,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_11",
+      "region_name": "Embermill Valley",
+      "site_ids": [
+        "LV_081",
+        "LV_082",
+        "LV_083",
+        "LV_084",
+        "LV_085",
+        "LV_086",
+        "LV_087",
+        "LV_088"
+      ],
+      "root_source_id": "LV_081",
+      "finale_site_id": "LV_088",
+      "primary_feeder_edges": [
+        {
+          "id": "NET_11_F01",
+          "from": "LV_081",
+          "to": "LV_082",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_11_F02",
+          "from": "LV_081",
+          "to": "LV_083",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_11_F03",
+          "from": "LV_081",
+          "to": "LV_084",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_11_F04",
+          "from": "LV_082",
+          "to": "LV_085",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_11_F05",
+          "from": "LV_085",
+          "to": "LV_086",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_11_F06",
+          "from": "LV_085",
+          "to": "LV_087",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_11_F07",
+          "from": "LV_085",
+          "to": "LV_088",
+          "capacity_pu": 16
+        }
+      ],
+      "source_predecessors": {
+        "LV_081": [],
+        "LV_082": [
+          "LV_081"
+        ],
+        "LV_083": [
+          "LV_081"
+        ],
+        "LV_084": [
+          "LV_081"
+        ],
+        "LV_085": [
+          "LV_082"
+        ],
+        "LV_086": [
+          "LV_085"
+        ],
+        "LV_087": [
+          "LV_085"
+        ],
+        "LV_088": [
+          "LV_085"
+        ]
+      },
+      "initial_reserve_pu": 10,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_12",
+      "region_name": "Coldharbor Point",
+      "site_ids": [
+        "LV_089",
+        "LV_090",
+        "LV_091",
+        "LV_092",
+        "LV_093",
+        "LV_094",
+        "LV_095",
+        "LV_096"
+      ],
+      "root_source_id": "LV_089",
+      "finale_site_id": "LV_096",
+      "primary_feeder_edges": [
+        {
+          "id": "NET_12_F01",
+          "from": "LV_089",
+          "to": "LV_090",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_12_F02",
+          "from": "LV_089",
+          "to": "LV_091",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_12_F03",
+          "from": "LV_090",
+          "to": "LV_092",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_12_F04",
+          "from": "LV_090",
+          "to": "LV_093",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_12_F05",
+          "from": "LV_090",
+          "to": "LV_094",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_12_F06",
+          "from": "LV_090",
+          "to": "LV_095",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_12_F07",
+          "from": "LV_092",
+          "to": "LV_096",
+          "capacity_pu": 20
+        }
+      ],
+      "source_predecessors": {
+        "LV_089": [],
+        "LV_090": [
+          "LV_089"
+        ],
+        "LV_091": [
+          "LV_089"
+        ],
+        "LV_092": [
+          "LV_090"
+        ],
+        "LV_093": [
+          "LV_090"
+        ],
+        "LV_094": [
+          "LV_090"
+        ],
+        "LV_095": [
+          "LV_090"
+        ],
+        "LV_096": [
+          "LV_092"
+        ]
+      },
+      "initial_reserve_pu": 12,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_13",
+      "region_name": "Sunrise Breakwater",
+      "site_ids": [
+        "LV_097",
+        "LV_098",
+        "LV_099",
+        "LV_100",
+        "LV_101",
+        "LV_102",
+        "LV_103",
+        "LV_104"
+      ],
+      "root_source_id": "LV_097",
+      "finale_site_id": "LV_104",
+      "primary_feeder_edges": [
+        {
+          "id": "NET_13_F01",
+          "from": "LV_097",
+          "to": "LV_098",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_13_F02",
+          "from": "LV_097",
+          "to": "LV_099",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_13_F03",
+          "from": "LV_098",
+          "to": "LV_100",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_13_F04",
+          "from": "LV_098",
+          "to": "LV_101",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_13_F05",
+          "from": "LV_098",
+          "to": "LV_102",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_13_F06",
+          "from": "LV_099",
+          "to": "LV_103",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_13_F07",
+          "from": "LV_100",
+          "to": "LV_104",
+          "capacity_pu": 24
+        }
+      ],
+      "source_predecessors": {
+        "LV_097": [],
+        "LV_098": [
+          "LV_097"
+        ],
+        "LV_099": [
+          "LV_097"
+        ],
+        "LV_100": [
+          "LV_098"
+        ],
+        "LV_101": [
+          "LV_098"
+        ],
+        "LV_102": [
+          "LV_098"
+        ],
+        "LV_103": [
+          "LV_099"
+        ],
+        "LV_104": [
+          "LV_100"
+        ]
+      },
+      "initial_reserve_pu": 6,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_14",
+      "region_name": "Briar Valley",
+      "site_ids": [
+        "LV_105",
+        "LV_106",
+        "LV_107",
+        "LV_108",
+        "LV_109",
+        "LV_110",
+        "LV_111",
+        "LV_112"
+      ],
+      "root_source_id": "LV_105",
+      "finale_site_id": "LV_112",
+      "primary_feeder_edges": [
+        {
+          "id": "NET_14_F01",
+          "from": "LV_105",
+          "to": "LV_106",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_14_F02",
+          "from": "LV_105",
+          "to": "LV_107",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_14_F03",
+          "from": "LV_106",
+          "to": "LV_108",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_14_F04",
+          "from": "LV_106",
+          "to": "LV_109",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_14_F05",
+          "from": "LV_106",
+          "to": "LV_110",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_14_F06",
+          "from": "LV_107",
+          "to": "LV_111",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_14_F07",
+          "from": "LV_111",
+          "to": "LV_112",
+          "capacity_pu": 28
+        }
+      ],
+      "source_predecessors": {
+        "LV_105": [],
+        "LV_106": [
+          "LV_105"
+        ],
+        "LV_107": [
+          "LV_105"
+        ],
+        "LV_108": [
+          "LV_106"
+        ],
+        "LV_109": [
+          "LV_106"
+        ],
+        "LV_110": [
+          "LV_106"
+        ],
+        "LV_111": [
+          "LV_107"
+        ],
+        "LV_112": [
+          "LV_111"
+        ]
+      },
+      "initial_reserve_pu": 8,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_15",
+      "region_name": "Cinder Hill",
+      "site_ids": [
+        "LV_113",
+        "LV_114",
+        "LV_115",
+        "LV_116",
+        "LV_117",
+        "LV_118",
+        "LV_119",
+        "LV_120"
+      ],
+      "root_source_id": "LV_113",
+      "finale_site_id": "LV_120",
+      "primary_feeder_edges": [
+        {
+          "id": "NET_15_F01",
+          "from": "LV_113",
+          "to": "LV_114",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_15_F02",
+          "from": "LV_113",
+          "to": "LV_115",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_15_F03",
+          "from": "LV_114",
+          "to": "LV_116",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_15_F04",
+          "from": "LV_114",
+          "to": "LV_117",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_15_F05",
+          "from": "LV_114",
+          "to": "LV_118",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_15_F06",
+          "from": "LV_116",
+          "to": "LV_119",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_15_F07",
+          "from": "LV_116",
+          "to": "LV_120",
+          "capacity_pu": 12
+        }
+      ],
+      "source_predecessors": {
+        "LV_113": [],
+        "LV_114": [
+          "LV_113"
+        ],
+        "LV_115": [
+          "LV_113"
+        ],
+        "LV_116": [
+          "LV_114"
+        ],
+        "LV_117": [
+          "LV_114"
+        ],
+        "LV_118": [
+          "LV_114"
+        ],
+        "LV_119": [
+          "LV_116"
+        ],
+        "LV_120": [
+          "LV_116"
+        ]
+      },
+      "initial_reserve_pu": 10,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_16",
+      "region_name": "Merrow Island",
+      "site_ids": [
+        "LV_121",
+        "LV_122",
+        "LV_123",
+        "LV_124",
+        "LV_125",
+        "LV_126",
+        "LV_127",
+        "LV_128"
+      ],
+      "root_source_id": "LV_121",
+      "finale_site_id": "LV_128",
+      "primary_feeder_edges": [
+        {
+          "id": "NET_16_F01",
+          "from": "LV_121",
+          "to": "LV_122",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_16_F02",
+          "from": "LV_121",
+          "to": "LV_123",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_16_F03",
+          "from": "LV_122",
+          "to": "LV_124",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_16_F04",
+          "from": "LV_122",
+          "to": "LV_125",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_16_F05",
+          "from": "LV_122",
+          "to": "LV_126",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_16_F06",
+          "from": "LV_124",
+          "to": "LV_127",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_16_F07",
+          "from": "LV_127",
+          "to": "LV_128",
+          "capacity_pu": 16
+        }
+      ],
+      "source_predecessors": {
+        "LV_121": [],
+        "LV_122": [
+          "LV_121"
+        ],
+        "LV_123": [
+          "LV_121"
+        ],
+        "LV_124": [
+          "LV_122"
+        ],
+        "LV_125": [
+          "LV_122"
+        ],
+        "LV_126": [
+          "LV_122"
+        ],
+        "LV_127": [
+          "LV_124"
+        ],
+        "LV_128": [
+          "LV_127"
+        ]
+      },
+      "initial_reserve_pu": 12,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_17",
+      "region_name": "Greenhouse Quarter",
+      "site_ids": [
+        "LV_129",
+        "LV_130",
+        "LV_131",
+        "LV_132",
+        "LV_133",
+        "LV_134",
+        "LV_135",
+        "LV_136"
+      ],
+      "root_source_id": "LV_129",
+      "finale_site_id": "LV_136",
+      "primary_feeder_edges": [
+        {
+          "id": "NET_17_F01",
+          "from": "LV_129",
+          "to": "LV_130",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_17_F02",
+          "from": "LV_129",
+          "to": "LV_131",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_17_F03",
+          "from": "LV_130",
+          "to": "LV_132",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_17_F04",
+          "from": "LV_130",
+          "to": "LV_133",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_17_F05",
+          "from": "LV_131",
+          "to": "LV_134",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_17_F06",
+          "from": "LV_132",
+          "to": "LV_135",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_17_F07",
+          "from": "LV_135",
+          "to": "LV_136",
+          "capacity_pu": 20
+        }
+      ],
+      "source_predecessors": {
+        "LV_129": [],
+        "LV_130": [
+          "LV_129"
+        ],
+        "LV_131": [
+          "LV_129"
+        ],
+        "LV_132": [
+          "LV_130"
+        ],
+        "LV_133": [
+          "LV_130"
+        ],
+        "LV_134": [
+          "LV_131"
+        ],
+        "LV_135": [
+          "LV_132"
+        ],
+        "LV_136": [
+          "LV_135"
+        ]
+      },
+      "initial_reserve_pu": 6,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_18",
+      "region_name": "Blackstone Works",
+      "site_ids": [
+        "LV_137",
+        "LV_138",
+        "LV_139",
+        "LV_140",
+        "LV_141",
+        "LV_142",
+        "LV_143",
+        "LV_144"
+      ],
+      "root_source_id": "LV_137",
+      "finale_site_id": "LV_144",
+      "primary_feeder_edges": [
+        {
+          "id": "NET_18_F01",
+          "from": "LV_137",
+          "to": "LV_138",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_18_F02",
+          "from": "LV_137",
+          "to": "LV_139",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_18_F03",
+          "from": "LV_138",
+          "to": "LV_140",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_18_F04",
+          "from": "LV_138",
+          "to": "LV_141",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_18_F05",
+          "from": "LV_139",
+          "to": "LV_142",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_18_F06",
+          "from": "LV_142",
+          "to": "LV_143",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_18_F07",
+          "from": "LV_143",
+          "to": "LV_144",
+          "capacity_pu": 24
+        }
+      ],
+      "source_predecessors": {
+        "LV_137": [],
+        "LV_138": [
+          "LV_137"
+        ],
+        "LV_139": [
+          "LV_137"
+        ],
+        "LV_140": [
+          "LV_138"
+        ],
+        "LV_141": [
+          "LV_138"
+        ],
+        "LV_142": [
+          "LV_139"
+        ],
+        "LV_143": [
+          "LV_142"
+        ],
+        "LV_144": [
+          "LV_143"
+        ]
+      },
+      "initial_reserve_pu": 8,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_19",
+      "region_name": "Crescent Reservoir",
+      "site_ids": [
+        "LV_145",
+        "LV_146",
+        "LV_147",
+        "LV_148",
+        "LV_149",
+        "LV_150",
+        "LV_151",
+        "LV_152"
+      ],
+      "root_source_id": "LV_145",
+      "finale_site_id": "LV_152",
+      "primary_feeder_edges": [
+        {
+          "id": "NET_19_F01",
+          "from": "LV_145",
+          "to": "LV_146",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_19_F02",
+          "from": "LV_145",
+          "to": "LV_147",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_19_F03",
+          "from": "LV_146",
+          "to": "LV_148",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_19_F04",
+          "from": "LV_146",
+          "to": "LV_149",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_19_F05",
+          "from": "LV_148",
+          "to": "LV_150",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_19_F06",
+          "from": "LV_148",
+          "to": "LV_151",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_19_F07",
+          "from": "LV_150",
+          "to": "LV_152",
+          "capacity_pu": 28
+        }
+      ],
+      "source_predecessors": {
+        "LV_145": [],
+        "LV_146": [
+          "LV_145"
+        ],
+        "LV_147": [
+          "LV_145"
+        ],
+        "LV_148": [
+          "LV_146"
+        ],
+        "LV_149": [
+          "LV_146"
+        ],
+        "LV_150": [
+          "LV_148"
+        ],
+        "LV_151": [
+          "LV_148"
+        ],
+        "LV_152": [
+          "LV_150"
+        ]
+      },
+      "initial_reserve_pu": 10,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_20",
+      "region_name": "Wrenwood Heights",
+      "site_ids": [
+        "LV_153",
+        "LV_154",
+        "LV_155",
+        "LV_156",
+        "LV_157",
+        "LV_158",
+        "LV_159",
+        "LV_160"
+      ],
+      "root_source_id": "LV_153",
+      "finale_site_id": "LV_160",
+      "primary_feeder_edges": [
+        {
+          "id": "NET_20_F01",
+          "from": "LV_153",
+          "to": "LV_154",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_20_F02",
+          "from": "LV_153",
+          "to": "LV_155",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_20_F03",
+          "from": "LV_154",
+          "to": "LV_156",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_20_F04",
+          "from": "LV_154",
+          "to": "LV_157",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_20_F05",
+          "from": "LV_156",
+          "to": "LV_158",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_20_F06",
+          "from": "LV_157",
+          "to": "LV_159",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_20_F07",
+          "from": "LV_158",
+          "to": "LV_160",
+          "capacity_pu": 12
+        }
+      ],
+      "source_predecessors": {
+        "LV_153": [],
+        "LV_154": [
+          "LV_153"
+        ],
+        "LV_155": [
+          "LV_153"
+        ],
+        "LV_156": [
+          "LV_154"
+        ],
+        "LV_157": [
+          "LV_154"
+        ],
+        "LV_158": [
+          "LV_156"
+        ],
+        "LV_159": [
+          "LV_157"
+        ],
+        "LV_160": [
+          "LV_158"
+        ]
+      },
+      "initial_reserve_pu": 12,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_21",
+      "region_name": "Tallow Market",
+      "site_ids": [
+        "LV_161",
+        "LV_162",
+        "LV_163",
+        "LV_164",
+        "LV_165",
+        "LV_166",
+        "LV_167",
+        "LV_168"
+      ],
+      "root_source_id": "LV_161",
+      "finale_site_id": "LV_168",
+      "primary_feeder_edges": [
+        {
+          "id": "NET_21_F01",
+          "from": "LV_161",
+          "to": "LV_162",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_21_F02",
+          "from": "LV_161",
+          "to": "LV_163",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_21_F03",
+          "from": "LV_162",
+          "to": "LV_164",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_21_F04",
+          "from": "LV_162",
+          "to": "LV_165",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_21_F05",
+          "from": "LV_164",
+          "to": "LV_166",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_21_F06",
+          "from": "LV_166",
+          "to": "LV_167",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_21_F07",
+          "from": "LV_166",
+          "to": "LV_168",
+          "capacity_pu": 16
+        }
+      ],
+      "source_predecessors": {
+        "LV_161": [],
+        "LV_162": [
+          "LV_161"
+        ],
+        "LV_163": [
+          "LV_161"
+        ],
+        "LV_164": [
+          "LV_162"
+        ],
+        "LV_165": [
+          "LV_162"
+        ],
+        "LV_166": [
+          "LV_164"
+        ],
+        "LV_167": [
+          "LV_166"
+        ],
+        "LV_168": [
+          "LV_166"
+        ]
+      },
+      "initial_reserve_pu": 6,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_22",
+      "region_name": "Foxglove Basin",
+      "site_ids": [
+        "LV_169",
+        "LV_170",
+        "LV_171",
+        "LV_172",
+        "LV_173",
+        "LV_174",
+        "LV_175",
+        "LV_176"
+      ],
+      "root_source_id": "LV_169",
+      "finale_site_id": "LV_176",
+      "primary_feeder_edges": [
+        {
+          "id": "NET_22_F01",
+          "from": "LV_169",
+          "to": "LV_170",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_22_F02",
+          "from": "LV_169",
+          "to": "LV_171",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_22_F03",
+          "from": "LV_170",
+          "to": "LV_172",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_22_F04",
+          "from": "LV_171",
+          "to": "LV_173",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_22_F05",
+          "from": "LV_172",
+          "to": "LV_174",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_22_F06",
+          "from": "LV_172",
+          "to": "LV_175",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_22_F07",
+          "from": "LV_174",
+          "to": "LV_176",
+          "capacity_pu": 20
+        }
+      ],
+      "source_predecessors": {
+        "LV_169": [],
+        "LV_170": [
+          "LV_169"
+        ],
+        "LV_171": [
+          "LV_169"
+        ],
+        "LV_172": [
+          "LV_170"
+        ],
+        "LV_173": [
+          "LV_171"
+        ],
+        "LV_174": [
+          "LV_172"
+        ],
+        "LV_175": [
+          "LV_172"
+        ],
+        "LV_176": [
+          "LV_174"
+        ]
+      },
+      "initial_reserve_pu": 8,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_23",
+      "region_name": "Cedar Observatory",
+      "site_ids": [
+        "LV_177",
+        "LV_178",
+        "LV_179",
+        "LV_180",
+        "LV_181",
+        "LV_182",
+        "LV_183",
+        "LV_184"
+      ],
+      "root_source_id": "LV_177",
+      "finale_site_id": "LV_184",
+      "primary_feeder_edges": [
+        {
+          "id": "NET_23_F01",
+          "from": "LV_177",
+          "to": "LV_178",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_23_F02",
+          "from": "LV_177",
+          "to": "LV_179",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_23_F03",
+          "from": "LV_178",
+          "to": "LV_180",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_23_F04",
+          "from": "LV_179",
+          "to": "LV_181",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_23_F05",
+          "from": "LV_180",
+          "to": "LV_182",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_23_F06",
+          "from": "LV_182",
+          "to": "LV_183",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_23_F07",
+          "from": "LV_182",
+          "to": "LV_184",
+          "capacity_pu": 24
+        }
+      ],
+      "source_predecessors": {
+        "LV_177": [],
+        "LV_178": [
+          "LV_177"
+        ],
+        "LV_179": [
+          "LV_177"
+        ],
+        "LV_180": [
+          "LV_178"
+        ],
+        "LV_181": [
+          "LV_179"
+        ],
+        "LV_182": [
+          "LV_180"
+        ],
+        "LV_183": [
+          "LV_182"
+        ],
+        "LV_184": [
+          "LV_182"
+        ]
+      },
+      "initial_reserve_pu": 10,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_24",
+      "region_name": "Hollowpoint Dunes",
+      "site_ids": [
+        "LV_185",
+        "LV_186",
+        "LV_187",
+        "LV_188",
+        "LV_189",
+        "LV_190",
+        "LV_191",
+        "LV_192"
+      ],
+      "root_source_id": "LV_185",
+      "finale_site_id": "LV_192",
+      "primary_feeder_edges": [
+        {
+          "id": "NET_24_F01",
+          "from": "LV_185",
+          "to": "LV_186",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_24_F02",
+          "from": "LV_185",
+          "to": "LV_187",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_24_F03",
+          "from": "LV_186",
+          "to": "LV_188",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_24_F04",
+          "from": "LV_188",
+          "to": "LV_189",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_24_F05",
+          "from": "LV_188",
+          "to": "LV_190",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_24_F06",
+          "from": "LV_189",
+          "to": "LV_191",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_24_F07",
+          "from": "LV_191",
+          "to": "LV_192",
+          "capacity_pu": 28
+        }
+      ],
+      "source_predecessors": {
+        "LV_185": [],
+        "LV_186": [
+          "LV_185"
+        ],
+        "LV_187": [
+          "LV_185"
+        ],
+        "LV_188": [
+          "LV_186"
+        ],
+        "LV_189": [
+          "LV_188"
+        ],
+        "LV_190": [
+          "LV_188"
+        ],
+        "LV_191": [
+          "LV_189"
+        ],
+        "LV_192": [
+          "LV_191"
+        ]
+      },
+      "initial_reserve_pu": 12,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    },
+    {
+      "region_id": "REG_25",
+      "region_name": "Old Beacon Terrace",
+      "site_ids": [
+        "LV_193",
+        "LV_194",
+        "LV_195",
+        "LV_196",
+        "LV_197",
+        "LV_198",
+        "LV_199",
+        "LV_200"
+      ],
+      "root_source_id": "LV_193",
+      "finale_site_id": "LV_200",
+      "primary_feeder_edges": [
+        {
+          "id": "NET_25_F01",
+          "from": "LV_193",
+          "to": "LV_194",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_25_F02",
+          "from": "LV_193",
+          "to": "LV_195",
+          "capacity_pu": 12
+        },
+        {
+          "id": "NET_25_F03",
+          "from": "LV_194",
+          "to": "LV_196",
+          "capacity_pu": 16
+        },
+        {
+          "id": "NET_25_F04",
+          "from": "LV_196",
+          "to": "LV_197",
+          "capacity_pu": 20
+        },
+        {
+          "id": "NET_25_F05",
+          "from": "LV_197",
+          "to": "LV_198",
+          "capacity_pu": 24
+        },
+        {
+          "id": "NET_25_F06",
+          "from": "LV_197",
+          "to": "LV_199",
+          "capacity_pu": 28
+        },
+        {
+          "id": "NET_25_F07",
+          "from": "LV_198",
+          "to": "LV_200",
+          "capacity_pu": 12
+        }
+      ],
+      "source_predecessors": {
+        "LV_193": [],
+        "LV_194": [
+          "LV_193"
+        ],
+        "LV_195": [
+          "LV_193"
+        ],
+        "LV_196": [
+          "LV_194"
+        ],
+        "LV_197": [
+          "LV_196"
+        ],
+        "LV_198": [
+          "LV_197"
+        ],
+        "LV_199": [
+          "LV_197"
+        ],
+        "LV_200": [
+          "LV_198"
+        ]
+      },
+      "initial_reserve_pu": 6,
+      "qualification": "SOURCE_HEADLESS_ONLY_HUMAN_CONTROLLER_RELEASE_HELD"
+    }
+  ]
+}
