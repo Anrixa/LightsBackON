@@ -195,8 +195,15 @@ func _scenario(region: int, policy: String) -> bool:
 		"ANCHOR_DISPATCH_CONTEXT_EXPIRED")
 	assert_eq(int(first_finale.regional_anchor_recovery.snapshot()[
 		"verified_source_revision"]), old_revision)
-	assert_false(bool(first_finale.authoritative_state()[
-		"exp015_regional_anchor_recovery"]["closed"]))
+	# A12.13 must deny canonical source reads from the superseded host.
+	# Its private, already-earned recovery proof is still available only to
+	# the host-side regression; no successor state may be exposed under old ID.
+	assert_eq(str(first_finale.authoritative_state().get("code", "")),
+		"EXP015_A12_13_STALE_HOST_SNAPSHOT")
+	assert_false(bool(first_finale.regional_anchor_recovery.snapshot()["closed"]))
+	var current_source: Dictionary = second_finale.authoritative_state()
+	assert_true(current_source.has("exp015_regional_anchor_recovery"),
+		"current dispatch retains its original recovery projection")
 	assert_eq(str(second_finale.regional_anchor_recovery.snapshot()["phase"]),
 		"audit_pending")
 	assert_false(second_finale.regional_anchor_recovery.closed())
