@@ -36,6 +36,37 @@ func _profile(atlas: Dictionary, region: int, account: String) -> Dictionary:
 	return profile
 
 
+func _restore_original_anchor_ancestors(atlas: Dictionary,
+		profile: Dictionary, region: int) -> void:
+	# An original anchor may lie behind an alternate slot-5 feeder.
+	# Preserve the real rooted tree; do not fabricate an energized anchor.
+	var root: String = "LV_%03d" % (region * 8 + 1)
+	var source: Dictionary = Network.entry_for(Network.load_book(), root)
+	assert_false(source.is_empty(), "original source network required")
+	if source.is_empty():
+		return
+	var incoming: Dictionary = {}
+	for edge: Dictionary in source["primary_feeders"]:
+		incoming[str(edge["to"])] = str(edge["from"])
+	var cursor: String = str(source["reserve_anchor_site"])
+	var route: Array[String] = []
+	var visited: Dictionary = {}
+	while cursor != root:
+		assert_true(incoming.has(cursor) and not visited.has(cursor),
+			"original reserve anchor must be reachable in the primary tree")
+		if not incoming.has(cursor) or visited.has(cursor):
+			return
+		visited[cursor] = true
+		route.append(cursor)
+		cursor = str(incoming[cursor])
+	route.reverse()
+	for site: String in route:
+		var index: int = site.trim_prefix("LV_").to_int()
+		var slot: int = index - region * 8
+		if slot not in [1, 2, 3, 4, 6, 7]:
+			_restore(atlas, profile, index)
+
+
 func _replay(region: int, branch: String, policy: String) -> bool:
 	var atlas: Dictionary = Atlas.load_catalog()
 	var account: String = "a11_source_%02d_%s_%s" % [region + 1, branch, policy]
@@ -72,6 +103,7 @@ func _replay(region: int, branch: String, policy: String) -> bool:
 	# Both original A09 first routes must be complete for the joined evidence.
 	for offset: int in [1, 2, 3, 4, 6, 7]:
 		_restore(atlas, profile, 8 * region + offset)
+	_restore_original_anchor_ancestors(atlas, profile, region)
 	var finale: String = "LV_%03d" % (8 * region + 8)
 	var joined: Dictionary = network.attach_site(atlas, profile, finale)
 	assert_true(bool(joined.get("ok", false)), str(joined))
