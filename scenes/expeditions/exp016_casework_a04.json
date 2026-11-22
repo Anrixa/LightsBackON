@@ -72,7 +72,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -92,7 +92,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -112,7 +112,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -152,7 +152,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -171,7 +171,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 1,
               "requires_tokens": [
                 "S5_to_S6"
@@ -195,7 +195,7 @@
               "kind": "compare",
               "station": "C",
               "requires": [],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -214,7 +214,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -234,7 +234,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -275,7 +275,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -294,7 +294,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -313,7 +313,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -391,7 +391,7 @@
               "kind": "isolate",
               "station": "C",
               "requires": [],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -411,7 +411,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -430,7 +430,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -450,7 +450,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -490,7 +490,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -509,7 +509,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 1,
               "requires_tokens": [
                 "S5_to_S6"
@@ -528,7 +528,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -572,7 +572,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -591,7 +591,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -611,7 +611,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -632,7 +632,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -651,7 +651,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -670,7 +670,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -710,7 +710,7 @@
                 "S6",
                 "S7"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S8",
@@ -771,7 +771,7 @@
               "kind": "crosscheck",
               "station": "A",
               "requires": [],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -790,7 +790,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -810,7 +810,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -830,7 +830,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -870,7 +870,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -894,7 +894,7 @@
               "kind": "repair",
               "station": "B",
               "requires": [],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -913,7 +913,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -933,7 +933,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -953,7 +953,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -974,7 +974,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -993,7 +993,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -1012,7 +1012,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -1071,7 +1071,7 @@
               "kind": "tag",
               "station": "B",
               "requires": [],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -1091,7 +1091,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -1110,7 +1110,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -1171,7 +1171,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -1191,7 +1191,7 @@
                 "S4",
                 "S5"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 1,
               "requires_tokens": [
                 "S4_to_S6",
@@ -1217,7 +1217,7 @@
               "kind": "reconcile",
               "station": "C",
               "requires": [],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -1237,7 +1237,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -1256,7 +1256,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -1276,7 +1276,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -1297,7 +1297,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -1316,7 +1316,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -1452,7 +1452,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -1472,7 +1472,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -1493,7 +1493,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -1512,7 +1512,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -1531,7 +1531,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 1,
               "requires_tokens": [
                 "S5_to_S6"
@@ -1550,7 +1550,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -1574,7 +1574,7 @@
               "kind": "attest",
               "station": "A",
               "requires": [],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -1593,7 +1593,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -1613,7 +1613,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -1673,7 +1673,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -1692,7 +1692,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -1711,7 +1711,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -1730,7 +1730,7 @@
               "requires": [
                 "S7"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S7_to_S8"
@@ -1809,7 +1809,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -1828,7 +1828,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -1848,7 +1848,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -1888,7 +1888,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -1912,7 +1912,7 @@
               "kind": "stabilize",
               "station": "B",
               "requires": [],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -1932,7 +1932,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -1992,7 +1992,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -2011,7 +2011,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -2030,7 +2030,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -2089,7 +2089,7 @@
               "kind": "repair",
               "station": "B",
               "requires": [],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -2108,7 +2108,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -2128,7 +2128,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -2148,7 +2148,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -2188,7 +2188,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -2207,7 +2207,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 1,
               "requires_tokens": [
                 "S5_to_S6"
@@ -2250,7 +2250,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -2290,7 +2290,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -2311,7 +2311,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -2330,7 +2330,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -2349,7 +2349,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -2427,7 +2427,7 @@
               "kind": "reconcile",
               "station": "C",
               "requires": [],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -2447,7 +2447,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -2466,7 +2466,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -2486,7 +2486,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -2526,7 +2526,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -2564,7 +2564,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -2588,7 +2588,7 @@
               "kind": "isolate",
               "station": "A",
               "requires": [],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -2608,7 +2608,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -2647,7 +2647,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -2668,7 +2668,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -2687,7 +2687,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -2706,7 +2706,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -2746,7 +2746,7 @@
                 "S6",
                 "S7"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S8",
@@ -2807,7 +2807,7 @@
               "kind": "attest",
               "station": "A",
               "requires": [],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -2846,7 +2846,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -2887,7 +2887,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -2906,7 +2906,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -2930,7 +2930,7 @@
               "kind": "crosscheck",
               "station": "B",
               "requires": [],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -2950,7 +2950,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -2989,7 +2989,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -3029,7 +3029,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -3146,7 +3146,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -3166,7 +3166,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -3187,7 +3187,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -3206,7 +3206,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -3225,7 +3225,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 1,
               "requires_tokens": [
                 "S5_to_S6"
@@ -3249,7 +3249,7 @@
               "kind": "tag",
               "station": "C",
               "requires": [],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -3268,7 +3268,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -3348,7 +3348,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -3367,7 +3367,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -3386,7 +3386,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -3465,7 +3465,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -3504,7 +3504,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -3544,7 +3544,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -3563,7 +3563,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 1,
               "requires_tokens": [
                 "S5_to_S6"
@@ -3582,7 +3582,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -3606,7 +3606,7 @@
               "kind": "meter",
               "station": "A",
               "requires": [],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -3626,7 +3626,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -3645,7 +3645,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -3686,7 +3686,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -3724,7 +3724,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -3764,7 +3764,7 @@
                 "S6",
                 "S7"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S8",
@@ -3825,7 +3825,7 @@
               "kind": "crosscheck",
               "station": "A",
               "requires": [],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -3844,7 +3844,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -3884,7 +3884,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -3924,7 +3924,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -3967,7 +3967,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -3987,7 +3987,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -4007,7 +4007,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -4028,7 +4028,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -4066,7 +4066,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -4125,7 +4125,7 @@
               "kind": "tag",
               "station": "B",
               "requires": [],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -4184,7 +4184,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -4205,7 +4205,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -4225,7 +4225,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -4271,7 +4271,7 @@
               "kind": "reconcile",
               "station": "C",
               "requires": [],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -4291,7 +4291,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -4310,7 +4310,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -4330,7 +4330,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -4389,7 +4389,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -4408,7 +4408,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -4467,7 +4467,7 @@
               "kind": "compare",
               "station": "C",
               "requires": [],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -4547,7 +4547,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -4566,7 +4566,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -4585,7 +4585,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 1,
               "requires_tokens": [
                 "S5_to_S6"
@@ -4604,7 +4604,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -4628,7 +4628,7 @@
               "kind": "attest",
               "station": "A",
               "requires": [],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -4647,7 +4647,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -4667,7 +4667,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -4687,7 +4687,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -4765,7 +4765,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -4784,7 +4784,7 @@
               "requires": [
                 "S7"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S7_to_S8"
@@ -4902,7 +4902,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -4923,7 +4923,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -4942,7 +4942,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -4966,7 +4966,7 @@
               "kind": "stabilize",
               "station": "B",
               "requires": [],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -4986,7 +4986,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -5005,7 +5005,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -5084,7 +5084,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -5162,7 +5162,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -5182,7 +5182,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -5202,7 +5202,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -5261,7 +5261,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 1,
               "requires_tokens": [
                 "S5_to_S6"
@@ -5285,7 +5285,7 @@
               "kind": "trace",
               "station": "C",
               "requires": [],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -5304,7 +5304,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -5324,7 +5324,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -5365,7 +5365,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -5384,7 +5384,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -5403,7 +5403,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -5481,7 +5481,7 @@
               "kind": "reconcile",
               "station": "C",
               "requires": [],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -5540,7 +5540,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -5561,7 +5561,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -5580,7 +5580,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -5599,7 +5599,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 1,
               "requires_tokens": [
                 "S5_to_S6"
@@ -5618,7 +5618,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -5662,7 +5662,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -5681,7 +5681,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -5701,7 +5701,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -5760,7 +5760,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -5780,7 +5780,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -5800,7 +5800,7 @@
                 "S6",
                 "S7"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S8",
@@ -5861,7 +5861,7 @@
               "kind": "attest",
               "station": "A",
               "requires": [],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -5920,7 +5920,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -5941,7 +5941,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -5960,7 +5960,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -5984,7 +5984,7 @@
               "kind": "crosscheck",
               "station": "B",
               "requires": [],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -6004,7 +6004,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -6023,7 +6023,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -6043,7 +6043,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -6102,7 +6102,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -6161,7 +6161,7 @@
               "kind": "stabilize",
               "station": "B",
               "requires": [],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -6241,7 +6241,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -6260,7 +6260,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -6279,7 +6279,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 1,
               "requires_tokens": [
                 "S5_to_S6"
@@ -6303,7 +6303,7 @@
               "kind": "tag",
               "station": "C",
               "requires": [],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -6322,7 +6322,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -6342,7 +6342,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -6362,7 +6362,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -6440,7 +6440,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -6558,7 +6558,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -6579,7 +6579,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -6598,7 +6598,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -6617,7 +6617,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 1,
               "requires_tokens": [
                 "S5_to_S6"
@@ -6636,7 +6636,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -6660,7 +6660,7 @@
               "kind": "compare",
               "station": "A",
               "requires": [],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -6680,7 +6680,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -6699,7 +6699,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -6778,7 +6778,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -6798,7 +6798,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -6818,7 +6818,7 @@
                 "S6",
                 "S7"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S8",
@@ -6918,7 +6918,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -6938,7 +6938,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -6959,7 +6959,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -7002,7 +7002,7 @@
               "kind": "repair",
               "station": "B",
               "requires": [],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -7021,7 +7021,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -7041,7 +7041,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -7101,7 +7101,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -7120,7 +7120,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -7179,7 +7179,7 @@
               "kind": "tag",
               "station": "B",
               "requires": [],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -7218,7 +7218,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -7238,7 +7238,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -7259,7 +7259,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -7299,7 +7299,7 @@
                 "S4",
                 "S5"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 1,
               "requires_tokens": [
                 "S4_to_S6",
@@ -7345,7 +7345,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -7364,7 +7364,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -7384,7 +7384,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -7424,7 +7424,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -7443,7 +7443,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -7462,7 +7462,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -7521,7 +7521,7 @@
               "kind": "compare",
               "station": "C",
               "requires": [],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -7560,7 +7560,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -7580,7 +7580,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -7601,7 +7601,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -7658,7 +7658,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -7682,7 +7682,7 @@
               "kind": "attest",
               "station": "A",
               "requires": [],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -7701,7 +7701,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -7721,7 +7721,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -7741,7 +7741,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -7781,7 +7781,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -7800,7 +7800,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -7819,7 +7819,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -7897,7 +7897,7 @@
               "kind": "meter",
               "station": "A",
               "requires": [],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -7936,7 +7936,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -7977,7 +7977,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -8020,7 +8020,7 @@
               "kind": "stabilize",
               "station": "B",
               "requires": [],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -8040,7 +8040,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -8059,7 +8059,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -8079,7 +8079,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -8119,7 +8119,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -8216,7 +8216,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -8236,7 +8236,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -8256,7 +8256,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -8277,7 +8277,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -8315,7 +8315,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 1,
               "requires_tokens": [
                 "S5_to_S6"
@@ -8339,7 +8339,7 @@
               "kind": "trace",
               "station": "C",
               "requires": [],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -8378,7 +8378,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -8419,7 +8419,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -8438,7 +8438,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -8457,7 +8457,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -8476,7 +8476,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -8574,7 +8574,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -8594,7 +8594,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -8615,7 +8615,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -8634,7 +8634,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -8653,7 +8653,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 1,
               "requires_tokens": [
                 "S5_to_S6"
@@ -8672,7 +8672,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -8696,7 +8696,7 @@
               "kind": "isolate",
               "station": "A",
               "requires": [],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -8716,7 +8716,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -8735,7 +8735,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -8795,7 +8795,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -8814,7 +8814,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -8834,7 +8834,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -8854,7 +8854,7 @@
                 "S6",
                 "S7"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S8",
@@ -8915,7 +8915,7 @@
               "kind": "attest",
               "station": "A",
               "requires": [],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -8954,7 +8954,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -8974,7 +8974,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -8995,7 +8995,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -9014,7 +9014,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -9058,7 +9058,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -9077,7 +9077,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -9097,7 +9097,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -9137,7 +9137,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -9156,7 +9156,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -9215,7 +9215,7 @@
               "kind": "stabilize",
               "station": "B",
               "requires": [],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -9254,7 +9254,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -9274,7 +9274,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -9295,7 +9295,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -9314,7 +9314,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -9357,7 +9357,7 @@
               "kind": "tag",
               "station": "C",
               "requires": [],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -9376,7 +9376,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -9396,7 +9396,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -9416,7 +9416,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -9456,7 +9456,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -9475,7 +9475,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -9494,7 +9494,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -9553,7 +9553,7 @@
               "kind": "trace",
               "station": "C",
               "requires": [],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -9573,7 +9573,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -9592,7 +9592,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -9633,7 +9633,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -9652,7 +9652,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -9671,7 +9671,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 1,
               "requires_tokens": [
                 "S5_to_S6"
@@ -9690,7 +9690,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -9714,7 +9714,7 @@
               "kind": "compare",
               "station": "A",
               "requires": [],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -9753,7 +9753,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -9773,7 +9773,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -9794,7 +9794,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -9813,7 +9813,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -9852,7 +9852,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -9872,7 +9872,7 @@
                 "S6",
                 "S7"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S8",
@@ -9952,7 +9952,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -9972,7 +9972,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -9992,7 +9992,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -10013,7 +10013,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -10032,7 +10032,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -10056,7 +10056,7 @@
               "kind": "meter",
               "station": "B",
               "requires": [],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -10095,7 +10095,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -10136,7 +10136,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -10155,7 +10155,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -10174,7 +10174,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -10272,7 +10272,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -10292,7 +10292,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -10313,7 +10313,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -10333,7 +10333,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -10353,7 +10353,7 @@
                 "S4",
                 "S5"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 1,
               "requires_tokens": [
                 "S4_to_S6",
@@ -10379,7 +10379,7 @@
               "kind": "reconcile",
               "station": "C",
               "requires": [],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -10399,7 +10399,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -10478,7 +10478,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -10497,7 +10497,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -10516,7 +10516,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -10575,7 +10575,7 @@
               "kind": "compare",
               "station": "C",
               "requires": [],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -10614,7 +10614,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -10634,7 +10634,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -10655,7 +10655,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -10674,7 +10674,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -10693,7 +10693,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 1,
               "requires_tokens": [
                 "S5_to_S6"
@@ -10712,7 +10712,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -10755,7 +10755,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -10795,7 +10795,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -10835,7 +10835,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -10854,7 +10854,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -10873,7 +10873,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -10892,7 +10892,7 @@
               "requires": [
                 "S7"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S7_to_S8"
@@ -10951,7 +10951,7 @@
               "kind": "meter",
               "station": "A",
               "requires": [],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -10971,7 +10971,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -10990,7 +10990,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -11010,7 +11010,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -11031,7 +11031,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -11050,7 +11050,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -11074,7 +11074,7 @@
               "kind": "stabilize",
               "station": "B",
               "requires": [],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -11113,7 +11113,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -11133,7 +11133,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -11154,7 +11154,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -11173,7 +11173,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -11192,7 +11192,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -11251,7 +11251,7 @@
               "kind": "repair",
               "station": "B",
               "requires": [],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -11270,7 +11270,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -11290,7 +11290,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -11331,7 +11331,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -11350,7 +11350,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -11369,7 +11369,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 1,
               "requires_tokens": [
                 "S5_to_S6"
@@ -11393,7 +11393,7 @@
               "kind": "trace",
               "station": "C",
               "requires": [],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -11432,7 +11432,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -11452,7 +11452,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -11473,7 +11473,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -11492,7 +11492,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -11530,7 +11530,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -11609,7 +11609,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -11628,7 +11628,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -11648,7 +11648,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -11669,7 +11669,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -11688,7 +11688,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -11707,7 +11707,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 1,
               "requires_tokens": [
                 "S5_to_S6"
@@ -11726,7 +11726,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -11750,7 +11750,7 @@
               "kind": "isolate",
               "station": "A",
               "requires": [],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -11789,7 +11789,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -11830,7 +11830,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -11849,7 +11849,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -11868,7 +11868,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -11888,7 +11888,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -11908,7 +11908,7 @@
                 "S6",
                 "S7"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S8",
@@ -12008,7 +12008,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -12028,7 +12028,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -12049,7 +12049,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -12068,7 +12068,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -12092,7 +12092,7 @@
               "kind": "crosscheck",
               "station": "B",
               "requires": [],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -12112,7 +12112,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -12191,7 +12191,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -12210,7 +12210,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -12269,7 +12269,7 @@
               "kind": "stabilize",
               "station": "B",
               "requires": [],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -12288,7 +12288,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -12308,7 +12308,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -12328,7 +12328,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -12349,7 +12349,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -12368,7 +12368,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -12387,7 +12387,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 1,
               "requires_tokens": [
                 "S5_to_S6"
@@ -12470,7 +12470,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -12491,7 +12491,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -12510,7 +12510,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -12529,7 +12529,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -12548,7 +12548,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -12607,7 +12607,7 @@
               "kind": "trace",
               "station": "C",
               "requires": [],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -12627,7 +12627,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -12646,7 +12646,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -12666,7 +12666,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -12687,7 +12687,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -12706,7 +12706,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -12744,7 +12744,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -12768,7 +12768,7 @@
               "kind": "compare",
               "station": "A",
               "requires": [],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -12827,7 +12827,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -12848,7 +12848,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -12867,7 +12867,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -12886,7 +12886,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -12906,7 +12906,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -12926,7 +12926,7 @@
                 "S6",
                 "S7"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S8",
@@ -12987,7 +12987,7 @@
               "kind": "isolate",
               "station": "A",
               "requires": [],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -13006,7 +13006,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -13026,7 +13026,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -13067,7 +13067,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -13086,7 +13086,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -13110,7 +13110,7 @@
               "kind": "meter",
               "station": "B",
               "requires": [],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -13169,7 +13169,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -13190,7 +13190,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -13209,7 +13209,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -13307,7 +13307,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -13326,7 +13326,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -13346,7 +13346,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -13367,7 +13367,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -13387,7 +13387,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -13407,7 +13407,7 @@
                 "S4",
                 "S5"
               ],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 1,
               "requires_tokens": [
                 "S4_to_S6",
@@ -13433,7 +13433,7 @@
               "kind": "repair",
               "station": "C",
               "requires": [],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -13513,7 +13513,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -13532,7 +13532,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -13551,7 +13551,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -13570,7 +13570,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -13648,7 +13648,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -13688,7 +13688,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -13709,7 +13709,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -13728,7 +13728,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -13747,7 +13747,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 1,
               "requires_tokens": [
                 "S5_to_S6"
@@ -13766,7 +13766,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -13790,7 +13790,7 @@
               "kind": "attest",
               "station": "A",
               "requires": [],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -13829,7 +13829,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -13870,7 +13870,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -13908,7 +13908,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -13927,7 +13927,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -13946,7 +13946,7 @@
               "requires": [
                 "S7"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S7_to_S8"
@@ -14005,7 +14005,7 @@
               "kind": "meter",
               "station": "A",
               "requires": [],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -14025,7 +14025,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -14064,7 +14064,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -14085,7 +14085,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -14104,7 +14104,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -14167,7 +14167,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -14187,7 +14187,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -14208,7 +14208,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -14246,7 +14246,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -14305,7 +14305,7 @@
               "kind": "repair",
               "station": "B",
               "requires": [],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -14324,7 +14324,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -14364,7 +14364,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -14385,7 +14385,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -14404,7 +14404,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -14447,7 +14447,7 @@
               "kind": "trace",
               "station": "C",
               "requires": [],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -14486,7 +14486,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -14506,7 +14506,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -14527,7 +14527,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -14565,7 +14565,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -14584,7 +14584,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -14643,7 +14643,7 @@
               "kind": "reconcile",
               "station": "C",
               "requires": [],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -14663,7 +14663,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -14723,7 +14723,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -14742,7 +14742,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -14761,7 +14761,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 1,
               "requires_tokens": [
                 "S5_to_S6"
@@ -14780,7 +14780,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -14804,7 +14804,7 @@
               "kind": "isolate",
               "station": "A",
               "requires": [],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -14843,7 +14843,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -14863,7 +14863,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -14884,7 +14884,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -14942,7 +14942,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -14962,7 +14962,7 @@
                 "S6",
                 "S7"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S8",
@@ -15043,7 +15043,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -15082,7 +15082,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -15103,7 +15103,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -15122,7 +15122,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -15146,7 +15146,7 @@
               "kind": "crosscheck",
               "station": "B",
               "requires": [],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -15166,7 +15166,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -15185,7 +15185,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -15226,7 +15226,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -15264,7 +15264,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -15342,7 +15342,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -15362,7 +15362,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -15382,7 +15382,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -15403,7 +15403,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -15441,7 +15441,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 1,
               "requires_tokens": [
                 "S5_to_S6"
@@ -15465,7 +15465,7 @@
               "kind": "tag",
               "station": "C",
               "requires": [],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -15504,7 +15504,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -15545,7 +15545,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -15564,7 +15564,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -15583,7 +15583,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -15602,7 +15602,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -15661,7 +15661,7 @@
               "kind": "trace",
               "station": "C",
               "requires": [],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -15681,7 +15681,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -15700,7 +15700,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -15720,7 +15720,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -15741,7 +15741,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -15779,7 +15779,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 1,
               "requires_tokens": [
                 "S5_to_S6"
@@ -15798,7 +15798,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -15861,7 +15861,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -15881,7 +15881,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "balancing_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -15902,7 +15902,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -15921,7 +15921,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -15940,7 +15940,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -15960,7 +15960,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -16041,7 +16041,7 @@
               "kind": "isolate",
               "station": "A",
               "requires": [],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -16060,7 +16060,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -16080,7 +16080,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -16100,7 +16100,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -16121,7 +16121,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -16164,7 +16164,7 @@
               "kind": "meter",
               "station": "B",
               "requires": [],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -16203,7 +16203,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "faults_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -16223,7 +16223,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "balancing_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -16244,7 +16244,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -16263,7 +16263,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "consequences_solved",
+              "guard": "logistics_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -16282,7 +16282,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -16341,7 +16341,7 @@
               "kind": "crosscheck",
               "station": "B",
               "requires": [],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 1,
               "requires_tokens": [
                 "host_permit"
@@ -16361,7 +16361,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -16421,7 +16421,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -16441,7 +16441,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -16461,7 +16461,7 @@
                 "S4",
                 "S5"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 1,
               "requires_tokens": [
                 "S4_to_S6",
@@ -16487,7 +16487,7 @@
               "kind": "repair",
               "station": "C",
               "requires": [],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -16507,7 +16507,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -16526,7 +16526,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S2"
@@ -16546,7 +16546,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S3",
@@ -16567,7 +16567,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -16624,7 +16624,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -16702,7 +16702,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -16742,7 +16742,7 @@
                 "S1",
                 "S2"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 1,
               "requires_tokens": [
                 "S1_to_S3",
@@ -16763,7 +16763,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -16782,7 +16782,7 @@
               "requires": [
                 "S4"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S4_to_S5"
@@ -16801,7 +16801,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "consequences_solved",
+              "guard": "balancing_solved",
               "cost": 1,
               "requires_tokens": [
                 "S5_to_S6"
@@ -16844,7 +16844,7 @@
               "kind": "reconcile",
               "station": "A",
               "requires": [],
-              "guard": "logistics_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "host_permit"
@@ -16863,7 +16863,7 @@
               "requires": [
                 "S0"
               ],
-              "guard": "consequences_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S0_to_S1"
@@ -16883,7 +16883,7 @@
               "requires": [
                 "S1"
               ],
-              "guard": "faults_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S1_to_S2"
@@ -16924,7 +16924,7 @@
               "requires": [
                 "S3"
               ],
-              "guard": "logistics_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S3_to_S4"
@@ -16962,7 +16962,7 @@
               "requires": [
                 "S5"
               ],
-              "guard": "faults_solved",
+              "guard": "balancing_solved",
               "cost": 0,
               "requires_tokens": [
                 "S5_to_S6"
@@ -16981,7 +16981,7 @@
               "requires": [
                 "S6"
               ],
-              "guard": "balancing_solved",
+              "guard": "faults_solved",
               "cost": 0,
               "requires_tokens": [
                 "S6_to_S7"
@@ -17000,7 +17000,7 @@
               "requires": [
                 "S7"
               ],
-              "guard": "logistics_solved",
+              "guard": "consequences_solved",
               "cost": 0,
               "requires_tokens": [
                 "S7_to_S8"
