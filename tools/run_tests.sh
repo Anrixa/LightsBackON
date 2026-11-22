@@ -156,6 +156,10 @@ echo "== EXP015 A11: original 25-region root-to-finale resource continuity oracl
 if [ -n "$PY" ]; then
   "$PY" tools/qualify_exp015_debt_handoff.py --report build/exp015-a11/source-audit.json || FAIL=1
 fi
+echo "== EXP015 A12.1: 25 original reserve-anchor feeder paths, real dark-route and fault scenarios =="
+if [ -n "$PY" ]; then
+  "$PY" tools/validate_exp015_anchor_routes.py --report build/exp015-a12/source-audit.json || FAIL=1
+fi
 echo "== python reference model (re-derived, reference/tests) =="
 if [ -d reference/tests ] && [ -n "$PY" ]; then
   ( cd reference && "$PY" -m unittest discover -s tests -v ) || FAIL=1
