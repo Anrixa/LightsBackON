@@ -37,6 +37,7 @@ const SiteApproach := preload("res://scripts/gameplay/expedition_approach_intell
 const SiteOutcomes := preload("res://scripts/gameplay/expedition_operational_consequences.gd")
 const SiteHazards := preload("res://scripts/gameplay/expedition_environment_hazards.gd")
 const SitePuzzles := preload("res://scripts/gameplay/expedition_investigation_chains.gd")
+const AdvancedHazards := preload("res://scripts/gameplay/expedition_advanced_hazards.gd")
 const AdvancedFaults := preload("res://scripts/gameplay/expedition_advanced_fault_layers.gd")
 const AdvancedCases := preload("res://scripts/gameplay/expedition_advanced_casework.gd")
 const RegionalNetworks := preload("res://scripts/gameplay/expedition_regional_network.gd")
@@ -116,7 +117,8 @@ func start(level_id: String, host_position: Callable,
 		enable_site_puzzles: bool = false,
 		enable_regional_networks: bool = false,
 		enable_advanced_cases: bool = false,
-		enable_advanced_fault_layers: bool = false) -> Dictionary:
+		enable_advanced_fault_layers: bool = false,
+		enable_advanced_environment: bool = false) -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
 	if enable_devices and not enable_bespoke:
@@ -145,6 +147,8 @@ func start(level_id: String, host_position: Callable,
 		return _fail("EXP014_A07_REQUIRES_A06_OUTCOMES")
 	if enable_site_puzzles and not enable_site_hazards:
 		return _fail("EXP014_A08_REQUIRES_A07_ENVIRONMENT")
+	if enable_advanced_environment and not enable_advanced_fault_layers:
+		return _fail("EXP016_A07_REQUIRES_A06_HOST_FAULT_AUTHORITY")
 	if enable_advanced_fault_layers and not enable_advanced_cases:
 		return _fail("EXP016_A06_REQUIRES_ADVANCED_CASE_AUTHORITY")
 	if enable_advanced_cases and not enable_site_puzzles:
@@ -479,6 +483,16 @@ func start(level_id: String, host_position: Callable,
 			var bound: Dictionary = advanced_cases.bind_fault_layer(layer)
 			if not bool(bound.get("ok", false)):
 				return _fail("EXP016_A06_FAULT_LAYER_BINDING_FAILED", bound)
+		if enable_advanced_environment:
+			var hazard_book: Dictionary = AdvancedHazards.load_book()
+			var hazard_audit: Dictionary = AdvancedHazards.inspect(atlas,
+				Bespoke.load_book(), SiteContingencies.load_book(), hazard_book)
+			if not bool(hazard_audit.get("ok", false)):
+				return _fail("EXP016_A07_HAZARD_SOURCE_INVALID", hazard_audit)
+			var hazard_protocol: Dictionary = AdvancedHazards.entry_for(hazard_book, level_id)
+			var hazard_binding: Dictionary = advanced_cases.bind_hazard_protocol(hazard_protocol)
+			if not bool(hazard_binding.get("ok", false)):
+				return _fail("EXP016_A07_HAZARD_BIND_FAILED", hazard_binding)
 		_definitions["advanced_cases"] = advanced_cases.definition_snapshot()
 	_position_source = host_position
 	_physics_visibility = physics_visibility

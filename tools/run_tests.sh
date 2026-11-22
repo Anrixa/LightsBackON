@@ -116,6 +116,9 @@ if [ -n "$PY" ]; then
   "$PY" -m unittest discover -s tools -p 'test_exp016_a06.py' -v || FAIL=1
 fi
 
+echo "== EXP016 A07: source-pinned hazard operation order and preemption, 200 sites =="
+if [ -n "$PY" ]; then "$PY" tools/validate_exp016_a07.py || FAIL=1; fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 

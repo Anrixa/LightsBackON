@@ -21,6 +21,10 @@ var _kits: int = 0
 var _liabilities: int = 0
 var _faults: int = 0
 var _recoveries: int = 0
+var _hazard_protocol: Dictionary = {}
+var _hazard_progress: int = 0
+var _hazard_interruptions: int = 0
+var _return_phase_after_hazard: String = ""
 var _fault_layer: Dictionary = {}
 var _layer_probes: Dictionary = {}
 var _layer_diagnosed: bool = false
@@ -168,6 +172,15 @@ func configure(entry: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 
+func bind_hazard_protocol(protocol: Dictionary) -> Dictionary:
+	if _spec.is_empty() or not _hazard_protocol.is_empty() or \
+			protocol.get("level_id") != _spec.get("level_id") or \
+			not protocol.has("source_blocked_operations"):
+		return _reject("ENVIRONMENT_SOURCE_MISMATCH")
+	_hazard_protocol = protocol.duplicate(true)
+	return {"ok": true, "code": "ENVIRONMENT_PROTOCOL_BOUND"}
+
+
 func bind_fault_layer(layer: Dictionary) -> Dictionary:
 	if _spec.is_empty() or not _fault_layer.is_empty() or \
 			layer.get("level_id") != _spec.get("level_id") or \
@@ -182,6 +195,8 @@ func definition_snapshot() -> Dictionary:
 	var copy: Dictionary = _spec.duplicate(true)
 	if not _fault_layer.is_empty():
 		copy["source_fault_layer"] = _fault_layer.duplicate(true)
+	if not _hazard_protocol.is_empty():
+		copy["source_hazard_protocol"] = _hazard_protocol.duplicate(true)
 	return copy
 
 
@@ -204,8 +219,10 @@ func solved() -> bool:
 func begin() -> Dictionary:
 	if _spec.is_empty() or _phase != "locked":
 		return _reject("BEGIN_UNAVAILABLE")
-	_phase = "layered_evidence" if not _fault_layer.is_empty() else \
+	var next_phase: String = "layered_evidence" if not _fault_layer.is_empty() else \
 		"evidence" if _spec.has("diagnosis") else "choose"
+	_return_phase_after_hazard = next_phase
+	_phase = "hazard_preflight" if not _hazard_protocol.is_empty() else next_phase
 	return {"ok": true, "code": "CASE_OPEN"}
 
 
@@ -222,6 +239,25 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 	var targets: Dictionary = _spec["targets"]
 	if not targets.values().has(entity):
 		return _reject("FOREIGN_TARGET")
+	if _phase == "hazard_preflight":
+		var sequence: Array[String] = [
+			"survey_station", "isolate_station", "clear_station"]
+		var operations: Array[String] = [
+			"case_hazard_survey", "case_hazard_isolate", "case_hazard_clear"]
+		var expected_station: String = str(targets[str(_hazard_protocol[sequence[_hazard_progress]])])
+		if entity != expected_station or action != operations[_hazard_progress]:
+			return _reject("HAZARD_ORDER_OR_ACCESS_REQUIRED")
+		if _hazard_progress == 2 and not bool(facts.get("hazard_safe", false)):
+			return _reject("SOURCE_HAZARD_NOT_CONTAINED")
+		if _hazard_progress == 2 and not bool(facts.get("consequences_solved", false)):
+			return _reject("SOURCE_HAZARD_RECHECK_REQUIRED")
+		_hazard_progress += 1
+		_record("source_hazard_operation_" + str(_hazard_progress))
+		if _hazard_progress == 3:
+			_phase = _return_phase_after_hazard
+			_hazard_progress = 0
+		return {"ok": true, "code": "HAZARD_ACCESS_RESTORED" if _hazard_progress == 0 else \
+			"HAZARD_SEQUENCE_ADVANCED"}
 	if _phase == "signoff":
 		var required: String = str(_spec.get("final_signoff_station", ""))
 		if entity != str(targets.get(required, "")) or action != "case_signoff":
@@ -315,6 +351,14 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 		_phase = _recovery_phase
 		_record("recovered")
 		return {"ok": true, "code": "CASE_RECOVERED"}
+	if not _hazard_protocol.is_empty() and not bool(facts.get("hazard_safe", false)):
+		_hazard_interruptions += 1
+		_liabilities += 1
+		_return_phase_after_hazard = _phase
+		_hazard_progress = 0
+		_phase = "hazard_preflight"
+		_record("environment_interrupted_work")
+		return _reject("ENVIRONMENT_PREEMPTED_OPERATIONS")
 	if _phase != "working":
 		return _reject("BAD_PHASE")
 	var steps: Array = _spec["routes"][_route]["steps"]
@@ -368,4 +412,6 @@ func snapshot() -> Dictionary:
 		"probes": _probes.duplicate(true), "diagnosed": _diagnosed,
 		"layer_probes": _layer_probes.duplicate(true), "layer_diagnosed": _layer_diagnosed,
 		"evidence_tokens": _tokens.duplicate(true),
+		"hazard_progress": _hazard_progress, "hazard_interruptions": _hazard_interruptions,
+		"source_hazard_kind": _hazard_protocol.get("source_hazard_kind", ""),
 		"history": _history.duplicate(true)}
