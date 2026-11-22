@@ -37,6 +37,13 @@ const SiteApproach := preload("res://scripts/gameplay/expedition_approach_intell
 const SiteOutcomes := preload("res://scripts/gameplay/expedition_operational_consequences.gd")
 const SiteHazards := preload("res://scripts/gameplay/expedition_environment_hazards.gd")
 const SitePuzzles := preload("res://scripts/gameplay/expedition_investigation_chains.gd")
+const AdvancedDiscoveries := preload("res://scripts/gameplay/expedition_advanced_discoveries.gd")
+const AdvancedCascade := preload("res://scripts/gameplay/expedition_advanced_cascade.gd")
+const AdvancedPolicies := preload("res://scripts/gameplay/expedition_advanced_policies.gd")
+const AdvancedEquipment := preload("res://scripts/gameplay/expedition_advanced_equipment.gd")
+const AdvancedHazards := preload("res://scripts/gameplay/expedition_advanced_hazards.gd")
+const AdvancedFaults := preload("res://scripts/gameplay/expedition_advanced_fault_layers.gd")
+const AdvancedCases := preload("res://scripts/gameplay/expedition_advanced_casework.gd")
 const RegionalNetworks := preload("res://scripts/gameplay/expedition_regional_network.gd")
 const Incident := preload("res://scripts/gameplay/expedition_regional_emergencies.gd")
 const Cascade := preload("res://scripts/gameplay/expedition_regional_cascades.gd")
@@ -80,6 +87,8 @@ var site_approach: SiteApproach
 var site_outcomes: SiteOutcomes
 var site_hazards: SiteHazards
 var site_puzzles: SitePuzzles
+var advanced_cascade: AdvancedCascade
+var advanced_cases: AdvancedCases
 var regional_network: RegionalNetworks
 var incident_response: Incident
 var service_cascade: Cascade
@@ -147,7 +156,14 @@ func start(level_id: String, host_position: Callable,
 		enable_regional_rejoins: bool = false,
 		enable_regional_entries: bool = false,
 		enable_regional_settlement: bool = false,
-		enable_anchor_recovery: bool = false) -> Dictionary:
+		enable_anchor_recovery: bool = false,
+		enable_advanced_cases: bool = false,
+		enable_advanced_fault_layers: bool = false,
+		enable_advanced_environment: bool = false,
+		enable_advanced_equipment: bool = false,
+		enable_advanced_policy: bool = false,
+		enable_advanced_cascade: bool = false,
+		enable_advanced_discoveries: bool = false) -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
 	var token: Dictionary = {}
@@ -161,7 +177,11 @@ func start(level_id: String, host_position: Callable,
 		enable_site_approach, enable_site_outcomes, enable_site_hazards, enable_site_puzzles, 
 		enable_regional_networks, enable_incident_response, enable_service_cascade, enable_regional_finale, 
 		enable_regional_aftercare, enable_regional_assurance, enable_alternate_routes, enable_regional_rejoins, 
-		enable_regional_entries, enable_regional_settlement, enable_anchor_recovery)
+		enable_regional_entries, enable_regional_settlement, enable_anchor_recovery,
+		enable_advanced_cases, enable_advanced_fault_layers,
+		enable_advanced_environment, enable_advanced_equipment,
+		enable_advanced_policy, enable_advanced_cascade,
+		enable_advanced_discoveries)
 	if not bool(outcome.get("ok", false)):
 		var rollback: Dictionary = RegionalNetworks.rollback_host_start(token)
 		if not bool(rollback.get("ok", false)):
@@ -207,7 +227,14 @@ func _start_unchecked(level_id: String, host_position: Callable,
 		enable_regional_rejoins: bool = false,
 		enable_regional_entries: bool = false,
 		enable_regional_settlement: bool = false,
-		enable_anchor_recovery: bool = false) -> Dictionary:
+		enable_anchor_recovery: bool = false,
+		enable_advanced_cases: bool = false,
+		enable_advanced_fault_layers: bool = false,
+		enable_advanced_environment: bool = false,
+		enable_advanced_equipment: bool = false,
+		enable_advanced_policy: bool = false,
+		enable_advanced_cascade: bool = false,
+		enable_advanced_discoveries: bool = false) -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
 	if enable_devices and not enable_bespoke:
@@ -236,6 +263,21 @@ func _start_unchecked(level_id: String, host_position: Callable,
 		return _fail("EXP014_A07_REQUIRES_A06_OUTCOMES")
 	if enable_site_puzzles and not enable_site_hazards:
 		return _fail("EXP014_A08_REQUIRES_A07_ENVIRONMENT")
+	if enable_advanced_discoveries and not enable_advanced_policy:
+		return _fail("EXP016_A11_REQUIRES_A09_SOURCE_POLICY")
+	if enable_advanced_cascade and (not enable_advanced_policy or \
+			not enable_regional_networks or not enforce_campaign or account_key == ""):
+		return _fail("EXP016_A10_REQUIRES_AUTHENTICATED_REGIONAL_CAMPAIGN")
+	if enable_advanced_policy and not enable_advanced_equipment:
+		return _fail("EXP016_A09_REQUIRES_A08_AUTHENTICATED_GEAR")
+	if enable_advanced_equipment and not enable_advanced_environment:
+		return _fail("EXP016_A08_REQUIRES_A07_HAZARD_INTERLOCK")
+	if enable_advanced_environment and not enable_advanced_fault_layers:
+		return _fail("EXP016_A07_REQUIRES_A06_HOST_FAULT_AUTHORITY")
+	if enable_advanced_fault_layers and not enable_advanced_cases:
+		return _fail("EXP016_A06_REQUIRES_ADVANCED_CASE_AUTHORITY")
+	if enable_advanced_cases and not enable_site_puzzles:
+		return _fail("EXP016_A02_REQUIRES_A08_HOST_INVESTIGATION")
 	if enable_regional_networks and (not enable_site_puzzles or not enforce_campaign):
 		return _fail("EXP014_A09_REQUIRES_A08_AND_HOST_CAMPAIGN")
 	if enable_incident_response and not enable_regional_networks:
@@ -740,6 +782,94 @@ func _start_unchecked(level_id: String, host_position: Callable,
 		if not bool(puzzle_gate.get("ok", false)):
 			return _fail("EXP014_A08_SOURCE_INVALID", puzzle_gate)
 		_definitions["site_puzzles"] = site_puzzles.definition_snapshot()
+	# EXP016 cases are opt-in and source-pinned to the original A08 evidence graph.
+	if enable_advanced_cases:
+		var advanced_books: Array[Dictionary] = AdvancedCases.load_available_books()
+		var selected_case: Dictionary = {}
+		for advanced_book: Dictionary in advanced_books:
+			var case_audit: Dictionary = AdvancedCases.inspect(atlas, SitePuzzles.load_book(), advanced_book)
+			if not bool(case_audit.get("ok", false)):
+				return _fail("EXP016_SOURCE_INVALID", case_audit)
+			var candidate: Dictionary = AdvancedCases.entry_for(advanced_book, level_id)
+			if not candidate.is_empty():
+				if not selected_case.is_empty():
+					return _fail("EXP016_OVERLAPPING_CASEBOOKS")
+				selected_case = candidate
+		if selected_case.is_empty():
+			return _fail("EXP016_CASE_NOT_AUTHORED")
+		_definitions["advanced_case_phase"] = "A%02d" % (int((int(level_id.trim_prefix("LV_")) - 1) / 50.0) + 2)
+		advanced_cases = AdvancedCases.new()
+		var case_config: Dictionary = advanced_cases.configure(selected_case)
+		if not bool(case_config.get("ok", false)):
+			return _fail("EXP016_A02_CONFIG_FAILED", case_config)
+		if enable_advanced_fault_layers:
+			var fault_layer_book: Dictionary = AdvancedFaults.load_book()
+			var faults_audit: Dictionary = AdvancedFaults.inspect(
+				atlas, Faults.load_book(), Bespoke.load_book(), fault_layer_book)
+			if not bool(faults_audit.get("ok", false)):
+				return _fail("EXP016_A06_FAULT_SOURCE_INVALID", faults_audit)
+			var layer: Dictionary = AdvancedFaults.entry_for(fault_layer_book, level_id)
+			var bound: Dictionary = advanced_cases.bind_fault_layer(layer)
+			if not bool(bound.get("ok", false)):
+				return _fail("EXP016_A06_FAULT_LAYER_BINDING_FAILED", bound)
+		if enable_advanced_environment:
+			var hazard_book: Dictionary = AdvancedHazards.load_book()
+			var hazard_audit: Dictionary = AdvancedHazards.inspect(atlas,
+				Bespoke.load_book(), SiteContingencies.load_book(), hazard_book)
+			if not bool(hazard_audit.get("ok", false)):
+				return _fail("EXP016_A07_HAZARD_SOURCE_INVALID", hazard_audit)
+			var hazard_protocol: Dictionary = AdvancedHazards.entry_for(hazard_book, level_id)
+			var hazard_binding: Dictionary = advanced_cases.bind_hazard_protocol(hazard_protocol)
+			if not bool(hazard_binding.get("ok", false)):
+				return _fail("EXP016_A07_HAZARD_BIND_FAILED", hazard_binding)
+		if enable_advanced_equipment:
+			var equipment_book: Dictionary = AdvancedEquipment.load_book()
+			var equipment_audit: Dictionary = AdvancedEquipment.inspect(
+				atlas, Worksite.load_book(), equipment_book)
+			if not bool(equipment_audit.get("ok", false)):
+				return _fail("EXP016_A08_EQUIPMENT_SOURCE_INVALID", equipment_audit)
+			var gear: Dictionary = AdvancedEquipment.entry_for(equipment_book, level_id)
+			var accepted_gear: Dictionary = advanced_cases.bind_equipment_manifest(gear)
+			if not bool(accepted_gear.get("ok", false)):
+				return _fail("EXP016_A08_EQUIPMENT_BIND_FAILED", accepted_gear)
+		if enable_advanced_policy:
+			var policy_book: Dictionary = AdvancedPolicies.load_book()
+			var policy_audit: Dictionary = AdvancedPolicies.inspect(
+				atlas, SiteContingencies.load_book(), policy_book)
+			if not bool(policy_audit.get("ok", false)):
+				return _fail("EXP016_A09_POLICY_SOURCE_INVALID", policy_audit)
+			var policy_spec: Dictionary = AdvancedPolicies.entry_for(policy_book, level_id)
+			var policy_bound: Dictionary = advanced_cases.bind_source_policy(policy_spec)
+			if not bool(policy_bound.get("ok", false)):
+				return _fail("EXP016_A09_POLICY_BIND_FAILED", policy_bound)
+		if enable_advanced_cascade:
+			var cascade_book: Dictionary = AdvancedCascade.load_book()
+			var cascade_audit: Dictionary = AdvancedCascade.inspect(
+				atlas, RegionalNetworks.load_book(), cascade_book)
+			if not bool(cascade_audit.get("ok", false)):
+				return _fail("EXP016_A10_CASCADE_SOURCE_INVALID", cascade_audit)
+			var regional_source: Dictionary = AdvancedCascade.entry_for(cascade_book, level_id)
+			advanced_cascade = AdvancedCascade.new()
+			var inherited: Dictionary = advanced_cascade.configure(
+				regional_source, account_key, level_id)
+			if not bool(inherited.get("ok", false)):
+				return _fail("EXP016_A10_CASCADE_SCOPE_INVALID", inherited)
+			var carry: Dictionary = advanced_cases.bind_inherited_pressure(
+				int(inherited["inherited_pressure"]))
+			if not bool(carry.get("ok",false)):
+				return _fail("EXP016_A10_CASCADE_BIND_FAILED", carry)
+		if enable_advanced_discoveries:
+			var discovery_book: Dictionary = AdvancedDiscoveries.load_book()
+			var discovery_audit: Dictionary = AdvancedDiscoveries.inspect(
+				atlas, SitePuzzles.load_book(), discovery_book)
+			if not bool(discovery_audit.get("ok", false)):
+				return _fail("EXP016_A11_DISCOVERY_SOURCE_INVALID", discovery_audit)
+			var source_find: Dictionary = AdvancedDiscoveries.entry_for(
+				discovery_book, level_id)
+			var attached: Dictionary = advanced_cases.bind_source_discovery(source_find)
+			if not bool(attached.get("ok", false)):
+				return _fail("EXP016_A11_DISCOVERY_BIND_FAILED", attached)
+		_definitions["advanced_cases"] = advanced_cases.definition_snapshot()
 	_position_source = host_position
 	_physics_visibility = physics_visibility
 	_account_key = account_key
@@ -835,11 +965,58 @@ func _start_unchecked(level_id: String, host_position: Callable,
 		"qualification": "AUTHORITY_SOURCE_HEADLESS_ONLY_NO_PLAYABILITY"}
 
 
+## EXP016 A12 internal source/headless qualifier. Not a player-launch path:
+## opt-in full EXP016 source stack excluding authenticated regional campaigns.
+## No new RPC, production save, credits, or release/certification promise.
+func start_exp016_source_qualification(level_id: String,
+		host_position: Callable) -> Dictionary:
+	return start(level_id, host_position, Callable(), "", false, "",
+		true,  # enable_bespoke
+		true,  # enable_devices
+		true,  # enable_faults
+		true,  # enable_consequences
+		true,  # enable_logistics
+		true,  # enable_balance
+		true,  # enable_worksite
+		true,  # enable_site_a02
+		true,  # enable_site_exp013
+		true,  # enable_site_contingency
+		true,  # enable_site_approach
+		true,  # enable_site_outcomes
+		true,  # enable_site_hazards
+		true,  # enable_site_puzzles
+		false,  # enable_regional_networks
+		false,  # enable_incident_response
+		false,  # enable_service_cascade
+		false,  # enable_regional_finale
+		false,  # enable_regional_aftercare
+		false,  # enable_regional_assurance
+		false,  # enable_alternate_routes
+		false,  # enable_regional_rejoins
+		false,  # enable_regional_entries
+		false,  # enable_regional_settlement
+		false,  # enable_anchor_recovery
+		true,  # enable_advanced_cases
+		true,  # enable_advanced_fault_layers
+		true,  # enable_advanced_environment
+		true,  # enable_advanced_equipment
+		true,  # enable_advanced_policy
+		false,  # enable_advanced_cascade
+		true  # enable_advanced_discoveries
+	)
+
+
 func _session_id() -> String:
 	return "S_EXP03_" + str(_definitions.get("level_id", "UNKNOWN"))
 
 
 func _content_revision() -> String:
+	# In A02, original regional and standalone EXP016 revisions retain their
+	# historical identities. A03 will bind a composite revision to joint play.
+	if advanced_cases != null and regional_network == null:
+		return "EXP016_" + str(_definitions.get("advanced_case_phase", "A02")) + "_" + ("%s|%s" % [
+			str(_definitions.get("source_fingerprint", "")),
+			JSON.stringify(advanced_cases.definition_snapshot())]).sha256_text()
 	if regional_anchor_recovery != null:
 		return "EXP015_A12_9_" + ("%s|%s|%s" % [
 			str(_definitions.get("source_fingerprint", "")),
@@ -1282,8 +1459,17 @@ func _hazard_facts() -> Dictionary:
 	return facts
 
 
+# Original tool admission is host-owned; never sourced from client command.
 func _puzzle_facts() -> Dictionary:
 	var facts: Dictionary = _hazard_facts()
+	if advanced_cases != null:
+		# Source-owned upstream worksite guard, not an arbitrary client boolean.
+		facts["load_balanced"] = balancing != null and balancing.solved()
+		facts["supplies_ready"] = logistics != null and logistics.solved()
+		facts["cascade_stable"] = consequences != null and consequences.solved()
+		facts["fault_clear"] = faults != null and faults.solved()
+	if advanced_cases != null:
+		facts["authorized_tools"] = TOOLS.duplicate()
 	facts["hazard_safe"] = site_hazards != null and site_hazards.can_operate()
 	facts["recon_route"] = site_approach.selected_route() if site_approach != null else ""
 	return facts
@@ -1406,6 +1592,19 @@ func _operate_worksite(player_id: String, entity: String, action: String) -> Dic
 			return site_hazards.operate(entity, action, _hazard_facts())
 		if site_puzzles != null and site_puzzles.needs_action():
 			return site_puzzles.operate(entity, action, _puzzle_facts())
+		if advanced_cases != null and site_puzzles != null and site_puzzles.solved():
+			if not advanced_cases.started():
+				advanced_cases.begin()
+			if advanced_cases.needs_action() or action.begins_with("case_discover_"):
+				var case_reply: Dictionary = advanced_cases.operate(
+					entity, action, _puzzle_facts())
+				if bool(case_reply.get("ok",false)) and advanced_cases.solved() and \
+						advanced_cascade != null:
+					var carry_reply: Dictionary = advanced_cascade.record_host_completion(
+						advanced_cases.snapshot())
+					if not bool(carry_reply.get("ok", false)):
+						return _fail("EXP016_A10_CASCADE_WRITE_HOLD", carry_reply)
+				return case_reply
 		if site_outcomes != null and site_outcomes.needs_action():
 			return site_outcomes.operate(entity, action, _outcome_facts())
 		if site_contingency != null and active.solved():
@@ -1420,6 +1619,10 @@ func _operate_worksite(player_id: String, entity: String, action: String) -> Dic
 			entity != str(worksite.definition_snapshot()["board"]) and \
 			not site_hazards.can_operate():
 		return _fail("EXP014_A07_HAZARD_LOCKED")
+	if advanced_cases != null and worksite.target_ids().has(entity) and \
+			entity != str(worksite.definition_snapshot()["board"]) and \
+			not advanced_cases.solved():
+		return _fail("EXP016_A02_CASEWORK_REQUIRED")
 	# Existing work order cannot bypass a newly required investigation graph.
 	if site_puzzles != null and worksite.target_ids().has(entity) and \
 			entity != str(worksite.definition_snapshot()["board"]) and \
@@ -1473,6 +1676,9 @@ func _worksite_tick() -> void:
 		if not site_hazards.started() and site_outcomes.prepared():
 			site_hazards.begin(site_outcomes.snapshot())
 		site_hazards.advance(_hazard_facts())
+	if advanced_cases != null and site_puzzles != null and site_puzzles.solved() and \
+			not advanced_cases.started():
+		advanced_cases.begin()
 	if site_puzzles != null:
 		if not site_puzzles.started() and str(site_hazards.snapshot().get("phase", "")) == "contained":
 			site_puzzles.begin(site_hazards.snapshot())
@@ -1499,6 +1705,10 @@ func _worksite_snapshot() -> Dictionary:
 		state["site_hazards"] = site_hazards.snapshot()
 	if site_puzzles != null:
 		state["site_puzzles"] = site_puzzles.snapshot()
+	if advanced_cascade != null:
+		state["advanced_cascade"] = advanced_cascade.snapshot()
+	if advanced_cases != null:
+		state["advanced_cases"] = advanced_cases.snapshot()
 	if regional_network != null:
 		state["regional_network"] = regional_network.snapshot()
 	if incident_response != null:
@@ -1533,6 +1743,12 @@ func _claim_lore(player_id: String, item_id: String) -> Dictionary:
 		return _fail("UNKNOWN_COLLECTIBLE")
 	if _lore_claimed:
 		return _fail("ALREADY_COLLECTED")
+	# EXP016 A11 adds an opt-in authenticated source-research requirement.
+	# Original optional-job gate and unchanged lore receipt are still mandatory.
+	if advanced_cases != null and \
+			not advanced_cases.definition_snapshot().get("source_discovery", {}).is_empty() and \
+			not advanced_cases.discovery_ready():
+		return _fail("EXP016_A11_LORE_SOURCE_RESEARCH_REQUIRED")
 	if not _completed.has(str(_tasks[3]["id"])):
 		return _fail("DISCOVERY_EVIDENCE_REQUIRED")
 	_lore_claimed = true
@@ -1683,6 +1899,9 @@ func _update_progress() -> void:
 			(regional_rejoin == null or regional_rejoin.closed()) and \
 			(regional_entry == null or regional_entry.closed()):
 		_completed[last] = true
+	# Original EXP04 reward receipts cannot precede an opt-in EXP016 interlock.
+	if advanced_cases != null and not advanced_cases.solved():
+		return
 	_issue_task_rewards()
 
 
@@ -1728,6 +1947,10 @@ func task_board() -> Dictionary:
 		board["balancing"] = balancing.snapshot()
 	if worksite != null:
 		board["worksite"] = _worksite_snapshot()
+	if advanced_cascade != null:
+		board["advanced_cascade"] = advanced_cascade.snapshot()
+	if advanced_cases != null:
+		board["advanced_cases"] = advanced_cases.snapshot()
 	if regional_network != null:
 		board["regional_network"] = regional_network.snapshot()
 	if incident_response != null:
@@ -1796,6 +2019,8 @@ func state_hash() -> String:
 
 func completed() -> bool:
 	if not _ready or mission.results().is_empty():
+		return false
+	if advanced_cases != null and not advanced_cases.solved():
 		return false
 	if regional_network != null:
 		return _tasks.size() == 5 and _completed.has(str(_tasks[4]["id"]))
