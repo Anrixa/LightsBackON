@@ -85,8 +85,8 @@ def qualify(root: Path = ROOT) -> dict[str, Any]:
     protected = baseline.protected_git_audit()
     accepted_host_objects = {
         baseline.PINNED_SESSION_HOST_EVOLUTIONS[label] for label in (
-            "EXP015_A12_15_BIND_ONCE_REPLAY_FENCE",
-            "EXP015_A12_17_HOST_RECONFIGURATION_SEAL",
+            "EXP015_A12_15_DENIED_REPLAY_AND_MISSION_FENCE",
+            "EXP015_A12_17_DENIED_REPLAY_AND_MISSION_FENCE",
         )
     }
     actual_host = protected["protected_objects"]["scripts/network/session_host.gd"]
