@@ -31,6 +31,8 @@ REQUIRED_TESTS: dict[str, tuple[str, ...]] = {
         "test_EXP015_A12_14_non_regional_transport_lifecycle_unchanged",
         "test_EXP015_A12_15_25_regions_reject_rebound_guards_and_cached_success",
         "test_EXP015_A12_15_legacy_duplicate_reply_remains_idempotent",
+        "test_EXP015_A12_17_25_regions_reject_stale_reconfiguration",
+        "test_EXP015_A12_17_nonregional_setup_compatibility",
     ),
 }
 REQUIRED_OWNER_HOLDS = tuple(sorted(baseline.HOLDS))
@@ -79,10 +81,14 @@ def qualify(root: Path = ROOT) -> dict[str, Any]:
     if root.resolve() != ROOT.resolve():
         raise ValueError(f"{PHASE}_ROOT_MISMATCH")
     protected = baseline.protected_git_audit()
-    expected_host = baseline.PINNED_SESSION_HOST_EVOLUTIONS[
-        "EXP015_A12_15_DENIED_REPLAY_AND_MISSION_FENCE"
-    ]
-    if protected["protected_objects"]["scripts/network/session_host.gd"] != expected_host:
+    accepted_host_objects = {
+        baseline.PINNED_SESSION_HOST_EVOLUTIONS[label] for label in (
+            "EXP015_A12_15_DENIED_REPLAY_AND_MISSION_FENCE",
+            "EXP015_A12_17_DENIED_REPLAY_AND_MISSION_FENCE",
+        )
+    }
+    actual_host = protected["protected_objects"]["scripts/network/session_host.gd"]
+    if actual_host not in accepted_host_objects:
         raise ValueError(f"{PHASE}_UNEXPECTED_SESSION_HOST_OBJECT")
     if any(baseline.HOLDS[key] != "HOLD" for key in REQUIRED_OWNER_HOLDS):
         raise ValueError(f"{PHASE}_OWNER_HOLD_DRIFT")
@@ -90,7 +96,7 @@ def qualify(root: Path = ROOT) -> dict[str, Any]:
         "phase": PHASE,
         "head_commit": protected["head_commit"],
         "protected_source": "PINNED_UNREVIEWED_OBJECTS",
-        "source_host_object": expected_host,
+        "source_host_object": actual_host,
         **inventory,
         "inherited_ci_workflow_present": True,
         "original_contracts_preserved": True,

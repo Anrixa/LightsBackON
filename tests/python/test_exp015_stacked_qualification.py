@@ -10,7 +10,7 @@ from tools import exp015_stacked_qualification as q
 class EXP015StackQualificationTests(unittest.TestCase):
     def test_original_region_and_stale_guard_tests_are_pinned(self) -> None:
         inventory = q.check_inventory(q.ROOT)
-        self.assertEqual(inventory["expected_methods"], 8)
+        self.assertEqual(inventory["expected_methods"], 10)
         self.assertFalse(inventory["test_execution_proved_by_inventory"])
         self.assertEqual(len(inventory["source_inventory"]), 2)
 
