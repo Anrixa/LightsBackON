@@ -234,6 +234,10 @@ echo "== EXP018 A04: 25 region art identities / 200 host-grounded site visual bi
 if [ -n "$PY" ]; then
   "$PY" tools/qualify_exp018_a04.py --report build/exp018-a04/qualification.json || FAIL=1
 fi
+echo "== EXP018 A05: independent preflight for 200/1000/400 replay evidence =="
+if [ -n "$PY" ]; then
+  "$PY" tools/qualify_exp018_a05.py --report build/exp018-a05/source-preflight.json || FAIL=1
+fi
 echo "== python reference model (re-derived, reference/tests) =="
 if [ -d reference/tests ] && [ -n "$PY" ]; then
   ( cd reference && "$PY" -m unittest discover -s tests -v ) || FAIL=1
@@ -422,5 +426,11 @@ else
   echo "skipped: no project.godot yet (task F01)"
 fi
 
+echo "== EXP018 A05: independent verification of Godot host replay evidence =="
+if [ -n "$PY" ]; then
+  "$PY" tools/qualify_exp018_a05.py --post-run --report build/exp018-a05/independent-verification.json || FAIL=1
+else
+  echo "FAIL: Python required to verify EXP018 A05 Godot replay evidence"; FAIL=1
+fi
 [ "$FAIL" -eq 0 ] && echo "ALL CHECKS PASSED" || echo "CHECKS FAILED"
 exit "$FAIL"
