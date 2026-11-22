@@ -196,6 +196,10 @@ func test_EXP015_A12_9_old_entry_session_cannot_mutate_finale_source() -> void:
 	if finale.is_empty():
 		return
 	assert_true(finale["session"].regional_network == network)
+	# Both sessions share the headless position provider; _start(finale) moves
+	# it to the new board. Restore the old board range so this test reaches
+	# the obsolete-dispatch authority gate rather than the proximity gate.
+	_position = root_host.definition_snapshot()["positions"][str(root["board"])]
 	var before: Dictionary = network.snapshot()
 	var stale_actions: Array[String] = [
 		"entry_survey", "regional_critical", "regional_buffer",
