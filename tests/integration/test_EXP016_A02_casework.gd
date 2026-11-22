@@ -71,13 +71,22 @@ func test_EXP016_A02_host_opt_in_is_explicit_and_isolated() -> void:
 	assert_false(bool(no_puzzle.start("LV_001", Callable(self, "_position"),
 		Callable(), "", false, "", false, false, false, false, false,
 		false, false, false, false, false, false, false, false, false,
-		false, true).get("ok", true)))
+		false,  # original EXP014 regional-network opt-in
+
+		# EXP018 integration preserves the EXP015 positional API: skip the
+		# ten regional-only switches before opting into EXP016 casework.
+		false, false, false, false, false, false, false, false, false, false,
+		true).get("ok", true)))
 	for id: String in ["LV_001", "LV_050"]:
 		var runtime: Runtime = Runtime.new()
 		var started: Dictionary = runtime.start(id, Callable(self, "_position"),
 			Callable(), "", false, "", true, true, true, true, true,
 			true, true, true, true, true, true, true, true, true,
-			false, true)
+			false,  # regional network disabled for standalone source casework
+
+			# Ten EXP015-only flags between regional network and casework.
+			false, false, false, false, false, false, false, false, false, false,
+			true)
 		assert_true(bool(started.get("ok", false)), str(started))
 		if not bool(started.get("ok", false)):
 			continue
