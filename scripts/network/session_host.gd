@@ -346,9 +346,11 @@ func receive(peer_id: int, bytes: PackedByteArray) -> Dictionary:
 	var cache: Dictionary = _replies[peer_id]
 	if seq <= int(_last_seq[peer_id]):
 		if cache.has(seq):
-			# Deduplication is not authorization: never replay an earlier
-			# successful response after the original dispatch loses ownership.
-			if _regional_lifecycle_revoked():
+			# Cached *denials* have no world effect, so preserve the exact
+			# earlier refusal and its protocol-specific reason. Successful
+			# cached acknowledgements remain forbidden for obsolete owners.
+			var cached_reply: Dictionary = cache[seq]
+			if _regional_lifecycle_revoked() and bool(cached_reply.get("ok", false)):
 				return _refuse("EXP015_A12_15_STALE_REPLAY",
 					"regional dispatch ownership has changed", [])
 			var again: Dictionary = (cache[seq] as Dictionary).duplicate(true)
@@ -365,7 +367,9 @@ func receive(peer_id: int, bytes: PackedByteArray) -> Dictionary:
 	_last_seq[peer_id] = seq
 	var before: String = state_hash()
 	var reply: Dictionary = _dispatch(_members[peer_id], msg)
-	if _mission != null:
+	# Retired A09 dispatch owners cannot mutate their mission via a
+	# refused network command after a successor acquires live source.
+	if _mission != null and not _regional_lifecycle_revoked():
 		_mission.observe_supply_state()
 	# A refused reset can still consume a C07 evidence-before-reset bonus;
 	# the host revision must reflect any authorized mission fact change.
