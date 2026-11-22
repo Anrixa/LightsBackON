@@ -10,6 +10,7 @@ const Graybox := preload("res://scripts/world/expedition_graybox.gd")
 const SiteComposition := preload("res://scripts/world/expedition_site_composition.gd")
 const EnvironmentFeedback := preload("res://scripts/world/expedition_environment_feedback.gd")
 const ApproachView := preload("res://scripts/world/expedition_approach_view.gd")
+const Exp017Presentation := preload("res://scripts/world/exp017_restoration_feedback.gd")
 const Runtime := preload("res://scripts/gameplay/expedition_host_session.gd")
 const RegionalPanel := preload("res://scripts/ui/expedition_regional_panel.gd")
 const PlayerController := preload("res://scripts/actors/first_person_controller.gd")
@@ -49,6 +50,7 @@ var _reward_error: String = ""
 var _hazard_marker: MeshInstance3D
 var _site_composition: Node3D
 var _environmental_feedback: Node3D
+var _exp017_feedback: Node3D
 var _approach_view: Node3D
 var _approach_choice: String = "guarded"
 var _outcome_choice: String = "buffer"
@@ -135,6 +137,7 @@ func _ready() -> void:
 	_definitions = runtime.definition_snapshot()
 	_add_host_targets()
 	_add_site_composition(plan)
+	_add_exp017_presentation(plan)
 	_add_hazard_marker()
 	_build_overlay(level)
 	# An original Compatibility scene with no extra lights or game-state
@@ -276,6 +279,15 @@ func _add_site_composition(plan: Dictionary) -> void:
 			push_error("EXP014_A05_APPROACH_SOURCE_HOLD")
 		else:
 			world.add_child(_approach_view)
+
+
+## EXP017 A03: local, read-only projection of existing host/grid snapshots.
+func _add_exp017_presentation(plan: Dictionary) -> void:
+	_exp017_feedback = Exp017Presentation.build(plan, world)
+	if _exp017_feedback == null:
+		push_error("EXP017_A03_PRESENTATION_SOURCE_HOLD")
+		return
+	world.add_child(_exp017_feedback)
 
 
 ## A visible diagnostic marker, not a damage collider or tested path blocker.
@@ -1180,4 +1192,9 @@ func _refresh() -> void:
 		if active_source != null:
 			var contingency_state: Dictionary = runtime.site_contingency.snapshot() if runtime.site_contingency != null else {}
 			EnvironmentFeedback.reflect(_environmental_feedback, active_source.snapshot(), contingency_state)
+	if _exp017_feedback != null:
+		var presented: Dictionary = Exp017Presentation.reflect(
+			_exp017_feedback, board, runtime.grid.canonical_state())
+		if not presented.get("ok", false):
+			push_error("EXP017_A03_HOST_PRESENTATION_HOLD: " + str(presented))
 	set_meta("display_revision", int(board["host_revision"]))
