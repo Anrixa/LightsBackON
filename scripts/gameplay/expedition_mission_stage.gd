@@ -20,6 +20,8 @@ const Ledger := preload("res://scripts/progression/expedition_ledger.gd")
 const Campaign := preload("res://scripts/progression/expedition_campaign.gd")
 const CampaignConsequences := preload("res://scripts/progression/expedition_campaign_consequences.gd")
 const RegionalSource := preload("res://scripts/gameplay/expedition_regional_network.gd")
+const FieldGuidance := preload("res://scripts/ui/expedition_field_guidance.gd")
+const FieldOps := preload("res://scripts/ui/expedition_field_ops.gd")
 const SaveService := preload("res://scripts/persistence/save_service.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
@@ -58,6 +60,9 @@ var _outcome_choice: String = "buffer"
 var _hazard_choice: String = "engineered"
 var _puzzle_path: String = "forensic"
 var _puzzle_option: int = 0
+var _exp020_field_ops: FieldOps
+var _exp020_atlas: Dictionary = {}
+var _exp020_routes: Dictionary = {}
 var _regional_panel: RegionalPanel
 var _regional_requested: bool = false
 var _fault_route: String = "isolate"
@@ -94,6 +99,8 @@ func _ready() -> void:
 			return
 		_expedition_profile = recovered["profile"]
 	var catalog: Dictionary = Atlas.load_catalog()
+	_exp020_atlas = catalog
+	_exp020_routes = Campaign.load_routes()
 	if not bool(Atlas.inspect(catalog).get("ok", false)):
 		push_error("EXP03_ATLAS_INVALID")
 		return
@@ -346,7 +353,7 @@ func _build_overlay(level: Dictionary) -> void:
 	_feedback.add_theme_color_override("font_color", Color("#F1D6B2"))
 	box.add_child(_feedback)
 	var controls: Label = Label.new()
-	controls.text = "WASD move • mouse aim • E interact / EXP011 energize or shed • R EXP08 route • T EXP009 response • U EXP010 direct/relay • Y EXP010 shipment A/B • K recall depot shipment • 1–5 tools • V EXP012 route • B EXP012 method • Esc atlas\nEXP06–EXP009: Complete equipment, stability and service recovery. EXP010: Open depot manifest, allocate one direct and one relay shipment from finite stocks, wait for host transit, receive each cargo, certify the logistics board. Unsafe supply pauses transit and reopens completed deliveries for recheck. EXP011: Open load board, allocate no more than 6 PU, stabilize each service through host ticks, shed and latch, then certify. EXP012: Open review board after live EXP011 certification; select priority/resilience route at strategy marker; complete source-linked checkpoint reviews using precise or finite-cell rapid sampling, then certify. Supply loss requires rechecks. Source/headless only; physical playability remains held."
+	controls.text = "M field tablet • WASD move • mouse aim • E interact / EXP011 energize or shed • R EXP08 route • T EXP009 response • U EXP010 direct/relay • Y EXP010 shipment A/B • K recall depot shipment • 1–5 tools • V EXP012 route • B EXP012 method • Esc atlas\nEXP06–EXP009: Complete equipment, stability and service recovery. EXP010: Open depot manifest, allocate one direct and one relay shipment from finite stocks, wait for host transit, receive each cargo, certify the logistics board. Unsafe supply pauses transit and reopens completed deliveries for recheck. EXP011: Open load board, allocate no more than 6 PU, stabilize each service through host ticks, shed and latch, then certify. EXP012: Open review board after live EXP011 certification; select priority/resilience route at strategy marker; complete source-linked checkpoint reviews using precise or finite-cell rapid sampling, then certify. Supply loss requires rechecks. Source/headless only; physical playability remains held."
 	controls.add_theme_color_override("font_color", Color("#D9E3EC"))
 	controls.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(controls)
@@ -362,6 +369,13 @@ func _build_overlay(level: Dictionary) -> void:
 	box.add_child(_back)
 	_back.mouse_filter = Control.MOUSE_FILTER_STOP
 	_back.focus_mode = Control.FOCUS_NONE
+	# EXP020 A02: independent right-side tablet; the original left-side
+	# diagnostics and all authoritative input paths remain untouched.
+	_exp020_field_ops = FieldOps.new()
+	_exp020_field_ops.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	_exp020_field_ops.position = Vector2(-FieldOps.WIDTH - 24.0, 24.0)
+	layer.add_child(_exp020_field_ops)
+	_exp020_field_ops.closed.connect(_close_field_ops)
 
 
 ## A09 controls only submit existing worksite board commands. Real SessionHost
@@ -373,6 +387,23 @@ func _regional_action_requested(action: String) -> void:
 	var reply: Dictionary = _send("operate_worksite", board_id, {"action": action})
 	if _regional_panel != null:
 		_regional_panel.show_reply(reply)
+
+
+func _close_field_ops() -> void:
+	if _exp020_field_ops != null:
+		_exp020_field_ops.visible = false
+	if DisplayServer.get_name() != "headless":
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+
+func _toggle_field_ops() -> void:
+	if _exp020_field_ops == null:
+		return
+	_exp020_field_ops.visible = not _exp020_field_ops.visible
+	if _exp020_field_ops.visible:
+		_refresh()
+	if DisplayServer.get_name() != "headless":
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if _exp020_field_ops.visible else 			Input.MOUSE_MODE_CAPTURED
 
 
 func _return_to_menu() -> void:
@@ -804,6 +835,10 @@ func _select_tool(index: int) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not _loaded or not event.is_pressed() or event.is_echo():
 		return
+	if event is InputEventKey and event.physical_keycode == KEY_M and 			not event.ctrl_pressed and not event.alt_pressed:
+		_toggle_field_ops()
+		get_viewport().set_input_as_handled()
+		return
 	if event.is_action_pressed("ui_cancel") or event.is_action_pressed("pause"):
 		_return_to_menu()
 		get_viewport().set_input_as_handled()
@@ -1189,6 +1224,11 @@ func _refresh() -> void:
 		elif bool(puzzle["solved"]):
 			lines.append("A08 HOST-VERIFIED INVESTIGATION COMPLETE; existing worksite route remains locked.")
 	_task_label.text = "\n".join(lines)
+	if _exp020_field_ops != null and _exp020_field_ops.visible and 			not _exp020_campaign_consequences.is_empty():
+		var verified_view: Dictionary = FieldGuidance.build(
+			_exp020_atlas, _exp020_routes, level_id, board,
+			_exp020_campaign_consequences, board.get("regional_network", {}))
+		_exp020_field_ops.show_data(verified_view)
 	if _regional_panel != null and board.has("regional_network"):
 		_regional_panel.show_network(board["regional_network"])
 	if _target_label != null:
