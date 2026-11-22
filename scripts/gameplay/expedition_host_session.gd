@@ -37,6 +37,7 @@ const SiteApproach := preload("res://scripts/gameplay/expedition_approach_intell
 const SiteOutcomes := preload("res://scripts/gameplay/expedition_operational_consequences.gd")
 const SiteHazards := preload("res://scripts/gameplay/expedition_environment_hazards.gd")
 const SitePuzzles := preload("res://scripts/gameplay/expedition_investigation_chains.gd")
+const AdvancedDiscoveries := preload("res://scripts/gameplay/expedition_advanced_discoveries.gd")
 const AdvancedCascade := preload("res://scripts/gameplay/expedition_advanced_cascade.gd")
 const AdvancedPolicies := preload("res://scripts/gameplay/expedition_advanced_policies.gd")
 const AdvancedEquipment := preload("res://scripts/gameplay/expedition_advanced_equipment.gd")
@@ -125,7 +126,8 @@ func start(level_id: String, host_position: Callable,
 		enable_advanced_environment: bool = false,
 		enable_advanced_equipment: bool = false,
 		enable_advanced_policy: bool = false,
-		enable_advanced_cascade: bool = false) -> Dictionary:
+		enable_advanced_cascade: bool = false,
+		enable_advanced_discoveries: bool = false) -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
 	if enable_devices and not enable_bespoke:
@@ -154,6 +156,8 @@ func start(level_id: String, host_position: Callable,
 		return _fail("EXP014_A07_REQUIRES_A06_OUTCOMES")
 	if enable_site_puzzles and not enable_site_hazards:
 		return _fail("EXP014_A08_REQUIRES_A07_ENVIRONMENT")
+	if enable_advanced_discoveries and not enable_advanced_policy:
+		return _fail("EXP016_A11_REQUIRES_A09_SOURCE_POLICY")
 	if enable_advanced_cascade and (not enable_advanced_policy or \
 			not enable_regional_networks or not enforce_campaign or account_key == ""):
 		return _fail("EXP016_A10_REQUIRES_AUTHENTICATED_REGIONAL_CAMPAIGN")
@@ -543,6 +547,17 @@ func start(level_id: String, host_position: Callable,
 				int(inherited["inherited_pressure"]))
 			if not bool(carry.get("ok",false)):
 				return _fail("EXP016_A10_CASCADE_BIND_FAILED", carry)
+		if enable_advanced_discoveries:
+			var discovery_book: Dictionary = AdvancedDiscoveries.load_book()
+			var discovery_audit: Dictionary = AdvancedDiscoveries.inspect(
+				atlas, SitePuzzles.load_book(), discovery_book)
+			if not bool(discovery_audit.get("ok", false)):
+				return _fail("EXP016_A11_DISCOVERY_SOURCE_INVALID", discovery_audit)
+			var source_find: Dictionary = AdvancedDiscoveries.entry_for(
+				discovery_book, level_id)
+			var attached: Dictionary = advanced_cases.bind_source_discovery(source_find)
+			if not bool(attached.get("ok", false)):
+				return _fail("EXP016_A11_DISCOVERY_BIND_FAILED", attached)
 		_definitions["advanced_cases"] = advanced_cases.definition_snapshot()
 	_position_source = host_position
 	_physics_visibility = physics_visibility
@@ -1023,7 +1038,7 @@ func _operate_worksite(player_id: String, entity: String, action: String) -> Dic
 		if advanced_cases != null and site_puzzles != null and site_puzzles.solved():
 			if not advanced_cases.started():
 				advanced_cases.begin()
-			if advanced_cases.needs_action():
+			if advanced_cases.needs_action() or action.begins_with("case_discover_"):
 				var case_reply: Dictionary = advanced_cases.operate(
 					entity, action, _puzzle_facts())
 				if bool(case_reply.get("ok",false)) and advanced_cases.solved() and \
@@ -1147,6 +1162,12 @@ func _claim_lore(player_id: String, item_id: String) -> Dictionary:
 		return _fail("UNKNOWN_COLLECTIBLE")
 	if _lore_claimed:
 		return _fail("ALREADY_COLLECTED")
+	# EXP016 A11 adds an opt-in authenticated source-research requirement.
+	# Original optional-job gate and unchanged lore receipt are still mandatory.
+	if advanced_cases != null and \
+			not advanced_cases.definition_snapshot().get("source_discovery", {}).is_empty() and \
+			not advanced_cases.discovery_ready():
+		return _fail("EXP016_A11_LORE_SOURCE_RESEARCH_REQUIRED")
 	if not _completed.has(str(_tasks[3]["id"])):
 		return _fail("DISCOVERY_EVIDENCE_REQUIRED")
 	_lore_claimed = true

@@ -128,6 +128,9 @@ if [ -n "$PY" ]; then "$PY" tools/validate_exp016_a09.py || FAIL=1; fi
 echo "== EXP016 A10: 25-region owner-scoped source graph cascade continuity =="
 if [ -n "$PY" ]; then "$PY" tools/validate_exp016_a10.py || FAIL=1; fi
 
+echo "== EXP016 A11: 200 source-attested optional discoveries and preserved lore receipts =="
+if [ -n "$PY" ]; then "$PY" tools/validate_exp016_a11.py || FAIL=1; fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 

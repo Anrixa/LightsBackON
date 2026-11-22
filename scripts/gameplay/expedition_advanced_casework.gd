@@ -21,6 +21,8 @@ var _kits: int = 0
 var _liabilities: int = 0
 var _faults: int = 0
 var _recoveries: int = 0
+var _discovery_source: Dictionary = {}
+var _discovery_progress: int = 0
 var _inherited_pressure: int = 0
 var _inherited_pressure_settled: bool = true
 var _policy_spec: Dictionary = {}
@@ -182,6 +184,38 @@ func configure(entry: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 
+func bind_source_discovery(source: Dictionary) -> Dictionary:
+	if _spec.is_empty() or not _discovery_source.is_empty() or \
+			source.get("level_id") != _spec.get("level_id") or \
+			not source.has("research_chain"):
+		return _reject("DISCOVERY_SOURCE_MISMATCH")
+	_discovery_source = source.duplicate(true)
+	return {"ok": true, "code":"SOURCE_LORE_RESEARCH_BOUND"}
+
+
+func discovery_ready() -> bool:
+	return not _discovery_source.is_empty() and _discovery_progress == 3
+
+
+func _operate_discovery(entity: String, action: String, facts: Dictionary) -> Dictionary:
+	if _discovery_source.is_empty() or _phase == "locked":
+		return _reject("DISCOVERY_NOT_AVAILABLE")
+	if discovery_ready():
+		return _reject("DISCOVERY_ALREADY_VERIFIED")
+	var chain: Array = _discovery_source["research_chain"]
+	var step: Dictionary = chain[_discovery_progress]
+	var station: String = str(_spec["targets"][str(step["station"])])
+	if entity != station or action != str(step["action"]):
+		return _reject("DISCOVERY_SOURCE_STATION_OR_ORDER")
+	var required: String = str(step["requires"])
+	if required != "" and not bool(facts.get(required,false)):
+		return _reject("DISCOVERY_SOURCE_EVIDENCE_REQUIRED")
+	_discovery_progress += 1
+	_record("source_lore_research_" + str(_discovery_progress))
+	return {"ok":true,"code":"SOURCE_LORE_READY" if discovery_ready() else "SOURCE_LORE_EVIDENCE",
+		"research_progress":_discovery_progress}
+
+
 func bind_inherited_pressure(pressure: int) -> Dictionary:
 	if _spec.is_empty() or pressure < 0 or pressure > 32 or started():
 		return _reject("INVALID_HOST_SOURCE_CASCADE")
@@ -232,6 +266,8 @@ func definition_snapshot() -> Dictionary:
 	var copy: Dictionary = _spec.duplicate(true)
 	if not _fault_layer.is_empty():
 		copy["source_fault_layer"] = _fault_layer.duplicate(true)
+	if not _discovery_source.is_empty():
+		copy["source_discovery"] = _discovery_source.duplicate(true)
 	if not _policy_spec.is_empty():
 		copy["source_service_policy"] = _policy_spec.duplicate(true)
 	if not _equipment_manifest.is_empty():
@@ -276,11 +312,15 @@ func _record(event: String) -> void:
 
 
 func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
-	if _phase == "locked" or _phase == "solved":
+	if _phase == "locked":
 		return _reject("ACTION_UNAVAILABLE")
 	var targets: Dictionary = _spec["targets"]
 	if not targets.values().has(entity):
 		return _reject("FOREIGN_TARGET")
+	if action.begins_with("case_discover_") and not _discovery_source.is_empty():
+		return _operate_discovery(entity, action, facts)
+	if _phase == "solved":
+		return _reject("ACTION_UNAVAILABLE")
 	if _phase == "working" and action.begins_with("case_equip:") and \
 			not _equipment_manifest.is_empty():
 		var requested: String = action.get_slice(":", 1)
@@ -528,6 +568,8 @@ func snapshot() -> Dictionary:
 		"service_policy": _policy, "service_debt": _policy_debt,
 		"inherited_pressure": _inherited_pressure,
 		"inherited_pressure_settled": _inherited_pressure_settled,
+		"source_collectible_id": _discovery_source.get("source_collectible_id", ""),
+		"discovery_progress": _discovery_progress, "discovery_ready": discovery_ready(),
 		"source_resilience_assured": _policy_assurance,
 		"worksite_spares_debited": _spares_debited,
 		"history": _history.duplicate(true)}
