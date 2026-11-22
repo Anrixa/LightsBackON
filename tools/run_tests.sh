@@ -86,6 +86,10 @@ if [ -n "$PY" ]; then
   "$PY" tools/validate_exp014_a10.py --report build/exp014-a10-1/source-audit.json || FAIL=1
 fi
 
+echo "== EXP016 A01: semantic mechanics variation and duplicate diagnosis =="
+if [ -n "$PY" ]; then
+  "$PY" tools/audit_exp016_mechanical_diversity.py --report build/exp016-a01/mechanical-diversity.json || FAIL=1
+fi
 echo "== EXP014 A10.4: source/legacy baseline, A10 host test inventory and release hold gate =="
 if [ -n "$PY" ]; then
   "$PY" tools/qualify_exp014_a10.py --report build/exp014-a10-4/source-gate.json || FAIL=1
