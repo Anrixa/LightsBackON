@@ -110,6 +110,12 @@ if [ -n "$PY" ]; then "$PY" tools/validate_exp016_a04.py || FAIL=1; fi
 echo "== EXP016 A05: LV_151-LV_200 finite source-attested case completion =="
 if [ -n "$PY" ]; then "$PY" tools/validate_exp016_a05.py || FAIL=1; fi
 
+echo "== EXP016 A06: 200 source-pinned concurrent fault conditions =="
+if [ -n "$PY" ]; then
+  "$PY" tools/validate_exp016_a06.py || FAIL=1
+  "$PY" -m unittest discover -s tools -p 'test_exp016_a06.py' -v || FAIL=1
+fi
+
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 

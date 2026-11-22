@@ -21,6 +21,9 @@ var _kits: int = 0
 var _liabilities: int = 0
 var _faults: int = 0
 var _recoveries: int = 0
+var _fault_layer: Dictionary = {}
+var _layer_probes: Dictionary = {}
+var _layer_diagnosed: bool = false
 var _tokens: Dictionary = {}
 var _probes: Dictionary = {}
 var _diagnosed: bool = false
@@ -165,8 +168,21 @@ func configure(entry: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 
+func bind_fault_layer(layer: Dictionary) -> Dictionary:
+	if _spec.is_empty() or not _fault_layer.is_empty() or \
+			layer.get("level_id") != _spec.get("level_id") or \
+			not layer.has("primary_fault_class") or \
+			not layer.has("secondary_fault_class"):
+		return _reject("FAULT_LAYER_SOURCE_MISMATCH")
+	_fault_layer = layer.duplicate(true)
+	return {"ok": true, "code": "SOURCE_DUAL_FAULT_BOUND"}
+
+
 func definition_snapshot() -> Dictionary:
-	return _spec.duplicate(true)
+	var copy: Dictionary = _spec.duplicate(true)
+	if not _fault_layer.is_empty():
+		copy["source_fault_layer"] = _fault_layer.duplicate(true)
+	return copy
 
 
 func target_ids() -> Array:
@@ -188,7 +204,8 @@ func solved() -> bool:
 func begin() -> Dictionary:
 	if _spec.is_empty() or _phase != "locked":
 		return _reject("BEGIN_UNAVAILABLE")
-	_phase = "evidence" if _spec.has("diagnosis") else "choose"
+	_phase = "layered_evidence" if not _fault_layer.is_empty() else \
+		"evidence" if _spec.has("diagnosis") else "choose"
 	return {"ok": true, "code": "CASE_OPEN"}
 
 
@@ -215,6 +232,35 @@ func operate(entity: String, action: String, facts: Dictionary) -> Dictionary:
 		_phase = "solved"
 		_record("source_signed_off")
 		return {"ok": true, "code": "CASE_SOURCE_SIGNOFF", "liabilities": _liabilities}
+	if _phase == "layered_evidence":
+		if action == "case_fault_primary" and entity == str(targets["A"]):
+			_layer_probes["primary"] = str(_fault_layer["primary_signal"])
+			_record("host_primary_fault_evidence")
+			return {"ok": true, "code": "SOURCE_PRIMARY_EVIDENCE"}
+		if action == "case_fault_secondary" and entity == str(targets["B"]):
+			_layer_probes["secondary"] = str(_fault_layer["secondary_signal"])
+			_record("host_secondary_fault_evidence")
+			return {"ok": true, "code": "SOURCE_SECONDARY_EVIDENCE"}
+		if action.begins_with("case_diagnose_dual:") and entity == str(targets["C"]):
+			if _layer_probes.size() != 2 or \
+					not bool(facts.get("faults_solved", false)) or \
+					not bool(facts.get("hazard_safe", false)):
+				return _reject("DUAL_FAULT_SOURCE_EVIDENCE_REQUIRED")
+			var expected: String = "case_diagnose_dual:%s:%s" % [
+				str(_fault_layer["primary_fault_class"]),
+				str(_fault_layer["secondary_fault_class"])]
+			if action != expected:
+				_recovery_phase = "layered_evidence"
+				_phase = "fault"
+				_faults += 1
+				_liabilities += 1
+				_record("incorrect_dual_fault")
+				return _reject("DUAL_FAULT_DIAGNOSIS_RECOVERABLE")
+			_layer_diagnosed = true
+			_phase = "evidence" if _spec.has("diagnosis") else "choose"
+			_record("source_dual_fault_accepted")
+			return {"ok": true, "code": "DUAL_FAULT_SOURCE_VERIFIED"}
+		return _reject("DUAL_FAULT_ACTION_REQUIRED")
 	if _phase == "evidence":
 		if action == "case_probe_a" and entity == str(targets["A"]):
 			_probes["A"] = str(_spec["diagnosis"]["signal_a"])
@@ -320,5 +366,6 @@ func snapshot() -> Dictionary:
 		"faults": _faults, "recoveries": _recoveries,
 		"completed_steps": _completed.keys().duplicate(),
 		"probes": _probes.duplicate(true), "diagnosed": _diagnosed,
+		"layer_probes": _layer_probes.duplicate(true), "layer_diagnosed": _layer_diagnosed,
 		"evidence_tokens": _tokens.duplicate(true),
 		"history": _history.duplicate(true)}
