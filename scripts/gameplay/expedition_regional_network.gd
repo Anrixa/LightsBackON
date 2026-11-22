@@ -32,6 +32,7 @@ var _recharged: bool = false
 var _strategy: String = ""
 var _prepared: Dictionary = {}
 var _service_debt: int = 0
+var _entry_commitment: String = ""  # Original root-only A09 commissioning. Never transmitted by a client.
 var _events: Array[Dictionary] = []
 var _ready: bool = false
 
@@ -280,6 +281,23 @@ func host_transition(action: String, asset: String, proof: String = "") -> Dicti
 			if not _engaged.has(asset):
 				return _fail("TIE_NOT_ENGAGED")
 			_engaged.erase(asset)
+		"commit_entry_buffer", "commit_entry_debt":
+			# Host-only opt-in A09 entry commissioning: original region root
+			# has no EXP04 restoration receipt and is not electrically live.
+			# Unlike legacy root prepare_site, this reserves REAL finite
+			# capacity or records actual downstream service debt once.
+			var root_site: String = str(_region["root_source_id"])
+			if asset != root_site or _site_id != root_site or \
+					_restored.has(root_site) or not _strategy.is_empty() or \
+					not _entry_commitment.is_empty() or _prepared.has(root_site):
+				return _fail("ENTRY_COMMITMENT_SOURCE_DENIED")
+			if action == "commit_entry_buffer":
+				if _reserve < 2:
+					return _fail("STANDBY_RESERVE_EXHAUSTED")
+				_reserve -= 2
+			else:
+				_service_debt += 2
+			_entry_commitment = action
 		"recharge_reserve":
 			if asset != str(_region["reserve_anchor_site"]) or _recharged \
 					or not _restored.has(asset) or not _engaged.is_empty() \

@@ -45,6 +45,7 @@ const Aftercare := preload("res://scripts/gameplay/expedition_regional_aftercare
 const Assurance := preload("res://scripts/gameplay/expedition_regional_assurance.gd")
 const AltRoute := preload("res://scripts/gameplay/expedition_regional_alt_routes.gd")
 const Rejoin := preload("res://scripts/gameplay/expedition_regional_rejoin_consequences.gd")
+const Entry := preload("res://scripts/gameplay/expedition_regional_entry_commissioning.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
 
@@ -85,6 +86,7 @@ var regional_aftercare: Aftercare
 var regional_assurance: Assurance
 var alternate_route: AltRoute
 var regional_rejoin: Rejoin
+var regional_entry: Entry
 
 var _definitions: Dictionary = {}
 var _position_source: Callable
@@ -132,7 +134,8 @@ func start(level_id: String, host_position: Callable,
 		enable_regional_aftercare: bool = false,
 		enable_regional_assurance: bool = false,
 		enable_alternate_routes: bool = false,
-		enable_regional_rejoins: bool = false) -> Dictionary:
+		enable_regional_rejoins: bool = false,
+		enable_regional_entries: bool = false) -> Dictionary:
 	if _ready:
 		return _fail("SESSION_ALREADY_STARTED")
 	if enable_devices and not enable_bespoke:
@@ -178,6 +181,8 @@ func start(level_id: String, host_position: Callable,
 	if enable_regional_rejoins and (not enable_alternate_routes or \
 			not enable_incident_response or not enable_service_cascade):
 		return _fail("EXP015_A08_REQUIRES_A07_AND_A01_A02")
+	if enable_regional_entries and not enable_regional_networks:
+		return _fail("EXP015_A09_REQUIRES_ORIGINAL_A09_NETWORK")
 	if account_key != "" and not SaveService.is_valid_key(account_key):
 		return _fail("INVALID_ACCOUNT_KEY")
 	if not host_position.is_valid() or (physics_visibility.is_valid() and not host_position.is_valid()):
@@ -368,7 +373,9 @@ func start(level_id: String, host_position: Callable,
 				(not enable_regional_finale or
 					Finale.entry_for(Finale.load_book(), level_id).is_empty()) and
 				(not enable_alternate_routes or
-					AltRoute.entry_for(AltRoute.load_book(), level_id).is_empty())
+					AltRoute.entry_for(AltRoute.load_book(), level_id).is_empty()) and
+				(not enable_regional_entries or
+					Entry.entry_for(Entry.load_book(), level_id).is_empty())
 		):
 			return _fail("EXP015_SITE_NOT_AUTHORED")
 		if not recipe.is_empty():
@@ -392,7 +399,9 @@ func start(level_id: String, host_position: Callable,
 				(not enable_regional_finale or
 					Finale.entry_for(Finale.load_book(), level_id).is_empty()) and
 				(not enable_alternate_routes or
-					AltRoute.entry_for(AltRoute.load_book(), level_id).is_empty())
+					AltRoute.entry_for(AltRoute.load_book(), level_id).is_empty()) and
+				(not enable_regional_entries or
+					Entry.entry_for(Entry.load_book(), level_id).is_empty())
 		):
 			return _fail("EXP015_A02_SITE_NOT_AUTHORED")
 		if not case.is_empty():
@@ -416,7 +425,9 @@ func start(level_id: String, host_position: Callable,
 				(not enable_service_cascade or
 					Cascade.entry_for(Cascade.load_book(), level_id).is_empty()) and
 				(not enable_alternate_routes or
-					AltRoute.entry_for(AltRoute.load_book(), level_id).is_empty())
+					AltRoute.entry_for(AltRoute.load_book(), level_id).is_empty()) and
+				(not enable_regional_entries or
+					Entry.entry_for(Entry.load_book(), level_id).is_empty())
 		):
 			return _fail("EXP015_A03_SITE_NOT_AUTHORED")
 		if not finale_entry.is_empty():
@@ -490,6 +501,22 @@ func start(level_id: String, host_position: Callable,
 			if not bool(rejoin_ready.get("ok", false)):
 				return _fail("EXP015_A08_CONFIG_INVALID", rejoin_ready)
 			_definitions["regional_rejoin"] = regional_rejoin.definition_snapshot()
+	# A09 adds source-commissioning only at the 25 ORIGINAL regional roots.
+	# Other global EXP015 opt-ins stay inactive on entry sites by design.
+	if enable_regional_entries:
+		var entry_book: Dictionary = Entry.load_book()
+		var entry_audit: Dictionary = Entry.inspect(
+			atlas, entry_book, RegionalNetworks.load_book())
+		if not bool(entry_audit.get("ok", false)):
+			return _fail("EXP015_A09_ENTRY_SOURCE_INVALID", entry_audit)
+		var entry_recipe: Dictionary = Entry.entry_for(entry_book, level_id)
+		if not entry_recipe.is_empty():
+			regional_entry = Entry.new()
+			var configured_entry: Dictionary = regional_entry.configure(
+				entry_recipe, regional_network)
+			if not bool(configured_entry.get("ok", false)):
+				return _fail("EXP015_A09_ENTRY_CONFIG_INVALID", configured_entry)
+			_definitions["regional_entry"] = regional_entry.definition_snapshot()
 	# The A02 overlay is available only for the 40 explicitly authored
 	# source-linked locations. The other 160 remain unchanged A01 sessions.
 	if enable_site_a02:
@@ -698,6 +725,7 @@ func start(level_id: String, host_position: Callable,
 		"regional_assurance_active": regional_assurance != null,
 		"alternate_route_active": alternate_route != null,
 		"regional_rejoin_active": regional_rejoin != null,
+		"regional_entry_active": regional_entry != null,
 		"qualification": "AUTHORITY_SOURCE_HEADLESS_ONLY_NO_PLAYABILITY"}
 
 
@@ -706,6 +734,12 @@ func _session_id() -> String:
 
 
 func _content_revision() -> String:
+	if regional_entry != null:
+		return "EXP015_A09_" + ("%s|%s|%s" % [
+			str(_definitions.get("source_fingerprint", "")),
+			JSON.stringify(RegionalNetworks.entry_for(
+				RegionalNetworks.load_book(), str(_definitions.get("level_id", "")))),
+			JSON.stringify(regional_entry.definition_snapshot())]).sha256_text()
 	if regional_rejoin != null:
 		return "EXP015_A08_" + ("%s|%s|%s|%s" % [
 			str(_definitions.get("source_fingerprint", "")),
@@ -920,6 +954,9 @@ func _bespoke_guard(player_id: String, kind: String, entity: String,
 	if kind == "request_extract" and regional_rejoin != null \
 			and not regional_rejoin.closed():
 		return _fail("EXP015_A08_REAL_REJOIN_PROOF_REQUIRED")
+	if kind == "request_extract" and regional_entry != null \
+			and not regional_entry.closed():
+		return _fail("EXP015_A09_COLD_ROOT_COMMISSION_REQUIRED")
 	if kind == "request_extract" and devices != null and not devices.solved():
 		return _fail("EXP07_DEVICES_INCOMPLETE")
 	if kind == "request_extract" and faults != null and not faults.solved():
@@ -1117,6 +1154,12 @@ func _operate_worksite(player_id: String, entity: String, action: String) -> Dic
 	# These requests enter only through the existing SessionHost worksite intent,
 	# after its principal, sequence, dedupe, range and rate validation. The
 	# original board target is reused; there is no new network action RPC.
+	if regional_entry != null and entity == str(worksite.definition_snapshot()["board"]) \
+			and action.begins_with("entry_"):
+		return regional_entry.operate(action)
+	if regional_entry != null and entity == str(worksite.definition_snapshot()["board"]) \
+			and regional_entry.protects_original_asset(action):
+		return _fail("EXP015_A09_PROTECTED_ENTRY_SOURCE")
 	if regional_rejoin != null and entity == str(worksite.definition_snapshot()["board"]) \
 			and action.begins_with("rejoin_"):
 		return regional_rejoin.operate(action)
@@ -1306,6 +1349,8 @@ func _worksite_snapshot() -> Dictionary:
 		state["alternate_route"] = alternate_route.snapshot()
 	if regional_rejoin != null:
 		state["regional_rejoin"] = regional_rejoin.snapshot()
+	if regional_entry != null:
+		state["regional_entry"] = regional_entry.snapshot()
 	return state
 
 
@@ -1459,7 +1504,8 @@ func _update_progress() -> void:
 			(regional_aftercare == null or regional_aftercare.closed()) and \
 			(regional_assurance == null or regional_assurance.closed()) and \
 			(alternate_route == null or alternate_route.closed()) and \
-			(regional_rejoin == null or regional_rejoin.closed()):
+			(regional_rejoin == null or regional_rejoin.closed()) and \
+			(regional_entry == null or regional_entry.closed()):
 		_completed[last] = true
 	_issue_task_rewards()
 
@@ -1520,6 +1566,8 @@ func task_board() -> Dictionary:
 		board["alternate_route"] = alternate_route.snapshot()
 	if regional_rejoin != null:
 		board["regional_rejoin"] = regional_rejoin.snapshot()
+	if regional_entry != null:
+		board["regional_entry"] = regional_entry.snapshot()
 	return board
 
 
@@ -1545,6 +1593,8 @@ func authoritative_state() -> Dictionary:
 		state["exp015_alternate_route"] = alternate_route.snapshot()
 	if regional_rejoin != null:
 		state["exp015_regional_rejoin"] = regional_rejoin.snapshot()
+	if regional_entry != null:
+		state["exp015_regional_entry"] = regional_entry.snapshot()
 	return state
 
 

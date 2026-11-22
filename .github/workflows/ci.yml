@@ -94,6 +94,15 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Retain EXP015 A09 original root, reserve and debt source evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exp015-a09-source-linux-${{ github.sha }}
+          path: build/exp015-a09/source-audit.json
+          if-no-files-found: warn
+          retention-days: 14
+
   windows:
     runs-on: windows-latest
     timeout-minutes: 40
