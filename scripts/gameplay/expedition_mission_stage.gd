@@ -73,6 +73,9 @@ var _outcome_choice: String = "buffer"
 var _hazard_choice: String = "engineered"
 var _puzzle_path: String = "forensic"
 var _puzzle_option: int = 0
+var _exp020_debug_visible: bool = false
+var _exp020_quick_status: Label
+var _exp020_full_controls: Label
 var _exp020_field_ops: FieldOps
 var _exp020_atlas: Dictionary = {}
 var _exp020_routes: Dictionary = {}
@@ -398,6 +401,11 @@ func _build_overlay(level: Dictionary) -> void:
 	_task_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_task_label.add_theme_color_override("font_color", Color("#DAE9E9"))
 	box.add_child(_task_label)
+	_task_label.visible = false
+	_exp020_quick_status = Label.new()
+	_exp020_quick_status.name = "EXP020_CompactTaskHUD"
+	_exp020_quick_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(_exp020_quick_status)
 	_target_label = Label.new()
 	_target_label.name = "TaskTarget"
 	_target_label.add_theme_color_override("font_color", Color("#88E2E6"))
@@ -412,6 +420,13 @@ func _build_overlay(level: Dictionary) -> void:
 	controls.add_theme_color_override("font_color", Color("#D9E3EC"))
 	controls.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(controls)
+	_exp020_full_controls = controls
+	_exp020_full_controls.visible = false
+	var compact_help: Label = Label.new()
+	compact_help.name = "EXP020_PrimaryControls"
+	compact_help.text = "E interact • M field tablet • F3 engineering diagnostics • Esc pause/atlas"
+	compact_help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(compact_help)
 	if runtime.regional_network != null:
 		_regional_panel = RegionalPanel.new()
 		box.add_child(_regional_panel)
@@ -1006,6 +1021,14 @@ func _unhandled_input(event: InputEvent) -> void:
 		_refresh()
 		get_viewport().set_input_as_handled()
 		return
+	if event is InputEventKey and event.physical_keycode == KEY_F3:
+		_exp020_debug_visible = not _exp020_debug_visible
+		if _task_label != null:
+			_task_label.visible = _exp020_debug_visible
+		if _exp020_full_controls != null:
+			_exp020_full_controls.visible = _exp020_debug_visible
+		get_viewport().set_input_as_handled()
+		return
 	if event is InputEventKey and event.physical_keycode == KEY_M and 			not event.ctrl_pressed and not event.alt_pressed:
 		_toggle_field_ops()
 		get_viewport().set_input_as_handled()
@@ -1186,7 +1209,7 @@ func _refresh() -> void:
 		var chapters: Dictionary = _exp020_campaign_consequences["regions"]
 		var chapter_id: String = str(_definitions.get("region_id", ""))
 		if chapter_id.is_empty():
-			var level: Dictionary = Atlas.find_level(Atlas.load_catalog(), level_id)
+			var level: Dictionary = Atlas.find_level(_exp020_atlas, level_id)
 			chapter_id = str(level.get("region_id", ""))
 		if chapters.has(chapter_id):
 			var chapter: Dictionary = chapters[chapter_id]
@@ -1415,7 +1438,17 @@ func _refresh() -> void:
 				str(puzzle["fault"]), str(puzzle["recovery_target"])])
 		elif bool(puzzle["solved"]):
 			lines.append("A08 HOST-VERIFIED INVESTIGATION COMPLETE; existing worksite route remains locked.")
+	# Historical engineering traces remain available on explicit F3 only.
+	# In normal play they previously exposed next puzzle actions automatically.
 	_task_label.text = "\n".join(lines)
+	if _exp020_quick_status != null:
+		var progress: Array[String] = []
+		for job: Dictionary in board["tasks"]:
+			progress.append("[%s] %s" % [
+				"DONE" if bool(job.get("completed", false)) else
+					"OPTIONAL" if not bool(job.get("required", true)) else "OPEN",
+				str(job.get("title", job.get("id", "")))])
+		_exp020_quick_status.text = "FIELD TASKS / HOST-VERIFIED\n" + "\n".join(progress)
 	if _exp020_field_ops != null and _exp020_field_ops.visible and 			not _exp020_campaign_consequences.is_empty():
 		var verified_view: Dictionary = FieldGuidance.build(
 			_exp020_atlas, _exp020_routes, level_id, board,
