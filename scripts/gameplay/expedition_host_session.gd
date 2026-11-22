@@ -122,7 +122,69 @@ static func _fail(code: String, details: Variant = null) -> Dictionary:
 
 ## Only source-pinned ID selection is accepted. Reject a forged catalog or
 ## invalid geometry before constructing a single authority-bearing service.
+## A12.12: an original regional host must not lose source authority to
+## another host which fails during later synchronous service setup.
 func start(level_id: String, host_position: Callable,
+		physics_visibility: Callable = Callable(), account_key: String = "",
+		enforce_campaign: bool = false, campaign_root: String = "",
+		enable_bespoke: bool = false, enable_devices: bool = false,
+		enable_faults: bool = false, enable_consequences: bool = false,
+		enable_logistics: bool = false, enable_balance: bool = false,
+		enable_worksite: bool = false, enable_site_a02: bool = false,
+		enable_site_exp013: bool = false,
+		enable_site_contingency: bool = false,
+		enable_site_approach: bool = false,
+		enable_site_outcomes: bool = false,
+		enable_site_hazards: bool = false,
+		enable_site_puzzles: bool = false,
+		enable_regional_networks: bool = false,
+		enable_incident_response: bool = false,
+		enable_service_cascade: bool = false,
+		enable_regional_finale: bool = false,
+		enable_regional_aftercare: bool = false,
+		enable_regional_assurance: bool = false,
+		enable_alternate_routes: bool = false,
+		enable_regional_rejoins: bool = false,
+		enable_regional_entries: bool = false,
+		enable_regional_settlement: bool = false,
+		enable_anchor_recovery: bool = false) -> Dictionary:
+	if _ready:
+		return _fail("SESSION_ALREADY_STARTED")
+	var token: Dictionary = {}
+	if enforce_campaign and enable_regional_networks:
+		token = RegionalNetworks.begin_host_start(account_key, level_id)
+	var outcome: Dictionary = _start_unchecked(
+		level_id, host_position, physics_visibility, account_key, 
+		enforce_campaign, campaign_root, enable_bespoke, enable_devices, 
+		enable_faults, enable_consequences, enable_logistics, enable_balance, 
+		enable_worksite, enable_site_a02, enable_site_exp013, enable_site_contingency, 
+		enable_site_approach, enable_site_outcomes, enable_site_hazards, enable_site_puzzles, 
+		enable_regional_networks, enable_incident_response, enable_service_cascade, enable_regional_finale, 
+		enable_regional_aftercare, enable_regional_assurance, enable_alternate_routes, enable_regional_rejoins, 
+		enable_regional_entries, enable_regional_settlement, enable_anchor_recovery)
+	if not bool(outcome.get("ok", false)):
+		var rollback: Dictionary = RegionalNetworks.rollback_host_start(token)
+		if not bool(rollback.get("ok", false)):
+			return _fail("EXP015_A12_12_ROLLBACK_HOLD", rollback)
+		# Do not allow an aborted ExpeditionHost to retain its previous
+		# network or controller references after restoring the live owner.
+		regional_network = null
+		incident_response = null
+		service_cascade = null
+		regional_finale = null
+		regional_aftercare = null
+		regional_assurance = null
+		alternate_route = null
+		regional_rejoin = null
+		regional_entry = null
+		regional_settlement = null
+		regional_anchor_recovery = null
+		_bound_regional_dispatch_epoch = 0
+		_ready = false
+	return outcome
+
+
+func _start_unchecked(level_id: String, host_position: Callable,
 		physics_visibility: Callable = Callable(), account_key: String = "",
 		enforce_campaign: bool = false, campaign_root: String = "",
 		enable_bespoke: bool = false, enable_devices: bool = false,

@@ -557,6 +557,95 @@ static func acquire(atlas: Dictionary, profile: Dictionary,
 	return {"ok": true, "network": created, "reused": false}
 
 
+
+## A12.12: capture a process-local original-region pre-dispatch image.
+## The caller is trusted host startup only. No persistent/client transaction.
+func _startup_checkpoint() -> Dictionary:
+	return {
+		"_region": _region.duplicate(true),
+		"_site_id": _site_id,
+		"_dispatch_epoch": _dispatch_epoch,
+		"_restored": _restored.duplicate(true),
+		"_feeders": _feeders.duplicate(true),
+		"_ties": _ties.duplicate(true),
+		"_isolated": _isolated.duplicate(true),
+		"_faulted": _faulted.duplicate(true),
+		"_engaged": _engaged.duplicate(true),
+		"_reserve": _reserve,
+		"_initial_reserve": _initial_reserve,
+		"_recharged": _recharged,
+		"_strategy": _strategy,
+		"_prepared": _prepared.duplicate(true),
+		"_service_debt": _service_debt,
+		"_entry_commitment": _entry_commitment,
+		"_events": _events.duplicate(true),
+		"_ready": _ready
+	}
+
+
+func _restore_startup_checkpoint(checkpoint: Dictionary) -> void:
+	_region = checkpoint["_region"].duplicate(true)
+	_site_id = checkpoint["_site_id"]
+	_dispatch_epoch = checkpoint["_dispatch_epoch"]
+	_restored = checkpoint["_restored"].duplicate(true)
+	_feeders = checkpoint["_feeders"].duplicate(true)
+	_ties = checkpoint["_ties"].duplicate(true)
+	_isolated = checkpoint["_isolated"].duplicate(true)
+	_faulted = checkpoint["_faulted"].duplicate(true)
+	_engaged = checkpoint["_engaged"].duplicate(true)
+	_reserve = checkpoint["_reserve"]
+	_initial_reserve = checkpoint["_initial_reserve"]
+	_recharged = checkpoint["_recharged"]
+	_strategy = checkpoint["_strategy"]
+	_prepared = checkpoint["_prepared"].duplicate(true)
+	_service_debt = checkpoint["_service_debt"]
+	_entry_commitment = checkpoint["_entry_commitment"]
+	_events = checkpoint["_events"].duplicate(true)
+	_ready = checkpoint["_ready"]
+
+
+static func begin_host_start(account_key: String, level_id: String) -> Dictionary:
+	if account_key.is_empty():
+		return {}
+	var region: Dictionary = entry_for(load_book(), level_id)
+	if region.is_empty():
+		return {}
+	var key: String = account_key + "|" + str(region["region_id"])
+	var previous: Variant = _host_regions.get(key)
+	return {"key": key, "old": previous,
+		"checkpoint": previous._startup_checkpoint() if previous != null else {}}
+
+
+## Aborted startup must restore the OLD INSTANCE, not replace it: older
+## authenticated controllers still hold that exact regional object.
+## Check identity and epoch lease before rollback to avoid clobbering a
+## newer concurrent source owner. Normal successful starts do not call this.
+static func rollback_host_start(token: Dictionary) -> Dictionary:
+	if token.is_empty():
+		return {"ok": true, "rolled_back": false}
+	var key: String = str(token.get("key", ""))
+	if not _host_regions.has(key):
+		return {"ok": true, "rolled_back": false}
+	var current: Variant = _host_regions[key]
+	var old: Variant = token.get("old")
+	if old == null:
+		if current.current_dispatch_epoch() != 1:
+			return _fail("HOST_START_ROLLBACK_CONFLICT")
+		_host_regions.erase(key)
+		return {"ok": true, "rolled_back": true, "new_registration_removed": true}
+	if current != old:
+		return _fail("HOST_START_ROLLBACK_IDENTITY_CONFLICT")
+	var before: Dictionary = token.get("checkpoint", {})
+	if before.is_empty():
+		return _fail("HOST_START_ROLLBACK_MISSING_CHECKPOINT")
+	var epoch: int = int(before["_dispatch_epoch"])
+	if current.current_dispatch_epoch() != epoch and \
+			current.current_dispatch_epoch() != epoch + 1:
+		return _fail("HOST_START_ROLLBACK_EPOCH_CONFLICT")
+	current._restore_startup_checkpoint(before)
+	return {"ok": true, "rolled_back": true, "new_registration_removed": false}
+
+
 ## Headless test isolation only: not a production reset or a save wipe.
 static func clear_host_memory_for_test() -> void:
 	_host_regions.clear()
