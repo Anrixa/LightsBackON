@@ -57,6 +57,6 @@ func test_EXP016_A08_200_equipment_manifests_and_real_step_tool_gates() -> void:
 			assert_true(bool(work.operate(str(entry["targets"]["A"]),"case_equip:" + tool,
 				_facts()).get("ok",false)))
 			var accepted: Dictionary = work.operate(target,action,_facts())
-			assert_true(bool(accepted.get("ok",false)),str([serial,step,accepted])))
+			assert_true(bool(accepted.get("ok",false)),str([serial,step,accepted]))
 		assert_eq(int(work.snapshot()["worksite_spares_debited"]),
 			int(manifest["reserve_cells"]) - int(work.snapshot()["worksite_spare_cells"]))
