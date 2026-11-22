@@ -327,6 +327,14 @@ func test_EXP015_A12_15_25_regions_reject_rebound_guards_and_cached_success() ->
 			JSON.stringify(fresh_command).to_utf8_buffer())
 		assert_eq(str(denied.get("code", "")),
 			"EXP015_A12_9_STALE_HOST_DISPATCH")
+		# Repeating a *refused* stale intent preserves the original denial,
+		# rather than masking it with an unrelated stale-success code.
+		var denied_again: Dictionary = old.receive(1,
+			JSON.stringify(fresh_command).to_utf8_buffer())
+		assert_true(bool(denied_again.get("duplicate", false)))
+		assert_false(bool(denied_again.get("ok", false)))
+		assert_eq(str(denied_again.get("code", "")),
+			"EXP015_A12_9_STALE_HOST_DISPATCH")
 		assert_eq(old.host.revision, stale_revision)
 		assert_eq(old.host.state_hash(), stale_hash)
 		assert_eq(int(network.snapshot()["reserve_pu"]), reserve_after_first,
