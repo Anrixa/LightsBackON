@@ -250,6 +250,11 @@ func host_transition(action: String, asset: String, proof: String = "") -> Dicti
 		"reset_feeder":
 			if not _feeders.has(asset) or not _isolated.has(asset) or _faulted.has(asset):
 				return _fail("FEEDER_RESET_DENIED")
+			# A standby transfer must be opened BEFORE the normal path can
+			# close, even if the source is currently dark or un-restored.
+			for active_tie: String in _engaged:
+				if _ties[active_tie]["to"] == _feeders[asset]["to"]:
+					return _fail("BREAK_BEFORE_MAKE_INTERLOCK")
 			_isolated.erase(asset)
 		"engage_tie":
 			if not _ties.has(asset) or _engaged.has(asset):
@@ -263,6 +268,9 @@ func host_transition(action: String, asset: String, proof: String = "") -> Dicti
 			for feeder_id: String in _feeders:
 				if _feeders[feeder_id]["to"] == tie["to"] and not _isolated.has(feeder_id):
 					return _fail("BREAK_BEFORE_MAKE_INTERLOCK")
+			for active_tie: String in _engaged:
+				if _ties[active_tie]["to"] == tie["to"]:
+					return _fail("BREAK_BEFORE_MAKE_INTERLOCK")
 			var cost: int = 2
 			if cost > int(tie["capacity_pu"]) or cost > _reserve:
 				return _fail("STANDBY_RESERVE_EXHAUSTED")
@@ -274,7 +282,8 @@ func host_transition(action: String, asset: String, proof: String = "") -> Dicti
 			_engaged.erase(asset)
 		"recharge_reserve":
 			if asset != str(_region["reserve_anchor_site"]) or _recharged \
-					or not _restored.has(asset) or not _engaged.is_empty():
+					or not _restored.has(asset) or not _engaged.is_empty() \
+					or not _live_nodes(true).has(asset):
 				return _fail("RESERVE_RECHARGE_DENIED")
 			_reserve = min(_initial_reserve, _reserve + maxi(2, _initial_reserve / 2))
 			_recharged = true
