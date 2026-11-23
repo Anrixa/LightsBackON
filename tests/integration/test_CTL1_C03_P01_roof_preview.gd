@@ -145,7 +145,7 @@ func test_CTL1_C03_P01_preview_world_contract_and_menu_copy_are_present() -> voi
 	assert_eq(world.get("contract_id"), "C03")
 	assert_eq(world["transitions"].size(), 2)
 	assert_eq(defined["fixed_ladders"].size(), 2)
-	assert_true(UiText.t("offline.menu.c03_preview").contains("NO SAVE"))
+	assert_true(UiText.t("offline.menu.c03_preview").contains("NOT SAVED"), "the menu says the preview is unsaved")
 	assert_true(UiText.t("offline.c03.unsaved_notice").contains("not saved"))
 
 func test_CTL1_C03_P01_preview_loading_briefing_is_not_C01_instruction() -> void:

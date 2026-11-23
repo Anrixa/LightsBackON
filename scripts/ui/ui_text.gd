@@ -52,6 +52,25 @@ static func tf(key: String, args: Array) -> String:
 	return t(key) % args
 
 
+## Player name of an authored world station (a switch or a worksite plate), e.g. SW_JW_BREAKER -> "WEST BREAKER". The ID
+## itself never reaches the screen (ADR-019 point 4): a station without an entry shows its key and fails test_V07/RB01.
+static func station_name(station_id: String) -> String:
+	return t("world.station." + station_id.to_lower())
+
+
+## Host-observed position of a switch field (enabled / tripped / isolated). It says where the switch is, not whether the
+## loads behind it are supplied.
+static func switch_state(field: String, value: bool) -> String:
+	match field:
+		"enabled":
+			return t("world.switch.enabled" if value else "world.switch.disabled")
+		"tripped":
+			return t("world.switch.tripped" if value else "world.switch.reset")
+		"isolated":
+			return t("world.switch.isolated" if value else "world.switch.connected")
+	return t("world.switch.unknown")
+
+
 static func has(key: String) -> bool:
 	return _table().has(key)
 

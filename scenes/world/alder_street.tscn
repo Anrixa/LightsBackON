@@ -522,7 +522,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -0.75)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 9.5, -0.75)
 pixel_size = 0.01
 billboard = 1
-text = "APT_W"
+text = "ALDER COURT"
 font_size = 96
 
 [node name="MARKET" type="Node3D" parent="Buildings" unique_id=1057122534]
@@ -720,7 +720,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -0.75)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 5.5, -0.75)
 pixel_size = 0.01
 billboard = 1
-text = "MARKET"
+text = "Corner Market"
 font_size = 96
 
 [node name="PUB" type="Node3D" parent="Buildings" unique_id=442114857]
@@ -958,7 +958,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -0.75)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 9.5, -0.75)
 pixel_size = 0.01
 billboard = 1
-text = "PUB"
+text = "The Lantern"
 font_size = 96
 
 [node name="APT_E" type="Node3D" parent="Buildings" unique_id=408796427]
@@ -1266,7 +1266,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -0.75)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 13.5, -0.75)
 pixel_size = 0.01
 billboard = 1
-text = "APT_E"
+text = "ROWAN HOUSE"
 font_size = 96
 
 [node name="WORKSHOP" type="Node3D" parent="Buildings" unique_id=2039046783]
@@ -1434,7 +1434,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 8.75)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 5.5, 8.75)
 pixel_size = 0.01
 billboard = 1
-text = "WORKSHOP"
+text = "ALDER WORKS"
 font_size = 96
 
 [node name="PUMP_HOUSE" type="Node3D" parent="Buildings" unique_id=530889607]
@@ -1536,7 +1536,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 8.75)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 5.5, 8.75)
 pixel_size = 0.01
 billboard = 1
-text = "PUMP_HOUSE"
+text = "PUMP HOUSE"
 font_size = 96
 
 [node name="SOUTH_FILLER" type="Node3D" parent="Buildings" unique_id=460058802]

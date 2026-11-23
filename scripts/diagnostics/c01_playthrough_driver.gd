@@ -7,8 +7,13 @@ extends Node
 ## A bot that knows the route proves reachability and completability, not feel or pacing for people (UX01 stays human).
 ## Internal exports and the editor only (CLAUDE.md section 9). Opt-in: `-- --c01-playthrough`. Writes
 ## user://c01_playthrough/result.json and exits 0 on mission complete, non-zero with the failing phase otherwise.
+## RB01: it also reads every visible text on screen after each step, as a release build shows it, and fails the run
+## ("player_text", exit 5) if any internal ID, phase label, raw snake_case or developer wording reached the player.
 
+const PlayerTextAudit := preload("res://scripts/diagnostics/player_text_audit.gd")
+const BuildFlavor := preload("res://scripts/ui/build_flavor.gd")
 const ARG: String = "--c01-playthrough"
+const PLAYER_TEXT_EXIT: int = 5
 const MISSION_PATH: String = "res://scenes/mission/mission_root.tscn"
 const TOOLS: Array[String] = ["meter", "screwdriver", "puller", "cutter", "crimper"]
 const LOAD_TIMEOUT_S: float = 120.0
@@ -55,6 +60,9 @@ var _remeasure_trips: int = 0
 var _distance_m: float = 0.0
 var _t0_usec: int = 0
 var _done: bool = false
+var _text_scans: int = 0
+var _text_nodes_read: int = 0
+var _text_findings: Dictionary = {}
 
 
 static func requested(args: PackedStringArray) -> bool:
@@ -75,6 +83,7 @@ func _ready() -> void:
 
 func _run() -> void:
 	_t0_usec = Time.get_ticks_usec()
+	BuildFlavor.simulate_release(true)
 	get_tree().set_meta("offline_resume", false)
 	get_tree().change_scene_to_file(MISSION_PATH)
 	var playable: Callable = func() -> bool:
@@ -89,6 +98,7 @@ func _run() -> void:
 	_bake_navigation()
 	for i: int in 4:
 		await get_tree().physics_frame
+	_audit_text("first_frame")
 	var first: Array[Array] = [
 		["west_repair", "PANEL_JW", PANEL_STAND, func() -> bool: return _repair_state("R_JW_FUSE") == "restored"],
 		["generator_pickup", GENERATOR, ITEM_STAND, func() -> bool: return _carrying()],
@@ -171,6 +181,7 @@ func _work_at(id: String, stand_offset: Vector3, done: Callable) -> bool:
 		_presses += 1
 		for i: int in PRESS_SETTLE_FRAMES:
 			await get_tree().physics_frame
+		_audit_text("after E on " + id)
 	return bool(done.call())
 
 
@@ -354,15 +365,34 @@ func _say(line: String) -> void:
 	var stamped: String = "%.1fs %s" % [float(Time.get_ticks_usec() - _t0_usec) / 1000000.0, line]
 	_log.append(stamped)
 	print("C01_PLAYTHROUGH ", stamped)
+	_audit_text(line)
+
+
+## Every visible Label, Label3D, Button and RichTextLabel on screen right now. Findings are kept once per node and text.
+func _audit_text(where: String) -> void:
+	if _scene == null or not is_instance_valid(_scene):
+		return
+	_text_scans += 1
+	_text_nodes_read += PlayerTextAudit.count_text_nodes(_scene, true)
+	for f: Dictionary in PlayerTextAudit.scan_tree(_scene, true):
+		var key: String = "%s|%s" % [f["path"], f["text"]]
+		if not _text_findings.has(key):
+			f["seen_at"] = where
+			_text_findings[key] = f
+			print("C01_PLAYTHROUGH player text %s %s: \"%s\"" % [str(f["rules"]), f["path"], f["text"]])
 
 
 func _finish(exit_code: int, result: String) -> void:
 	if _done:
 		return
+	_audit_text("finish: " + result)
 	_done = true
 	_release_all()
+	if result == "ok" and not _text_findings.is_empty():
+		result = "player_text"
+		exit_code = PLAYER_TEXT_EXIT
 	var stars: int = -1
-	if result == "ok" and _session != null:
+	if (result == "ok" or result == "player_text") and _session != null:
 		stars = int((_mission().call("results") as Dictionary).get("stars", -1))
 	var report: Dictionary = {
 		"result": result,
@@ -371,6 +401,8 @@ func _finish(exit_code: int, result: String) -> void:
 		"interact_presses": _presses,
 		"remeasure_trips": _remeasure_trips,
 		"walked_m": snappedf(_distance_m, 0.1),
+		"player_text": {"scans": _text_scans, "text_nodes_read": _text_nodes_read,
+			"findings": _text_findings.values()},
 		"stars": stars,
 		"display": DisplayServer.get_name(),
 		"engine": str(Engine.get_version_info()["string"]),
@@ -381,8 +413,9 @@ func _finish(exit_code: int, result: String) -> void:
 	if file != null:
 		file.store_string(JSON.stringify(report, "  ", false) + "\n")
 		file.close()
-	print("C01_PLAYTHROUGH_RESULT %s exit=%d elapsed_s=%.1f presses=%d remeasure_trips=%d walked_m=%.1f stars=%d" % [
-		result, exit_code, report["elapsed_s"], _presses, _remeasure_trips, report["walked_m"], stars])
+	print(("C01_PLAYTHROUGH_RESULT %s exit=%d elapsed_s=%.1f presses=%d remeasure_trips=%d walked_m=%.1f stars=%d" +
+		" text_scans=%d text_findings=%d") % [result, exit_code, report["elapsed_s"], _presses, _remeasure_trips,
+		report["walked_m"], stars, _text_scans, _text_findings.size()])
 	if _region.is_valid():
 		NavigationServer3D.free_rid(_region)
 	if _map.is_valid():

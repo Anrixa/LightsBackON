@@ -171,8 +171,8 @@ func _build_switch_stations(markers: Node3D) -> void:
 		root.add_child(station)
 		_box(station, "SwitchPlate", Vector3(0.0, 0.12, 0.02),
 			Vector3(0.58, 0.36, 0.08), casing)
-		_switch_indicators[id] = _label(station, "SwitchState", "%s\nUNKNOWN" %
-			id.trim_prefix("SW_").replace("_", " "), Vector3(0.0, 0.18, -0.05))
+		_switch_indicators[id] = _label(station, "SwitchState", "%s\n%s" %
+			[UiText.station_name(id), UiText.t("world.switch.unknown")], Vector3(0.0, 0.18, -0.05))
 
 
 ## A switch's position (enabled/tripped/isolated) is NOT a statement that its
@@ -189,16 +189,9 @@ static func _switch_state(snapshot: Dictionary, source: Dictionary) -> String:
 	elif edges.get(target) is Dictionary:
 		component = edges[target]
 	if not component.has(field) or not (component[field] is bool):
-		return "UNKNOWN"
+		return UiText.t("world.switch.unknown")
 	var value: bool = bool(component[field])
-	match field:
-		"enabled":
-			return "ENABLED" if value else "DISABLED"
-		"tripped":
-			return "TRIPPED" if value else "RESET"
-		"isolated":
-			return "ISOLATED" if value else "CONNECTED"
-	return "UNKNOWN"
+	return UiText.switch_state(field, value)
 
 
 func destination(endpoint: String) -> Vector3:
@@ -257,5 +250,5 @@ func apply_host(snapshot: Dictionary) -> void:
 	_beacon.material_override = _beacon_on if powered else _beacon_off
 	for id: String in _switch_sources:
 		var label: Label3D = _switch_indicators[id] as Label3D
-		label.text = "%s\n%s" % [id.trim_prefix("SW_").replace("_", " "),
+		label.text = "%s\n%s" % [UiText.station_name(id),
 			_switch_state(snapshot, _switch_sources[id])]

@@ -4,6 +4,7 @@ extends "res://tests/test_case.gd"
 
 const MenuScene := preload("res://scenes/menu/main_menu.tscn")
 const Tokens := preload("res://scripts/ui/theme_tokens.gd")
+const UiText := preload("res://scripts/ui/ui_text.gd")
 
 
 func test_DS01_menu_reflows_inside_safe_area_at_small_resolutions() -> void:
@@ -74,7 +75,9 @@ func test_QA65_corrupt_checkpoint_disables_start_and_preserves_file() -> void:
 	menu.call("_apply_save_status", store.checkpoint_status())
 	assert_true((menu.get("start_button") as Button).disabled, "new shift is unavailable for an unreadable save")
 	assert_false((menu.get("continue_button") as Button).visible)
-	assert_true((menu.find_child("SaveStatus", true, false) as Label).text.contains("CORRUPT"))
+	var status_text: String = (menu.find_child("SaveStatus", true, false) as Label).text
+	assert_true(status_text.contains(UiText.t("save.reason.corrupt")), "the player reads why the save is unavailable")
+	assert_false(status_text.contains("CORRUPT"), "RB01: the internal status code is not shown")
 	tree.remove_meta("offline_resume")
 	menu.call("_request_new_shift")
 	assert_false(tree.has_meta("offline_resume"), "unsafe new shift must not set the launch flag")
