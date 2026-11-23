@@ -31,8 +31,10 @@ All gameplay numbers are design choices until measured.
 
 Solo + 1-4 online players, friends-only Steam lobbies first. First person, visible tool and gloved hands. Windows x64,
 keyboard/mouse and controller. Godot 4.7.2 standard, **typed GDScript**, **Compatibility renderer** baseline. Stylized 3D,
-modular 4 m kit, warm restored windows against cool rain. Three compact districts x six service locations x four contracts = 12
-contracts (C01-C12). Demo = Alder Street C01 with its tutorial. Premium purchase (proposed US $12.99, validate after demo).
+modular 4 m kit, warm restored windows against cool rain. Three districts (Alder Street, Canal Yard, Hill Road) x eight designed
+locations = 24 locations; 12 story contracts (C01-C12) plus 40 solver-checked challenges per location (960) (ADR-019, 23 Nov 2026;
+it supersedes the 200-level EXP01 scope). No procedurally assembled locations; no developer text on player screens. Plan:
+`docs/design/RB-locations-and-challenges-plan.md`. Demo = Alder Street C01 with its tutorial. Premium purchase (proposed US $12.99, validate after demo).
 Host owns the campaign world; every participant keeps personal completion and reward receipts; credits are personal.
 All essential tools are available from the start; upgrades are sidegrades/convenience. No death/revive loop; failures are recoverable.
 
@@ -42,8 +44,9 @@ custom online backend, built-in voice chat (deferred; the game must be completab
 Weather = authored VFX and timed state changes. Flooding = a water-height scalar plus access checks.
 Cables = authored curves between sockets, never replicated rigid bodies.
 
-**Cut order if capacity is exceeded:** voiced barks, cosmetic variants, seeded replay variants, contracts 12 to 8, districts 3 to 2.
-Never cut: the power puzzle, recoverable failures, solo support, working co-op, save integrity, readable feedback.
+**Cut order if capacity is exceeded (ADR-019):** voiced barks, cosmetic variants, challenges per location 40 to 20, locations per district 8 to 6,
+contracts 12 to 8, districts 3 to 2.
+Never cut: the power puzzle, recoverable failures, solo support, working co-op, save integrity, readable feedback, no developer text on screen.
 Removing co-op is a product decision for the owner, not a scope cut.
 
 ## 2. Pillars (apply to every feature)
