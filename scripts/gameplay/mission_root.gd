@@ -1132,6 +1132,11 @@ func _finish() -> void:
 	accessibility.visible = false
 	player.set_controls_active(false)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	# QA-C01: the field HUD, the onboarding card and the last feedback toast are play-time overlays. Left up behind the
+	# results they showed a stale "Gather at the van" objective and a "First repair completed" card over the debrief.
+	hud.visible = false
+	onboarding.visible = false
+	_status.visible = false
 	_complete_panel.visible = true
 	# Completion from a restored checkpoint may use an older campaign epoch.
 	# Do not turn that persisted tick into a fabricated playtest duration.
