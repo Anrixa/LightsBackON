@@ -26,7 +26,7 @@ real menu buttons.
 ## Defects found and fixed
 | # | Severity | Finding | Fix |
 |---|---|---|---|
-| 1 | P1 (mission cannot start) | A checkpoint from older mission rules (no `rules_revision`, ADR-018 rule 5) reports `CONTENT_MISMATCH`, which disabled **Continue and New Solo Shift**. C01 was unplayable on the owner's PC with no in-game way out. | Owner-approved: New Solo Shift stays enabled, explains the outdated save, confirms, then `archive_mismatched_checkpoint()` moves `SOLO_C01.json` + `.bak`/`.tmp` to `checkpoints/archived/SOLO_C01-<UTC>.json`. Corrupt / newer-schema saves unchanged. ADR-018 amendment. |
+| 1 | P1 (mission cannot start) | A checkpoint from older mission rules (no `rules_revision`, ADR-018 rule 5) reports `CONTENT_MISMATCH`, which disabled **Continue and New Solo Shift**. C01 was unplayable on the owner's PC with no in-game way out. | Owner-approved: New Solo Shift stays enabled, explains the outdated save, confirms, then `CheckpointArchive.archive_mismatched_checkpoint()` moves `SOLO_C01.json` + `.bak`/`.tmp` to `checkpoints/archived/SOLO_C01-<UTC>.json`. Corrupt / newer-schema saves unchanged. ADR-018 amendment. |
 | 2 | P2 | Network tablet **Close** (and Ping) caption slid under the overlay key glyph ("Tab]lose"). | Button reserves the glyph footprint with a transparent icon, so text and minimum width account for it at every scale/device. |
 | 3 | P2 | Experimental dispatch spawned 1.7 m from station 01, inside ~15 stacked host labels: first frame was unreadable text. | Spawn 5.5 m back (clamped to the floor); nearest label at spawn 4.2 m on LV_001/077/200, player on floor. |
 | 4 | P2 | Dispatch HUD text had no backdrop (unreadable on the light graybox); Return button stretched across mid-screen. | HUD on a bounded tinted card; Return is a normal-width button. |
@@ -34,12 +34,18 @@ real menu buttons.
 Screenshots: `docs/evidence/SAVE23-v0.21.0-playtest/` (before/after pairs).
 
 ## Tests added
-- `test_G06_content_mismatch_checkpoint_archives_without_deleting`, `test_G06_only_content_mismatch_is_archivable`
+- `test_SAVE23_content_mismatch_checkpoint_archives_without_deleting`, `test_SAVE23_only_content_mismatch_is_archivable` (in the G06 file)
 - `test_SAVE23_outdated_checkpoint_offers_archive_instead_of_dead_end` (menu, including the version label)
 - DS13 tablet test: Close/Ping reserve their glyph width
 
 ## Observed result
-Full suite: see the PR's CI and the "Full suite" line below.
+- Full `bash tools/run_tests.sh` on this PC: Godot `tests: 1071 passed, 0 failed, 497852 assertions`; all 12 contract solution traces
+  `SOLVED`; Python reference vs Godot cross-check `MATCH`. The first full run's Python phase failed only because it started on a dirty
+  tree and because the archive code first lived in `offline_persistence.gd`, whose blob the EXP014 A10 audit pins
+  (`PROTECTED_WORKTREE_DIRTY` / `PROTECTED_SOURCE_DRIFT`). The archive moved to `checkpoint_archive.gd`; the pinned file is byte-identical
+  to `main` (`858eba2f`). Rerun on the clean committed tree: `python -m unittest discover -s tests/python` -> `Ran 476 tests ... OK`.
+- Focused reruns after the move: `test_G06_offline` 10/0, `test_DS01_menu` 6/0.
+- CI (linux + windows) on the PR is the exact-head gate.
 
 ## Not verified / pending
 - No exported build was profiled; no GTX 1650 P95 frame time.
