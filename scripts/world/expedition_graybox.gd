@@ -2,6 +2,7 @@ extends RefCounted
 const Regional := preload("res://scripts/world/expedition_regional_facilities.gd")
 const RegionIdentity := preload("res://scripts/world/exp017_region_identity.gd")
 const SiteAccess := preload("res://scripts/world/exp017_site_access.gd")
+const Exp021Art := preload("res://scripts/world/exp021_environment_art.gd")
 ## EXP02: original procedural 3D level-composition previews.
 ## One built world per selected dispatch; never launches a player, registers
 ## a host target or performs pickup/reward actions. Only the floor collides.
@@ -200,4 +201,9 @@ static func build(plan: Dictionary) -> Node3D:
 		root.free()
 		return null
 	root.add_child(access)
+	# EXP021 A01: source-attested, presentation-only weathered environmental art.
+	# This addition owns no collision shapes, host commands, or save data.
+	if Exp021Art.attach(plan, regional) == null:
+		root.free()
+		return null
 	return root

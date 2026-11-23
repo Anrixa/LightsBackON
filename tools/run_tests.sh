@@ -264,6 +264,28 @@ elif [ -f project.godot ]; then
     FAIL=1
   fi
   rm -f "$IMPORT_OUT"
+  # Catch experimental-source syntax/type errors before the full 200-level
+  # Godot replay. Keep this discovery automatic as EXP020 phases are stacked.
+  echo "== EXP020: fail-fast parser preflight for every authored phase test =="
+  EXP020_COUNT=0
+  for EXP020_SCRIPT in tests/integration/test_EXP020_*.gd; do
+    [ -f "$EXP020_SCRIPT" ] || continue
+    EXP020_COUNT=$((EXP020_COUNT + 1))
+    EXP020_PARSE_OUT="$(mktemp)"
+    if ! "$GODOT_BIN" --headless --path . --check-only --script "res://$EXP020_SCRIPT" >"$EXP020_PARSE_OUT" 2>&1; then
+      echo "FAIL: EXP020 Godot parser rejected $EXP020_SCRIPT"
+      cat "$EXP020_PARSE_OUT"
+      FAIL=1
+    elif grep -qE "SCRIPT ERROR|Parse Error" "$EXP020_PARSE_OUT"; then
+      echo "FAIL: EXP020 Godot parser reported errors in $EXP020_SCRIPT"
+      cat "$EXP020_PARSE_OUT"
+      FAIL=1
+    else
+      echo "EXP020_SCRIPT_PARSE=PASS $EXP020_SCRIPT"
+    fi
+    rm -f "$EXP020_PARSE_OUT"
+  done
+  echo "EXP020_PARSER_PREFLIGHT_FILES=$EXP020_COUNT"
   echo "== EXP015 A03: direct Godot host script parser preflight =="
   HOST_PARSE_OUT="$(mktemp)"
   if ! "$GODOT_BIN" --headless --path . --check-only --script res://scripts/gameplay/expedition_host_session.gd >"$HOST_PARSE_OUT" 2>&1; then
@@ -428,11 +450,32 @@ else
   echo "skipped: no project.godot yet (task F01)"
 fi
 
+echo "== EXP021 A04: independent source/batch preflight and post-Godot stress evidence =="
+if [ -n "$PY" ]; then
+  "$PY" tools/qualify_exp021_a04.py --report build/exp021-a04/preflight.json || FAIL=1
+  "$PY" tools/qualify_exp021_a04.py --post-run --report build/exp021-a04/independent.json || FAIL=1
+else
+  echo "FAIL: Python required for EXP021 A04 evidence gate"; FAIL=1
+fi
+
+echo "== EXP021 A05: source-joined 200-level alpha candidate preflight =="
+if [ -n "$PY" ]; then
+  "$PY" tools/qualify_exp021_a05.py --preflight --report build/exp021-a05/preflight.json || FAIL=1
+else
+  echo "FAIL: Python needed for EXP021 A05"; FAIL=1
+fi
+
 echo "== EXP018 A05: independent verification of Godot host replay evidence =="
 if [ -n "$PY" ]; then
   "$PY" tools/qualify_exp018_a05.py --post-run --report build/exp018-a05/independent-verification.json || FAIL=1
 else
   echo "FAIL: Python required to verify EXP018 A05 Godot replay evidence"; FAIL=1
+fi
+echo "== EXP021 A05: independent host/scene evidence and immutable source joins =="
+if [ -n "$PY" ]; then
+  "$PY" tools/qualify_exp021_a05.py --report build/exp021-a05/alpha-gate.json || FAIL=1
+else
+  echo "FAIL: Python needed for EXP021 A05 post-Godot evidence"; FAIL=1
 fi
 [ "$FAIL" -eq 0 ] && echo "ALL CHECKS PASSED" || echo "CHECKS FAILED"
 exit "$FAIL"
