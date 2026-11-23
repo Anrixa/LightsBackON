@@ -17,6 +17,8 @@ record any difference in an ADR.
 | `lbo_grid.py` | topology validation, evaluation steps 1-5, command path (refuse before mutation), canonical serialization |
 | `cases.py` | replays `tests/data/c01_grid_cases.json` (shared with the Godot tests) |
 | `tests/test_grid.py` | unittest suite named after the acceptance matrix (SIM01-SIM08, SIM11) |
+| `lbo_challenge.py` | RB03 challenge format: schema validator, runner, solver, difficulty score, pillar checks, duplicate hashes, contract converter (`docs/design/RB03-challenge-format.md`) |
+| `tests/test_challenge.py` | RB03 tests; Python/GDScript byte parity is `tools/rb03_challenge_check.py` |
 
 C01 data lives in `content/contracts/c01_alder_street/grid.json` (single source for both implementations), not in `reference/data/`.
 Timers and trips (G02) are implemented in Godot first; see the G02 evidence for whether this model covers them.
