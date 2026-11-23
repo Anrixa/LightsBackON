@@ -1079,6 +1079,16 @@ func _place_button_glyph(glyph: InputGlyph, scale: float) -> void:
 	glyph.offset_right = glyph.offset_left + glyph.custom_minimum_size.x
 	glyph.offset_top = -glyph.custom_minimum_size.y * 0.5
 	glyph.offset_bottom = glyph.custom_minimum_size.y * 0.5
+	# The glyph is an overlay child, so the Button's own layout does not see it: with a short caption ("Close") the
+	# right-aligned text slid under the key cap. A transparent icon of the glyph's footprint makes the Button reserve
+	# that space in its minimum size and text placement, at every scale, locale and input device.
+	var button: Button = glyph.get_parent() as Button
+	if button != null:
+		var reserve: Vector2i = Vector2i(ceili(glyph.offset_right), ceili(glyph.custom_minimum_size.y))
+		var blank: Image = Image.create_empty(maxi(reserve.x, 1), maxi(reserve.y, 1), false, Image.FORMAT_RGBA8)
+		button.icon = ImageTexture.create_from_image(blank)
+		button.icon_alignment = HORIZONTAL_ALIGNMENT_LEFT
+		button.add_theme_constant_override("h_separation", ThemeTokens.px(8.0, scale))
 
 
 func _button(parent: Control, text: String, variation: String = "") -> Button:
