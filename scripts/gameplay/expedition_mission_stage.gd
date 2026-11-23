@@ -53,7 +53,7 @@ var _hazard_marker: MeshInstance3D
 var _site_composition: Node3D
 var _environmental_feedback: Node3D
 var _exp017_feedback: Node3D
-var _exp021_sound: RefCounted
+var _exp021_sound: Variant
 var _approach_view: Node3D
 var _approach_choice: String = "guarded"
 var _outcome_choice: String = "buffer"
