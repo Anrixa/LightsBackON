@@ -183,7 +183,12 @@ func play_confirmed_command(reply: Dictionary, kind: String,
 			not global_position.is_finite():
 		return false
 	_tool.stream = _tool_samples[tool] if kind == "repair_step" else _tool_samples["confirmation"]
-	_tool.global_position = global_position
+	# Detached headless fixtures have no global transform; only live stage
+	# nodes use global_position. Both paths preserve the accepted host cue.
+	if _tool.is_inside_tree():
+		_tool.global_position = global_position
+	else:
+		_tool.position = global_position
 	_last_tool = tool if kind == "repair_step" else "confirmation"
 	_event_count += 1
 	if DisplayServer.get_name() != "headless":

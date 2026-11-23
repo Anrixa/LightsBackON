@@ -22,7 +22,17 @@ trap 'rm -rf "$LBO_TEST_USER_ROOT"' EXIT
 printf '[INFO][EXP021_FAST] Godot user root: %s\n' "$LBO_TEST_USER_ROOT"
 "$GODOT_BIN" --headless --path . --import
 echo "[STAGE 4/5][EXP021_FAST] Actual EXP021 A01–A05 Godot suites"
-"$GODOT_BIN" --headless --path . -s res://tests/run_tests.gd -- --filter=EXP021 --settle-frames=6
+# A green assertion count is not enough: Godot engine errors also fail qualification.
+EXP021_GODOT_LOG="$(mktemp)"
+trap 'rm -f "$EXP021_GODOT_LOG"; rm -rf "$LBO_TEST_USER_ROOT"' EXIT
+"$GODOT_BIN" --headless --path . -s res://tests/run_tests.gd -- --filter=EXP021 --settle-frames=6 2>&1 | tee "$EXP021_GODOT_LOG"
+if grep -qE '(^|[[:space:]])ERROR:|SCRIPT ERROR|Parse Error' "$EXP021_GODOT_LOG"; then
+  echo "[FAIL][EXP021_FAST] Godot emitted an engine/script error despite test assertions"
+  exit 1
+fi
+if grep -qE 'WARNING: ([0-9]+ ObjectDB|[0-9]+ RIDs).*leaked' "$EXP021_GODOT_LOG"; then
+  echo "[HOLD][EXP021_FAST] Godot resource-lifetime warning requires separate qualification"
+fi
 echo "[STAGE 5/5][EXP021_FAST] Independent A04 and A05 evidence"
 "$PY" tools/qualify_exp021_a04.py --post-run --report build/exp021-a04/fast-independent.json
 "$PY" - <<'PY'

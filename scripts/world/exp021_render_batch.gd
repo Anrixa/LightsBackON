@@ -68,8 +68,17 @@ static func optimize(world: Node3D, plan: Dictionary) -> Dictionary:
 		for slot: int in range(members.size()):
 			var visual: MeshInstance3D = members[slot] as MeshInstance3D
 			var box: BoxMesh = visual.mesh as BoxMesh
-			var local: Transform3D = art.global_transform.affine_inverse() * \
-				visual.global_transform
+			# Compute the transform from the source hierarchy, not global_transform.
+			# The 200-scene headless qualification builds detached Node3D trees;
+			# requesting their global transforms emits an engine error and produces
+			# an invalid identity pose even when assertions still pass.
+			var local: Transform3D = visual.transform
+			var parent: Node = visual.get_parent()
+			while parent != art:
+				if not parent is Node3D:
+					return {"ok": false, "code": "EXP021_A04_NONSPATIAL_ANCESTOR"}
+				local = (parent as Node3D).transform * local
+				parent = parent.get_parent()
 			var scaled: Transform3D = Transform3D(local.basis.scaled(box.size),
 				local.origin)
 			multi.set_instance_transform(slot, scaled)
