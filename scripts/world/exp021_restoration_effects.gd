@@ -81,7 +81,7 @@ func setup(world: Node3D, plan: Dictionary) -> Dictionary:
 ## Restore the original, existing settings schema; never alter its save format.
 ## A partial or malformed preference dictionary is rejected atomically.
 func set_preferences(values: Dictionary) -> bool:
-	var settings: RefCounted = Accessibility.new()
+	var settings: Variant = Accessibility.new()
 	if not settings.restore_snapshot(values):
 		return false
 	var selected: Dictionary = settings.snapshot()

@@ -18,7 +18,7 @@ func test_EXP021_A02_200_independent_source_bindings_and_original_waves() -> voi
 	assert_eq(signatures.size(), 200)
 	var plan: Dictionary = Plan.make_plan(catalog["levels"][0], catalog["locations"][0])
 	var world: Node3D = Graybox.build(plan)
-	var audio: RefCounted = Audio.new()
+	var audio: Variant = Audio.new()
 	var ready: Dictionary = audio.setup(world, plan)
 	assert_true(ready.get("ok", false))
 	assert_eq(int(ready.get("source_audio_streams", 0)), 8)
@@ -31,7 +31,7 @@ func test_EXP021_A02_acknowledgements_must_be_host_accepted() -> void:
 	var catalog: Dictionary = Atlas.load_catalog()
 	var plan: Dictionary = Plan.make_plan(catalog["levels"][0], catalog["locations"][0])
 	var world: Node3D = Graybox.build(plan)
-	var sound: RefCounted = Audio.new()
+	var sound: Variant = Audio.new()
 	assert_true(sound.setup(world, plan).get("ok", false))
 	assert_false(sound.play_confirmed_command({"ok": false}, "repair_step", "meter", Vector3.ZERO))
 	assert_false(sound.play_confirmed_command({"ok": true}, "fabricate", "meter", Vector3.ZERO))
@@ -46,7 +46,7 @@ func test_EXP021_A02_reject_stale_and_false_grid_supply_before_audio_change() ->
 	var catalog: Dictionary = Atlas.load_catalog()
 	var plan: Dictionary = Plan.make_plan(catalog["levels"][0], catalog["locations"][0])
 	var world: Node3D = Graybox.build(plan)
-	var sound: RefCounted = Audio.new()
+	var sound: Variant = Audio.new()
 	assert_true(sound.setup(world, plan).get("ok", false))
 	var board: Dictionary = {"level_id": "LV_001", "host_revision": 7, "mission_verified": true}
 	var grid: Dictionary = {"tick": 9, "nodes": {
