@@ -1,0 +1,269 @@
+{
+ "schema": 1,
+ "id": "RB03_NO_TRADEOFF",
+ "location_id": "TEST_YARD",
+ "source_note": "RB03 pillar fixture: the fault behind the drain is a trunk the markers cannot point at and the sign overloads the east feeder, so pillar 1 passes; but the 10 PU generator carries both of its routes at once, so there is no temporary-supply tradeoff and the NO_TRADEOFF check must reject it.",
+ "grid": {
+  "trip_ticks": 15,
+  "nodes": [
+   {
+    "id": "GRID",
+    "kind": "source",
+    "capacity": 24,
+    "online": true
+   },
+   {
+    "id": "GEN",
+    "kind": "source",
+    "capacity": 10,
+    "online": false
+   },
+   {
+    "id": "JW",
+    "kind": "junction",
+    "isolated": false,
+    "failed": true,
+    "tripped": true
+   },
+   {
+    "id": "JE",
+    "kind": "junction",
+    "isolated": false,
+    "failed": false,
+    "tripped": false
+   },
+   {
+    "id": "TEMP",
+    "kind": "junction",
+    "isolated": false,
+    "failed": false,
+    "tripped": false
+   },
+   {
+    "id": "HOMES",
+    "kind": "consumer",
+    "demand": 5,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "SHOP",
+    "kind": "consumer",
+    "demand": 4,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "CAFE",
+    "kind": "consumer",
+    "demand": 4,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "PUMP",
+    "kind": "consumer",
+    "demand": 4,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "LIGHTS",
+    "kind": "consumer",
+    "demand": 4,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "SIGN",
+    "kind": "consumer",
+    "demand": 3,
+    "enabled": false,
+    "healthy": true
+   }
+  ],
+  "edges": [
+   {
+    "id": "E_GRID_JW",
+    "from": "GRID",
+    "to": "JW",
+    "capacity": 12,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "E_GRID_JE",
+    "from": "GRID",
+    "to": "JE",
+    "capacity": 6,
+    "enabled": true,
+    "healthy": false
+   },
+   {
+    "id": "E_JW_HOMES",
+    "from": "JW",
+    "to": "HOMES",
+    "capacity": 5,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "E_JW_SHOP",
+    "from": "JW",
+    "to": "SHOP",
+    "capacity": 4,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "E_JE_CAFE",
+    "from": "JE",
+    "to": "CAFE",
+    "capacity": 4,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "E_GEN_TEMP",
+    "from": "GEN",
+    "to": "TEMP",
+    "capacity": 10,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "E_TEMP_PUMP",
+    "from": "TEMP",
+    "to": "PUMP",
+    "capacity": 4,
+    "enabled": false,
+    "healthy": true
+   },
+   {
+    "id": "E_TEMP_LIGHTS",
+    "from": "TEMP",
+    "to": "LIGHTS",
+    "capacity": 4,
+    "enabled": false,
+    "healthy": true
+   },
+   {
+    "id": "E_JE_SIGN",
+    "from": "JE",
+    "to": "SIGN",
+    "capacity": 3,
+    "enabled": true,
+    "healthy": true
+   }
+  ],
+  "protections": [
+   {
+    "id": "BRK_JW",
+    "element": "E_GRID_JW",
+    "breaker": "JW"
+   },
+   {
+    "id": "BRK_JE",
+    "element": "E_GRID_JE",
+    "breaker": "JE"
+   },
+   {
+    "id": "BRK_TEMP",
+    "element": "E_GEN_TEMP",
+    "breaker": "TEMP"
+   }
+  ]
+ },
+ "grid_sources": [
+  "GRID"
+ ],
+ "required_consumers": [
+  "CAFE",
+  "HOMES",
+  "SHOP"
+ ],
+ "excluded_loads": [],
+ "verification_ticks": 100,
+ "faults": [
+  {
+   "id": "R_JW_FUSE",
+   "panel": "PANEL_JW",
+   "junction": "JW",
+   "fix": {
+    "op": "set",
+    "id": "JW",
+    "field": "failed",
+    "value": false
+   },
+   "access": "",
+   "work_ticks": 28
+  },
+  {
+   "id": "R_JE_TRUNK",
+   "panel": "PANEL_JE",
+   "junction": "JE",
+   "fix": {
+    "op": "set",
+    "id": "E_GRID_JE",
+    "field": "healthy",
+    "value": true
+   },
+   "access": "CELLAR",
+   "work_ticks": 34
+  }
+ ],
+ "switches": [
+  {
+   "id": "SW_SIGN",
+   "target": "SIGN",
+   "field": "enabled"
+  }
+ ],
+ "temporary_supply": [
+  {
+   "id": "GEN_PORTABLE",
+   "source": "GEN",
+   "start_anchor": "VAN_BAY",
+   "anchors": [
+    {
+     "id": "VAN_BAY",
+     "storage": true,
+     "routes": []
+    },
+    {
+     "id": "PAD_A",
+     "storage": false,
+     "routes": [
+      "E_TEMP_LIGHTS",
+      "E_TEMP_PUMP"
+     ]
+    }
+   ]
+  }
+ ],
+ "latches": [
+  {
+   "id": "LATCH_PUMP",
+   "consumer": "PUMP",
+   "source": "GEN",
+   "supplied_ticks": 60,
+   "grants": "PUMP_RAN"
+  }
+ ],
+ "access_routes": [],
+ "flood_areas": [
+  {
+   "id": "CELLAR",
+   "water_cm": 80,
+   "wade_cm": 30,
+   "drained_by": "LATCH_PUMP"
+  }
+ ],
+ "storm_events": [],
+ "crew_scaling": {
+  "1": 100,
+  "2": 70,
+  "3": 60,
+  "4": 50
+ }
+}

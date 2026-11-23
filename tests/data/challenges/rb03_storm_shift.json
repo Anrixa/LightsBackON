@@ -1,0 +1,339 @@
+{
+ "schema": 1,
+ "id": "RB03_STORM_SHIFT",
+ "location_id": "TEST_YARD",
+ "source_note": "RB03 parity fixture exercising every challenge feature in both runners: a ladder hatch that needs a lit lamp latch and closes during gusts, a cellar flood that the pump drains, a storm that floods the cellar again and breaks the east trunk mid-mission, a contended generator pad (pump 4 + clinic 4 > 6) and an excluded sign that overloads the east feeder. Passes every pillar.",
+ "grid": {
+  "trip_ticks": 15,
+  "nodes": [
+   {
+    "id": "GRID",
+    "kind": "source",
+    "capacity": 30,
+    "online": true
+   },
+   {
+    "id": "GEN",
+    "kind": "source",
+    "capacity": 6,
+    "online": false
+   },
+   {
+    "id": "JW",
+    "kind": "junction",
+    "isolated": false,
+    "failed": true,
+    "tripped": true
+   },
+   {
+    "id": "JE",
+    "kind": "junction",
+    "isolated": false,
+    "failed": false,
+    "tripped": false
+   },
+   {
+    "id": "TEMP",
+    "kind": "junction",
+    "isolated": false,
+    "failed": false,
+    "tripped": false
+   },
+   {
+    "id": "HOMES_W",
+    "kind": "consumer",
+    "demand": 5,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "SHOP",
+    "kind": "consumer",
+    "demand": 4,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "HOMES_E",
+    "kind": "consumer",
+    "demand": 5,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "CLINIC",
+    "kind": "consumer",
+    "demand": 4,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "LAMP",
+    "kind": "consumer",
+    "demand": 1,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "PUMP",
+    "kind": "consumer",
+    "demand": 4,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "SIGN",
+    "kind": "consumer",
+    "demand": 3,
+    "enabled": false,
+    "healthy": true
+   }
+  ],
+  "edges": [
+   {
+    "id": "E_GRID_JW",
+    "from": "GRID",
+    "to": "JW",
+    "capacity": 12,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "E_GRID_JE",
+    "from": "GRID",
+    "to": "JE",
+    "capacity": 12,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "E_JW_HOMES_W",
+    "from": "JW",
+    "to": "HOMES_W",
+    "capacity": 5,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "E_JW_SHOP",
+    "from": "JW",
+    "to": "SHOP",
+    "capacity": 4,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "E_JE_HOMES_E",
+    "from": "JE",
+    "to": "HOMES_E",
+    "capacity": 5,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "E_JE_CLINIC",
+    "from": "JE",
+    "to": "CLINIC",
+    "capacity": 4,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "E_JE_LAMP",
+    "from": "JE",
+    "to": "LAMP",
+    "capacity": 1,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "E_JE_SIGN",
+    "from": "JE",
+    "to": "SIGN",
+    "capacity": 3,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "E_GEN_TEMP",
+    "from": "GEN",
+    "to": "TEMP",
+    "capacity": 6,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "E_TEMP_PUMP",
+    "from": "TEMP",
+    "to": "PUMP",
+    "capacity": 4,
+    "enabled": false,
+    "healthy": true
+   },
+   {
+    "id": "E_TEMP_CLINIC",
+    "from": "TEMP",
+    "to": "CLINIC",
+    "capacity": 4,
+    "enabled": false,
+    "healthy": true
+   }
+  ],
+  "protections": [
+   {
+    "id": "BRK_JW",
+    "element": "E_GRID_JW",
+    "breaker": "JW"
+   },
+   {
+    "id": "BRK_JE",
+    "element": "E_GRID_JE",
+    "breaker": "JE"
+   },
+   {
+    "id": "BRK_TEMP",
+    "element": "E_GEN_TEMP",
+    "breaker": "TEMP"
+   }
+  ]
+ },
+ "grid_sources": [
+  "GRID"
+ ],
+ "required_consumers": [
+  "CLINIC",
+  "HOMES_E",
+  "HOMES_W",
+  "SHOP"
+ ],
+ "excluded_loads": [
+  "SIGN"
+ ],
+ "verification_ticks": 100,
+ "faults": [
+  {
+   "id": "R_JW_FUSE",
+   "panel": "PANEL_JW",
+   "junction": "JW",
+   "fix": {
+    "op": "set",
+    "id": "JW",
+    "field": "failed",
+    "value": false
+   },
+   "access": "ROOF",
+   "work_ticks": 28
+  },
+  {
+   "id": "R_JE_TRUNK",
+   "panel": "PANEL_JE",
+   "junction": "JE",
+   "fix": {
+    "op": "set",
+    "id": "E_GRID_JE",
+    "field": "healthy",
+    "value": true
+   },
+   "access": "CELLAR",
+   "work_ticks": 34
+  }
+ ],
+ "switches": [
+  {
+   "id": "SW_SIGN",
+   "target": "SIGN",
+   "field": "enabled"
+  },
+  {
+   "id": "SW_JE_BREAKER",
+   "target": "JE",
+   "field": "tripped"
+  }
+ ],
+ "temporary_supply": [
+  {
+   "id": "GEN_PORTABLE",
+   "source": "GEN",
+   "start_anchor": "VAN_BAY",
+   "anchors": [
+    {
+     "id": "VAN_BAY",
+     "storage": true,
+     "routes": []
+    },
+    {
+     "id": "PAD_YARD",
+     "storage": false,
+     "routes": [
+      "E_TEMP_CLINIC",
+      "E_TEMP_PUMP"
+     ]
+    }
+   ]
+  }
+ ],
+ "latches": [
+  {
+   "id": "LATCH_LAMP",
+   "consumer": "LAMP",
+   "source": "GRID",
+   "supplied_ticks": 30,
+   "grants": "LAMP_LIT"
+  },
+  {
+   "id": "LATCH_PUMP",
+   "consumer": "PUMP",
+   "source": "GEN",
+   "supplied_ticks": 80,
+   "grants": "PUMP_RAN"
+  }
+ ],
+ "access_routes": [
+  {
+   "id": "ROOF_HATCH",
+   "grants": "ROOF",
+   "requires_latch": "LATCH_LAMP"
+  }
+ ],
+ "flood_areas": [
+  {
+   "id": "CELLAR",
+   "water_cm": 40,
+   "wade_cm": 30,
+   "drained_by": "LATCH_PUMP"
+  }
+ ],
+ "storm_events": [
+  {
+   "id": "STORM_GUSTS",
+   "kind": "close_route",
+   "route": "ROOF_HATCH",
+   "tick": 45,
+   "until_tick": 160
+  },
+  {
+   "id": "STORM_SURGE",
+   "kind": "flood",
+   "area": "CELLAR",
+   "tick": 50,
+   "water_cm": 90
+  },
+  {
+   "id": "STORM_TRUNK",
+   "kind": "grid",
+   "tick": 70,
+   "cmd": {
+    "op": "set",
+    "id": "E_GRID_JE",
+    "field": "healthy",
+    "value": false
+   }
+  }
+ ],
+ "crew_scaling": {
+  "1": 100,
+  "2": 70,
+  "3": 60,
+  "4": 50
+ }
+}
