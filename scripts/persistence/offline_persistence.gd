@@ -20,7 +20,6 @@ const CHECKPOINT_ID: String = "SOLO_C01"
 const CONTRACT_ID: String = "C01"
 const PROFILE_FILE: String = "profile.json"
 const CHECKPOINT_FILE: String = "checkpoints/SOLO_C01.json"
-const ARCHIVE_DIR: String = "archived"
 const SAVE_BUILD_ID: String = "offline-game"
 const HEADLESS_SANDBOX_ROOT: String = "user://test_runtime/headless_offline"
 
@@ -119,37 +118,6 @@ func restore_into(session: RefCounted) -> Dictionary:
 		return _failure("BAD_CHECKPOINT", "checkpoint state cannot be restored safely: %s" % str(problems))
 	session.set("_tick", int(session.get("grid").get("tick")))
 	return status
-
-
-## Owner-approved (23 Nov 2026): a checkpoint written by different mission rules can never be resumed, and it also
-## blocked every new shift because autosave refuses to overwrite it. After the player confirms, move it (and its
-## .bak/.tmp siblings) into checkpoints/archived/ under a unique, timestamped name, so a new shift can save. Only
-## CONTENT_MISMATCH qualifies: a corrupt, newer-schema or foreign record is left exactly where it is. Nothing is
-## deleted or rewritten; a failed move restores what was already moved and reports the error.
-func archive_mismatched_checkpoint() -> Dictionary:
-	var status: Dictionary = checkpoint_status()
-	if str(status.get("code", "")) != "CONTENT_MISMATCH":
-		return _failure("NOT_ARCHIVABLE", "only a checkpoint from different mission content can be set aside")
-	var source: String = checkpoint_path()
-	var archive_dir: String = source.get_base_dir().path_join(ARCHIVE_DIR)
-	if DirAccess.make_dir_recursive_absolute(archive_dir) != OK:
-		return _failure("ARCHIVE_FAILED", "could not create the archive folder; the checkpoint was preserved")
-	var stem: String = "%s-%s" % [CHECKPOINT_ID, _utc_now().replace(":", "").replace("-", "")]
-	var target: String = archive_dir.path_join(stem + ".json")
-	var serial: int = 1
-	while FileAccess.file_exists(target) or FileAccess.file_exists(target + SaveService.BAK_SUFFIX):
-		serial += 1
-		target = archive_dir.path_join("%s-%d.json" % [stem, serial])
-	var moved: Array[Array] = []
-	for suffix: String in ["", SaveService.BAK_SUFFIX, SaveService.TMP_SUFFIX]:
-		if not FileAccess.file_exists(source + suffix):
-			continue
-		if DirAccess.rename_absolute(source + suffix, target + suffix) != OK:
-			for done: Array in moved:
-				DirAccess.rename_absolute(str(done[1]), str(done[0]))
-			return _failure("ARCHIVE_FAILED", "could not move the checkpoint; nothing was changed")
-		moved.append([source + suffix, target + suffix])
-	return {"ok": true, "archived_path": target, "files": moved.size()}
 
 
 func write_checkpoint(session: RefCounted, position_cm: Vector3i, yaw_millirad: int,

@@ -94,7 +94,7 @@ The "Not decided here" UX question is now decided. A windowed playtest on the ow
 (no `rules_revision`) left the C01 solo shift completely unplayable: `CONTENT_MISMATCH` disabled Continue **and** New Solo Shift,
 with no path out except deleting files by hand. The owner chose "archive and restart":
 - Only `CONTENT_MISMATCH` qualifies. Corrupt, newer-schema and foreign records keep today's behaviour (both buttons stay disabled).
-- New Solo Shift is enabled and shows a confirmation. Only after the player confirms, `OfflinePersistence.archive_mismatched_checkpoint()`
+- New Solo Shift is enabled and shows a confirmation. Only after the player confirms, `CheckpointArchive.archive_mismatched_checkpoint(store)` (`scripts/persistence/checkpoint_archive.gd`; `offline_persistence.gd` is unchanged because the EXP014 A10 audit pins its blob)
   re-checks the status and **moves** `SOLO_C01.json` and its `.bak`/`.tmp` siblings into `checkpoints/archived/SOLO_C01-<UTC>[-n].json`.
   Nothing is deleted or rewritten; a failed move rolls back the files already moved and the menu shows the error.
 - This is not option E (no migration): the archived file stays unreadable by this build, kept for the player or a later rescue tool.

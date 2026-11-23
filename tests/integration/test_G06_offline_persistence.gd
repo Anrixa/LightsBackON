@@ -7,6 +7,7 @@ const Store := preload("res://scripts/persistence/offline_persistence.gd")
 const Settings := preload("res://scripts/ui/accessibility_settings.gd")
 const SaveService := preload("res://scripts/persistence/save_service.gd")
 const Codec := preload("res://scripts/persistence/checkpoint_codec.gd")
+const Archive := preload("res://scripts/persistence/checkpoint_archive.gd")
 
 var _root: String
 var _store: Store
@@ -128,7 +129,7 @@ func test_G06_incompatible_and_newer_checkpoint_are_not_overwritten() -> void:
 	assert_eq(FileAccess.get_file_as_bytes(_store.checkpoint_path()), bytes)
 
 
-func test_G06_content_mismatch_checkpoint_archives_without_deleting() -> void:
+func test_SAVE23_content_mismatch_checkpoint_archives_without_deleting() -> void:
 	assert_true(_store.write_checkpoint(_session, Vector3i(450, 90, 1500), 0, 0, 1)["ok"])
 	var record: Dictionary = _store.checkpoint_status()
 	var old_rules: SaveService = SaveService.new()
@@ -138,7 +139,7 @@ func test_G06_content_mismatch_checkpoint_archives_without_deleting() -> void:
 	var current: PackedByteArray = FileAccess.get_file_as_bytes(_store.checkpoint_path())
 	var backup: PackedByteArray = FileAccess.get_file_as_bytes(_store.checkpoint_path() + SaveService.BAK_SUFFIX)
 	assert_eq(_store.checkpoint_status()["code"], "CONTENT_MISMATCH")
-	var archived: Dictionary = _store.archive_mismatched_checkpoint()
+	var archived: Dictionary = Archive.archive_mismatched_checkpoint(_store)
 	assert_true(archived["ok"], str(archived))
 	assert_eq(archived["files"], 2, "the checkpoint and its backup move together")
 	var target: String = str(archived["archived_path"])
@@ -149,11 +150,11 @@ func test_G06_content_mismatch_checkpoint_archives_without_deleting() -> void:
 	assert_eq(_store.checkpoint_status(), {"ok": true, "available": false}, "a new shift can start and save")
 	assert_true(_store.write_checkpoint(_session, Vector3i(460, 90, 1500), 0, 0, 1)["ok"])
 	assert_eq(FileAccess.get_file_as_bytes(target), current, "a new save never touches the archive")
-	assert_eq(_store.archive_mismatched_checkpoint()["code"], "NOT_ARCHIVABLE", "a current-rules save is not archived")
+	assert_eq(Archive.archive_mismatched_checkpoint(_store)["code"], "NOT_ARCHIVABLE", "a current-rules save is not archived")
 
 
-func test_G06_only_content_mismatch_is_archivable() -> void:
-	assert_eq(_store.archive_mismatched_checkpoint()["code"], "NOT_ARCHIVABLE", "no checkpoint, nothing to move")
+func test_SAVE23_only_content_mismatch_is_archivable() -> void:
+	assert_eq(Archive.archive_mismatched_checkpoint(_store)["code"], "NOT_ARCHIVABLE", "no checkpoint, nothing to move")
 	assert_true(_store.write_checkpoint(_session, Vector3i(450, 90, 1500), 0, 0, 1)["ok"])
 	var record: Dictionary = _store.checkpoint_status()
 	var newer: SaveService = SaveService.new()
@@ -161,13 +162,13 @@ func test_G06_only_content_mismatch_is_archivable() -> void:
 	assert_true(newer.write_record(_store.checkpoint_path(), Codec.KIND, Store.CHECKPOINT_ID,
 		record["payload"], "2026-11-05T00:01:00Z")["ok"])
 	var bytes: PackedByteArray = FileAccess.get_file_as_bytes(_store.checkpoint_path())
-	assert_eq(_store.archive_mismatched_checkpoint()["code"], "NOT_ARCHIVABLE")
+	assert_eq(Archive.archive_mismatched_checkpoint(_store)["code"], "NOT_ARCHIVABLE")
 	assert_eq(FileAccess.get_file_as_bytes(_store.checkpoint_path()), bytes, "newer schema stays in place")
 	var file: FileAccess = FileAccess.open(_store.checkpoint_path(), FileAccess.WRITE)
 	file.store_string("{ damaged")
 	file.close()
 	DirAccess.remove_absolute(_store.checkpoint_path() + SaveService.BAK_SUFFIX)
-	assert_eq(_store.archive_mismatched_checkpoint()["code"], "NOT_ARCHIVABLE")
+	assert_eq(Archive.archive_mismatched_checkpoint(_store)["code"], "NOT_ARCHIVABLE")
 	assert_eq(FileAccess.get_file_as_string(_store.checkpoint_path()), "{ damaged", "corrupt bytes stay in place")
 
 

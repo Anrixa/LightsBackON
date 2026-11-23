@@ -5,6 +5,7 @@ extends Control
 const UiText := preload("res://scripts/ui/ui_text.gd")
 const ThemeTokens := preload("res://scripts/ui/theme_tokens.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
+const CheckpointArchive := preload("res://scripts/persistence/checkpoint_archive.gd")
 const LoadingCard := preload("res://scripts/ui/loading_card.gd")
 const InputPrompt := preload("res://scripts/ui/input_prompt.gd")
 const InputDeviceTracker := preload("res://scripts/ui/input_device_tracker.gd")
@@ -317,7 +318,7 @@ func _request_new_shift() -> void:
 ## Runs only from the player's explicit confirmation. The store re-checks that the file is still CONTENT_MISMATCH and
 ## moves it; anything else (corrupt, newer schema, a move failure) leaves every file in place and is shown here.
 func _archive_outdated_and_launch() -> void:
-	var result: Dictionary = _store.archive_mismatched_checkpoint()
+	var result: Dictionary = CheckpointArchive.archive_mismatched_checkpoint(_store)
 	_apply_save_status(_store.checkpoint_status())
 	if not bool(result.get("ok", false)):
 		_save_message.text = UiText.tf("offline.menu.archive_failed", [str(result.get("code", "UNAVAILABLE"))])
