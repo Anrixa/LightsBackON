@@ -12,6 +12,10 @@ const EnvironmentFeedback := preload("res://scripts/world/expedition_environment
 const ApproachView := preload("res://scripts/world/expedition_approach_view.gd")
 const Exp017Presentation := preload("res://scripts/world/exp017_restoration_feedback.gd")
 const Exp018Presentation := preload("res://scripts/world/exp018_host_presentation.gd")
+const Exp019Physical := preload("res://scripts/world/exp019_physical_worksite.gd")
+const Exp019Spatial := preload("res://scripts/world/exp019_spatial_tasks.gd")
+const Exp019FieldTools := preload("res://scripts/gameplay/exp019_field_tools.gd")
+const Exp019Environment := preload("res://scripts/world/exp019_environment_physics.gd")
 const Runtime := preload("res://scripts/gameplay/expedition_host_session.gd")
 const RegionalPanel := preload("res://scripts/ui/expedition_regional_panel.gd")
 const PlayerController := preload("res://scripts/actors/first_person_controller.gd")
@@ -52,6 +56,9 @@ var _hazard_marker: MeshInstance3D
 var _site_composition: Node3D
 var _environmental_feedback: Node3D
 var _exp017_feedback: Node3D
+var _exp019_physical: Node3D
+var _exp019_spatial: Node3D
+var _exp019_environment: Node3D
 var _approach_view: Node3D
 var _approach_choice: String = "guarded"
 var _outcome_choice: String = "buffer"
@@ -139,7 +146,7 @@ func _ready() -> void:
 		# Never silently drop regional authority for a requested nonfinale.
 		result = runtime.start_exp018_authenticated_finale(level_id,
 			Callable(self, "_host_position"), _expedition_account,
-			OfflinePersistence.runtime_root(), Callable(self, "_world_sight"))
+			OfflinePersistence.runtime_root(), Callable(self, "_world_sight"), true, true)
 	elif _exp018_requested:
 		# Source-bound advanced missions remain opt-in at all 200 sites.
 		# The same physical sight provider and host intent API are retained.
@@ -150,18 +157,33 @@ func _ready() -> void:
 			true, true, true, true, true, true, true,
 			false, # regional network requires original authenticated dispatch
 			false, false, false, false, false, false, false, false, false, false,
-			true, true, true, true, true, false, true)
+			true, true, true, true, true, false, true,
+			true, true) # host-owned EXP019 tools and procedures
 	else:
-		result = runtime.start(
+		result = runtime.start_exp019_expedition(
 			level_id, Callable(self, "_host_position"), Callable(self, "_world_sight"),
-			_expedition_account, _expedition_account != "", "",
-			true, true, true, true, true, true, true,
-			true, true, true, true, true, true, true, _regional_requested)
+			_expedition_account, _expedition_account != "", _regional_requested)
 	if not bool(result.get("ok", false)):
 		push_error("EXP03_HOST_START_FAILED: " + str(result))
 		return
 	_definitions = runtime.definition_snapshot()
+	_exp019_physical = Exp019Physical.build(plan, world)
+	if _exp019_physical == null:
+		push_error("EXP019_A01_PHYSICAL_SOURCE_HOLD")
+		return
+	world.add_child(_exp019_physical)
+	player.floor_snap_length = 0.30
 	_add_host_targets()
+	_exp019_spatial = Exp019Spatial.build(plan, _definitions, world)
+	if _exp019_spatial == null:
+		push_error("EXP019_A02_SPATIAL_HOST_BINDINGS_HOLD")
+		return
+	world.add_child(_exp019_spatial)
+	_exp019_environment = Exp019Environment.build(plan, world)
+	if _exp019_environment == null:
+		push_error("EXP019_A04_ENVIRONMENT_PHYSICS_HOLD")
+		return
+	world.add_child(_exp019_environment)
 	_add_site_composition(plan)
 	_add_exp017_presentation(plan)
 	_add_hazard_marker()
@@ -476,12 +498,21 @@ func _next_repair() -> void:
 	if runtime.interaction.lock_owner("R_WEST") != Runtime.PLAYER_ID:
 		_send("request_lock", "R_WEST")
 		return
+	if runtime.field_tools != null:
+		var pending: Dictionary = runtime.field_tools.next_action(state)
+		if not pending.is_empty():
+			if TOOL_IDS[_selected_tool] != str(pending["tool"]):
+				_feedback.text = "Field procedure: equip %s, then interact to %s." % [pending["tool"], pending["action"]]
+				return
+			_send("operate_worksite", "R_WEST", {"action": pending["action"]})
+			return
 	var index: int = Interaction.STATES.find(state)
 	if index < 0 or index >= Interaction.STEPS.size():
 		return
 	var step: String = Interaction.STEPS[index]
 	var definition: Dictionary = (_definitions["repairs"]["repairs"] as Array)[0]
-	var required: String = str((definition["tools"] as Dictionary).get(step, ""))
+	var required: String = Exp019FieldTools.required_for_step(step) if runtime.field_tools != null else \
+		str((definition["tools"] as Dictionary).get(step, ""))
 	if required != "" and TOOL_IDS[_selected_tool] != required:
 		_feedback.text = "Equip %s before the %s repair step." % [required, step]
 		return
@@ -703,7 +734,13 @@ func _activate_target() -> void:
 		var order: Dictionary = runtime.worksite.definition_snapshot()
 		var state: Dictionary = runtime.worksite.snapshot()
 		if _target == str(order["board"]):
-			_send("operate_worksite", _target, {"action": "open"})
+			if runtime.site_mechanics != null and bool(state.get("opened", false)) and \
+					not runtime.site_mechanics.solved():
+				var next_mechanic: Dictionary = runtime.site_mechanics.next_operation()
+				if not next_mechanic.is_empty():
+					_send("operate_worksite", _target, {"action": "site_" + str(next_mechanic["action"])})
+			else:
+				_send("operate_worksite", _target, {"action": "open"})
 		elif _target == str(order["decision"]):
 			_send("operate_worksite", _target, {"action": _worksite_route})
 		elif _target == str(order["console"]):
@@ -988,6 +1025,16 @@ func _refresh() -> void:
 			str(status["hazard_kind"]), str(status["hazard_blocks"]),
 			"UNSAFE" if status["hazard_active"] else "SAFE",
 			int(status["safe_in_ticks"]), int(status["exposure_ticks"])])
+	if runtime.site_mechanics != null:
+		var mechanical: Dictionary = runtime.site_mechanics.snapshot()
+		lines.append("EXP019 A05 AUTHORED PROCEDURE %d/%d • %s • kits %d • spare %d" % [
+			(mechanical["completed"] as Array).size(), (mechanical["sequence"] as Array).size(),
+			str(mechanical["next"].get("action", "COMPLETE")).to_upper(),
+			int(mechanical["kits"]), int(mechanical["reserve"])])
+	if runtime.field_tools != null:
+		var gear: Dictionary = runtime.field_tools.snapshot()
+		lines.append("EXP019 FIVE TOOLS %d/6 operations • equipped %s • authenticated" % [
+			int(gear["completed_operations"]), str(gear["equipped"])])
 	if board.has("devices"):
 		var graph: Dictionary = board["devices"]
 		var done: int = 0
@@ -1237,4 +1284,12 @@ func _refresh() -> void:
 			_exp017_feedback, runtime, _exp018_requested)
 		if not bool(presented.get("ok", false)):
 			push_error("EXP018_A04_HOST_PRESENTATION_HOLD: " + str(presented))
+	if _exp019_spatial != null:
+		var spatial_status: Dictionary = Exp019Spatial.reflect(_exp019_spatial, board)
+		if not bool(spatial_status.get("ok", false)):
+			push_error("EXP019_A02_HOST_TASK_PRESENTATION_HOLD: " + str(spatial_status))
+	if _exp019_environment != null:
+		var env_result: Dictionary = Exp019Environment.reflect(_exp019_environment, board, runtime.grid.canonical_state())
+		if not bool(env_result.get("ok", false)):
+			push_error("EXP019_A04_HOST_COLLISION_PROJECTION_HOLD: " + str(env_result))
 	set_meta("display_revision", int(board["host_revision"]))

@@ -39,7 +39,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: exp014-a10-4-linux-${{ github.sha }}
-          path: build/exp014-a10-4/source-gate.json
+          path: |
+            build/exp014-a10-4/source-gate.json
+            build/exp019-a01/physics-reachability.json
           if-no-files-found: warn
           retention-days: 14
       - name: Retain EXP015 A03 Linux original-route evidence
