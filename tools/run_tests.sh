@@ -446,6 +446,8 @@ elif [ -f project.godot ]; then
   done
   echo "== cross-check: python reference vs godot canonical hashes =="
   if [ -n "$PY" ]; then GODOT_BIN="$GODOT_BIN" "$PY" tools/cross_check_reference.py || FAIL=1; fi
+  echo "== RB03: challenge solver, difficulty, pillar checks and python/godot trace parity =="
+  if [ -n "$PY" ]; then GODOT_BIN="$GODOT_BIN" "$PY" tools/rb03_challenge_check.py || FAIL=1; fi
 else
   echo "skipped: no project.godot yet (task F01)"
 fi

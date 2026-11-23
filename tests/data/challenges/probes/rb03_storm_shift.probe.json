@@ -1,0 +1,33 @@
+{
+ "challenge_id": "RB03_STORM_SHIFT",
+ "source_note": "RB03 parity probe: refusals, a sign overload that trips the east breaker, a refused breaker reset, a cable that cannot follow the generator, an overloaded generator that never finishes its latch (WAIT_TIMEOUT) and malformed steps. Both runners must return the same outcome and the same canonical hash after every step at every crew size. It is not a solution (must_solve false).",
+ "must_solve": false,
+ "steps": [
+  {"do": "access", "id": "ROOF_HATCH", "expect": "ACCESS_NOT_READY"},
+  {"do": "repair", "id": "R_JW_FUSE", "expect": "ACCESS_BLOCKED"},
+  {"do": "route", "id": "GEN_PORTABLE", "edge": "E_TEMP_PUMP", "on": true, "expect": "ROUTE_NOT_AT_ANCHOR"},
+  {"do": "power", "id": "GEN_PORTABLE", "on": true, "expect": "NOT_PLACED"},
+  {"do": "access", "id": "ROOF_HATCH"},
+  {"do": "switch", "id": "SW_SIGN", "value": true},
+  {"do": "wait", "ticks": 5},
+  {"do": "switch", "id": "SW_JE_BREAKER", "value": false, "expect": "RESET_OVERLOADED"},
+  {"do": "switch", "id": "SW_SIGN", "value": false},
+  {"do": "switch", "id": "SW_SIGN", "value": false, "expect": "NO_CHANGE"},
+  {"do": "access", "id": "ROOF_HATCH", "expect": "NO_CHANGE"},
+  {"do": "repair", "id": "R_JW_FUSE"},
+  {"do": "repair", "id": "R_JW_FUSE", "expect": "ALREADY_RESTORED"},
+  {"do": "place", "id": "GEN_PORTABLE", "anchor": "PAD_YARD"},
+  {"do": "place", "id": "GEN_PORTABLE", "anchor": "NOWHERE", "expect": "UNKNOWN_ANCHOR"},
+  {"do": "route", "id": "GEN_PORTABLE", "edge": "E_TEMP_CLINIC", "on": true},
+  {"do": "route", "id": "GEN_PORTABLE", "edge": "E_TEMP_PUMP", "on": true},
+  {"do": "power", "id": "GEN_PORTABLE", "on": true},
+  {"do": "wait", "until": "latch", "id": "LATCH_PUMP", "expect": "WAIT_TIMEOUT"},
+  {"do": "place", "id": "GEN_PORTABLE", "anchor": "VAN_BAY", "expect": "SUPPLY_RUNNING"},
+  {"do": "power", "id": "GEN_PORTABLE", "on": false},
+  {"do": "place", "id": "GEN_PORTABLE", "anchor": "VAN_BAY", "expect": "ROUTES_CONNECTED"},
+  {"do": "repair", "id": "R_NOPE", "expect": "UNKNOWN_ID"},
+  {"do": "dance", "expect": "BAD_STEP"},
+  {"do": "wait", "until": "never", "expect": "BAD_STEP"},
+  {"do": "wait", "until": "tick", "tick": 3400}
+ ]
+}

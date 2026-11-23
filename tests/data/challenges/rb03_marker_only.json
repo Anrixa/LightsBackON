@@ -1,0 +1,255 @@
+{
+ "schema": 1,
+ "id": "RB03_MARKER_ONLY",
+ "location_id": "TEST_YARD",
+ "source_note": "RB03 pillar fixture: every fault sits right under a dark building and the first generator pad holds one route that fits, so a player who only follows markers and holds Interact finishes it. Pillar 1 must reject it (MARKER_ONLY) while the tradeoff check passes (the second pad cannot carry both of its routes).",
+ "grid": {
+  "trip_ticks": 15,
+  "nodes": [
+   {
+    "id": "GRID",
+    "kind": "source",
+    "capacity": 24,
+    "online": true
+   },
+   {
+    "id": "GEN",
+    "kind": "source",
+    "capacity": 6,
+    "online": false
+   },
+   {
+    "id": "JW",
+    "kind": "junction",
+    "isolated": false,
+    "failed": true,
+    "tripped": true
+   },
+   {
+    "id": "JE",
+    "kind": "junction",
+    "isolated": false,
+    "failed": true,
+    "tripped": false
+   },
+   {
+    "id": "TEMP",
+    "kind": "junction",
+    "isolated": false,
+    "failed": false,
+    "tripped": false
+   },
+   {
+    "id": "HOMES",
+    "kind": "consumer",
+    "demand": 5,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "SHOP",
+    "kind": "consumer",
+    "demand": 4,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "CAFE",
+    "kind": "consumer",
+    "demand": 4,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "PUMP",
+    "kind": "consumer",
+    "demand": 4,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "LIGHTS",
+    "kind": "consumer",
+    "demand": 4,
+    "enabled": true,
+    "healthy": true
+   }
+  ],
+  "edges": [
+   {
+    "id": "E_GRID_JW",
+    "from": "GRID",
+    "to": "JW",
+    "capacity": 12,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "E_GRID_JE",
+    "from": "GRID",
+    "to": "JE",
+    "capacity": 12,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "E_JW_HOMES",
+    "from": "JW",
+    "to": "HOMES",
+    "capacity": 5,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "E_JW_SHOP",
+    "from": "JW",
+    "to": "SHOP",
+    "capacity": 4,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "E_JE_CAFE",
+    "from": "JE",
+    "to": "CAFE",
+    "capacity": 4,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "E_GEN_TEMP",
+    "from": "GEN",
+    "to": "TEMP",
+    "capacity": 6,
+    "enabled": true,
+    "healthy": true
+   },
+   {
+    "id": "E_TEMP_PUMP",
+    "from": "TEMP",
+    "to": "PUMP",
+    "capacity": 4,
+    "enabled": false,
+    "healthy": true
+   },
+   {
+    "id": "E_TEMP_LIGHTS",
+    "from": "TEMP",
+    "to": "LIGHTS",
+    "capacity": 4,
+    "enabled": false,
+    "healthy": true
+   }
+  ],
+  "protections": [
+   {
+    "id": "BRK_JW",
+    "element": "E_GRID_JW",
+    "breaker": "JW"
+   },
+   {
+    "id": "BRK_JE",
+    "element": "E_GRID_JE",
+    "breaker": "JE"
+   },
+   {
+    "id": "BRK_TEMP",
+    "element": "E_GEN_TEMP",
+    "breaker": "TEMP"
+   }
+  ]
+ },
+ "grid_sources": [
+  "GRID"
+ ],
+ "required_consumers": [
+  "CAFE",
+  "HOMES",
+  "SHOP"
+ ],
+ "excluded_loads": [],
+ "verification_ticks": 100,
+ "faults": [
+  {
+   "id": "R_JW_FUSE",
+   "panel": "PANEL_JW",
+   "junction": "JW",
+   "fix": {
+    "op": "set",
+    "id": "JW",
+    "field": "failed",
+    "value": false
+   },
+   "access": "",
+   "work_ticks": 28
+  },
+  {
+   "id": "R_JE_FUSE",
+   "panel": "PANEL_JE",
+   "junction": "JE",
+   "fix": {
+    "op": "set",
+    "id": "JE",
+    "field": "failed",
+    "value": false
+   },
+   "access": "CELLAR",
+   "work_ticks": 28
+  }
+ ],
+ "switches": [],
+ "temporary_supply": [
+  {
+   "id": "GEN_PORTABLE",
+   "source": "GEN",
+   "start_anchor": "VAN_BAY",
+   "anchors": [
+    {
+     "id": "VAN_BAY",
+     "storage": true,
+     "routes": []
+    },
+    {
+     "id": "PAD_A",
+     "storage": false,
+     "routes": [
+      "E_TEMP_PUMP"
+     ]
+    },
+    {
+     "id": "PAD_B",
+     "storage": false,
+     "routes": [
+      "E_TEMP_LIGHTS",
+      "E_TEMP_PUMP"
+     ]
+    }
+   ]
+  }
+ ],
+ "latches": [
+  {
+   "id": "LATCH_PUMP",
+   "consumer": "PUMP",
+   "source": "GEN",
+   "supplied_ticks": 60,
+   "grants": "PUMP_RAN"
+  }
+ ],
+ "access_routes": [],
+ "flood_areas": [
+  {
+   "id": "CELLAR",
+   "water_cm": 80,
+   "wade_cm": 30,
+   "drained_by": "LATCH_PUMP"
+  }
+ ],
+ "storm_events": [],
+ "crew_scaling": {
+  "1": 100,
+  "2": 70,
+  "3": 60,
+  "4": 50
+ }
+}

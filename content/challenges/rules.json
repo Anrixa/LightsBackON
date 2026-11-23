@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "source_note": "RB03 (ADR-019): constants for the challenge runner, solver, difficulty score and pillar checks, read by reference/lbo_challenge.py and scripts/simulation/challenge_runner.gd. Ticks are the 10 Hz grid tick. action_ticks is the time one player action costs (switch, cable, start/stop, climb), a human-speed pace; carry_ticks is moving the temporary supply between anchors; wait_limit_ticks caps one wait-for-a-condition step. crew_work_pct is the default crew scaling copied into a challenge: repair work and carrying take that percentage of the solo time with 1-4 players (more hands, same answer). Weights and tier thresholds are DESIGN CHOICES calibrated on C01-C12 in RB03 (docs/evidence/RB03.md); whether the tiers feel right needs people (D07/B studies).",
+  "action_ticks": 10,
+  "carry_ticks": 30,
+  "wait_limit_ticks": 3000,
+  "crew_work_pct": {"1": 100, "2": 70, "3": 60, "4": 50},
+  "par_margin_pct": 150,
+  "solver": {"max_states": 40000, "max_ticks": 6000},
+  "marker_policy": {"max_ticks": 3000, "idle_ticks": 10},
+  "score_weights": {"steps": 1, "tradeoffs": 4, "failing_routes": 2, "meter_readings": 3, "time_pressure": 4},
+  "tier_min_scores": [0, 22, 30, 38, 46]
+}
