@@ -12,7 +12,7 @@ func _scene() -> Dictionary:
 	var world: Node3D = Graybox.build(plan)
 	var projected: Node3D = Presentation.build(plan, world)
 	world.add_child(projected)
-	var effects: RefCounted = Effects.new()
+	var effects: Variant = Effects.new()
 	return {"world": world, "effect": effects, "result": effects.setup(world, plan)}
 
 func _grid(online: bool, lit: bool, tick: int) -> Dictionary:
@@ -39,7 +39,7 @@ func test_EXP021_A03_power_on_slews_and_fail_darkens_immediately() -> void:
 	var f: Dictionary = _scene()
 	assert_true(f["result"].get("ok", false))
 	assert_eq(f["result"].get("new_light_nodes"), 0)
-	var fx: RefCounted = f["effect"]
+	var fx: Variant = f["effect"]
 	var board: Dictionary = {"level_id":"LV_001", "host_revision":2,
 		"mission_verified":true, "worksite":{"site_hazards":{"solved":true}}}
 	assert_true(fx.reflect(board, _grid(true, true, 5)).get("ok", false))
@@ -59,7 +59,7 @@ func test_EXP021_A03_power_on_slews_and_fail_darkens_immediately() -> void:
 
 func test_EXP021_A03_stale_grid_cannot_override_lighting_or_settings() -> void:
 	var f: Dictionary = _scene()
-	var fx: RefCounted = f["effect"]
+	var fx: Variant = f["effect"]
 	assert_true(fx.reflect({"level_id":"LV_001", "host_revision":4,
 		"mission_verified":true}, _grid(true, true, 8)).get("ok", false))
 	var malformed: Dictionary = _grid(false, true, 9)
@@ -68,7 +68,7 @@ func test_EXP021_A03_stale_grid_cannot_override_lighting_or_settings() -> void:
 	assert_true(fx.is_restored())
 	assert_false(fx.reflect({"level_id":"LV_001", "host_revision":3,
 		"mission_verified":false}, _grid(false, false, 10)).get("ok", false))
-	var settings: RefCounted = Settings.new()
+	var settings: Variant = Settings.new()
 	var prefs: Dictionary = settings.snapshot()
 	prefs["ui_scale_percent"] = 150
 	prefs["reduce_flashes"] = true

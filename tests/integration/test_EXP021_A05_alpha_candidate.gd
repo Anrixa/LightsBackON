@@ -128,10 +128,10 @@ func test_EXP021_A05_200_actual_scenes_host_startups_and_1000_original_task_bind
 		if projected.get("ok", false):
 			source_projection_count += 1
 		if serial % 8 == 1:
-			var audio: RefCounted = Audio.new()
+			var audio: Variant = Audio.new()
 			var audio_ready: Dictionary = audio.setup(world, plan)
 			assert_true(audio_ready.get("ok", false), "A02 scene audio")
-			var effects: RefCounted = Effects.new()
+			var effects: Variant = Effects.new()
 			var fx_ready: Dictionary = effects.setup(world, plan)
 			assert_true(fx_ready.get("ok", false), "A03 scene effects")
 			if audio_ready.get("ok", false) and fx_ready.get("ok", false):
