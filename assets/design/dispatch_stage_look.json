@@ -1,0 +1,100 @@
+{
+  "_note": "DS dispatch-stage look: brings the approved Alder Street Stormglass look (DS08, ADR-016/017) to the experimental field dispatch levels. Presentation only, stored under assets/ so it never changes content or rules revisions or saves. Read by scripts/world/dispatch_stage_look.gd. Colours sRGB hex; lengths metres.",
+  "creator": "Lights Back On project original procedural art, 2026-11-23",
+  "license": "project-owned",
+  "fill_light_energy": 0.22,
+  "surface": {
+    "max_value": 0.5,
+    "saturation_scale": 0.55,
+    "accent_value_scale": 0.62,
+    "roughness_percent": 82,
+    "wetness_percent": 45,
+    "scale_cm": 120
+  },
+  "group_patterns": {
+    "CandidateGround": {
+      "from": "asphalt",
+      "wetness_percent": 25,
+      "scale_cm": 220
+    },
+    "RoadRibbons": "paving",
+    "Landmarks": "buildings",
+    "Stations": 4,
+    "FacilitySilhouettes": 3,
+    "EXP017_A01_ArchitecturalIdentity": 2,
+    "ElevatedServiceAccess": 4,
+    "ObstructedEmergencyApproach": 7,
+    "EnvironmentalObstructions": 7,
+    "PhysicalSurfaces": 3
+  },
+  "unit": {
+    "body": "#4F6B5C",
+    "trim": "#2E3E36",
+    "post": "#2C3740",
+    "plate": "#F0EBDD",
+    "hazard": "#E4C23A",
+    "screen": "#7FD3DA",
+    "screen_energy": 1.6,
+    "gauge": "#E9F0E8",
+    "lever": "#D9473A",
+    "crate": "#8A6A3C",
+    "plinth": "#6A7178",
+    "head_size": [
+      0.34,
+      0.3,
+      0.16
+    ],
+    "console_size": [
+      0.46,
+      0.08,
+      0.32
+    ],
+    "console_tilt_deg": 28,
+    "post_radius": 0.035,
+    "base_size": [
+      0.2,
+      0.05,
+      0.2
+    ]
+  },
+  "work_light": {
+    "mast_height": 2.6,
+    "head_size": [
+      0.42,
+      0.26,
+      0.14
+    ],
+    "frame": "#2B333A",
+    "lens": "#FFE2B0",
+    "lens_energy": 3.0,
+    "color": "#FFD8A0",
+    "energy": 1.8,
+    "range": 8.5,
+    "attenuation": 1.4,
+    "back_m": 2.6,
+    "side_m": 2.2
+  },
+  "perimeter": {
+    "height": 2.4,
+    "thickness": 0.3,
+    "inset": 0.4,
+    "post_spacing": 4.0,
+    "cap": "#3A434B"
+  },
+  "skyline": {
+    "count": 14,
+    "distance": 12.0,
+    "height_min": 8.0,
+    "height_max": 22.0,
+    "width_min": 6.0,
+    "width_max": 14.0,
+    "color": "#1E2C3A",
+    "window": "#E8B96A",
+    "window_energy": 1.4,
+    "lit_every": 3
+  },
+  "lamps": {
+    "max": 4,
+    "side_offset": 2.4
+  }
+}

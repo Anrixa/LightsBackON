@@ -164,7 +164,8 @@ static func _assembly(root: Node3D, letter: String,
 	# Three configurations are distinguished by piping, busbar or mast fixtures.
 	match region_code % 3:
 		0:
-			_box(node, "ServiceBusbar", Vector3(0.0, 1.67, 0.1),
+			# Rests on the cabinet top (1.44 m); it used to hover 0.18 m above it (DS stage audit).
+			_box(node, "ServiceBusbar", Vector3(0.0, 1.49, 0.1),
 				Vector3(1.55, 0.10, 0.16), accent)
 		1:
 			for i: int in range(2):

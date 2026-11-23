@@ -209,11 +209,12 @@ static func _form(parent: Node3D, form: String, tint: Color) -> void:
 			if form == "gate":
 				_box(parent, "SlidingLeaf", Vector3(0.0, 0.83, 0.0), Vector3(1.24, 1.52, 0.14), tint)
 			elif form == "canopy":
-				_box(parent, "Roof", Vector3(0.0, 2.48, 0.0), Vector3(2.25, 0.13, 1.85), tint)
+				_box(parent, "Roof", Vector3(0.0, 2.44, 0.0), Vector3(2.25, 0.13, 1.85), tint)
 			elif form == "truss":
-				_box(parent, "TensionBrace", Vector3(0.0, 1.4, 0.0), Vector3(0.12, 2.15, 0.12), tint)
+				# Runs from the ground to the span; it used to stop 0.33 m short of the ground (DS stage audit).
+				_box(parent, "TensionBrace", Vector3(0.0, 1.08, 0.0), Vector3(0.12, 2.16, 0.12), tint)
 			elif form == "gantry":
-				_box(parent, "GantryHead", Vector3(0.0, 2.66, 0.0), Vector3(0.52, 0.45, 0.6), tint)
+				_box(parent, "GantryHead", Vector3(0.0, 2.6, 0.0), Vector3(0.52, 0.45, 0.6), tint)
 		"silo", "cistern", "tower", "stack", "mast", "pylon":
 			var height: float = 2.15 if form == "cistern" else 3.1
 			_cylinder(parent, "Column", Vector3(0.0, height * 0.5, 0.0),
@@ -244,7 +245,8 @@ static func _form(parent: Node3D, form: String, tint: Color) -> void:
 					Vector3(0.17 if form != "baffle" else 0.34, height,
 						1.65 if form == "channel" else 0.5), tint)
 			if form in ["rack", "cabinet"]:
-				_box(parent, "ControlTop", Vector3(0.0, 2.08, 0.0),
+				# Sits on the tallest fin (rack fins top out at 1.75 m); it used to hover above them (DS stage audit).
+				_box(parent, "ControlTop", Vector3(0.0, 1.86 if form == "rack" else 2.08, 0.0),
 					Vector3(2.2, 0.22, 0.8), iron)
 		"shed", "vent", "stair", "hoist":
 			if form == "stair":
@@ -255,15 +257,16 @@ static func _form(parent: Node3D, form: String, tint: Color) -> void:
 			else:
 				_box(parent, "ServiceHousing", Vector3(0.0, 0.65, 0.0),
 					Vector3(1.65, 1.3, 1.35), tint)
-				_box(parent, "Superstructure", Vector3(0.0, 1.65, 0.0),
+				# Roof slab on the 1.3 m housing, post and exhaust on the slab: all three used to hover (DS stage audit).
+				_box(parent, "Superstructure", Vector3(0.0, 1.38, 0.0),
 					Vector3(2.05, 0.16, 1.50), iron)
 				if form == "hoist":
-					_box(parent, "LiftPost", Vector3(-0.62, 2.35, 0.0),
+					_box(parent, "LiftPost", Vector3(-0.62, 2.16, 0.0),
 						Vector3(0.18, 1.4, 0.18), tint)
 					_box(parent, "Boom", Vector3(0.25, 2.9, 0.0),
 						Vector3(1.6, 0.18, 0.2), tint)
 				elif form == "vent":
-					_cylinder(parent, "Exhaust", Vector3(0.0, 2.36, 0.0), 0.28, 1.3, tint)
+					_cylinder(parent, "Exhaust", Vector3(0.0, 2.11, 0.0), 0.28, 1.3, tint)
 
 
 static func _environment(parent: Node3D, cue: String, tint: Color, risk: String) -> void:

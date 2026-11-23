@@ -63,7 +63,9 @@ static func _primary_structure(parent: Node3D, plan: Dictionary,
 		for i: int in range(4):
 			_mesh(parent, "MastLeg%02d" % i, Vector3(5.0 + float(i % 2) * 2.4,
 				3.3, 38.5 + float(i / 2) * 2.4), Vector3(0.3, 6.6, 0.3), facade)
-		_mesh(parent, "MastCrossarm", Vector3(6.2, 6.4, 39.7), Vector3(4.8, 0.3, 0.3), accent)
+		# One crossarm per leg pair: a single centred arm missed both leg rows and hung in the air (DS stage audit).
+		_mesh(parent, "MastCrossarm", Vector3(6.2, 6.4, 38.5), Vector3(4.8, 0.3, 0.3), accent)
+		_mesh(parent, "MastCrossarmRear", Vector3(6.2, 6.4, 40.9), Vector3(4.8, 0.3, 0.3), accent)
 	elif kind == "waterworks":
 		for i: int in range(3):
 			_mesh(parent, "PumpTank%02d" % i, Vector3(4.7 + float(i) * 2.1,
@@ -74,16 +76,20 @@ static func _primary_structure(parent: Node3D, plan: Dictionary,
 			Vector3(12.5, 1.0, 3.0), facade)
 		_mesh(parent, "PlatformCanopy", Vector3(7.5, 4.0, 40.0),
 			Vector3(12.5, 0.3, 5.0), roof)
+		# Columns from the platform deck (1.0 m) to the canopy (3.85 m); the canopy had no supports (DS stage audit).
+		for i: int in range(4):
+			_mesh(parent, "CanopyColumn%d" % i, Vector3(2.0 + float(i) * 3.67, 2.425, 41.0),
+				Vector3(0.25, 2.85, 0.25), facade)
 	elif kind == "distribution":
 		for i: int in range(3):
 			_mesh(parent, "SwitchCabinet%02d" % i,
 				Vector3(5.0 + float(i) * 2.4, 1.5, 39.6),
 				Vector3(1.75, 3.0, 1.2), facade)
-		_mesh(parent, "IncomingFeeder", Vector3(7.5, 3.5, 39.6),
+		_mesh(parent, "IncomingFeeder", Vector3(7.5, 3.125, 39.6),
 			Vector3(8.5, 0.25, 0.25), accent)
 	elif kind == "commerce":
 		_mesh(parent, "MarketStalls", origin, Vector3(width, height, 4.8), facade)
-		_mesh(parent, "MarketAwning", Vector3(7.5, height + 0.3, 39.7),
+		_mesh(parent, "MarketAwning", Vector3(7.5, height + 0.125, 39.7),
 			Vector3(width + 1.8, 0.25, 5.8), roof)
 	elif kind == "health":
 		_mesh(parent, "ClinicWing", origin, Vector3(width, height, 6.5), facade)
@@ -91,12 +97,75 @@ static func _primary_structure(parent: Node3D, plan: Dictionary,
 			Vector3(width - 0.5, 0.3, 2.5), accent)
 	elif kind == "education":
 		_mesh(parent, "LearningHall", origin, Vector3(width, height + 1.7, 5.5), facade)
-		_mesh(parent, "SignalBell", Vector3(7.5, height + 2.2, 40.0),
+		_mesh(parent, "SignalBell", Vector3(7.5, height + 1.4, 40.0),
 			Vector3(1.1, 1.1, 1.1), accent)
 	else:
 		_mesh(parent, "ShelterHall", origin, Vector3(width + 2.2, height, 6.7), facade)
-		_mesh(parent, "ReliefAwning", Vector3(7.5, height + 0.35, 40.0),
+		_mesh(parent, "ReliefAwning", Vector3(7.5, height + 0.175, 40.0),
 			Vector3(width + 2.5, 0.35, 7.3), roof)
+
+
+## Landmark buildings were placed at fixed coordinates while stations vary per level, so on 112 of 200 levels a
+## station stood inside a (mesh-only, walk-through) building. Slide a landmark group by the smallest offset that keeps
+## its footprint ROUTE_CLEAR_M away from every station and the route between them, inside the site (DS stage audit).
+const ROUTE_CLEAR_M: float = 3.0
+const SITE_EDGE_M: float = 1.5
+const MAX_SHIFT_M: int = 40
+
+
+static func _clear_route(nodes: Array[Node3D], stations: Array) -> void:
+	var footprint: Rect2 = _footprint(nodes)
+	if footprint.size == Vector2.ZERO:
+		return
+	var best: Vector2 = Vector2.INF
+	for radius: int in range(0, MAX_SHIFT_M + 1):
+		for dx: int in range(-radius, radius + 1):
+			for dz: int in range(-radius, radius + 1):
+				if maxi(absi(dx), absi(dz)) != radius:
+					continue
+				var shifted: Rect2 = Rect2(footprint.position + Vector2(dx, dz), footprint.size)
+				if _route_clear(shifted, stations) and Vector2(dx, dz).length() < best.length():
+					best = Vector2(dx, dz)
+		if best != Vector2.INF:
+			break
+	if best == Vector2.INF:
+		push_error("EXP02_LANDMARK_ROUTE_CLASH: no clear spot for " + str(nodes[0].name))
+		return
+	for node: Node3D in nodes:
+		node.position += Vector3(best.x, 0.0, best.y)
+
+
+static func _footprint(nodes: Array[Node3D]) -> Rect2:
+	var rect: Rect2 = Rect2()
+	var first: bool = true
+	for node: Node3D in nodes:
+		var mi: MeshInstance3D = node as MeshInstance3D
+		if mi == null or mi.mesh == null:
+			continue
+		var box: AABB = mi.transform * mi.mesh.get_aabb()
+		var r: Rect2 = Rect2(box.position.x, box.position.z, box.size.x, box.size.z)
+		rect = r if first else rect.merge(r)
+		first = false
+	return rect
+
+
+static func _route_clear(rect: Rect2, stations: Array) -> bool:
+	if rect.position.x < SITE_EDGE_M or rect.position.y < SITE_EDGE_M or 			rect.end.x > FLOOR_SIZE_M - SITE_EDGE_M or rect.end.y > FLOOR_SIZE_M - SITE_EDGE_M:
+		return false
+	var grown: Rect2 = rect.grow(ROUTE_CLEAR_M)
+	for i: int in stations.size():
+		var a: Vector3 = stations[i]["position"]
+		if grown.has_point(Vector2(a.x, a.z)):
+			return false
+		if i + 1 < stations.size():
+			var b: Vector3 = stations[i + 1]["position"]
+			# Sample the walk between stations; 0.5 m steps are finer than the clearance.
+			var steps: int = maxi(1, ceili(Vector2(b.x - a.x, b.z - a.z).length() / 0.5))
+			for k: int in range(steps + 1):
+				var t: float = float(k) / float(steps)
+				if grown.has_point(Vector2(lerpf(a.x, b.x, t), lerpf(a.z, b.z, t))):
+					return false
+	return true
 
 
 ## Build a complete 52x52m 3D graybox for exactly one EXP01 level.
@@ -145,11 +214,18 @@ static func build(plan: Dictionary) -> Node3D:
 	for i: int in range(first.size() - 1):
 		_segment(roads, "CandidatePath%02d" % i,
 			first[i]["position"], first[i + 1]["position"], walkway_mat)
+	var before: int = structures.get_child_count()
 	_primary_structure(structures, plan, facade_mat, roof_mat, accent_mat)
-	_mesh(structures, "AuxiliaryService", Vector3(43.0, 2.0, 9.0),
+	var primary: Array[Node3D] = []
+	for i: int in range(before, structures.get_child_count()):
+		primary.append(structures.get_child(i) as Node3D)
+	_clear_route(primary, first)
+	var aux: MeshInstance3D = _mesh(structures, "AuxiliaryService", Vector3(43.0, 2.0, 9.0),
 		Vector3(5.5, 4.0 + float(serial % 3), 6.3), facade_mat)
-	_mesh(structures, "EmergencyDepot", Vector3(41.5, 1.5, 40.5),
+	_clear_route([aux] as Array[Node3D], first)
+	var depot: MeshInstance3D = _mesh(structures, "EmergencyDepot", Vector3(41.5, 1.5, 40.5),
 		Vector3(6.0, 3.0, 5.0), roof_mat)
+	_clear_route([depot] as Array[Node3D], first)
 	# Painted hazard indicators are source previews, not new obstacle physics.
 	for index: int in range(3):
 		var x: float = 14.0 + float((serial * (index + 5)) % 24)

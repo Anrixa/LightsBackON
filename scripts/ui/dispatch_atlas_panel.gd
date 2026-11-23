@@ -174,7 +174,8 @@ func _ready() -> void:
 	halves.add_child(right)
 	var viewport_frame: SubViewportContainer = SubViewportContainer.new()
 	viewport_frame.name = "SchematicViewportContainer"
-	viewport_frame.custom_minimum_size = Vector2(360.0, 220.0)
+	# Taller frame and a tight ortho fit: the 52 m site drew as a small thumbnail in a large grey box (DS stage audit).
+	viewport_frame.custom_minimum_size = Vector2(360.0, 300.0)
 	viewport_frame.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	viewport_frame.stretch = true
 	right.add_child(viewport_frame)
@@ -182,6 +183,7 @@ func _ready() -> void:
 	_preview_viewport.name = "SchematicViewport"
 	_preview_viewport.size = Vector2i(720, 320)
 	_preview_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+	_preview_viewport.transparent_bg = true
 	viewport_frame.add_child(_preview_viewport)
 	_preview_root = Node3D.new()
 	_preview_root.name = "SchematicStage"
@@ -189,7 +191,7 @@ func _ready() -> void:
 	var camera: Camera3D = Camera3D.new()
 	camera.name = "SchematicCamera"
 	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
-	camera.size = 78.0
+	camera.size = 46.0
 	camera.position = Vector3(26.0, 58.0, 76.0)
 	_preview_root.add_child(camera)
 	camera.look_at(Vector3(26.0, 0.0, 26.0))

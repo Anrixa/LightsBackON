@@ -150,6 +150,8 @@ static func _kit(parent: Node3D, kind: String, accent: Material,
 				_box(parent, "Step%d" % i, Vector3(0, 0.3 + i * 0.6, i * 0.5),
 					Vector3(2.5 - i * 0.35, 0.6 + i * 0.25, 0.7), stone)
 		"turbine":
+			# Housing on a plinth: it used to start 0.6 m above the ground with nothing under it (DS stage audit).
+			_box(parent, "RotorPlinth", Vector3(0, 0.3, 0), Vector3(1.6, 0.6, 1.1), steel)
 			_box(parent, "RotorHousing", Vector3(0, 1.9, 0), Vector3(2.0, 2.6, 1.4), steel)
 			for i: int in range(4):
 				_box(parent, "Vane%d" % i, Vector3(
