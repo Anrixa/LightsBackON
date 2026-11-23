@@ -122,6 +122,8 @@ func _make_meter(eyes: Camera3D) -> void:
 	_meter_screen.font_size = 25
 	_meter_screen.pixel_size = 0.00080
 	_meter_screen.modulate = Color("#142B26")
+	# LCD segments, not a sign: Label3D's default 12 px black outline smeared the dark text into a blot (DS stage audit).
+	_meter_screen.outline_size = 0
 	_meter_screen.no_depth_test = true
 	_meter_screen.text = "?"
 	_meter_root.add_child(_meter_screen)

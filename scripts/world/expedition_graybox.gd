@@ -63,7 +63,9 @@ static func _primary_structure(parent: Node3D, plan: Dictionary,
 		for i: int in range(4):
 			_mesh(parent, "MastLeg%02d" % i, Vector3(5.0 + float(i % 2) * 2.4,
 				3.3, 38.5 + float(i / 2) * 2.4), Vector3(0.3, 6.6, 0.3), facade)
-		_mesh(parent, "MastCrossarm", Vector3(6.2, 6.4, 39.7), Vector3(4.8, 0.3, 0.3), accent)
+		# One crossarm per leg pair: a single centred arm missed both leg rows and hung in the air (DS stage audit).
+		_mesh(parent, "MastCrossarm", Vector3(6.2, 6.4, 38.5), Vector3(4.8, 0.3, 0.3), accent)
+		_mesh(parent, "MastCrossarmRear", Vector3(6.2, 6.4, 40.9), Vector3(4.8, 0.3, 0.3), accent)
 	elif kind == "waterworks":
 		for i: int in range(3):
 			_mesh(parent, "PumpTank%02d" % i, Vector3(4.7 + float(i) * 2.1,
@@ -74,16 +76,20 @@ static func _primary_structure(parent: Node3D, plan: Dictionary,
 			Vector3(12.5, 1.0, 3.0), facade)
 		_mesh(parent, "PlatformCanopy", Vector3(7.5, 4.0, 40.0),
 			Vector3(12.5, 0.3, 5.0), roof)
+		# Columns from the platform deck (1.0 m) to the canopy (3.85 m); the canopy had no supports (DS stage audit).
+		for i: int in range(4):
+			_mesh(parent, "CanopyColumn%d" % i, Vector3(2.0 + float(i) * 3.67, 2.425, 41.0),
+				Vector3(0.25, 2.85, 0.25), facade)
 	elif kind == "distribution":
 		for i: int in range(3):
 			_mesh(parent, "SwitchCabinet%02d" % i,
 				Vector3(5.0 + float(i) * 2.4, 1.5, 39.6),
 				Vector3(1.75, 3.0, 1.2), facade)
-		_mesh(parent, "IncomingFeeder", Vector3(7.5, 3.5, 39.6),
+		_mesh(parent, "IncomingFeeder", Vector3(7.5, 3.125, 39.6),
 			Vector3(8.5, 0.25, 0.25), accent)
 	elif kind == "commerce":
 		_mesh(parent, "MarketStalls", origin, Vector3(width, height, 4.8), facade)
-		_mesh(parent, "MarketAwning", Vector3(7.5, height + 0.3, 39.7),
+		_mesh(parent, "MarketAwning", Vector3(7.5, height + 0.125, 39.7),
 			Vector3(width + 1.8, 0.25, 5.8), roof)
 	elif kind == "health":
 		_mesh(parent, "ClinicWing", origin, Vector3(width, height, 6.5), facade)
@@ -91,11 +97,11 @@ static func _primary_structure(parent: Node3D, plan: Dictionary,
 			Vector3(width - 0.5, 0.3, 2.5), accent)
 	elif kind == "education":
 		_mesh(parent, "LearningHall", origin, Vector3(width, height + 1.7, 5.5), facade)
-		_mesh(parent, "SignalBell", Vector3(7.5, height + 2.2, 40.0),
+		_mesh(parent, "SignalBell", Vector3(7.5, height + 1.4, 40.0),
 			Vector3(1.1, 1.1, 1.1), accent)
 	else:
 		_mesh(parent, "ShelterHall", origin, Vector3(width + 2.2, height, 6.7), facade)
-		_mesh(parent, "ReliefAwning", Vector3(7.5, height + 0.35, 40.0),
+		_mesh(parent, "ReliefAwning", Vector3(7.5, height + 0.175, 40.0),
 			Vector3(width + 2.5, 0.35, 7.3), roof)
 
 

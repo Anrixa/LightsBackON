@@ -39,6 +39,7 @@ const TOOL_LIST: Array[String] = OfflineSession.TOOL_LIST
 ## C01 remains the production scene. C03 uses an explicit, unsaved preview
 ## scene that shares this controller/UI without touching SOLO_C01 checkpoints.
 @export var contract_id: String = "C01"
+const MESSAGE_CARD_COLOR: Color = Color(0.067, 0.094, 0.125, 0.86)
 var _c03_preview: bool = false
 var _c04_preview: bool = false
 var _ladder_view: C03LadderView
@@ -360,12 +361,24 @@ func _make_ui() -> void:
 	_status.offset_left = -360.0
 	_status.offset_right = 360.0
 	_status.offset_top = 200.0
-	_status.offset_bottom = 250.0
+	# Grows to fit its wrapped text; a fixed 50 px box let three-line notices spill past it (DS stage audit).
+	_status.offset_bottom = 200.0
+	_status.grow_vertical = Control.GROW_DIRECTION_END
 	_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_status.add_theme_color_override("font_color", ThemeTokens.color(_ui_tokens, "action"))
 	_status.theme = ThemeTokens.build(_ui_tokens)
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_status.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# The same tinted card as the other HUD panels: bare text over the rainy street had no guaranteed contrast (ADR-004).
+	var card: StyleBoxFlat = StyleBoxFlat.new()
+	card.bg_color = MESSAGE_CARD_COLOR
+	card.set_corner_radius_all(8)
+	card.content_margin_left = 16.0
+	card.content_margin_right = 16.0
+	card.content_margin_top = 10.0
+	card.content_margin_bottom = 10.0
+	_status.add_theme_stylebox_override("normal", card)
+	_status.visible = false
 
 	tablet = NetworkTablet.new()
 	tablet.name = "NetworkTablet"
@@ -653,6 +666,7 @@ func _process(delta: float) -> void:
 			_feedback_remaining_s = maxf(0.0, _feedback_remaining_s - maxf(0.0, delta))
 			if _feedback_remaining_s <= 0.0:
 				_status.text = ""
+				_status.visible = false
 	if onboarding != null and not _is_preview() and not _paused and not _finished and not _warming and tablet != null and not tablet.visible:
 		onboarding.advance_idle(delta)
 
@@ -906,6 +920,7 @@ func _show_feedback(message: String, important: bool = false, persistent: bool =
 	if _status == null or (_feedback_persistent and not persistent):
 		return
 	_status.text = message
+	_status.visible = message != ""
 	_feedback_persistent = persistent
 	var timing: Dictionary = _solo_tuning["feedback"]
 	_feedback_remaining_s = float(timing["important_seconds"] if important else timing["normal_seconds"])

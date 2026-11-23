@@ -38,6 +38,7 @@ const SaveService := preload("res://scripts/persistence/save_service.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
 const LabelLayout := preload("res://scripts/world/expedition_label_layout.gd")
+const DispatchLook := preload("res://scripts/world/dispatch_stage_look.gd")
 
 const MENU_PATH: String = "res://scenes/menu/main_menu.tscn"
 const HOST_STEP_SECONDS: float = 0.1
@@ -262,6 +263,11 @@ func _ready() -> void:
 	light.rotation_degrees = Vector3(-42.0, -32.0, 0.0)
 	light.light_energy = 0.85
 	add_child(light)
+	# Presentation only: Alder Street Stormglass look, typed equipment units and crew work lights (dispatch_stage_look.gd).
+	var look_report: Dictionary = DispatchLook.apply(self, world, plan["stations"], _definitions["positions"])
+	if not bool(look_report.get("ok", false)):
+		push_error("DS_DISPATCH_LOOK_HOLD: " + str(look_report))
+	set_meta("dispatch_look", look_report)
 	# Presentation only: focus-reveal device labels and stack shared label columns (see expedition_label_layout.gd).
 	set_meta("label_layout", LabelLayout.apply(world))
 	_loaded = true
