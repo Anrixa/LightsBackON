@@ -39,6 +39,7 @@ const OfflinePersistence := preload("res://scripts/persistence/offline_persisten
 const ContentHash := preload("res://scripts/network/content_hash.gd")
 const LabelLayout := preload("res://scripts/world/expedition_label_layout.gd")
 const DispatchLook := preload("res://scripts/world/dispatch_stage_look.gd")
+const DispatchSpawn := preload("res://scripts/world/dispatch_spawn.gd")
 
 const MENU_PATH: String = "res://scenes/menu/main_menu.tscn"
 const HOST_STEP_SECONDS: float = 0.1
@@ -276,6 +277,12 @@ func _ready() -> void:
 	if not bool(look_report.get("ok", false)):
 		push_error("DS_DISPATCH_LOOK_HOLD: " + str(look_report))
 	set_meta("dispatch_look", look_report)
+	# Once every layer is built, move the player to a clear spot facing station 01 (dispatch_spawn.gd).
+	var stations: Array = plan["stations"]
+	var spawn: Dictionary = DispatchSpawn.choose(world, stations[0]["position"], stations[1]["position"])
+	player.global_position = spawn["position"]
+	player.rotation.y = float(spawn["yaw"])
+	set_meta("dispatch_spawn", spawn)
 	# Presentation only: focus-reveal device labels and stack shared label columns (see expedition_label_layout.gd).
 	set_meta("label_layout", LabelLayout.apply(world))
 	_loaded = true

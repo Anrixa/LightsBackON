@@ -105,6 +105,69 @@ static func _primary_structure(parent: Node3D, plan: Dictionary,
 			Vector3(width + 2.5, 0.35, 7.3), roof)
 
 
+## Landmark buildings were placed at fixed coordinates while stations vary per level, so on 112 of 200 levels a
+## station stood inside a (mesh-only, walk-through) building. Slide a landmark group by the smallest offset that keeps
+## its footprint ROUTE_CLEAR_M away from every station and the route between them, inside the site (DS stage audit).
+const ROUTE_CLEAR_M: float = 3.0
+const SITE_EDGE_M: float = 1.5
+const MAX_SHIFT_M: int = 40
+
+
+static func _clear_route(nodes: Array[Node3D], stations: Array) -> void:
+	var footprint: Rect2 = _footprint(nodes)
+	if footprint.size == Vector2.ZERO:
+		return
+	var best: Vector2 = Vector2.INF
+	for radius: int in range(0, MAX_SHIFT_M + 1):
+		for dx: int in range(-radius, radius + 1):
+			for dz: int in range(-radius, radius + 1):
+				if maxi(absi(dx), absi(dz)) != radius:
+					continue
+				var shifted: Rect2 = Rect2(footprint.position + Vector2(dx, dz), footprint.size)
+				if _route_clear(shifted, stations) and Vector2(dx, dz).length() < best.length():
+					best = Vector2(dx, dz)
+		if best != Vector2.INF:
+			break
+	if best == Vector2.INF:
+		push_error("EXP02_LANDMARK_ROUTE_CLASH: no clear spot for " + str(nodes[0].name))
+		return
+	for node: Node3D in nodes:
+		node.position += Vector3(best.x, 0.0, best.y)
+
+
+static func _footprint(nodes: Array[Node3D]) -> Rect2:
+	var rect: Rect2 = Rect2()
+	var first: bool = true
+	for node: Node3D in nodes:
+		var mi: MeshInstance3D = node as MeshInstance3D
+		if mi == null or mi.mesh == null:
+			continue
+		var box: AABB = mi.transform * mi.mesh.get_aabb()
+		var r: Rect2 = Rect2(box.position.x, box.position.z, box.size.x, box.size.z)
+		rect = r if first else rect.merge(r)
+		first = false
+	return rect
+
+
+static func _route_clear(rect: Rect2, stations: Array) -> bool:
+	if rect.position.x < SITE_EDGE_M or rect.position.y < SITE_EDGE_M or 			rect.end.x > FLOOR_SIZE_M - SITE_EDGE_M or rect.end.y > FLOOR_SIZE_M - SITE_EDGE_M:
+		return false
+	var grown: Rect2 = rect.grow(ROUTE_CLEAR_M)
+	for i: int in stations.size():
+		var a: Vector3 = stations[i]["position"]
+		if grown.has_point(Vector2(a.x, a.z)):
+			return false
+		if i + 1 < stations.size():
+			var b: Vector3 = stations[i + 1]["position"]
+			# Sample the walk between stations; 0.5 m steps are finer than the clearance.
+			var steps: int = maxi(1, ceili(Vector2(b.x - a.x, b.z - a.z).length() / 0.5))
+			for k: int in range(steps + 1):
+				var t: float = float(k) / float(steps)
+				if grown.has_point(Vector2(lerpf(a.x, b.x, t), lerpf(a.z, b.z, t))):
+					return false
+	return true
+
+
 ## Build a complete 52x52m 3D graybox for exactly one EXP01 level.
 ## For source engineering this creates a real ground collider, visual landmarks,
 ## 4m-kit-like perimeter features, five station markers, and road ribbons.
@@ -151,11 +214,18 @@ static func build(plan: Dictionary) -> Node3D:
 	for i: int in range(first.size() - 1):
 		_segment(roads, "CandidatePath%02d" % i,
 			first[i]["position"], first[i + 1]["position"], walkway_mat)
+	var before: int = structures.get_child_count()
 	_primary_structure(structures, plan, facade_mat, roof_mat, accent_mat)
-	_mesh(structures, "AuxiliaryService", Vector3(43.0, 2.0, 9.0),
+	var primary: Array[Node3D] = []
+	for i: int in range(before, structures.get_child_count()):
+		primary.append(structures.get_child(i) as Node3D)
+	_clear_route(primary, first)
+	var aux: MeshInstance3D = _mesh(structures, "AuxiliaryService", Vector3(43.0, 2.0, 9.0),
 		Vector3(5.5, 4.0 + float(serial % 3), 6.3), facade_mat)
-	_mesh(structures, "EmergencyDepot", Vector3(41.5, 1.5, 40.5),
+	_clear_route([aux] as Array[Node3D], first)
+	var depot: MeshInstance3D = _mesh(structures, "EmergencyDepot", Vector3(41.5, 1.5, 40.5),
 		Vector3(6.0, 3.0, 5.0), roof_mat)
+	_clear_route([depot] as Array[Node3D], first)
 	# Painted hazard indicators are source previews, not new obstacle physics.
 	for index: int in range(3):
 		var x: float = 14.0 + float((serial * (index + 5)) % 24)

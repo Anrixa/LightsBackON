@@ -4,6 +4,7 @@ extends RefCounted
 ## reports defects; it never changes host state. Used by tests/integration/test_DS_stage_audit.gd and by the
 ## internal audit runner. Geometry is judged from world AABBs, so it is cheap enough to run on all 200 levels.
 
+const Spawn := preload("res://scripts/world/dispatch_spawn.gd")
 const FLOOR_SIZE_M: float = 52.0
 ## A visible mesh whose bottom is this far above everything under it, with nothing holding it up, is "floating".
 const FLOAT_GAP_M: float = 0.3
@@ -12,6 +13,10 @@ const AIRBORNE_HINTS: Array[String] = ["Operation_", "Cable", "Wire", "Glow"]
 const IGNORE_ROOTS: Array[String] = ["DispatchStageLook"]
 const TARGET_PROBE_RADIUS_M: float = 0.12
 const CONTACT_M: float = 0.03
+const STATION_CLEAR_M: float = 0.8
+const HUB_FURNITURE_M: float = 2.2
+## Building-sized volumes only; posts, units and rails near a station are furniture.
+const BUILDING_FOOTPRINT_M2: float = 6.0
 
 
 ## Returns {"ok": bool, "floating": [...], "out_of_bounds": [...], "buried_targets": [...], "spawn": {...}}.
@@ -28,9 +33,11 @@ static func audit(stage: Node3D) -> Dictionary:
 		if c.x < -0.5 or c.z < -0.5 or c.x > FLOOR_SIZE_M + 0.5 or c.z > FLOOR_SIZE_M + 0.5:
 			outside.append(str(b["path"]))
 	var buried: Array[String] = _buried_targets(stage)
+	var enclosed: Array[String] = _enclosed_stations(world)
 	var spawn: Dictionary = _spawn(stage)
-	return {"ok": floating.is_empty() and outside.is_empty() and buried.is_empty() and bool(spawn.get("ok", false)),
-		"floating": floating, "out_of_bounds": outside, "buried_targets": buried, "spawn": spawn, "meshes": boxes.size()}
+	return {"ok": floating.is_empty() and outside.is_empty() and buried.is_empty() and enclosed.is_empty() and
+		bool(spawn.get("ok", false)), "floating": floating, "out_of_bounds": outside, "buried_targets": buried,
+		"enclosed_stations": enclosed, "spawn": spawn, "meshes": boxes.size()}
 
 
 static func _boxes(world: Node3D) -> Array[Dictionary]:
@@ -81,6 +88,28 @@ static func _floating(boxes: Array[Dictionary]) -> Array[String]:
 	return out
 
 
+## A station must stand in the open: a building volume (mesh-only landmarks do not collide) round a station put the
+## player inside walls to work. Station furniture within HUB_FURNITURE_M of the station is allowed.
+static func _enclosed_stations(world: Node3D) -> Array[String]:
+	var out: Array[String] = []
+	var stations: Node = world.get_node_or_null("Stations")
+	if stations == null:
+		return out
+	var solids: Array[AABB] = Spawn.solids(world)
+	for node: Node in stations.get_children():
+		var p: Vector3 = (node as Node3D).global_position
+		var probe: AABB = AABB(Vector3(p.x - STATION_CLEAR_M, 0.6, p.z - STATION_CLEAR_M),
+			Vector3(STATION_CLEAR_M * 2.0, 1.0, STATION_CLEAR_M * 2.0))
+		for box: AABB in solids:
+			var c: Vector3 = box.get_center()
+			if Vector2(c.x - p.x, c.z - p.z).length() < HUB_FURNITURE_M:
+				continue
+			if box.size.x * box.size.z >= BUILDING_FOOTPRINT_M2 and box.intersects(probe):
+				out.append("%s in %s" % [node.name, str(box)])
+				break
+	return out
+
+
 ## A host target whose point sits inside a collider cannot be seen or reached cleanly.
 static func _buried_targets(stage: Node3D) -> Array[String]:
 	var out: Array[String] = []
@@ -120,4 +149,14 @@ static func _spawn(stage: Node3D) -> Dictionary:
 	query.transform = Transform3D(Basis.IDENTITY, p + Vector3(0, 0.15, 0))
 	query.exclude = [player.get_rid()]
 	var blocked: bool = not space.intersect_shape(query, 1).is_empty()
-	return {"ok": inside and not blocked, "position": p, "inside_site": inside, "blocked": blocked}
+	# Landmarks are mesh-only, so a collider test alone let the player start inside a building or facing a wall.
+	var world: Node3D = stage.get_node_or_null("ExpeditionWorld") as Node3D
+	var solids: Array[AABB] = Spawn.solids(world) if world != null else []
+	var in_mesh: bool = Spawn.body_blocked(p, solids)
+	var first: Vector3 = Vector3.ZERO
+	var stations: Node = world.get_node_or_null("Stations") if world != null else null
+	if stations != null and stations.get_child_count() > 0:
+		first = (stations.get_child(0) as Node3D).global_position
+	var view: bool = Spawn.view_blocked(p, first, solids)
+	return {"ok": inside and not blocked and not in_mesh and not view, "position": p, "inside_site": inside,
+		"blocked": blocked, "inside_geometry": in_mesh, "view_blocked": view}

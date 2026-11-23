@@ -38,7 +38,7 @@ position, text or state changes.
 ## What was run
 - `--filter=DS_DISPATCH_LOOK` (`tests/integration/test_DS_dispatch_look.gd`): 4 passed, 163 assertions (LV_001, LV_077, LV_200).
 - `--filter=EXP_DECLUTTER`: 2 passed.
-- Regression filters `EXP` and `DS`: see the PR.
+- Full suite on this PC (all EXP and DS filters included): 1079 passed, 0 failed.
 - Windowed 1600x900 screenshots on this PC (scratch tour scripts, not committed).
 
 ## Observed result
