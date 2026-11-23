@@ -1,0 +1,79 @@
+name: EXP021 focused source/scene regression
+
+on:
+  pull_request:
+    paths:
+      - "scripts/**"
+      - "tests/**"
+      - "tools/**"
+      - "assets/shaders/**"
+      - ".github/workflows/exp021-fast.yml"
+  push:
+    branches:
+      - "task/EXP021-**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: exp021-fast-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GODOT_VERSION: 4.7.2-stable
+
+jobs:
+  linux-focused:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: ~/.local/godot
+          key: godot-linux-${{ env.GODOT_VERSION }}
+      - name: Install Godot (SHA512-verified)
+        run: echo "GODOT_BIN=$(bash tools/setup_godot_linux.sh)" >> "$GITHUB_ENV"
+      - name: Source/headless fast regression (separate SAVE22 user dir)
+        run: bash tools/exp021_fast_ci.sh
+      - name: Upload source and scene evidence
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: exp021-fast-linux-${{ github.sha }}
+          path: |
+            build/exp021-a04/
+            build/exp021-a05/
+          if-no-files-found: warn
+          retention-days: 14
+
+  windows-focused:
+    runs-on: windows-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.local/godot
+          key: godot-win64-${{ env.GODOT_VERSION }}-templates
+      - name: Install Godot (SHA512-verified)
+        run: echo "GODOT_BIN=$(bash tools/setup_godot_windows.sh)" >> "$GITHUB_ENV"
+      - name: Source/headless fast regression (separate SAVE22 user dir)
+        run: bash tools/exp021_fast_ci.sh
+      - name: Upload source and scene evidence
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: exp021-fast-win-${{ github.sha }}
+          path: |
+            build/exp021-a04/
+            build/exp021-a05/
+          if-no-files-found: warn
+          retention-days: 14
