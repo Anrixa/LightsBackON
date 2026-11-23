@@ -146,7 +146,7 @@ func test_CTL1_C04_P01_c01_and_c03_contracts_remain_isolated() -> void:
 
 
 func test_CTL1_C04_P01_menu_text_and_immutable_source_boundaries() -> void:
-	assert_true(UiText.t("offline.menu.c04_preview").contains("NO SAVE"))
+	assert_true(UiText.t("offline.menu.c04_preview").contains("NOT SAVED"), "the menu says the preview is unsaved")
 	assert_true(UiText.t("offline.c04.unsaved_notice").contains("not saved")
 		or UiText.t("offline.c04.unsaved_notice").contains("no progress is saved"))
 	assert_true(UiText.t("offline.loading.c04_briefing").contains("4 PU"))
