@@ -14,7 +14,6 @@ Model (ADR-003): integer PU, IDs ^[A-Z0-9_]+$, every traversal in ascending ID b
 """
 from __future__ import annotations
 
-import copy
 import hashlib
 import re
 from typing import Any
@@ -89,6 +88,8 @@ class Grid:
         self.nodes: dict[str, dict] = {}
         self.edges: dict[str, dict] = {}
         self.protections: dict[str, dict] = {}
+        self.module_upgrades: dict[str, dict] = {}  # edge -> {breaker, from_capacity, to_capacity}, authored whitelist (C07)
+        self._adj: dict[str, list[str]] | None = None  # node -> sorted out-edge ids; reset when the edge set changes
         self.overload_ticks: dict[str, int] = {}
         self.trip_ticks = 0
         self.tick = 0
@@ -139,6 +140,21 @@ class Grid:
                 errs.append(diag("BAD_VALUE", "trip_ticks must be an int >= 1 when protections exist", []))
             else:
                 g.trip_ticks = trip
+        # Contract-authored protected-edge rating replacements (C07), mirroring power_grid.gd: no upgrade is
+        # implicit; the exact initial rating and breaker must match the grid.
+        for rec in definition.get("module_upgrades", []):
+            m = rec if isinstance(rec, dict) else {}
+            eid, breaker = m.get("edge"), m.get("breaker")
+            old_cap, new_cap = m.get("from_capacity"), m.get("to_capacity")
+            protected = any(p["element"] == eid and p["breaker"] == breaker for p in g.protections.values())
+            if not (isinstance(eid, str) and eid in g.edges and isinstance(breaker, str) and breaker in g.nodes
+                    and g.nodes[breaker]["kind"] == "junction" and protected and eid not in g.module_upgrades
+                    and type(old_cap) is int and type(new_cap) is int and old_cap >= 1 and new_cap > old_cap
+                    and g.edges[eid]["capacity"] == old_cap):
+                errs.append(diag("BAD_MODULE_UPGRADE", "module must replace one protected feeder with an exact larger rating",
+                                 [str(eid)]))
+            else:
+                g.module_upgrades[eid] = {"breaker": breaker, "from_capacity": old_cap, "to_capacity": new_cap}
         if errs:
             raise GridError(errs)
         errs = g.validate()
@@ -182,7 +198,12 @@ class Grid:
         return errs
 
     def _out_edges(self, nid: str) -> list[str]:
-        return [eid for eid in sorted(self.edges) if self.edges[eid]["from"] == nid]
+        if self._adj is None:
+            adj: dict[str, list[str]] = {}
+            for eid in sorted(self.edges):
+                adj.setdefault(self.edges[eid]["from"], []).append(eid)
+            self._adj = adj
+        return self._adj.get(nid, [])
 
     def _find_cycle(self) -> list[str]:
         """Directed cycle over all potential edges (enabled or not); returns node/edge IDs on the loop, or []."""
@@ -283,8 +304,20 @@ class Grid:
         return self.result
 
     # ---------- commands (refused before mutation) ----------
+    def clone(self) -> "Grid":
+        """Independent copy of every mutable record; the evaluation result is shared until the next evaluate()
+        (evaluate() always builds new containers). Same behaviour as copy.deepcopy, a lot cheaper for the solver."""
+        g = Grid()
+        g.nodes = {k: dict(v) for k, v in self.nodes.items()}
+        g.edges = {k: dict(v) for k, v in self.edges.items()}
+        g.protections = self.protections  # content-authored, never mutated after load
+        g.module_upgrades = self.module_upgrades  # likewise
+        g.overload_ticks = dict(self.overload_ticks)
+        g.trip_ticks, g.tick, g.result, g._adj = self.trip_ticks, self.tick, self.result, self._adj
+        return g
+
     def apply(self, cmd: dict) -> dict:
-        trial = copy.deepcopy(self)
+        trial = self.clone()
         resets = self._resetting_breaker(cmd)
         err = trial._mutate(cmd)
         if err is None:
@@ -354,6 +387,21 @@ class Grid:
                 return diag("BAD_VALUE", f"{tid}: {field} must be bool", [tid])
             rec[field] = value
             return None
+        if op == "replace_module":
+            eid = cmd.get("id")
+            if not (isinstance(eid, str) and eid in self.module_upgrades):
+                return diag("MODULE_NOT_AUTHORIZED", f"no authorized module for {eid}", [str(eid)])
+            module = self.module_upgrades[eid]
+            new_cap = cmd.get("capacity")
+            if type(new_cap) is not int or new_cap != module["to_capacity"]:
+                return diag("MODULE_RATING_REFUSED", f"{eid} replacement rating is not in the contract", [eid])
+            if not self.nodes[module["breaker"]]["isolated"]:
+                return diag("MODULE_NOT_ISOLATED", f"isolate {module['breaker']} before replacing its module",
+                            [eid, module["breaker"]])
+            if self.edges[eid]["capacity"] != module["from_capacity"]:
+                return diag("MODULE_ALREADY_REPLACED", f"{eid} no longer contains the old module", [eid])
+            self.edges[eid]["capacity"] = new_cap
+            return None
         if op == "add_edge":
             ed, errs = _check_record(cmd.get("edge"), EDGE_FIELDS, EDGE_DEFAULTS, "edge")
             if errs:
@@ -361,12 +409,14 @@ class Grid:
             if ed["id"] in self.edges or ed["id"] in self.nodes:
                 return diag("DUPLICATE_ID", f"duplicate id {ed['id']}", [ed["id"]])
             self.edges[ed["id"]] = ed
+            self._adj = None
             return None
         if op == "remove_edge":
             tid = cmd.get("id")
             if tid not in self.edges:
                 return diag("UNKNOWN_ID", f"no edge {tid!r}", [])
             del self.edges[tid]
+            self._adj = None
             return None
         return diag("UNKNOWN_OP", f"unknown command {op!r}", [])
 

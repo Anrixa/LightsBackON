@@ -1,0 +1,76 @@
+{
+ "challenge_id": "RB03_STORM_SHIFT",
+ "source_note": "RB03 golden solution trace, produced by reference/lbo_challenge.py solve() + harden() and replayed by both runners. final_hash is the SHA-256 of the canonical string (grid + run state) after the last step at each crew size; test_RB03_challenge_runner.gd and reference/tests/test_challenge.py pin it. Regenerate only with a deliberate rule change, and say why in the commit.",
+ "steps": [
+  {
+   "do": "place",
+   "id": "GEN_PORTABLE",
+   "anchor": "PAD_YARD"
+  },
+  {
+   "do": "wait",
+   "until": "latch",
+   "id": "LATCH_LAMP"
+  },
+  {
+   "do": "access",
+   "id": "ROOF_HATCH"
+  },
+  {
+   "do": "route",
+   "id": "GEN_PORTABLE",
+   "edge": "E_TEMP_PUMP",
+   "on": true
+  },
+  {
+   "do": "power",
+   "id": "GEN_PORTABLE",
+   "on": true
+  },
+  {
+   "do": "repair",
+   "id": "R_JW_FUSE"
+  },
+  {
+   "do": "wait",
+   "until": "latch",
+   "id": "LATCH_PUMP"
+  },
+  {
+   "do": "repair",
+   "id": "R_JE_TRUNK"
+  },
+  {
+   "do": "route",
+   "id": "GEN_PORTABLE",
+   "edge": "E_TEMP_PUMP",
+   "on": false
+  },
+  {
+   "do": "power",
+   "id": "GEN_PORTABLE",
+   "on": false
+  },
+  {
+   "do": "place",
+   "id": "GEN_PORTABLE",
+   "anchor": "VAN_BAY"
+  },
+  {
+   "do": "wait",
+   "until": "solved"
+  }
+ ],
+ "solved_ticks": {
+  "1": 274,
+  "2": 255,
+  "3": 251,
+  "4": 247
+ },
+ "final_hash": {
+  "1": "4aa469e7444ff310c7580bd345d3614c29addf9021d49991fbe4eb11adb7e13c",
+  "2": "871ef94816fd1d87d6075746421a4a003f8953ae8f57f24f0b8606c16c07cb0f",
+  "3": "799254077433483c8c61e4465040e2187d97c973fc808e8861751e1309d59777",
+  "4": "7b6b4115f500fc1f1d38beb3bf1dddadff04eae1bc772945456d56efb4f81806"
+ }
+}
