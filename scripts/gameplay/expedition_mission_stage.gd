@@ -37,6 +37,7 @@ const RunFlow := preload("res://scripts/gameplay/expedition_run_flow.gd")
 const SaveService := preload("res://scripts/persistence/save_service.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ContentHash := preload("res://scripts/network/content_hash.gd")
+const LabelLayout := preload("res://scripts/world/expedition_label_layout.gd")
 
 const MENU_PATH: String = "res://scenes/menu/main_menu.tscn"
 const HOST_STEP_SECONDS: float = 0.1
@@ -261,6 +262,8 @@ func _ready() -> void:
 	light.rotation_degrees = Vector3(-42.0, -32.0, 0.0)
 	light.light_energy = 0.85
 	add_child(light)
+	# Presentation only: focus-reveal device labels and stack shared label columns (see expedition_label_layout.gd).
+	set_meta("label_layout", LabelLayout.apply(world))
 	_loaded = true
 	_refresh()
 	if DisplayServer.get_name() != "headless":
@@ -743,6 +746,7 @@ func _physics_process(delta: float) -> void:
 	var selected: String = _aim_target()
 	if selected != _target:
 		_target = selected
+		LabelLayout.reveal_device(world, _target)
 		_refresh()
 	elif runtime.host.revision != int(get_meta("display_revision", -1)):
 		_refresh()
