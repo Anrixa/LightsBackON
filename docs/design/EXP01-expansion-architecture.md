@@ -1,5 +1,8 @@
 # EXP01 — 200-location dispatch atlas and 1,000-task foundation
 
+> **Superseded (23 Nov 2026):** the owner replaced this scope with 24 designed locations and 960 solver-checked challenges
+> (`docs/adr/ADR-019-designed-locations-and-challenges.md`). The dispatch levels are retired in RB01 (hidden) and RB14 (removed).
+
 **Baseline:** main 85f3f6c89fa613bac726b8328d6ec20fe6081d46, following CT-L1/C04 P07.
 **Owner scope update (19 Nov 2026):** expand the game beyond the originally locked three districts / twelve contracts to at least 200 locations, 200 levels and approximately 1,000 differentiated tasks, with human/controller playability tests deferred.
 
