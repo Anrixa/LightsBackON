@@ -44,6 +44,13 @@ const MENU_PATH: String = "res://scenes/menu/main_menu.tscn"
 const HOST_STEP_SECONDS: float = 0.1
 const TOOL_IDS: Array[String] = ["meter", "screwdriver", "puller", "cutter", "crimper"]
 const REACH_M: float = 2.30
+## Spawn this far behind the first station. At 1.7 m the player started inside the station's stacked host/worksite
+## labels (about 15 Label3D signs within 2.4 m), which filled the first frame with overlapping text. Presentation only:
+## every host check still measures from the player's real position.
+const SPAWN_BACKOFF_M: float = 5.5
+const SPAWN_EDGE_MARGIN_M: float = 1.5
+const OVERLAY_CARD_WIDTH_PX: float = 560.0
+const OVERLAY_CARD_COLOR: Color = Color(0.067, 0.094, 0.125, 0.82)
 
 @export var level_id: String = "LV_001"
 
@@ -203,7 +210,8 @@ func _ready() -> void:
 	player.name = "Player"
 	add_child(player)
 	var start: Vector3 = (plan["stations"] as Array)[0]["position"]
-	player.global_position = Vector3(start.x, 0.91, start.z + 1.70)
+	player.global_position = Vector3(start.x, 0.91, minf(start.z + SPAWN_BACKOFF_M,
+		Graybox.FLOOR_SIZE_M - SPAWN_EDGE_MARGIN_M))
 	runtime = Runtime.new()
 	var result: Dictionary = {}
 	if _exp018_requested and _regional_requested:
@@ -498,9 +506,23 @@ func _build_overlay(level: Dictionary) -> void:
 	for side: String in ["left", "top", "right", "bottom"]:
 		surface.add_theme_constant_override("margin_" + side, 18)
 	layer.add_child(surface)
+	# A bounded, tinted card: the light graybox floor and signage made bare HUD text unreadable, and the full-width
+	# column stretched the Return button into a bar across the middle of the view.
+	var card: PanelContainer = PanelContainer.new()
+	card.name = "TaskOverlayCard"
+	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	card.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	card.custom_minimum_size.x = OVERLAY_CARD_WIDTH_PX
+	var backdrop: StyleBoxFlat = StyleBoxFlat.new()
+	backdrop.bg_color = OVERLAY_CARD_COLOR
+	backdrop.set_corner_radius_all(8)
+	backdrop.set_content_margin_all(14.0)
+	card.add_theme_stylebox_override("panel", backdrop)
+	surface.add_child(card)
 	var box: VBoxContainer = VBoxContainer.new()
 	box.add_theme_constant_override("separation", 8)
-	surface.add_child(box)
+	card.add_child(box)
 	var title: Label = Label.new()
 	title.text = "%s  /  %s\nEXPERIMENTAL FIELD DISPATCH • NO PLAYABILITY CERTIFICATION" % [
 		level_id, str(level["title"])]
@@ -556,6 +578,7 @@ func _build_overlay(level: Dictionary) -> void:
 	_back.name = "ReturnToDispatchButton"
 	_back.text = "Return to dispatch atlas (original C01 save unchanged)"
 	_back.custom_minimum_size = Vector2(310.0, 45.0)
+	_back.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	_back.pressed.connect(_return_to_menu)
 	box.add_child(_back)
 	_back.mouse_filter = Control.MOUSE_FILTER_STOP

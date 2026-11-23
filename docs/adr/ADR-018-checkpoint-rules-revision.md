@@ -88,3 +88,13 @@ strings, UI tokens, status icon styling, the lighting look or non-colliding dres
 ## Not decided here
 - Whether the player-facing text for `CONTENT_MISMATCH` should change (for example offer "start a new shift, keep the old file") — a UX task.
 - Steam Cloud / multi-profile behaviour (H-milestone); campaign and receipt records, which are not revision-checked today and stay so.
+
+## Amendment, 23 Nov 2026 (owner-approved in session, evidence `docs/evidence/SAVE23-v0.21.0-playtest.md`)
+The "Not decided here" UX question is now decided. A windowed playtest on the owner's PC found that a pre-ADR-018 checkpoint
+(no `rules_revision`) left the C01 solo shift completely unplayable: `CONTENT_MISMATCH` disabled Continue **and** New Solo Shift,
+with no path out except deleting files by hand. The owner chose "archive and restart":
+- Only `CONTENT_MISMATCH` qualifies. Corrupt, newer-schema and foreign records keep today's behaviour (both buttons stay disabled).
+- New Solo Shift is enabled and shows a confirmation. Only after the player confirms, `CheckpointArchive.archive_mismatched_checkpoint(store)` (`scripts/persistence/checkpoint_archive.gd`; `offline_persistence.gd` is unchanged because the EXP014 A10 audit pins its blob)
+  re-checks the status and **moves** `SOLO_C01.json` and its `.bak`/`.tmp` siblings into `checkpoints/archived/SOLO_C01-<UTC>[-n].json`.
+  Nothing is deleted or rewritten; a failed move rolls back the files already moved and the menu shows the error.
+- This is not option E (no migration): the archived file stays unreadable by this build, kept for the player or a later rescue tool.
