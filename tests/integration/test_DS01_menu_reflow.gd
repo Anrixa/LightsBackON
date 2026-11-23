@@ -111,6 +111,40 @@ func test_QA65_future_schema_checkpoint_remains_untouched() -> void:
 	_qa65_remove_tree(root)
 
 
+func test_SAVE23_outdated_checkpoint_offers_archive_instead_of_dead_end() -> void:
+	var root: String = "user://test_runtime/save23_outdated_%d" % Time.get_ticks_usec()
+	var store: OfflinePersistence = OfflinePersistence.new()
+	assert_true(store.initialize(root).get("ok", false))
+	var path: String = store.checkpoint_path()
+	var older: RefCounted = SaveService.new()
+	older.call("configure", 1, "older-build", "older-content")
+	assert_true(older.call("write_record", path, "checkpoint", "SOLO_C01",
+		{"campaign_id": "SOLO_C01"}, "2026-11-08T00:00:00Z").get("ok", false))
+	var preserved: String = FileAccess.get_file_as_string(path)
+	var tree: SceneTree = Engine.get_main_loop() as SceneTree
+	var menu: Control = MenuScene.instantiate() as Control
+	tree.root.add_child(menu)
+	menu.set("_store", store)
+	menu.call("_apply_save_status", store.checkpoint_status())
+	var start: Button = menu.get("start_button") as Button
+	assert_false(start.disabled, "an outdated save must not leave the solo shift unplayable")
+	assert_false((menu.get("continue_button") as Button).visible, "an outdated save cannot be resumed")
+	assert_false((menu.find_child("SaveStatus", true, false) as Label).text.contains("CONTENT_MISMATCH"))
+	var version: String = str(ProjectSettings.get_setting("application/config/version", ""))
+	assert_true(version.count(".") == 2, "project.godot carries a semantic version")
+	assert_true((menu.find_child("VersionLabel", true, false) as Label).text.ends_with(version))
+	tree.remove_meta("offline_resume")
+	menu.call("_request_new_shift")
+	var dialog: ConfirmationDialog = menu.get_node("ArchiveOutdatedConfirmation") as ConfirmationDialog
+	assert_true(dialog.visible, "the player confirms before anything moves")
+	assert_false(tree.has_meta("offline_resume"), "no launch before confirmation")
+	assert_eq(FileAccess.get_file_as_string(path), preserved, "nothing moves until the player confirms")
+	dialog.hide()
+	tree.root.remove_child(menu)
+	menu.free()
+	_qa65_remove_tree(root)
+
+
 static func _qa65_remove_tree(path: String) -> void:
 	var dir: DirAccess = DirAccess.open(path)
 	if dir == null:

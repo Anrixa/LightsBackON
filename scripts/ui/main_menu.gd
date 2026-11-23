@@ -5,6 +5,7 @@ extends Control
 const UiText := preload("res://scripts/ui/ui_text.gd")
 const ThemeTokens := preload("res://scripts/ui/theme_tokens.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
+const CheckpointArchive := preload("res://scripts/persistence/checkpoint_archive.gd")
 const LoadingCard := preload("res://scripts/ui/loading_card.gd")
 const InputPrompt := preload("res://scripts/ui/input_prompt.gd")
 const InputDeviceTracker := preload("res://scripts/ui/input_device_tracker.gd")
@@ -15,6 +16,7 @@ const EXP03_STAGE_PATH: String = "res://scenes/expeditions/mission_stage.tscn"
 const MISSION_PATH: String = "res://scenes/mission/mission_root.tscn"
 const C03_PREVIEW_PATH: String = "res://scenes/mission/c03_roof_preview.tscn"
 const C04_PREVIEW_PATH: String = "res://scenes/mission/c04_sign_spur_preview.tscn"
+const ARCHIVE_DIALOG_SIZE: Vector2i = Vector2i(560, 0)
 var start_button: Button
 var continue_button: Button
 var c03_preview_button: Button
@@ -24,6 +26,9 @@ var _dispatch_atlas_panel: Control
 var quit_button: Button
 var _store: OfflinePersistence
 var _save_available: bool = false
+## The checkpoint was written by different mission rules (CONTENT_MISMATCH): it can never be resumed, so New Solo Shift
+## offers to archive it (owner-approved, 23 Nov 2026) instead of leaving C01 unplayable.
+var _save_outdated: bool = false
 var _save_ready: bool = false
 var _save_message: Label
 var _tokens: Dictionary = {}
@@ -168,16 +173,29 @@ func _ready() -> void:
 	confirmation.dialog_text = UiText.t("offline.menu.replace_warning")
 	confirmation.confirmed.connect(func() -> void: _launch(false, true))
 	add_child(confirmation)
+	var archive_confirmation: ConfirmationDialog = ConfirmationDialog.new()
+	archive_confirmation.name = "ArchiveOutdatedConfirmation"
+	archive_confirmation.title = UiText.t("offline.menu.archive_title")
+	archive_confirmation.dialog_text = UiText.t("offline.menu.archive_warning")
+	archive_confirmation.dialog_autowrap = true
+	archive_confirmation.confirmed.connect(_archive_outdated_and_launch)
+	add_child(archive_confirmation)
 	quit_button = Button.new()
 	quit_button.name = "QuitButton"
 	quit_button.text = UiText.t("offline.menu.quit")
 	quit_button.custom_minimum_size.y = 48.0
 	quit_button.pressed.connect(func() -> void: get_tree().quit())
 	layout.add_child(quit_button)
+	var version_label: Label = Label.new()
+	version_label.name = "VersionLabel"
+	version_label.text = UiText.tf("offline.menu.version", [game_version()])
+	version_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	version_label.add_theme_color_override("font_color", ThemeTokens.color(tokens, "text_muted"))
+	layout.add_child(version_label)
 	resized.connect(func() -> void: _layout_for_size(size))
 	_layout_for_size(size)
 	_apply_save_status(save_status)
-	(continue_button if _save_available else start_button if _save_ready else quit_button).grab_focus()
+	(continue_button if _save_available else start_button if not start_button.disabled else quit_button).grab_focus()
 	# Returning from an ephemeral dispatch resumes the atlas, not a C01 save.
 	if bool(get_tree().get_meta("expedition_reopen_atlas", false)):
 		get_tree().remove_meta("expedition_reopen_atlas")
@@ -248,13 +266,17 @@ func _apply_save_status(status: Dictionary) -> void:
 	var prior_focus: Control = get_viewport().gui_get_focus_owner() if is_inside_tree() else null
 	_save_ready = bool(status.get("ok", false))
 	_save_available = _save_ready and bool(status.get("available", false))
+	_save_outdated = str(status.get("code", "")) == "CONTENT_MISMATCH"
 	continue_button.visible = _save_available
-	start_button.disabled = not _save_ready
-	_save_message.text = UiText.t("offline.menu.progress_found") if _save_available else (
-		UiText.tf("offline.menu.save_error", [str(status.get("code", "UNAVAILABLE"))]) if not _save_ready
-		else UiText.t("offline.menu.no_progress"))
+	start_button.disabled = not (_save_ready or _save_outdated)
+	if _save_outdated:
+		_save_message.text = UiText.t("offline.menu.outdated_progress")
+	else:
+		_save_message.text = UiText.t("offline.menu.progress_found") if _save_available else (
+			UiText.tf("offline.menu.save_error", [str(status.get("code", "UNAVAILABLE"))]) if not _save_ready
+			else UiText.t("offline.menu.no_progress"))
 	_save_message.add_theme_color_override("font_color", ThemeTokens.color(_tokens,
-		"fault" if not _save_ready else "text_muted"))
+		"fault" if not (_save_ready or _save_outdated) else "text_muted"))
 	# A checkpoint may become corrupt/newer after this menu was opened. If
 	# the focused action disappears or becomes disabled, controller navigation
 	# must land on a real enabled option rather than a dead button.
@@ -266,15 +288,43 @@ func _apply_save_status(status: Dictionary) -> void:
 		(start_button if not start_button.disabled else quit_button).grab_focus()
 
 
+## Player-facing build version from project.godot (application/config/version); the Windows export's file and
+## product version fall back to the same value.
+static func game_version() -> String:
+	return str(ProjectSettings.get_setting("application/config/version", "0.0.0"))
+
+
 func _request_new_shift() -> void:
 	# The checkpoint may have changed since the menu first opened.
 	_apply_save_status(_store.checkpoint_status())
+	if _save_outdated:
+		var archive_dialog: ConfirmationDialog = get_node("ArchiveOutdatedConfirmation") as ConfirmationDialog
+		# Keep a readable width on any window (clamped for small and headless viewports), then shrink the height to
+		# the wrapped text once laid out: autowrapped dialog text otherwise leaves a tall empty panel.
+		var width: int = mini(ARCHIVE_DIALOG_SIZE.x, int(get_viewport_rect().size.x * 0.9))
+		archive_dialog.min_size = Vector2i(width, 0)
+		archive_dialog.popup_centered(Vector2i(width, 0))
+		archive_dialog.reset_size.call_deferred()
+		archive_dialog.move_to_center.call_deferred()
+		return
 	if not _save_ready:
 		return
 	if _save_available:
 		(get_node("ReplaceCheckpointConfirmation") as ConfirmationDialog).popup_centered()
 	else:
 		_launch(false)
+
+
+## Runs only from the player's explicit confirmation. The store re-checks that the file is still CONTENT_MISMATCH and
+## moves it; anything else (corrupt, newer schema, a move failure) leaves every file in place and is shown here.
+func _archive_outdated_and_launch() -> void:
+	var result: Dictionary = CheckpointArchive.archive_mismatched_checkpoint(_store)
+	_apply_save_status(_store.checkpoint_status())
+	if not bool(result.get("ok", false)):
+		_save_message.text = UiText.tf("offline.menu.archive_failed", [str(result.get("code", "UNAVAILABLE"))])
+		_save_message.add_theme_color_override("font_color", ThemeTokens.color(_tokens, "fault"))
+		return
+	_launch(false)
 
 
 func _continue_shift() -> void:

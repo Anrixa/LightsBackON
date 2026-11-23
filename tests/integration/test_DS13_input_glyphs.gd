@@ -246,6 +246,11 @@ func test_DS13_tablet_inspect_ping_close_glyphs_preserve_controller_focus() -> v
 	assert_eq((tablet.find_child("InspectGlyphRow", true, false) as InputPrompt).glyph.glyph_info()["label"], "A")
 	assert_eq(tablet.close_button.text, UiText.t("tablet.close"))
 	assert_eq((tablet.find_child("CloseGlyph", true, false) as InputGlyph).focus_mode, Control.FOCUS_NONE)
+	# The overlay glyph must not cover the caption: the button reserves the glyph's footprint before its text.
+	for b: Button in [tablet.close_button, tablet.ping_button]:
+		var g: InputGlyph = b.find_child("*Glyph", false, false) as InputGlyph
+		assert_true(b.icon != null and float(b.icon.get_width()) >= g.offset_right,
+			"%s reserves %s px for its glyph" % [b.name, g.offset_right])
 	tablet.close()
 
 
