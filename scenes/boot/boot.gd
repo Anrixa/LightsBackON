@@ -6,6 +6,7 @@ const SaveSoak := preload("res://scripts/persistence/save_soak.gd")
 const QA56FrameProbe := preload("res://scripts/diagnostics/qa56_frame_probe.gd")
 const QA140Scenario := preload("res://scripts/diagnostics/qa140_scenario_driver.gd")
 const FirstReading := preload("res://scripts/diagnostics/ds09_first_reading_driver.gd")
+const C01Playthrough := preload("res://scripts/diagnostics/c01_playthrough_driver.gd")
 const MANIFEST_PATH: String = "res://build_manifest.json"
 const MENU_PATH: String = "res://scenes/menu/main_menu.tscn"
 
@@ -14,6 +15,8 @@ func _ready() -> void:
 	print("Lights Back On boot | engine %s | build %s" % [Engine.get_version_info()["string"], _build_id()])
 	_start_qa56_capture_if_requested()
 	_start_first_reading_if_requested()
+	if _start_c01_playthrough_if_requested():
+		return
 	var mode: String = SaveSoak.requested_mode(OS.get_cmdline_user_args())
 	if mode != "":
 		_run_save_soak(mode)
@@ -97,3 +100,17 @@ func _start_first_reading_if_requested() -> void:
 	var driver: FirstReading = FirstReading.new()
 	driver.name = "DS09FirstReading"
 	get_tree().root.add_child.call_deferred(driver)
+
+
+## QA-C01 physical playthrough (internal exports / editor only, opt-in argument). Runs windowed or headless: physics,
+## navigation and the input path do not need a GPU. Returns true when the driver owns scene flow from here.
+func _start_c01_playthrough_if_requested() -> bool:
+	if not C01Playthrough.requested(OS.get_cmdline_user_args()):
+		return false
+	if not C01Playthrough.allowed():
+		print("C01 playthrough is not available in this build")
+		return false
+	var driver: C01Playthrough = C01Playthrough.new()
+	driver.name = "C01Playthrough"
+	get_tree().root.add_child.call_deferred(driver)
+	return true
