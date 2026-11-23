@@ -104,6 +104,16 @@ jobs:
           path: build/exp015-a09/source-audit.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Preserve EXP021 A04–A05 Linux scene, host and alpha hold evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exp021-source-linux-${{ github.sha }}
+          path: |
+            build/exp021-a04/
+            build/exp021-a05/
+          if-no-files-found: warn
+          retention-days: 14
 
   windows:
     runs-on: windows-latest
@@ -185,6 +195,8 @@ jobs:
             --build-manifest build_manifest.json \
             --smoke-log build/smoke.log \
             --report build/exp014-a10-4/windows-export-gate.json
+      - name: EXP021 A05 verify exact-head Windows alpha-candidate manifest, EXE/PCK and boot
+        run: python tools/qualify_exp021_a05_export.py --report build/exp021-a05/windows-export-gate.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -195,4 +207,6 @@ jobs:
             build/SHA256SUMS.txt
             build/exp014-a10-4/
             build/exp015-a03/
+            build/exp021-a04/
+            build/exp021-a05/
           retention-days: 14
