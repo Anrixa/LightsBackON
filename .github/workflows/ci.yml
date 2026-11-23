@@ -34,6 +34,11 @@ jobs:
         run: echo "GODOT_BIN=$(bash tools/setup_godot_linux.sh)" >> "$GITHUB_ENV"
       - name: Run all checks
         run: bash tools/run_tests.sh
+      - name: QA-C01 physical playthrough (headless; real input path, navigation from colliders)
+        run: |
+          mkdir -p build
+          timeout 600 "$GODOT_BIN" --headless --path . -- --c01-playthrough 2>&1 | tee build/c01_playthrough.log
+          grep -q "C01_PLAYTHROUGH_RESULT ok exit=0" build/c01_playthrough.log
       - name: Preserve A10.4 Linux source evidence
         if: always()
         uses: actions/upload-artifact@v4

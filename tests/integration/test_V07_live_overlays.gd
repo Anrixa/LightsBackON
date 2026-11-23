@@ -317,6 +317,8 @@ func test_QA62_results_grab_controller_focus_and_block_world_input() -> void:
 	assert_eq(_tree.root.gui_get_focus_owner(), menu, "results are navigable without a pointer")
 	assert_false(bool(player.get("enabled")), "completion must not reactivate player movement")
 	assert_eq(Input.mouse_mode, Input.MOUSE_MODE_VISIBLE)
+	for overlay: String in ["hud", "onboarding", "_status"]:
+		assert_false((_scene.get(overlay) as Control).visible, "%s does not show stale play-time text behind results" % overlay)
 	var action: InputEventAction = InputEventAction.new()
 	action.action = "interact"
 	action.pressed = true
