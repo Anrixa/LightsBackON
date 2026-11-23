@@ -23,6 +23,7 @@ const RecoveryPayoffPresentation := preload("res://scripts/world/recovery_payoff
 const StreetLook := preload("res://scripts/world/street_look.gd")
 const StreetDressing := preload("res://scripts/world/street_dressing.gd")
 const DistrictBuilder := preload("res://scripts/world/district_builder.gd")
+const LocationData := preload("res://scripts/world/location_data.gd")
 const OfflinePersistence := preload("res://scripts/persistence/offline_persistence.gd")
 const ShiftOperations := preload("res://scripts/gameplay/shift_operations.gd")
 const ShiftDebrief := preload("res://scripts/gameplay/shift_debrief.gd")
@@ -69,6 +70,8 @@ var _fault_fx: FaultEvidencePresentation
 var _generator_fx: GeneratorTradeoffPresentation
 var _recovery_fx: RecoveryPayoffPresentation
 var _look: Dictionary = {}
+## RB02: the location this scene plays on (spawn marker and opening-shot yaw come from its manifest).
+var _location: Dictionary = {}
 var _store: OfflinePersistence
 var _save_enabled: bool = false
 var _save_issue: String = ""
@@ -124,6 +127,7 @@ func _ready() -> void:
 	# Playtest capture is strictly opt-in. An ordinary release creates no file.
 	_measurements.begin(OS.get_cmdline_user_args().has("--lbo-local-measure"),
 		_json("res://content/diagnostics/shift_measurements.json"))
+	_location = LocationData.load_location()
 	_look = StreetLook.load_look()
 	StreetLook.apply_environment(self, _look)
 	_world = WorldScene.instantiate()
@@ -318,14 +322,20 @@ func _dress_world() -> void:
 	StreetLook.add_rain(self, _look)
 
 
+## Body centre over the location's opening-shot spawn marker.
+func _spawn_position() -> Vector3:
+	var spawn: Marker3D = _world.get_node(NodePath("Markers/" + LocationData.spawn_marker_id(_location))) as Marker3D
+	var dimensions: Dictionary = _json("res://content/world/kit_dimensions.json")
+	return spawn.global_position + Vector3.UP * float(dimensions["player_height_cm"]) / 200.0
+
+
 func _make_player() -> void:
 	player = PlayerController.new()
 	player.name = "Player"
 	add_child(player)
-	var spawn: Marker3D = _world.get_node("Markers/SPAWN_1") as Marker3D
-	var dimensions: Dictionary = _json("res://content/world/kit_dimensions.json")
-	player.global_position = spawn.global_position + Vector3.UP * float(dimensions["player_height_cm"]) / 200.0
-	player.rotation_degrees.y = -90.0
+	player.global_position = _spawn_position()
+	# The opening shot (RB02): the spawn yaw frames the location's hero landmark and the first job.
+	player.rotation.y = LocationData.spawn_yaw_rad(_location)
 
 
 func _make_ui() -> void:
@@ -1119,9 +1129,7 @@ func _recover_player() -> void:
 	if not result.get("ok", false):
 		_show_feedback(str(result.get("message", UiText.t("offline.status.refused"))), true)
 		return
-	var spawn: Marker3D = _world.get_node("Markers/SPAWN_1") as Marker3D
-	var dimensions: Dictionary = _json("res://content/world/kit_dimensions.json")
-	player.global_position = spawn.global_position + Vector3.UP * float(dimensions["player_height_cm"]) / 200.0
+	player.global_position = _spawn_position()
 	player.velocity = Vector3.ZERO
 	_last_position_zone = session.inside_van(player.global_position)
 	session.set_in_van_zone(_last_position_zone)

@@ -1,5 +1,5 @@
 extends "res://tests/test_case.gd"
-## V01: Alder Street graybox (blueprint p.5-6), generated from content/world/alder_street.json.
+## V01: Alder Street graybox (blueprint p.5-6), generated from the Alder Street location (content/locations/alder_street/, RB02).
 ## Acceptance: "All routes traversable solo/controller; first restoration visible from the van." Automated here: the
 ## committed scene matches the data, locations sit at the blueprint centers, circulation is wide and clear, every C01
 ## target is reached on foot by a CharacterBody3D at the content walk speed (keyboard-equivalent input; a controller run

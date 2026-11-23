@@ -1,5 +1,5 @@
 extends RefCounted
-## Builds a graybox district scene from content/world/<district>.json (V01). The data is integer centimeters in world
+## Builds a graybox district scene from a location's layout (V01; RB02 location format, scripts/world/location_data.gd). The data is integer centimeters in world
 ## space; the conversion to meters goes through KitBuilder.cm. Facades are instances of the F05 kit scenes so the art
 ## pass can swap pieces without moving anything. Used by tools/godot/build_district.gd to write the committed .tscn
 ## and by the V01 tests to prove the committed scene still matches the data.
@@ -10,7 +10,7 @@ extends RefCounted
 
 const KitBuilder := preload("res://scripts/world/kit_builder.gd")
 const UiText := preload("res://scripts/ui/ui_text.gd")
-const ALDER_PATH: String = "res://content/world/alder_street.json"
+const LocationData := preload("res://scripts/world/location_data.gd")
 const MODULE_CM: int = 400
 ## Yaw that turns a kit piece (exterior on its local -Z side) to face outward on that side of a footprint.
 const FACE_YAW: Dictionary = {"south": 0, "north": 180, "west": 90, "east": 270}
@@ -22,8 +22,9 @@ const LABEL_ABOVE_ROOF_CM: int = 150
 const WATER_ALPHA: float = 0.55
 
 
-static func load_district(path: String = ALDER_PATH) -> Dictionary:
-	return JSON.parse_string(FileAccess.get_file_as_string(path))
+## The layout of a location (content/locations/<location_dir>/), with its scene path and district ID.
+static func load_district(location_dir: String = LocationData.ALDER_STREET) -> Dictionary:
+	return LocationData.layout(LocationData.load_location(location_dir, false))
 
 
 ## Returns an unparented tree whose nodes are owned by the root, ready for PackedScene.pack(). Kit pieces are scene

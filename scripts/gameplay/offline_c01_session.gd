@@ -22,6 +22,7 @@ const HudPresenter := preload("res://scripts/ui/hud_presenter.gd")
 const TabletPresenter := preload("res://scripts/ui/tablet_presenter.gd")
 const UiText := preload("res://scripts/ui/ui_text.gd")
 const ShiftOperations := preload("res://scripts/gameplay/shift_operations.gd")
+const LocationData := preload("res://scripts/world/location_data.gd")
 
 const CONTRACT: String = "res://content/contracts/c01_alder_street"
 const C03_CONTRACT: String = "res://content/contracts/c03_roof_route"
@@ -97,7 +98,8 @@ func setup(range_check: Callable, position_of: Callable, contract_dir: String = 
 		return [{"code": "UNKNOWN_CONTRACT", "message": "unsupported offline contract"}]
 	_contract_dir = contract_dir
 	_position_of = position_of
-	var world: Dictionary = _json("res://content/world/alder_street.json")
+	# The layout only (RB02): rules never read a location's dressing or look (ADR-018).
+	var world: Dictionary = LocationData.layout(LocationData.load_location(LocationData.ALDER_STREET, false))
 	if [C03_CONTRACT, C04_CONTRACT].has(_contract_dir):
 		var overlay: Dictionary = _json(_contract_dir.path_join("world.json"))
 		var expected: String = "C03" if _contract_dir == C03_CONTRACT else "C04"

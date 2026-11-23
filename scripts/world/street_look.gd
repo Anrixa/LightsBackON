@@ -6,13 +6,13 @@ extends RefCounted
 ## Compatibility renderer only (ADR-016 section 6.2): sky shader without TIME, depth fog, glow, filmic tonemap, one
 ## shadowed directional light. Big surfaces are re-drawn as tiles because Compatibility lights at most 8 lights per mesh.
 
-const LOOK_PATH: String = "res://content/world/look_stormglass.json"
 const KIT_PATH: String = "res://content/world/kit_pieces.json"
 const SKY_SHADER: Shader = preload("res://assets/shaders/stormglass_sky.gdshader")
 const SURFACE_SHADER: Shader = preload("res://assets/shaders/stormglass_surface.gdshader")
 const RainFx := preload("res://scripts/world/rain_fx.gd")
 const KitBuilder := preload("res://scripts/world/kit_builder.gd")
 const DistrictBuilder := preload("res://scripts/world/district_builder.gd")
+const LocationData := preload("res://scripts/world/location_data.gd")
 const KIT_ROLES: Array[String] = ["wall", "trim", "floor", "panel_recess"]
 ## Tiles sit just above the graybox surfaces they cover (ground top at 0 cm, paving boxes at 2 cm): far enough to never
 ## z-fight at 100 m on a 24-bit depth buffer, too thin to see as a step.
@@ -22,9 +22,10 @@ const PERCENT: float = 100.0
 const RADIANCE_SIZE: Sky.RadianceSize = Sky.RADIANCE_SIZE_64
 
 
-static func load_look(path: String = LOOK_PATH) -> Dictionary:
-	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
-	return parsed if parsed is Dictionary else {}
+## A location's look: the shared profile (content/world/look_stormglass.json) merged with the location's look.json
+## (building palette, environment overrides) by LocationData (RB02).
+static func load_look(location_dir: String = LocationData.ALDER_STREET) -> Dictionary:
+	return LocationData.look(LocationData.load_location(location_dir))
 
 
 ## Adds the WorldEnvironment and the moon to `parent`. Returns the WorldEnvironment so callers can keep a handle.

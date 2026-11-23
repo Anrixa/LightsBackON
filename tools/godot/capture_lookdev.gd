@@ -1,6 +1,6 @@
 extends SceneTree
 ## DS08 three-state screenshot set: renders scenes/lookdev/alder_lookdev.tscn in each FAKE supply state (dark,
-## temporary, grid) from the capture views in content/world/alder_street_dressing.json, at the window size given on
+## temporary, grid) from the capture views in content/locations/alder_street/dressing.json, at the window size given on
 ## the command line (1920x1080 for evidence). Needs a real GPU window; it does not run headless or in CI.
 ##   godot --path . --resolution 1920x1080 -s "$PWD/tools/godot/capture_lookdev.gd" -- --out-dir=build/ds08 [--prefix=DS08]
 ## Writes <out-dir>/<prefix>_<view>_<state>.png. Exit 0 = all written.

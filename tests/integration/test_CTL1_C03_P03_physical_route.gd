@@ -10,6 +10,7 @@ const Controller := preload("res://scripts/actors/first_person_controller.gd")
 const Ladder := preload("res://scripts/world/c03_fixed_ladder_view.gd")
 const Grid := preload("res://scripts/simulation/power_grid.gd")
 const Selector := preload("res://scripts/interaction/target_selector.gd")
+const DistrictBuilder := preload("res://scripts/world/district_builder.gd")
 
 var _holder: Node3D
 
@@ -323,8 +324,7 @@ func test_CTL1_C03_P03_actual_capsule_walks_ground_and_roof_corridors() -> void:
 	assert_eq(errors, [] as Array[Dictionary])
 	if not errors.is_empty():
 		return
-	var world: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
-		"res://content/world/alder_street.json"))
+	var world: Dictionary = DistrictBuilder.load_district()
 	var overlay: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
 		Offline.C03_CONTRACT.path_join("world.json")))
 	var roof_arrival: Vector3 = Vector3.INF

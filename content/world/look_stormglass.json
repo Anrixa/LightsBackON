@@ -1,5 +1,5 @@
 {
-  "_note": "DS08 'Stormglass / Civic Revival' look (docs/design/DS07-design-plan.md section 3). District-agnostic lighting, weather and material values read by scripts/world/street_look.gd. Presentation only: nothing here is a gameplay rule (it is still under content/, so it counts toward the content revision like every content file). Compatibility renderer only (ADR-016 section 6.2). Colours are sRGB hex; percentages are x100 integers; lengths in cm.",
+  "_note": "DS08 'Stormglass / Civic Revival' look (docs/design/DS07-design-plan.md section 3). Shared lighting, weather and material values read by scripts/world/street_look.gd. Presentation only: nothing here is a gameplay rule (it is still under content/, so it counts toward the content revision like every content file). Compatibility renderer only (ADR-016 section 6.2). Colours are sRGB hex; percentages are x100 integers; lengths in cm. Per-location values (the building palette, street lamp positions and any environment overrides) live in each location's look.json (content/locations/<location>/look.json, RB02); scripts/world/location_data.gd merges them over this profile.",
   "environment": {
     "sky_zenith": "#0E1A2B",
     "sky_horizon": "#3E5A72",
@@ -175,79 +175,6 @@
       "roughness_percent": 70,
       "wetness_percent": 30,
       "scale_cm": 50
-    }
-  },
-  "buildings": {
-    "_note": "Per-building palette so each service location is a landmark (DS07 principle 5). wall/trim are surface roles; sign is the fascia board colour.",
-    "APT_W": {
-      "wall": {
-        "pattern": 1,
-        "base": "#7A3F31",
-        "accent": "#B9AFA2"
-      },
-      "trim": "#D8CFC0",
-      "sign": "#22303C",
-      "sign_text": "#F3E6C8"
-    },
-    "MARKET": {
-      "wall": {
-        "pattern": 0,
-        "base": "#3D7A72",
-        "accent": "#2B5952"
-      },
-      "trim": "#E4E0D3",
-      "sign": "#F0E9D6",
-      "sign_text": "#1F4F49"
-    },
-    "PUB": {
-      "wall": {
-        "pattern": 1,
-        "base": "#2F5040",
-        "accent": "#9FA79B"
-      },
-      "trim": "#C9A44A",
-      "sign": "#1C2B23",
-      "sign_text": "#E8C66A"
-    },
-    "APT_E": {
-      "wall": {
-        "pattern": 0,
-        "base": "#C9BCA2",
-        "accent": "#A39679"
-      },
-      "trim": "#5B6A78",
-      "sign": "#2C3B49",
-      "sign_text": "#F1EEE4"
-    },
-    "WORKSHOP": {
-      "wall": {
-        "pattern": 2,
-        "base": "#566C80",
-        "accent": "#3A4A59"
-      },
-      "trim": "#E0A93A",
-      "sign": "#E0A93A",
-      "sign_text": "#1B2229"
-    },
-    "PUMP_HOUSE": {
-      "wall": {
-        "pattern": 3,
-        "base": "#7E8387",
-        "accent": "#5F6468"
-      },
-      "trim": "#E4C23A",
-      "sign": "#E4C23A",
-      "sign_text": "#1B2229"
-    },
-    "SOUTH_FILLER": {
-      "wall": {
-        "pattern": 1,
-        "base": "#5E4A44",
-        "accent": "#8E857C"
-      },
-      "trim": "#3E4850",
-      "sign": "",
-      "sign_text": ""
     }
   },
   "signs": {

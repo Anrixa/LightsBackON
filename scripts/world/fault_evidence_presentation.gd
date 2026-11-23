@@ -4,7 +4,7 @@ extends RefCounted
 ## inspect a panel, change a breaker, infer a hidden fault or mutate a save.
 
 const UiText := preload("res://scripts/ui/ui_text.gd")
-const DRESSING_PATH: String = "res://content/world/alder_street_dressing.json"
+const LocationData := preload("res://scripts/world/location_data.gd")
 const REPAIR_CABINETS: Dictionary = {
 	"R_JW_FUSE": {"prop": "CABINET_JW", "junction": "JW"},
 	"R_JE_TRUNK": {"prop": "CABINET_JE", "junction": "JE"},
@@ -34,10 +34,8 @@ var _last_meter_text: String = ""
 func setup(world: Node3D, eyes: Camera3D) -> void:
 	_cabinets.clear()
 	_pings.clear()
-	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(DRESSING_PATH))
-	if not data is Dictionary:
-		return
-	var style: Dictionary = (data as Dictionary).get("cabinet_style", {})
+	var data: Dictionary = LocationData.dressing(LocationData.load_location())
+	var style: Dictionary = data.get("cabinet_style", {})
 	for repair_id: String in REPAIR_CABINETS:
 		var spec: Dictionary = REPAIR_CABINETS[repair_id]
 		var prop_id: String = str(spec["prop"])

@@ -44,8 +44,8 @@ class RulesRevisionTests(unittest.TestCase):
         self.assertEqual(rules_revision(self.base), rules)
 
     def test_SAVE22_rules_and_unlisted_edits_change_both(self) -> None:
-        for rel in ["content/contracts/c01_alder_street/grid.json", "content/world/alder_street.json",
-                    "content/offline_solo.json", "content/save_compat.json"]:
+        for rel in ["content/contracts/c01_alder_street/grid.json", "content/locations/alder_street/layout.json",
+                    "content/locations/alder_street/location.json", "content/offline_solo.json", "content/save_compat.json"]:
             full, rules = content_revision(self.base), rules_revision(self.base)
             self._append(rel)
             self.assertNotEqual(content_revision(self.base), full, rel)

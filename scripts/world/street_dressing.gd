@@ -6,9 +6,9 @@ extends RefCounted
 ## each service building's existing "Label" node becomes its status plaque, and RestorationPresentation writes its text
 ## and icon from the host snapshot (DS04). Debug-ID billboards (district "Labels" group) are hidden.
 ## Shape proportions below are art constants for project-made primitives; tunable colours and positions are in
-## content/world/alder_street_dressing.json and content/world/look_stormglass.json.
+## the location's dressing.json and look (content/locations/<location>/, merged by scripts/world/location_data.gd).
 
-const DRESSING_PATH: String = "res://content/world/alder_street_dressing.json"
+const LocationData := preload("res://scripts/world/location_data.gd")
 const UiText := preload("res://scripts/ui/ui_text.gd")
 const KitBuilder := preload("res://scripts/world/kit_builder.gd")
 const DistrictBuilder := preload("res://scripts/world/district_builder.gd")
@@ -47,9 +47,9 @@ var _tokens: Dictionary = {}
 var _mats: Dictionary = {}
 
 
-static func load_dressing(path: String = DRESSING_PATH) -> Dictionary:
-	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
-	return parsed if parsed is Dictionary else {}
+## A location's dressing with its street lamps (RB02: the lamps are part of the location's look profile).
+static func load_dressing(location_dir: String = LocationData.ALDER_STREET) -> Dictionary:
+	return LocationData.dressing(LocationData.load_location(location_dir))
 
 
 ## Builds all dressing under `world/Dressing`. `d` is the district data, `look` the Stormglass look, `dress` the
