@@ -185,6 +185,9 @@ fi
 echo "== content (ADR-003 integer data) =="
 if [ -n "$PY" ]; then "$PY" tools/validate_content.py || FAIL=1; fi
 
+echo "== RB02: location format (every location, its pinned contracts) =="
+if [ -n "$PY" ]; then "$PY" tools/lbo_location.py || FAIL=1; fi
+
 echo "== CT-BP original-blueprint source/receipt consistency (no physical certification) =="
 if [ -n "$PY" ]; then "$PY" tools/check_ct_blueprint_gate.py || FAIL=1; fi
 
