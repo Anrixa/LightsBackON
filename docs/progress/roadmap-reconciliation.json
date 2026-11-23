@@ -1,0 +1,1102 @@
+{
+  "schema_version": 1,
+  "title": "EXP012–EXP021 versus original 66-task roadmap, evidence-only reconciliation",
+  "audited_utc": "2026-11-23",
+  "audited_main_sha": "a1cffca9fd3efe619b0cc82f92c9d9202f8bbd1b",
+  "baseline_path": "docs/backlog.json",
+  "baseline_policy": "Original 66 task statuses remain unchanged. Source overlap demonstrates implementation evidence, never full acceptance. Existing status evidence and later experiments can coexist.",
+  "definitions": {
+    "ACCEPTED": "Only an original DONE task with original acceptance/evidence already recorded.",
+    "CLOUD_VERIFIED": "Original cloud/source test evidence; unresolved physical/owner criteria remain.",
+    "SOURCE_OVERLAP": "Original NOT_STARTED task has independently identifiable related source or measured work, but original acceptance remains NOT_STARTED; some evidence can be adjacent, not a finished feature.",
+    "BLOCKED": "Explicit original dependency blocker, not bypassed.",
+    "NO_ACCEPTED_EVIDENCE": "No credited implementation evidence under this conservative mapping, even if other related code exists."
+  },
+  "metrics_policy": "Three noncomparable indices: pre-beta engineering overlap coverage (any source versus F/G/V/A/D/CT/H tasks), qualified alpha-gate fraction, qualified commercial-release-gate fraction. They are gate coverage, NOT percent of total labor, visual quality, 200 playable levels, or estimated remaining effort. Successful CI does not imply release approval.",
+  "verified_main_ci": "https://github.com/Anrixa/LightsBackON/actions/runs/45104016469",
+  "verified_main_ci_counts": {
+    "godot_tests_passed_per_os": 1068,
+    "godot_tests_failed_per_os": 0,
+    "assertions_per_os": 497600,
+    "engine_physics_ray_contacts": 7200,
+    "scenes_started": 200,
+    "hosts_started": 200,
+    "task_ids": 1000
+  },
+  "known_holds": [
+    "200 complete player/real MissionDirector mission solutions remain unqualified",
+    "Current EXP021 integrated build has no owner-certified real GPU, physical/controller, audio or human quality trials",
+    "Godot full-run log still emits rejected UI intent diagnostic and 572 CanvasItem RID plus 1445 ObjectDB lifetime leak warnings",
+    "Steam 2 real-peer transport and 4-player F02 qualification BLOCKED",
+    "QA140 GPU data applies to older graybox only, not current integrated 200-site content",
+    "No final alpha, beta, Valve or publishing signoff"
+  ],
+  "tasks": [
+    {
+      "id": "F01",
+      "milestone": "F",
+      "title": "Create reproducible project",
+      "estimated_hours": 6,
+      "backlog_status": "DONE",
+      "evidence_class": "ACCEPTED",
+      "evidence_paths": [
+        "docs/evidence/F01.md"
+      ],
+      "original_acceptance": "A clean checkout imports and exports; manifest records engine and template hashes.",
+      "remaining_acceptance": "Original backlog acceptance met."
+    },
+    {
+      "id": "F02",
+      "milestone": "F",
+      "title": "Qualify Steam transport tuple",
+      "estimated_hours": 18,
+      "backlog_status": "BLOCKED",
+      "evidence_class": "BLOCKED",
+      "evidence_paths": [],
+      "original_acceptance": "Two licensed accounts on separate real networks join; tuple locked; compatibility is measured.",
+      "remaining_acceptance": "No second Steam account yet; GodotSteam and app 480 not approved. Owner deferred F02 on 29 Oct 2026 (ADR-011); resume at PC-RUNBOOK session D."
+    },
+    {
+      "id": "F03",
+      "milestone": "F",
+      "title": "Prove host command authority",
+      "estimated_hours": 12,
+      "backlog_status": "CLOUD_VERIFIED",
+      "evidence_class": "CLOUD_VERIFIED",
+      "evidence_paths": [
+        "docs/evidence/F03.md"
+      ],
+      "original_acceptance": "Duplicate command changes switch once; invalid peer and entity IDs are rejected.",
+      "remaining_acceptance": "rerun the F03 tests on the qualified Steam peer (F02 tuple) between two PCs on separate networks; NET01/NET02 with two real clients"
+    },
+    {
+      "id": "F04",
+      "milestone": "F",
+      "title": "Handle connection failures",
+      "estimated_hours": 8,
+      "backlog_status": "CLOUD_VERIFIED",
+      "evidence_class": "CLOUD_VERIFIED",
+      "evidence_paths": [
+        "docs/evidence/F04.md"
+      ],
+      "original_acceptance": "Wrong version fails with a reason; reconnect and host-leave paths never hang.",
+      "remaining_acceptance": "Steam-offline start of the exported build (REL02); real host shutdown (NET07) and same-participant reconnect (NET06) on the Steam peer"
+    },
+    {
+      "id": "F05",
+      "milestone": "F",
+      "title": "Establish visual tokens and block kit",
+      "estimated_hours": 8,
+      "backlog_status": "DONE",
+      "evidence_class": "ACCEPTED",
+      "evidence_paths": [
+        "docs/evidence/F05.md"
+      ],
+      "original_acceptance": "Kit imports at 1 unit per meter; HUD tokens match screen specification.",
+      "remaining_acceptance": "Original backlog acceptance met."
+    },
+    {
+      "id": "F06",
+      "milestone": "F",
+      "title": "Foundation gate and export evidence",
+      "estimated_hours": 6,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "NO_ACCEPTED_EVIDENCE",
+      "evidence_paths": [],
+      "original_acceptance": "Real two-PC test passes; all unresolved failures recorded before grid integration.",
+      "remaining_acceptance": "Original acceptance criteria not met; inspect dependencies before promotion."
+    },
+    {
+      "id": "G01",
+      "milestone": "G",
+      "title": "Implement pure grid evaluation",
+      "estimated_hours": 14,
+      "backlog_status": "DONE",
+      "evidence_class": "ACCEPTED",
+      "evidence_paths": [
+        "docs/evidence/G01.md"
+      ],
+      "original_acceptance": "Reference scenarios produce equivalent canonical state; cycles and dual supplies rejected.",
+      "remaining_acceptance": "Original backlog acceptance met."
+    },
+    {
+      "id": "G02",
+      "milestone": "G",
+      "title": "Add overload and reset rules",
+      "estimated_hours": 10,
+      "backlog_status": "DONE",
+      "evidence_class": "ACCEPTED",
+      "evidence_paths": [
+        "docs/evidence/G02.md"
+      ],
+      "original_acceptance": "Equality at capacity works; short transient does not trip; sustained overload trips once.",
+      "remaining_acceptance": "Original backlog acceptance met."
+    },
+    {
+      "id": "G03",
+      "milestone": "G",
+      "title": "Create meter and evidence model",
+      "estimated_hours": 12,
+      "backlog_status": "DONE",
+      "evidence_class": "ACCEPTED",
+      "evidence_paths": [
+        "docs/evidence/G03.md"
+      ],
+      "original_acceptance": "Uninspected panel never displays false zero; selected branch evidence explains a fault.",
+      "remaining_acceptance": "Original backlog acceptance met."
+    },
+    {
+      "id": "G04",
+      "milestone": "G",
+      "title": "Implement interaction and repair states",
+      "estimated_hours": 14,
+      "backlog_status": "CLOUD_VERIFIED",
+      "evidence_class": "CLOUD_VERIFIED",
+      "evidence_paths": [
+        "docs/evidence/G04.md"
+      ],
+      "original_acceptance": "Live repair refused; disconnect releases lock; one replacement consumed exactly once.",
+      "remaining_acceptance": "NET01 with two real clients and range from real movement (G07); prompt/selection against real scene geometry (V01/V07)"
+    },
+    {
+      "id": "G05",
+      "milestone": "G",
+      "title": "Build generator and socket routing",
+      "estimated_hours": 10,
+      "backlog_status": "CLOUD_VERIFIED",
+      "evidence_class": "CLOUD_VERIFIED",
+      "evidence_paths": [
+        "docs/evidence/G05.md"
+      ],
+      "original_acceptance": "Pump or pub works; both overload; unsafe source tie refused before mutation.",
+      "remaining_acceptance": "cable visuals and placement against real anchors in the graybox (V01); carrier disconnect with real clients (G07)"
+    },
+    {
+      "id": "G06",
+      "milestone": "G",
+      "title": "Implement versioned save skeleton",
+      "estimated_hours": 10,
+      "backlog_status": "CLOUD_VERIFIED",
+      "evidence_class": "CLOUD_VERIFIED",
+      "evidence_paths": [
+        "docs/evidence/G06.md"
+      ],
+      "original_acceptance": "Kill during write retains valid current or backup save; unknown schema is not erased.",
+      "remaining_acceptance": "dependency G04 is CLOUD_VERIFIED (G06 writer acceptance itself passed: 200/200 real-process kills of the exported Windows build, docs/evidence/G06.md); verify integrated offline Continue Shift, profile persistence and in-scene recovery with a person on physical Windows hardware (PR #39); Steam Cloud sync moves to H05 (SAVE06)"
+    },
+    {
+      "id": "G07",
+      "milestone": "G",
+      "title": "Integrate commands and grid",
+      "estimated_hours": 8,
+      "backlog_status": "CLOUD_VERIFIED",
+      "evidence_class": "CLOUD_VERIFIED",
+      "evidence_paths": [
+        "docs/evidence/G07.md"
+      ],
+      "original_acceptance": "Two peers agree after repair, trip, reset, and reconnect.",
+      "remaining_acceptance": "two real peers (F06 tuple) agree by state hash after repair, trip, reset and reconnect; G08 gate"
+    },
+    {
+      "id": "G08",
+      "milestone": "G",
+      "title": "Grid toy gate",
+      "estimated_hours": 6,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "NO_ACCEPTED_EVIDENCE",
+      "evidence_paths": [],
+      "original_acceptance": "No blocker; timing and topology assertions pass; five-minute raw capture retained.",
+      "remaining_acceptance": "Original acceptance criteria not met; inspect dependencies before promotion."
+    },
+    {
+      "id": "V01",
+      "milestone": "V",
+      "title": "Graybox Alder Street",
+      "estimated_hours": 24,
+      "backlog_status": "CLOUD_VERIFIED",
+      "evidence_class": "CLOUD_VERIFIED",
+      "evidence_paths": [
+        "docs/evidence/V01.md"
+      ],
+      "original_acceptance": "All routes traversable solo/controller; first restoration visible from the van.",
+      "remaining_acceptance": "UX01: a person walks every route with a controller once a player controller scene exists (automated CharacterBody3D walk passes); G08 grid toy gate still not DONE (ADR-015 ceiling); owner's look at the graybox renders and the five layout interpretations in docs/evidence/V01.md"
+    },
+    {
+      "id": "V02",
+      "milestone": "V",
+      "title": "Author C01 objectives",
+      "estimated_hours": 16,
+      "backlog_status": "CLOUD_VERIFIED",
+      "evidence_class": "CLOUD_VERIFIED",
+      "evidence_paths": [
+        "docs/evidence/V02.md"
+      ],
+      "original_acceptance": "Known solution completes; optional pub sign never blocks campaign progress.",
+      "remaining_acceptance": "known-solution playthrough in the V01 graybox with real positions and reach; C01 pacing targets with people; objective HUD rendering (V07)"
+    },
+    {
+      "id": "V03",
+      "milestone": "V",
+      "title": "Implement recovery routes",
+      "estimated_hours": 12,
+      "backlog_status": "CLOUD_VERIFIED",
+      "evidence_class": "CLOUD_VERIFIED",
+      "evidence_paths": [
+        "docs/evidence/V03.md"
+      ],
+      "original_acceptance": "Out-of-bounds, lost item, and guest disconnect cannot make C01 unsolvable.",
+      "remaining_acceptance": "out-of-bounds detection and van-menu recovery in the V01 graybox; guest disconnect while carrying over real peers (NET05)"
+    },
+    {
+      "id": "V04",
+      "milestone": "V",
+      "title": "Implement four-player snapshot flow",
+      "estimated_hours": 20,
+      "backlog_status": "CLOUD_VERIFIED",
+      "evidence_class": "CLOUD_VERIFIED",
+      "evidence_paths": [
+        "docs/evidence/V04.md"
+      ],
+      "original_acceptance": "Join during pump/repair converges to canonical grid state; no duplicate object spawns.",
+      "remaining_acceptance": "real remote join during pump/repair and reconnect on the F02 Steam tuple between two networks (NET04, NET06); joining screen UI"
+    },
+    {
+      "id": "V05",
+      "milestone": "V",
+      "title": "Implement movement sync",
+      "estimated_hours": 18,
+      "backlog_status": "CLOUD_VERIFIED",
+      "evidence_class": "CLOUD_VERIFIED",
+      "evidence_paths": [
+        "docs/evidence/V05.md"
+      ],
+      "original_acceptance": "Movement remains usable at 150 ms RTT; no client-authoritative placement or repair.",
+      "remaining_acceptance": "controlled impairment on real peers (NET09) on the F02 Steam tuple; collision in the V01 graybox; feel test with people"
+    },
+    {
+      "id": "V06",
+      "milestone": "V",
+      "title": "Implement pings and text communication",
+      "estimated_hours": 12,
+      "backlog_status": "CLOUD_VERIFIED",
+      "evidence_class": "CLOUD_VERIFIED",
+      "evidence_paths": [
+        "docs/evidence/V06.md"
+      ],
+      "original_acceptance": "Two testers complete C01 with voice disabled using pings alone.",
+      "remaining_acceptance": "two testers complete C01 with voice disabled using pings alone (human, graybox, two clients); comms UI and radial menu (V07)"
+    },
+    {
+      "id": "V07",
+      "milestone": "V",
+      "title": "Produce field and tablet UI",
+      "estimated_hours": 18,
+      "backlog_status": "CLOUD_VERIFIED",
+      "evidence_class": "CLOUD_VERIFIED",
+      "evidence_paths": [
+        "docs/evidence/V07.md"
+      ],
+      "original_acceptance": "Map inspects and pings only; controller focus complete; 150% scale usable.",
+      "remaining_acceptance": "UX01: a person runs the live HUD, network tablet, pause/accessibility and scroll controls with a physical controller; measure focus/pan/zoom/evidence scroll feel and 150% readability; V01 is CLOUD_VERIFIED (waits on real G08 two-peer gate), so the V07 acceptance ceiling remains CLOUD_VERIFIED; Owner review of actual windowed UI captures/objective icons and the 150% scaled responsive overlays; provisional screen references approved 30 Oct 2026 (docs/PC-WORK.md section 5)"
+    },
+    {
+      "id": "V08",
+      "milestone": "V",
+      "title": "Implement personal reward receipts",
+      "estimated_hours": 10,
+      "backlog_status": "CLOUD_VERIFIED",
+      "evidence_class": "CLOUD_VERIFIED",
+      "evidence_paths": [
+        "docs/evidence/V08.md"
+      ],
+      "original_acceptance": "Replay/reconnect results do not duplicate credits; separate campaigns remain separate.",
+      "remaining_acceptance": "receipts delivered over real peers on the F02 tuple; results screen UI; Steam Cloud sync of profile and receipts (H05)"
+    },
+    {
+      "id": "V09",
+      "milestone": "V",
+      "title": "Playable slice gate",
+      "estimated_hours": 8,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "NO_ACCEPTED_EVIDENCE",
+      "evidence_paths": [],
+      "original_acceptance": "No mission blocker; all recoveries work; exact exported build retained.",
+      "remaining_acceptance": "Original acceptance criteria not met; inspect dependencies before promotion."
+    },
+    {
+      "id": "A01",
+      "milestone": "A",
+      "title": "Create art benchmark street",
+      "estimated_hours": 28,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "SOURCE_OVERLAP",
+      "evidence_paths": [
+        "docs/evidence/DS08.md",
+        "docs/evidence/EXP021-A01.md"
+      ],
+      "original_acceptance": "Three states readable; visual target runs on benchmark hardware before kit expansion.",
+      "remaining_acceptance": "Final C01 benchmark street and three approved hardware-readable restoration states not accepted."
+    },
+    {
+      "id": "A02",
+      "milestone": "A",
+      "title": "Implement restoration audio and effects",
+      "estimated_hours": 16,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "SOURCE_OVERLAP",
+      "evidence_paths": [
+        "docs/evidence/DS12.md",
+        "docs/evidence/EXP021-A02.md",
+        "docs/evidence/EXP021-A03.md"
+      ],
+      "original_acceptance": "Restoration readable without audio; volume balanced; flashes reducible.",
+      "remaining_acceptance": "Integrated hardware audio balance, accessibility and restoration presentation remain untested."
+    },
+    {
+      "id": "A03",
+      "milestone": "A",
+      "title": "Add local measurement events",
+      "estimated_hours": 10,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "SOURCE_OVERLAP",
+      "evidence_paths": [
+        "docs/evidence/A03-MEASURE01-MEASURE20.md",
+        "docs/evidence/A03-MEASURE30.md"
+      ],
+      "original_acceptance": "No raw account IDs in analytics export; event schema version recorded.",
+      "remaining_acceptance": "Opt-in measurement producer exists; original A03 remains NOT_STARTED pending V09 and observed consented sessions."
+    },
+    {
+      "id": "A04",
+      "milestone": "A",
+      "title": "Create onboarding and core accessibility",
+      "estimated_hours": 16,
+      "backlog_status": "CLOUD_VERIFIED",
+      "evidence_class": "CLOUD_VERIFIED",
+      "evidence_paths": [
+        "docs/evidence/A04.md"
+      ],
+      "original_acceptance": "First repair discoverable; all essential status includes text/icon.",
+      "remaining_acceptance": "Repeat live camera bob suppression and monotone reduced-flash restoration on physical Windows GPU; confirm status remains legible during power recovery and settings change mid-transition (PR #43 cloud automation does not qualify hardware); UX01 human/controller-only onboarding and first-repair discoverability test, including 150% readability; V07 dependency remains CLOUD_VERIFIED pending V01/G08 two-peer gates"
+    },
+    {
+      "id": "A05",
+      "milestone": "A",
+      "title": "Run external slice study",
+      "estimated_hours": 18,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "NO_ACCEPTED_EVIDENCE",
+      "evidence_paths": [],
+      "original_acceptance": "Report shows denominators, recruitment bias, timings, replay choices, and specific failure causes.",
+      "remaining_acceptance": "Original acceptance criteria not met; inspect dependencies before promotion."
+    },
+    {
+      "id": "A06",
+      "milestone": "A",
+      "title": "Revise failed mechanics and throughput",
+      "estimated_hours": 14,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "NO_ACCEPTED_EVIDENCE",
+      "evidence_paths": [],
+      "original_acceptance": "Comprehension and replay gate passed or expansion explicitly blocked.",
+      "remaining_acceptance": "Original acceptance criteria not met; inspect dependencies before promotion."
+    },
+    {
+      "id": "A07",
+      "milestone": "A",
+      "title": "Product continuation gate",
+      "estimated_hours": 6,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "NO_ACCEPTED_EVIDENCE",
+      "evidence_paths": [],
+      "original_acceptance": "Decision includes observed evidence, open risks, and revised estimate; no sales claim.",
+      "remaining_acceptance": "Original acceptance criteria not met; inspect dependencies before promotion."
+    },
+    {
+      "id": "D01",
+      "milestone": "D",
+      "title": "Finish demo art and tool readability",
+      "estimated_hours": 24,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "SOURCE_OVERLAP",
+      "evidence_paths": [
+        "docs/evidence/DS14.md",
+        "docs/evidence/EXP021-A01.md",
+        "docs/evidence/EXP021-A03.md"
+      ],
+      "original_acceptance": "C01 screenshots representative; task objects recognizable at normal play distance.",
+      "remaining_acceptance": "Partial first-person props and procedural art do not establish final C01 facade and tool readability certification."
+    },
+    {
+      "id": "D02",
+      "milestone": "D",
+      "title": "Implement complete menu/depot/lobby loop",
+      "estimated_hours": 18,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "SOURCE_OVERLAP",
+      "evidence_paths": [
+        "docs/evidence/V07.md",
+        "docs/evidence/EXP020-A05.md"
+      ],
+      "original_acceptance": "All twelve screen groups have usable normal/empty/error states and Back paths.",
+      "remaining_acceptance": "Menu and solo-flow portions exist; all 12 UI screen groups and real lobby loops not acceptance-tested."
+    },
+    {
+      "id": "D03",
+      "milestone": "D",
+      "title": "Apply localization pipeline",
+      "estimated_hours": 18,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "SOURCE_OVERLAP",
+      "evidence_paths": [
+        "content/ui/strings/en.json",
+        "scripts/ui/ui_text.gd"
+      ],
+      "original_acceptance": "No essential text baked into textures; long strings and Chinese glyphs fit.",
+      "remaining_acceptance": "English string resources exist; Chinese locale, pseudo-locale, long-string tests and language approval remain."
+    },
+    {
+      "id": "D04",
+      "milestone": "D",
+      "title": "Complete controller path",
+      "estimated_hours": 12,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "SOURCE_OVERLAP",
+      "evidence_paths": [
+        "docs/evidence/DS13.md",
+        "docs/evidence/V07.md"
+      ],
+      "original_acceptance": "Demo completes from launch to results with no mouse or keyboard.",
+      "remaining_acceptance": "Input glyphs and source focus exist; complete mouse-free controller run and remap/conflict checks not witnessed."
+    },
+    {
+      "id": "D05",
+      "milestone": "D",
+      "title": "Export and profile demo",
+      "estimated_hours": 10,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "SOURCE_OVERLAP",
+      "evidence_paths": [
+        "docs/evidence/QA140.md",
+        "docs/evidence/EXP021-A04.md"
+      ],
+      "original_acceptance": "Measured device report attached; presets produce a readable stable scene.",
+      "remaining_acceptance": "Real hardware numbers are from an older C01 graybox; EXP021 batching/stress is headless, not latest-release physical P95."
+    },
+    {
+      "id": "D06",
+      "milestone": "D",
+      "title": "Create Steam store creative",
+      "estimated_hours": 22,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "NO_ACCEPTED_EVIDENCE",
+      "evidence_paths": [],
+      "original_acceptance": "Art matches game; no advertised unimplemented features; template dimensions verified.",
+      "remaining_acceptance": "Original acceptance criteria not met; inspect dependencies before promotion."
+    },
+    {
+      "id": "D07",
+      "milestone": "D",
+      "title": "Demo acceptance study",
+      "estimated_hours": 12,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "NO_ACCEPTED_EVIDENCE",
+      "evidence_paths": [],
+      "original_acceptance": "No P0/P1; all demo acceptance cases recorded; player feedback summarized.",
+      "remaining_acceptance": "Original acceptance criteria not met; inspect dependencies before promotion."
+    },
+    {
+      "id": "D08",
+      "milestone": "D",
+      "title": "Stage demo and store readiness",
+      "estimated_hours": 8,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "NO_ACCEPTED_EVIDENCE",
+      "evidence_paths": [],
+      "original_acceptance": "Publishable package prepared; external publication separately recorded; no invented event deadline.",
+      "remaining_acceptance": "Original acceptance criteria not met; inspect dependencies before promotion."
+    },
+    {
+      "id": "CT01",
+      "milestone": "CT",
+      "title": "Build Canal Yard kit variant",
+      "estimated_hours": 24,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "SOURCE_OVERLAP",
+      "evidence_paths": [
+        "docs/evidence/CT-BP-GATE.md",
+        "docs/evidence/EXP019-A01.md"
+      ],
+      "original_acceptance": "Routes and services distinguishable; collisions and task positions validated.",
+      "remaining_acceptance": "Canal Yard contract source and generic 3D worksite physics exist; bespoke final Canal Yard kit and human route approval absent."
+    },
+    {
+      "id": "CT02",
+      "milestone": "CT",
+      "title": "Build Hill Road kit variant",
+      "estimated_hours": 24,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "SOURCE_OVERLAP",
+      "evidence_paths": [
+        "docs/evidence/CTL3-SOURCE-CLOSEOUT.md",
+        "docs/evidence/EXP019-A01.md"
+      ],
+      "original_acceptance": "Controller navigation and alternate routes complete before detail pass.",
+      "remaining_acceptance": "Hill Road contract source and generic 3D worksite physics exist; final hill/roof kit and controller navigation unapproved."
+    },
+    {
+      "id": "CT03",
+      "milestone": "CT",
+      "title": "Implement service priority contracts",
+      "estimated_hours": 22,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "SOURCE_OVERLAP",
+      "evidence_paths": [
+        "docs/evidence/CTL1-C02.md",
+        "docs/evidence/CTL1-C04.md",
+        "docs/evidence/CT-BP-GATE.md"
+      ],
+      "original_acceptance": "Each contract has known solution; no mandatory extra grind or two-person task.",
+      "remaining_acceptance": "C02–C04 host/source solution evidence does not certify fully built player-controlled 3D missions."
+    },
+    {
+      "id": "CT04",
+      "milestone": "CT",
+      "title": "Implement pump and cold-store contracts",
+      "estimated_hours": 24,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "SOURCE_OVERLAP",
+      "evidence_paths": [
+        "docs/evidence/CTL2-C05.md",
+        "docs/evidence/CTL2-C06.md",
+        "docs/evidence/CT-BP-GATE.md"
+      ],
+      "original_acceptance": "No pump deadlock; lost optional bonus never blocks completion.",
+      "remaining_acceptance": "C05–C06 source logic is qualified, but physical pumps, timed paths and solo/online runs remain."
+    },
+    {
+      "id": "CT05",
+      "milestone": "CT",
+      "title": "Implement evidence and supply contracts",
+      "estimated_hours": 22,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "SOURCE_OVERLAP",
+      "evidence_paths": [
+        "docs/evidence/CTL2-C07.md",
+        "docs/evidence/CTL2-C08.md"
+      ],
+      "original_acceptance": "Safe topology rules hold; solutions depend on measured state rather than memorized label.",
+      "remaining_acceptance": "C07–C08 source and simulated host proofs exist; actual physical evidence-driven missions not signed off."
+    },
+    {
+      "id": "CT06",
+      "milestone": "CT",
+      "title": "Implement final district contracts",
+      "estimated_hours": 24,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "SOURCE_OVERLAP",
+      "evidence_paths": [
+        "docs/evidence/CTL3-SOURCE-CLOSEOUT.md"
+      ],
+      "original_acceptance": "All four complete solo/online; no invisible random fault changes.",
+      "remaining_acceptance": "C09–C12 source replays exist; four complete player-controlled solo/online final-district contracts not certified."
+    },
+    {
+      "id": "CT07",
+      "milestone": "CT",
+      "title": "Implement bounded progression",
+      "estimated_hours": 16,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "SOURCE_OVERLAP",
+      "evidence_paths": [
+        "docs/evidence/EXP05.md",
+        "docs/evidence/EXP04.md"
+      ],
+      "original_acceptance": "Essential tools always supplied; simultaneous purchase retries cannot charge twice.",
+      "remaining_acceptance": "EXP05 expedition routing and EXP04 field points exist, but they are separate from original campaign credit purchases and five starter sidegrades."
+    },
+    {
+      "id": "CT08",
+      "milestone": "CT",
+      "title": "Finish campaign assets and animations",
+      "estimated_hours": 28,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "SOURCE_OVERLAP",
+      "evidence_paths": [
+        "docs/evidence/DS14.md",
+        "docs/evidence/EXP021-A02.md"
+      ],
+      "original_acceptance": "Every interactive asset has readable state and matching sound/accessibility fallback.",
+      "remaining_acceptance": "Source first-person tools and synthetic audio exist; final integrated animation/asset license/full campaign polish missing."
+    },
+    {
+      "id": "CT09",
+      "milestone": "CT",
+      "title": "Implement curated replay templates",
+      "estimated_hours": 16,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "NO_ACCEPTED_EVIDENCE",
+      "evidence_paths": [],
+      "original_acceptance": "Every shipped seed template solvable; a seed reproduces the same definition.",
+      "remaining_acceptance": "Original acceptance criteria not met; inspect dependencies before promotion."
+    },
+    {
+      "id": "CT10",
+      "milestone": "CT",
+      "title": "Content completion gate",
+      "estimated_hours": 14,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "NO_ACCEPTED_EVIDENCE",
+      "evidence_paths": [],
+      "original_acceptance": "Twelve solution traces and defect records exist; no missing required tool or final overload.",
+      "remaining_acceptance": "Original acceptance criteria not met; inspect dependencies before promotion."
+    },
+    {
+      "id": "H01",
+      "milestone": "H",
+      "title": "Harden saves and campaign migration",
+      "estimated_hours": 16,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "SOURCE_OVERLAP",
+      "evidence_paths": [
+        "docs/evidence/G06.md",
+        "docs/evidence/EXP020-A05.md"
+      ],
+      "original_acceptance": "Corrupt/newer saves never silently overwritten; old supported saves preserve progress.",
+      "remaining_acceptance": "Cloud-verified checkpoint/restart code exists; old/new version and physical process migration matrix not completed."
+    },
+    {
+      "id": "H02",
+      "milestone": "H",
+      "title": "Harden rewards and disconnect recovery",
+      "estimated_hours": 18,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "SOURCE_OVERLAP",
+      "evidence_paths": [
+        "docs/evidence/V08.md",
+        "docs/evidence/EXP020-A03.md"
+      ],
+      "original_acceptance": "Exactly-once local receipt application; checkpoints and participant state stay coherent.",
+      "remaining_acceptance": "Ledger-backed deduplication is source-tested; cross-client redelivery and production account recovery need live evidence."
+    },
+    {
+      "id": "H03",
+      "milestone": "H",
+      "title": "Complete accessibility and language layouts",
+      "estimated_hours": 20,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "SOURCE_OVERLAP",
+      "evidence_paths": [
+        "docs/evidence/A04.md",
+        "docs/evidence/V07.md",
+        "docs/evidence/EXP021-A03.md"
+      ],
+      "original_acceptance": "No critical clipping; all tasks usable without color/audio/voice dependence.",
+      "remaining_acceptance": "Core UI scaling and reduced-flash source exist; all screens/locales/controller/human accessibility unresolved."
+    },
+    {
+      "id": "H04",
+      "milestone": "H",
+      "title": "Optimize exported stress route",
+      "estimated_hours": 20,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "SOURCE_OVERLAP",
+      "evidence_paths": [
+        "docs/evidence/QA140.md",
+        "docs/evidence/EXP021-A04.md"
+      ],
+      "original_acceptance": "Measured P95 and memory report meets target or explicit revised hardware target proposed.",
+      "remaining_acceptance": "QA140 physical runs were C01 graybox only; 200-site exported integrated GPU P95/VRAM, 4-player stress and leak cleanup remain."
+    },
+    {
+      "id": "H05",
+      "milestone": "H",
+      "title": "Integrate Steam Cloud and achievements",
+      "estimated_hours": 14,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "NO_ACCEPTED_EVIDENCE",
+      "evidence_paths": [],
+      "original_acceptance": "Two actual PCs sync progress; machine graphics settings stay independent.",
+      "remaining_acceptance": "Original acceptance criteria not met; inspect dependencies before promotion."
+    },
+    {
+      "id": "H06",
+      "milestone": "H",
+      "title": "Feature-complete alpha gate",
+      "estimated_hours": 14,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "NO_ACCEPTED_EVIDENCE",
+      "evidence_paths": [],
+      "original_acceptance": "No known save-loss issue; every release feature complete; all P0/P1 blockers assigned.",
+      "remaining_acceptance": "Original acceptance criteria not met; inspect dependencies before promotion."
+    },
+    {
+      "id": "B01",
+      "milestone": "B",
+      "title": "Run network/device beta matrix",
+      "estimated_hours": 18,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "NO_ACCEPTED_EVIDENCE",
+      "evidence_paths": [],
+      "original_acceptance": "Actual impairment configuration, account setup, build and state hashes recorded.",
+      "remaining_acceptance": "Original acceptance criteria not met; inspect dependencies before promotion."
+    },
+    {
+      "id": "B02",
+      "milestone": "B",
+      "title": "Run input/localization beta matrix",
+      "estimated_hours": 14,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "NO_ACCEPTED_EVIDENCE",
+      "evidence_paths": [],
+      "original_acceptance": "No missing glyph or inaccessible essential action; full focus paths verified.",
+      "remaining_acceptance": "Original acceptance criteria not met; inspect dependencies before promotion."
+    },
+    {
+      "id": "B03",
+      "milestone": "B",
+      "title": "Fix authoritative state and protocol defects",
+      "estimated_hours": 20,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "NO_ACCEPTED_EVIDENCE",
+      "evidence_paths": [],
+      "original_acceptance": "All reproduced P0/P1 defects fixed and retested under the same conditions.",
+      "remaining_acceptance": "Original acceptance criteria not met; inspect dependencies before promotion."
+    },
+    {
+      "id": "B04",
+      "milestone": "B",
+      "title": "Fix persistence and UI defects",
+      "estimated_hours": 16,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "NO_ACCEPTED_EVIDENCE",
+      "evidence_paths": [],
+      "original_acceptance": "No P0/P1; selected P2 exceptions have recorded impact and owner.",
+      "remaining_acceptance": "Original acceptance criteria not met; inspect dependencies before promotion."
+    },
+    {
+      "id": "B05",
+      "milestone": "B",
+      "title": "Polish feedback and launch art",
+      "estimated_hours": 18,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "NO_ACCEPTED_EVIDENCE",
+      "evidence_paths": [],
+      "original_acceptance": "Only shipped gameplay appears; reduced-motion and flash variants remain readable.",
+      "remaining_acceptance": "Original acceptance criteria not met; inspect dependencies before promotion."
+    },
+    {
+      "id": "B06",
+      "milestone": "B",
+      "title": "Release-candidate beta gate",
+      "estimated_hours": 12,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "NO_ACCEPTED_EVIDENCE",
+      "evidence_paths": [],
+      "original_acceptance": "Zero known P0/P1; performance and feature claims supported by candidate evidence.",
+      "remaining_acceptance": "Original acceptance criteria not met; inspect dependencies before promotion."
+    },
+    {
+      "id": "R01",
+      "milestone": "R",
+      "title": "Audit Steam configuration and claims",
+      "estimated_hours": 8,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "NO_ACCEPTED_EVIDENCE",
+      "evidence_paths": [],
+      "original_acceptance": "Advertised features exist; actual release candidate downloads and launches.",
+      "remaining_acceptance": "Original acceptance criteria not met; inspect dependencies before promotion."
+    },
+    {
+      "id": "R02",
+      "milestone": "R",
+      "title": "Finalize launch creative and support folder",
+      "estimated_hours": 14,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "NO_ACCEPTED_EVIDENCE",
+      "evidence_paths": [],
+      "original_acceptance": "No placeholder art or missing notice; all asset sizes match current Steam templates.",
+      "remaining_acceptance": "Original acceptance criteria not met; inspect dependencies before promotion."
+    },
+    {
+      "id": "R03",
+      "milestone": "R",
+      "title": "Submit store and build reviews",
+      "estimated_hours": 8,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "NO_ACCEPTED_EVIDENCE",
+      "evidence_paths": [],
+      "original_acceptance": "Approvals documented; requested corrections verified; no assumed automatic approval.",
+      "remaining_acceptance": "Original acceptance criteria not met; inspect dependencies before promotion."
+    },
+    {
+      "id": "R04",
+      "milestone": "R",
+      "title": "Prepare reproducible release build",
+      "estimated_hours": 10,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "SOURCE_OVERLAP",
+      "evidence_paths": [
+        "docs/evidence/QA57.md",
+        "docs/evidence/EXP021-A05.md"
+      ],
+      "original_acceptance": "Clean export matches intended content; no private logs/secrets or debug bypasses.",
+      "remaining_acceptance": "CI verifies exact-head Windows export and hashes; no tagged clean production build, secret scan, rollback or Steam release candidate."
+    },
+    {
+      "id": "R05",
+      "milestone": "R",
+      "title": "Perform final release smoke",
+      "estimated_hours": 10,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "NO_ACCEPTED_EVIDENCE",
+      "evidence_paths": [],
+      "original_acceptance": "Exact candidate passes critical matrix; final signoff names build hash and remaining P2 issues.",
+      "remaining_acceptance": "Original acceptance criteria not met; inspect dependencies before promotion."
+    },
+    {
+      "id": "R06",
+      "milestone": "R",
+      "title": "Stage launch and support rotation",
+      "estimated_hours": 6,
+      "backlog_status": "NOT_STARTED",
+      "evidence_class": "NO_ACCEPTED_EVIDENCE",
+      "evidence_paths": [],
+      "original_acceptance": "Concrete release checklist complete; publication is a recorded operator action.",
+      "remaining_acceptance": "Original acceptance criteria not met; inspect dependencies before promotion."
+    }
+  ],
+  "alpha_gates": [
+    {
+      "id": "AL01",
+      "label": "Immutable contract/atlas source identities",
+      "status": "PASS",
+      "refs": [
+        "docs/evidence/EXP014-A10-4.md"
+      ]
+    },
+    {
+      "id": "AL02",
+      "label": "Original C01–C12 headless source/host solutions",
+      "status": "PASS",
+      "refs": [
+        "docs/evidence/CTL3-SOURCE-CLOSEOUT.md"
+      ]
+    },
+    {
+      "id": "AL03",
+      "label": "200 live Godot scene and host constructions; 1000 task bindings",
+      "status": "PASS",
+      "refs": [
+        "docs/evidence/EXP021-A05.md"
+      ]
+    },
+    {
+      "id": "AL04",
+      "label": "Host-authoritative field tools, dedup and evidence/repair checks",
+      "status": "PASS",
+      "refs": [
+        "docs/evidence/EXP019-A03.md",
+        "docs/evidence/EXP019-A05.md"
+      ]
+    },
+    {
+      "id": "AL05",
+      "label": "200 source-physics worksites and 7200 registered ray contacts",
+      "status": "PASS",
+      "refs": [
+        "docs/evidence/EXP019-A01.md"
+      ]
+    },
+    {
+      "id": "AL06",
+      "label": "Exact-head Windows EXE/PCK manifest, boot and hash proof",
+      "status": "PASS",
+      "refs": [
+        "docs/evidence/EXP021-A05.md",
+        "docs/evidence/QA57.md"
+      ]
+    },
+    {
+      "id": "AL07",
+      "label": "200 full MissionDirector completions with source-bound solutions",
+      "status": "HOLD",
+      "refs": [
+        "docs/evidence/EXP018-A05.md",
+        "docs/evidence/EXP021-A05.md"
+      ]
+    },
+    {
+      "id": "AL08",
+      "label": "Human walking and collision/access audit across representative final worksites",
+      "status": "HOLD",
+      "refs": [
+        "docs/evidence/EXP019-A01.md"
+      ]
+    },
+    {
+      "id": "AL09",
+      "label": "Keyboard/controller complete real-world campaign navigation and accessibility",
+      "status": "HOLD",
+      "refs": [
+        "docs/evidence/V07.md",
+        "docs/evidence/EXP021-A05.md"
+      ]
+    },
+    {
+      "id": "AL10",
+      "label": "Current integrated 200-site exported-build target GPU P95/VRAM/memory",
+      "status": "HOLD",
+      "refs": [
+        "docs/evidence/QA140.md",
+        "docs/evidence/EXP021-A04.md"
+      ]
+    },
+    {
+      "id": "AL11",
+      "label": "EXP campaign save recovery, migration, reward dedup, process restart on hardware",
+      "status": "HOLD",
+      "refs": [
+        "docs/evidence/G06.md",
+        "docs/evidence/EXP020-A03.md"
+      ]
+    },
+    {
+      "id": "AL12",
+      "label": "Two-real-network Steam transport plus four-player authoritative sessions",
+      "status": "HOLD",
+      "refs": [
+        "docs/evidence/F02.md"
+      ]
+    },
+    {
+      "id": "AL13",
+      "label": "Visual/audio quality and reduced-flash behavior on real hardware",
+      "status": "HOLD",
+      "refs": [
+        "docs/evidence/EXP021-A02.md",
+        "docs/evidence/EXP021-A03.md"
+      ]
+    },
+    {
+      "id": "AL14",
+      "label": "Human-tested UI focus, 150 percent scale, language and non-audio cues",
+      "status": "HOLD",
+      "refs": [
+        "docs/evidence/A04.md"
+      ]
+    },
+    {
+      "id": "AL15",
+      "label": "Independent game playthroughs, metrics and P0/P1 disposition",
+      "status": "HOLD",
+      "refs": [
+        "docs/evidence/V09-FIELD01-FIELD20.md"
+      ]
+    },
+    {
+      "id": "AL16",
+      "label": "Lifecycle and resource-leak closure in full Godot regressions",
+      "status": "HOLD",
+      "refs": [
+        "docs/evidence/EXP019-EXP021-INTEGRATION.md"
+      ]
+    }
+  ],
+  "release_gates": [
+    {
+      "id": "RL01",
+      "label": "Main branch full CI passed on Linux and Windows",
+      "status": "PASS",
+      "refs": [
+        "docs/evidence/EXP019-EXP021-INTEGRATION.md"
+      ]
+    },
+    {
+      "id": "RL02",
+      "label": "Windows exact-head EXE/PCK source and digest qualification",
+      "status": "PASS",
+      "refs": [
+        "docs/evidence/EXP021-A05.md"
+      ]
+    },
+    {
+      "id": "RL03",
+      "label": "Signed-off physically playable feature-complete alpha gate",
+      "status": "HOLD",
+      "refs": [
+        "docs/evidence/EXP021-A05.md"
+      ]
+    },
+    {
+      "id": "RL04",
+      "label": "Steam real-peer, Steam Cloud, achievements and account isolation",
+      "status": "HOLD",
+      "refs": [
+        "docs/evidence/F02.md"
+      ]
+    },
+    {
+      "id": "RL05",
+      "label": "Multi-network/device/impairment four-player beta matrix",
+      "status": "HOLD",
+      "refs": [
+        "docs/evidence/V04.md"
+      ]
+    },
+    {
+      "id": "RL06",
+      "label": "Controller/accessibility/localization beta acceptance",
+      "status": "HOLD",
+      "refs": [
+        "docs/evidence/DS13.md",
+        "docs/evidence/V07.md"
+      ]
+    },
+    {
+      "id": "RL07",
+      "label": "Final-target representative hardware P95, endurance and leak closure",
+      "status": "HOLD",
+      "refs": [
+        "docs/evidence/QA140.md",
+        "docs/evidence/EXP021-A04.md"
+      ]
+    },
+    {
+      "id": "RL08",
+      "label": "Approved final art/audio, store screenshots/trailer, license audit",
+      "status": "HOLD",
+      "refs": [
+        "docs/evidence/DS14.md"
+      ]
+    },
+    {
+      "id": "RL09",
+      "label": "Steam release app/depot package, storefront configuration and review",
+      "status": "HOLD",
+      "refs": [
+        "docs/evidence/F02.md"
+      ]
+    },
+    {
+      "id": "RL10",
+      "label": "Valve store/build review approvals documented",
+      "status": "HOLD",
+      "refs": []
+    },
+    {
+      "id": "RL11",
+      "label": "Exact production Steam download clean install and final smoke",
+      "status": "HOLD",
+      "refs": [
+        "docs/evidence/QA57.md"
+      ]
+    },
+    {
+      "id": "RL12",
+      "label": "Release sign-off, rollback candidate, support and publishing operations",
+      "status": "HOLD",
+      "refs": []
+    }
+  ]
+}
