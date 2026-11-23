@@ -251,12 +251,9 @@ func _build_stations(markers: Node3D, _added: Dictionary) -> void:
 		group.add_child(station)
 		_box(station, "Plate", Vector3(0.57, 0.35, 0.08),
 			Vector3(0.0, 0.10, 0.02), casing)
-		var description: String = id.trim_prefix("SW_").trim_prefix("PANEL_").replace("_", " ")
-		if id == "PANEL_SPUR":
-			description = UiText.t("node.c04.spur")
-		elif id.begins_with("PANEL_"):
-			description += " WORKSITE"
-		var caption: String = description if id.begins_with("PANEL_") and id != "PANEL_SPUR" else "%s\nUNKNOWN" % description
+		var description: String = UiText.station_name(id)
+		var caption: String = description if id.begins_with("PANEL_") and id != "PANEL_SPUR" else \
+			"%s\n%s" % [description, UiText.t("world.switch.unknown")]
 		var indicator: Label3D = _label(station, "State", caption,
 			Vector3(0.0, 0.17, -0.06))
 		if id == "PANEL_SPUR":
@@ -396,16 +393,16 @@ static func _bonus_status(snapshot: Dictionary) -> String:
 	# illumination or a locally counted 100-tick timer.
 	var raw_mission: Variant = snapshot.get("mission")
 	if not (raw_mission is Dictionary):
-		return "UNKNOWN"
+		return UiText.t("world.switch.unknown")
 	var raw_latched: Variant = (raw_mission as Dictionary).get("latched")
 	if not (raw_latched is Dictionary):
-		return "UNKNOWN"
+		return UiText.t("world.switch.unknown")
 	var latched: Dictionary = raw_latched
 	if not latched.has("LATCH_SIGN_SUPPLY"):
 		return UiText.t("offline.c04.sign_bonus_pending")
 	var value: Variant = latched["LATCH_SIGN_SUPPLY"]
 	if not (value is int and int(value) >= 0):
-		return "UNKNOWN"
+		return UiText.t("world.switch.unknown")
 	return UiText.t("offline.c04.sign_bonus_verified")
 
 
@@ -416,15 +413,8 @@ static func _control_status(snapshot: Dictionary, source: Dictionary) -> String:
 	if value == null:
 		value = _host_bool(snapshot, "edges", target, field)
 	if value == null:
-		return "UNKNOWN"
-	match field:
-		"enabled":
-			return "ENABLED" if value else "DISABLED"
-		"isolated":
-			return "ISOLATED" if value else "CONNECTED"
-		"tripped":
-			return "TRIPPED" if value else "RESET"
-	return "UNKNOWN"
+		return UiText.t("world.switch.unknown")
+	return UiText.switch_state(field, bool(value))
 
 
 ## State text reports host observation, never infers load supply from the
@@ -432,16 +422,18 @@ static func _control_status(snapshot: Dictionary, source: Dictionary) -> String:
 func apply_host(snapshot: Dictionary) -> void:
 	for id: String in _indicators:
 		var label: Label3D = _indicators[id] as Label3D
-		label.text = "%s\n%s" % [id.trim_prefix("SW_").replace("_", " "),
+		label.text = "%s\n%s" % [UiText.station_name(id),
 			_control_status(snapshot, _controls[id])]
 	if _spur_label != null:
 		var feeder: Variant = _host_bool(snapshot, "edges", "E_GRID_SPUR", "enabled")
 		_spur_label.text = "%s\n%s" % [UiText.t("node.c04.spur"),
-			"UNKNOWN" if feeder == null else "INSTALLED" if feeder else "NOT INSTALLED"]
+			UiText.t("world.switch.unknown") if feeder == null else UiText.t("world.spur.installed") if feeder
+				else UiText.t("world.spur.not_installed")]
 	if _sign_label != null:
 		var supplied: Variant = _host_bool(snapshot, "nodes", "SIGN", "supplied")
 		_sign_label.text = "%s\n%s" % [UiText.t("node.c01.sign"),
-			"UNKNOWN" if supplied == null else "SUPPLIED" if supplied else "UNSUPPLIED"]
+			UiText.t("world.switch.unknown") if supplied == null else UiText.t("world.sign_supply.supplied") if supplied
+				else UiText.t("world.sign_supply.unsupplied")]
 	if _bonus_label != null:
 		_bonus_label.text = "%s\n%s" % [UiText.t("offline.c04.sign_bonus_label"),
 			_bonus_status(snapshot)]

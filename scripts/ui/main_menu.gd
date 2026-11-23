@@ -11,6 +11,8 @@ const InputPrompt := preload("res://scripts/ui/input_prompt.gd")
 const InputDeviceTracker := preload("res://scripts/ui/input_device_tracker.gd")
 const DispatchAtlasPanel := preload("res://scripts/ui/dispatch_atlas_panel.gd")
 const DispatchAtlas := preload("res://scripts/world/dispatch_atlas.gd")
+const BuildFlavor := preload("res://scripts/ui/build_flavor.gd")
+const PlayerTextAudit := preload("res://scripts/diagnostics/player_text_audit.gd")
 const EXP03_STAGE_PATH: String = "res://scenes/expeditions/mission_stage.tscn"
 
 const MISSION_PATH: String = "res://scenes/mission/mission_root.tscn"
@@ -160,10 +162,15 @@ func _ready() -> void:
 
 	# EXP04: read-only atlas with an explicit opt-in host mission; any field
 	# score and lore are isolated from the production C01 checkpoint.
+	# RB01 (ADR-019 point 5): the 200 generated dispatch levels are retired from release builds. The button stays in
+	# internal builds only, as engineering access, and its text is deliberately not in the player string table.
 	dispatch_atlas_button = Button.new()
 	dispatch_atlas_button.name = "DispatchAtlasButton"
 	dispatch_atlas_button.text = "Explore 200 experimental dispatch missions"
 	dispatch_atlas_button.custom_minimum_size.y = 56.0
+	dispatch_atlas_button.add_to_group(PlayerTextAudit.INTERNAL_ONLY_GROUP)
+	dispatch_atlas_button.visible = BuildFlavor.is_internal()
+	dispatch_atlas_button.disabled = not BuildFlavor.is_internal()
 	dispatch_atlas_button.pressed.connect(_open_dispatch_atlas)
 	layout.add_child(dispatch_atlas_button)
 
@@ -199,7 +206,8 @@ func _ready() -> void:
 	# Returning from an ephemeral dispatch resumes the atlas, not a C01 save.
 	if bool(get_tree().get_meta("expedition_reopen_atlas", false)):
 		get_tree().remove_meta("expedition_reopen_atlas")
-		call_deferred("_open_dispatch_atlas")
+		if BuildFlavor.is_internal():
+			call_deferred("_open_dispatch_atlas")
 
 
 ## Treat 620 px as a maximum, not a fixed minimum. Preserve a safe border
@@ -273,7 +281,7 @@ func _apply_save_status(status: Dictionary) -> void:
 		_save_message.text = UiText.t("offline.menu.outdated_progress")
 	else:
 		_save_message.text = UiText.t("offline.menu.progress_found") if _save_available else (
-			UiText.tf("offline.menu.save_error", [str(status.get("code", "UNAVAILABLE"))]) if not _save_ready
+			UiText.tf("offline.menu.save_error", [save_reason(str(status.get("code", "")))]) if not _save_ready
 			else UiText.t("offline.menu.no_progress"))
 	_save_message.add_theme_color_override("font_color", ThemeTokens.color(_tokens,
 		"fault" if not (_save_ready or _save_outdated) else "text_muted"))
@@ -286,6 +294,15 @@ func _apply_save_status(status: Dictionary) -> void:
 		(continue_button if _save_available else quit_button).grab_focus()
 	elif prior_focus == continue_button and not continue_button.visible:
 		(start_button if not start_button.disabled else quit_button).grab_focus()
+
+
+## Player words for a save status code. The code itself (NEWER_SCHEMA, CORRUPT) is internal and never shown (ADR-019 point 4).
+static func save_reason(code: String) -> String:
+	if code == "CORRUPT" or code == "BAD_CHECKPOINT" or code == "BAD_RECORD" or code == "BAD_PROFILE":
+		return UiText.t("save.reason.corrupt")
+	if code.contains("NEWER_SCHEMA"):
+		return UiText.t("save.reason.newer")
+	return UiText.t("save.reason.unavailable")
 
 
 ## Player-facing build version from project.godot (application/config/version); the Windows export's file and
@@ -321,7 +338,7 @@ func _archive_outdated_and_launch() -> void:
 	var result: Dictionary = CheckpointArchive.archive_mismatched_checkpoint(_store)
 	_apply_save_status(_store.checkpoint_status())
 	if not bool(result.get("ok", false)):
-		_save_message.text = UiText.tf("offline.menu.archive_failed", [str(result.get("code", "UNAVAILABLE"))])
+		_save_message.text = UiText.tf("offline.menu.archive_failed", [save_reason(str(result.get("code", "")))])
 		_save_message.add_theme_color_override("font_color", ThemeTokens.color(_tokens, "fault"))
 		return
 	_launch(false)
@@ -373,9 +390,9 @@ func _launch_c04_preview() -> void:
 	get_tree().change_scene_to_file(C04_PREVIEW_PATH)
 
 
-## EXP01 catalogue is presentation-only, independent of solo campaign identity.
+## EXP01 catalogue is presentation-only, independent of solo campaign identity. Internal builds only (RB01).
 func _open_dispatch_atlas() -> void:
-	if _dispatch_atlas_panel != null or _loading_card != null:
+	if _dispatch_atlas_panel != null or _loading_card != null or not BuildFlavor.is_internal():
 		return
 	_dispatch_atlas_panel = DispatchAtlasPanel.new()
 	_dispatch_atlas_panel.set("account_key",
@@ -389,7 +406,7 @@ func _open_dispatch_atlas() -> void:
 ## EXP04 missions use a separate source scene/profile ledger. This does not
 ## change offline_resume or write the original C01 checkpoint/credit profile.
 func _launch_experimental_dispatch(level_id: String) -> void:
-	if _dispatch_atlas_panel == null or _loading_card != null:
+	if _dispatch_atlas_panel == null or _loading_card != null or not BuildFlavor.is_internal():
 		return
 	var source: Dictionary = DispatchAtlas.load_catalog()
 	if not bool(DispatchAtlas.inspect(source).get("ok", false)) or \
@@ -409,7 +426,8 @@ func _close_dispatch_atlas() -> void:
 	if _dispatch_atlas_panel != null:
 		_dispatch_atlas_panel.queue_free()
 		_dispatch_atlas_panel = null
-	dispatch_atlas_button.grab_focus()
+	if dispatch_atlas_button.visible:
+		dispatch_atlas_button.grab_focus()
 
 
 ## Full-screen card that stays on screen while the mission scene loads. Blocks input so a second press cannot launch

@@ -436,6 +436,11 @@ elif [ -f project.godot ]; then
   # GDScript cannot catch runtime errors, so a test that crashes mid-way could still report PASS: fail on any
   if grep -qE "SCRIPT ERROR|Parse Error" "$GD_OUT"; then echo "FAIL: Godot reported script errors (see above)"; FAIL=1; fi
   rm -f "$GD_OUT"
+  echo "== RB01: release text gate, every shipped scene and the player string table (ADR-019 point 4) =="
+  RB01_OUT="$(mktemp)"
+  bash tools/check_player_text.sh --report=build/rb01/player_text.json >"$RB01_OUT" 2>&1 || FAIL=1
+  grep -E "^  (FAIL|internal)|^\[|PLAYER_TEXT|FAIL:" "$RB01_OUT"
+  rm -f "$RB01_OUT"
   echo "== EXP019 A01: 200 real Godot physics-space checks / 7,200 ray contacts == "
   "$GODOT_BIN" --headless --path . -s res://tools/godot/verify_exp019_routes.gd || FAIL=1
   echo "== solution traces: every contract with a solution.json must be solvable =="

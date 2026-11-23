@@ -9,6 +9,7 @@ extends RefCounted
 ## 'kit' building, whose interior is walkable, keeps the kit pieces' own boxes.
 
 const KitBuilder := preload("res://scripts/world/kit_builder.gd")
+const UiText := preload("res://scripts/ui/ui_text.gd")
 const ALDER_PATH: String = "res://content/world/alder_street.json"
 const MODULE_CM: int = 400
 ## Yaw that turns a kit piece (exterior on its local -Z side) to face outward on that side of a footprint.
@@ -175,7 +176,9 @@ static func _building(parent: Node3D, root: Node3D, b: Dictionary, scenes: Dicti
 	_add(node, root, entrance)
 	if b["service"]:
 		var front: Vector3 = entrance.position
-		_label(node, root, "Label", str(b["id"]), Vector3(front.x, KitBuilder.cm([0, top + LABEL_ABOVE_ROOF_CM, 0]).y, front.z))
+		# The building's sign name, never its ID (RB01): the mission later turns this label into a status plaque.
+		_label(node, root, "Label", UiText.t("world.sign." + str(b["id"]).to_lower()),
+			Vector3(front.x, KitBuilder.cm([0, top + LABEL_ABOVE_ROOF_CM, 0]).y, front.z))
 
 
 ## Kit piece ids along one face of one storey: the authored list, or plain walls when the face is not listed.
