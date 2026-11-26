@@ -32,6 +32,9 @@ func configure(input_action: String, input_device: String, scale: float, design_
 	scale_percent = scale
 	tokens = design_tokens
 	_elapsed = 0.0
+	# A device or scale change can keep the same binding dictionary. Recompute
+	# the footprint and drawing even in that case.
+	_info = {}
 	refresh_binding()
 
 
@@ -189,7 +192,11 @@ func _draw_dpad(rect: Rect2, fill: Color, edge: Color, accent: Color) -> void:
 		JOY_BUTTON_DPAD_DOWN: direction = Vector2.DOWN
 		JOY_BUTTON_DPAD_LEFT: direction = Vector2.LEFT
 		JOY_BUTTON_DPAD_RIGHT: direction = Vector2.RIGHT
-	draw_circle(c + direction * unit * 1.3, unit * 0.48, accent)
+	# The selected direction needs a dark separator; amber alone against
+	# the light neutral D-pad segment has poor contrast.
+	var selected: Vector2 = c + direction * unit * 1.3
+	draw_circle(selected, unit * 0.62, fill)
+	draw_circle(selected, unit * 0.37, accent)
 
 
 func _draw_stick(rect: Rect2, fill: Color, edge: Color, accent: Color) -> void:
