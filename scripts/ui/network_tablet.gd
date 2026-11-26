@@ -1071,6 +1071,15 @@ func _label(parent: Control, text: String, variation: String = "", color_token: 
 ## stays in the existing HFlow and focus graph; the decorative glyph never
 ## captures a click or creates an extra layout minimum.
 func _place_button_glyph(glyph: InputGlyph, scale: float) -> void:
+	# A live remap can make the keycap wider without rebuilding the button.
+	# Recompute the reservation from the glyph's new minimum size.
+	var update: Callable = _update_button_glyph.bind(glyph, scale)
+	if not glyph.minimum_size_changed.is_connected(update):
+		glyph.minimum_size_changed.connect(update)
+	_update_button_glyph(glyph, scale)
+
+
+func _update_button_glyph(glyph: InputGlyph, scale: float) -> void:
 	glyph.anchor_left = 0.0
 	glyph.anchor_right = 0.0
 	glyph.anchor_top = 0.5
@@ -1085,8 +1094,11 @@ func _place_button_glyph(glyph: InputGlyph, scale: float) -> void:
 	var button: Button = glyph.get_parent() as Button
 	if button != null:
 		var reserve: Vector2i = Vector2i(ceili(glyph.offset_right), ceili(glyph.custom_minimum_size.y))
-		var blank: Image = Image.create_empty(maxi(reserve.x, 1), maxi(reserve.y, 1), false, Image.FORMAT_RGBA8)
-		button.icon = ImageTexture.create_from_image(blank)
+		reserve.x = maxi(reserve.x, 1)
+		reserve.y = maxi(reserve.y, 1)
+		if button.icon == null or button.icon.get_size() != Vector2(reserve):
+			var blank: Image = Image.create_empty(reserve.x, reserve.y, false, Image.FORMAT_RGBA8)
+			button.icon = ImageTexture.create_from_image(blank)
 		button.icon_alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.add_theme_constant_override("h_separation", ThemeTokens.px(8.0, scale))
 
