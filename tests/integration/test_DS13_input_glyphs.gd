@@ -13,6 +13,8 @@ const UiText := preload("res://scripts/ui/ui_text.gd")
 const InputDeviceTracker := preload("res://scripts/ui/input_device_tracker.gd")
 const MenuScene := preload("res://scenes/menu/main_menu.tscn")
 const MissionScene := preload("res://scenes/mission/mission_root.tscn")
+const Fixture := preload("res://tests/support/ui_fixture.gd")
+const CaptureHud := preload("res://tools/godot/capture_hud.gd")
 
 var _tree: SceneTree
 var _owned: Array[Node] = []
@@ -265,3 +267,74 @@ func test_DS13_pseudo_locale_and_higher_scale_keep_glyph_captions_localized() ->
 	assert_true(prompt.glyph.custom_minimum_size.y > 42.0)
 	assert_true(prompt.caption.mouse_filter == Control.MOUSE_FILTER_IGNORE)
 	assert_true(prompt.glyph.focus_mode == Control.FOCUS_NONE)
+
+
+## RB02: the physical 5090 review found visible action captions reduced to a
+## one-pixel Label by the ellipsis minimum-size behavior. Check the actual
+## laid-out glyph/caption pair, not just its strings.
+func test_RB02_hud_action_captions_have_real_width_at_all_scales() -> void:
+	for locale: String in [UiText.LOCALE_EN, UiText.LOCALE_PSEUDO]:
+		UiText.set_locale(locale)
+		for viewport: Vector2 in [Vector2(1280, 720), Vector2(1920, 1080)]:
+			for slider: int in [100, 150]:
+				for mode: String in [UiText.DEVICE_KBM, UiText.DEVICE_PAD]:
+					var hud: FieldHud = FieldHud.new()
+					_own(hud)
+					hud.size = viewport
+					hud.set_ui_scale(slider)
+					hud.set_device(mode)
+					hud.apply(Fixture.worst_hud_view())
+					Fixture.settle(hud)
+					for id: String in ["Hint_map_meter", "Hint_ping"]:
+						var p: InputPrompt = hud.find_child(id, true, false) as InputPrompt
+						assert_true(p != null, id)
+						if p == null:
+							continue
+						var label: Label = p.caption
+						var need: float = label.get_theme_font("font").get_string_size(label.text,
+							HORIZONTAL_ALIGNMENT_LEFT, -1, label.get_theme_font_size("font_size")).x
+						assert_true(label.size.x + 0.75 >= need and label.size.x > 1.0,
+							"%s %s %s %s: %.1f >= %.1f" % [id, viewport, slider, mode, label.size.x, need])
+						assert_true(Fixture.rect_inside(label.get_global_rect(), hud.event_card.get_global_rect()), id + " inside event card")
+						assert_false(label.get_global_rect().intersects(p.glyph.get_global_rect()), id + " has separate glyph and text")
+					_owned.erase(hud)
+					hud.get_parent().remove_child(hud)
+					hud.free()
+
+
+func test_RB02_glyph_scale_changes_even_when_binding_does_not_change() -> void:
+	var g: InputGlyph = _glyph("interact", UiText.DEVICE_KBM, 100.0)
+	var original: Vector2 = g.custom_minimum_size
+	g.configure("interact", UiText.DEVICE_KBM, 150.0, _tokens)
+	assert_eq(g.custom_minimum_size, original * 1.5)
+
+
+func test_RB02_rendered_text_probe_ignores_unchanged_adjacent_glyph_but_requires_ink() -> void:
+	var behind: Image = Image.create_empty(24, 10, false, Image.FORMAT_RGB8)
+	behind.fill(Color.BLACK)
+	behind.fill_rect(Rect2i(0, 0, 5, 10), Color.WHITE)  # adjacent white keycap, not the caption
+	var shown: Image = behind.duplicate() as Image
+	var probe: Dictionary = {"rect": Rect2(0, 0, 24, 10), "fg": Color.WHITE, "min": 4.5, "what": "Caption", "kind": "body_text", "fit": true}
+	assert_false(bool(CaptureHud.score_text(probe, shown, behind)["pass"]), "no rendered caption")
+	shown.fill_rect(Rect2i(10, 3, 5, 3), Color.WHITE)
+	var valid: Dictionary = CaptureHud.score_text(probe, shown, behind)
+	assert_true(bool(valid["pass"]), str(valid))
+	assert_eq(int(valid["ink_pixels"]), 15)
+	probe["fit"] = false
+	assert_false(bool(CaptureHud.score_text(probe, shown, behind)["pass"]), "clipped caption cannot pass")
+	probe["fit"] = true
+	var low: Image = behind.duplicate() as Image
+	low.fill_rect(Rect2i(10, 3, 5, 3), Color(0.1, 0.1, 0.1))
+	assert_false(bool(CaptureHud.score_text(probe, low, behind)["pass"]), "actual rendered contrast insufficient")
+
+
+func test_RB02_glyph_component_requires_own_ink_and_actual_backing() -> void:
+	var behind: Image = Image.create_empty(20, 20, false, Image.FORMAT_RGB8)
+	behind.fill(Color.BLACK)
+	var shown: Image = behind.duplicate() as Image
+	shown.fill_rect(Rect2i(5, 5, 6, 6), Color.WHITE)
+	var region: Rect2 = Rect2(0, 0, 20, 20)
+	assert_true(bool(CaptureHud.score_glyph_component(region, shown, behind, Color.WHITE, Color.BLACK, 4.5)["pass"]))
+	assert_false(bool(CaptureHud.score_glyph_component(region, behind, behind, Color.WHITE, Color.BLACK, 4.5)["pass"]))
+	assert_false(bool(CaptureHud.score_glyph_component(region, shown, behind, Color.WHITE, Color.RED, 4.5)["pass"]))
+	assert_false(bool(CaptureHud.score_glyph_component(region, shown, shown, Color.WHITE, Color.BLACK, 4.5)["pass"]), "unchanged adjacent ink is not the glyph")
