@@ -1,0 +1,597 @@
+{
+  "_note": "RB02 parity cases: each case patches a copy of the Alder Street location bundle ({dir, manifest, layout, dressing, look}) or of the C01 challenge on Alder Street (alder_c01_challenge.json) and lists the distinct error codes, sorted. tests/python/test_rb02_location.py (tools/lbo_location.py) and tests/unit/test_RB02_location_format.gd (scripts/world/location_data.gd) both run every case.",
+  "location_cases": [
+    {
+      "name": "alder_street_is_valid",
+      "ops": [],
+      "codes": []
+    },
+    {
+      "name": "schema_2",
+      "ops": [
+        {
+          "path": [
+            "manifest",
+            "schema"
+          ],
+          "set": 2
+        }
+      ],
+      "codes": [
+        "BAD_SCHEMA"
+      ]
+    },
+    {
+      "name": "lowercase_location_id",
+      "ops": [
+        {
+          "path": [
+            "manifest",
+            "location_id"
+          ],
+          "set": "alder"
+        }
+      ],
+      "codes": [
+        "INVALID_ID"
+      ]
+    },
+    {
+      "name": "scene_not_tscn",
+      "ops": [
+        {
+          "path": [
+            "manifest",
+            "scene"
+          ],
+          "set": "res://scenes/world/alder.glb"
+        }
+      ],
+      "codes": [
+        "BAD_VALUE"
+      ]
+    },
+    {
+      "name": "look_file_missing",
+      "ops": [
+        {
+          "path": [
+            "look"
+          ],
+          "set": {}
+        }
+      ],
+      "codes": [
+        "MISSING_FILE"
+      ]
+    },
+    {
+      "name": "look_without_palette",
+      "ops": [
+        {
+          "path": [
+            "look",
+            "palette"
+          ],
+          "delete": true
+        }
+      ],
+      "codes": [
+        "BAD_LOOK"
+      ]
+    },
+    {
+      "name": "two_heroes",
+      "ops": [
+        {
+          "path": [
+            "manifest",
+            "landmarks",
+            1,
+            "role"
+          ],
+          "set": "hero"
+        }
+      ],
+      "codes": [
+        "BAD_LANDMARK"
+      ]
+    },
+    {
+      "name": "no_hero",
+      "ops": [
+        {
+          "path": [
+            "manifest",
+            "landmarks",
+            0,
+            "role"
+          ],
+          "set": "secondary"
+        }
+      ],
+      "codes": [
+        "BAD_LANDMARK"
+      ]
+    },
+    {
+      "name": "landmark_unknown_building",
+      "ops": [
+        {
+          "path": [
+            "manifest",
+            "landmarks",
+            1,
+            "ref"
+          ],
+          "set": {
+            "building": "CHURCH"
+          }
+        }
+      ],
+      "codes": [
+        "UNKNOWN_REF"
+      ]
+    },
+    {
+      "name": "socket_unknown_prop",
+      "ops": [
+        {
+          "path": [
+            "manifest",
+            "grid",
+            "nodes",
+            2,
+            "socket"
+          ],
+          "set": {
+            "prop": "CABINET_XX"
+          }
+        }
+      ],
+      "codes": [
+        "UNKNOWN_REF"
+      ]
+    },
+    {
+      "name": "socket_two_keys",
+      "ops": [
+        {
+          "path": [
+            "manifest",
+            "grid",
+            "nodes",
+            2,
+            "socket"
+          ],
+          "set": {
+            "prop": "CABINET_JW",
+            "marker": "PANEL_JW"
+          }
+        }
+      ],
+      "codes": [
+        "BAD_SOCKET"
+      ]
+    },
+    {
+      "name": "consumer_in_filler_building",
+      "ops": [
+        {
+          "path": [
+            "manifest",
+            "grid",
+            "nodes",
+            5,
+            "socket"
+          ],
+          "set": {
+            "building": "SOUTH_FILLER"
+          }
+        }
+      ],
+      "codes": [
+        "BAD_SOCKET"
+      ]
+    },
+    {
+      "name": "feed_not_in_dressing",
+      "ops": [
+        {
+          "path": [
+            "manifest",
+            "grid",
+            "nodes",
+            0,
+            "socket"
+          ],
+          "set": {
+            "feed": "power_station"
+          }
+        }
+      ],
+      "codes": [
+        "UNKNOWN_REF"
+      ]
+    },
+    {
+      "name": "edge_into_a_source",
+      "ops": [
+        {
+          "path": [
+            "manifest",
+            "grid",
+            "edges"
+          ],
+          "append": {
+            "id": "E_JW_GEN",
+            "from": "JW",
+            "to": "GEN"
+          }
+        }
+      ],
+      "codes": [
+        "BAD_GRID"
+      ]
+    },
+    {
+      "name": "edge_listed_twice",
+      "ops": [
+        {
+          "path": [
+            "manifest",
+            "grid",
+            "edges"
+          ],
+          "append": {
+            "id": "E_GRID_JW",
+            "from": "GRID",
+            "to": "JW"
+          }
+        }
+      ],
+      "codes": [
+        "DUPLICATE_ID"
+      ]
+    },
+    {
+      "name": "three_spawns",
+      "ops": [
+        {
+          "path": [
+            "manifest",
+            "spawn",
+            "markers",
+            3
+          ],
+          "delete": true
+        }
+      ],
+      "codes": [
+        "BAD_SPAWN"
+      ]
+    },
+    {
+      "name": "spawn_is_an_anchor",
+      "ops": [
+        {
+          "path": [
+            "manifest",
+            "spawn",
+            "markers",
+            3
+          ],
+          "set": "VAN_BAY"
+        }
+      ],
+      "codes": [
+        "BAD_SPAWN"
+      ]
+    },
+    {
+      "name": "yaw_out_of_range",
+      "ops": [
+        {
+          "path": [
+            "manifest",
+            "spawn",
+            "opening_shot",
+            "yaw_deg"
+          ],
+          "set": 270
+        }
+      ],
+      "codes": [
+        "BAD_SPAWN"
+      ]
+    },
+    {
+      "name": "first_job_unknown",
+      "ops": [
+        {
+          "path": [
+            "manifest",
+            "spawn",
+            "opening_shot",
+            "first_job"
+          ],
+          "set": {
+            "prop": "CABINET_XX"
+          }
+        }
+      ],
+      "codes": [
+        "UNKNOWN_REF"
+      ]
+    },
+    {
+      "name": "extraction_zone_unknown",
+      "ops": [
+        {
+          "path": [
+            "manifest",
+            "extraction",
+            "zone"
+          ],
+          "set": "ZONE_DEPOT"
+        }
+      ],
+      "codes": [
+        "UNKNOWN_REF"
+      ]
+    },
+    {
+      "name": "backdrop_not_a_list",
+      "ops": [
+        {
+          "path": [
+            "manifest",
+            "audit",
+            "backdrop"
+          ],
+          "set": "Dressing/Skyline"
+        }
+      ],
+      "codes": [
+        "BAD_VALUE"
+      ]
+    },
+    {
+      "name": "building_off_module",
+      "ops": [
+        {
+          "path": [
+            "layout",
+            "buildings",
+            0,
+            "size_cm"
+          ],
+          "set": [
+            1250,
+            800
+          ]
+        }
+      ],
+      "codes": [
+        "OFF_GRID"
+      ]
+    },
+    {
+      "name": "route_off_increment",
+      "ops": [
+        {
+          "path": [
+            "layout",
+            "routes",
+            0,
+            "min_cm"
+          ],
+          "set": [
+            210,
+            3000
+          ]
+        }
+      ],
+      "codes": [
+        "OFF_GRID"
+      ]
+    },
+    {
+      "name": "prop_outside_envelope",
+      "ops": [
+        {
+          "path": [
+            "layout",
+            "props",
+            0,
+            "min_cm"
+          ],
+          "set": [
+            10900,
+            0,
+            625
+          ]
+        }
+      ],
+      "codes": [
+        "OUTSIDE_ENVELOPE"
+      ]
+    },
+    {
+      "name": "face_short_a_module",
+      "ops": [
+        {
+          "path": [
+            "layout",
+            "buildings",
+            0,
+            "ground",
+            "south"
+          ],
+          "set": [
+            "window_wall",
+            "door_wall"
+          ]
+        }
+      ],
+      "codes": [
+        "BAD_FACE"
+      ]
+    },
+    {
+      "name": "face_unknown_piece",
+      "ops": [
+        {
+          "path": [
+            "layout",
+            "buildings",
+            0,
+            "ground",
+            "south"
+          ],
+          "set": [
+            "window_wall",
+            "door_wall",
+            "glass_wall"
+          ]
+        }
+      ],
+      "codes": [
+        "UNKNOWN_PIECE"
+      ]
+    },
+    {
+      "name": "layout_id_twice",
+      "ops": [
+        {
+          "path": [
+            "layout",
+            "markers"
+          ],
+          "append": {
+            "id": "VAN",
+            "kind": "anchor",
+            "pos_cm": [
+              800,
+              0,
+              1300
+            ]
+          }
+        }
+      ],
+      "codes": [
+        "DUPLICATE_ID"
+      ]
+    },
+    {
+      "name": "marker_kind_unknown",
+      "ops": [
+        {
+          "path": [
+            "layout",
+            "markers",
+            4,
+            "kind"
+          ],
+          "set": "door"
+        }
+      ],
+      "codes": [
+        "BAD_MARKER"
+      ]
+    }
+  ],
+  "challenge_cases": [
+    {
+      "name": "c01_on_alder_fits",
+      "ops": [],
+      "codes": []
+    },
+    {
+      "name": "authored_elsewhere",
+      "ops": [
+        {
+          "path": [
+            "location_id"
+          ],
+          "set": "CANAL_YARD"
+        }
+      ],
+      "codes": [
+        "WRONG_LOCATION"
+      ]
+    },
+    {
+      "name": "node_without_socket",
+      "ops": [
+        {
+          "path": [
+            "grid",
+            "nodes"
+          ],
+          "append": {
+            "id": "CLINIC",
+            "kind": "consumer",
+            "demand": 3,
+            "enabled": true,
+            "healthy": true
+          }
+        }
+      ],
+      "codes": [
+        "CHALLENGE_MISMATCH"
+      ]
+    },
+    {
+      "name": "edge_not_a_route",
+      "ops": [
+        {
+          "path": [
+            "grid",
+            "edges",
+            0,
+            "to"
+          ],
+          "set": "JE"
+        }
+      ],
+      "codes": [
+        "CHALLENGE_MISMATCH"
+      ]
+    },
+    {
+      "name": "fault_panel_not_a_panel",
+      "ops": [
+        {
+          "path": [
+            "faults",
+            0,
+            "panel"
+          ],
+          "set": "VAN_BAY"
+        }
+      ],
+      "codes": [
+        "CHALLENGE_MISMATCH"
+      ]
+    },
+    {
+      "name": "anchor_not_an_anchor",
+      "ops": [
+        {
+          "path": [
+            "temporary_supply",
+            0,
+            "anchors",
+            0,
+            "id"
+          ],
+          "set": "PANEL_JW"
+        }
+      ],
+      "codes": [
+        "CHALLENGE_MISMATCH"
+      ]
+    }
+  ]
+}

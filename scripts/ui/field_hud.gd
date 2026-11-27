@@ -181,10 +181,18 @@ func _notification(what: int) -> void:
 	var inner: Rect2 = Rect2(Vector2(safe, safe), size - Vector2(safe, safe) * 2.0)
 	var gap: float = ThemeTokens.px(REGION_GAP_PX, s)
 	_place(objective_card, inner.position, minf(ThemeTokens.px(OBJECTIVE_WIDTH_PX, s), inner.size.x))
-	var crew_w: float = minf(ThemeTokens.px(CREW_WIDTH_PX, s), inner.size.x)
-	_place(crew_card, Vector2(inner.end.x - crew_w, inner.position.y), crew_w)
 	var center: Vector2 = size * 0.5
 	var r: float = reticle.custom_minimum_size.x
+	var crew_w: float = minf(ThemeTokens.px(CREW_WIDTH_PX, s), inner.size.x)
+	# At dense accessibility layouts, use the spare top-right lane before
+	# wrapping every crew task into a tall column above the event card.
+	# Keep the normal reference width on roomy layouts and leave the reticle
+	# and the objective card clear; text size and every crew row are retained.
+	if crew_card.visible and inner.size.x < ThemeTokens.px(OBJECTIVE_WIDTH_PX + CREW_WIDTH_PX + PROMPT_WIDTH_PX, s):
+		var lane_left: float = maxf(objective_card.get_rect().end.x + gap, center.x + r * 0.5 + gap)
+		var lane_width: float = inner.end.x - lane_left
+		crew_w = maxf(crew_w, minf(ThemeTokens.px(560.0, s), lane_width))
+	_place(crew_card, Vector2(inner.end.x - crew_w, inner.position.y), crew_w)
 	fit_child_in_rect(reticle, Rect2(center - Vector2(r, r) * 0.5, Vector2(r, r)))
 	prompt_card.visible = not (_view.get("prompt", {}) as Dictionary).is_empty()
 	# the prompt keeps the reference width on screen (560 px at 1080p) and wraps instead of growing with the UI scale,

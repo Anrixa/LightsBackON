@@ -1,0 +1,62 @@
+{
+  "_note": "RB02 location manifest (schema in docs/design/RB02-location-format.md; validated by tools/lbo_location.py and scripts/world/location_data.gd with the same error codes). A location is the authored place a contract or challenge is played on. files: layout (kit layout on the 4 m grid, routes, props, markers, zones: rules), dressing and look (presentation only, content/save_compat.json). grid is the physical network the place offers: every node sits at a socket in the layout (building, prop or marker) or at the off-site feed named in the dressing, and every contract or challenge on this location uses a subset of these nodes and edges with its own capacities, demands and faults. landmarks: exactly one hero. spawn: four crew spawns (1-4 players) and the opening shot (player yaw at spawn; it must frame the hero landmark and the first job, checked by scripts/diagnostics/stage_audit.gd). extraction names the layout zone the crew leaves from. audit.backdrop lists dressing nodes (paths under the world root) that stand outside the envelope on purpose (the skyline).",
+  "schema": 1,
+  "location_id": "ALDER_STREET",
+  "district_id": "ALDER_STREET",
+  "name_key": "district.alder_street",
+  "scene": "res://scenes/world/alder_street.tscn",
+  "files": {
+    "layout": "layout.json",
+    "dressing": "dressing.json",
+    "look": "look.json"
+  },
+  "contracts": ["res://content/contracts/c01_alder_street"],
+  "grid": {
+    "nodes": [
+      {"id": "GRID", "kind": "source", "socket": {"feed": "substation"}},
+      {"id": "GEN", "kind": "source", "socket": {"marker": "VAN_BAY"}},
+      {"id": "JW", "kind": "junction", "socket": {"prop": "CABINET_JW"}},
+      {"id": "JE", "kind": "junction", "socket": {"prop": "CABINET_JE"}},
+      {"id": "TEMP", "kind": "junction", "socket": {"marker": "PAD_PUMP"}},
+      {"id": "APT_W", "kind": "consumer", "socket": {"building": "APT_W"}},
+      {"id": "MARKET", "kind": "consumer", "socket": {"building": "MARKET"}},
+      {"id": "PUB", "kind": "consumer", "socket": {"building": "PUB"}},
+      {"id": "APT_E", "kind": "consumer", "socket": {"building": "APT_E"}},
+      {"id": "WORKSHOP", "kind": "consumer", "socket": {"building": "WORKSHOP"}},
+      {"id": "PUMP", "kind": "consumer", "socket": {"marker": "PUMP"}},
+      {"id": "SIGN", "kind": "consumer", "socket": {"marker": "SIGN"}}
+    ],
+    "edges": [
+      {"id": "E_GRID_JW", "from": "GRID", "to": "JW"},
+      {"id": "E_GRID_JE", "from": "GRID", "to": "JE"},
+      {"id": "E_JW_APT_W", "from": "JW", "to": "APT_W"},
+      {"id": "E_JW_MARKET", "from": "JW", "to": "MARKET"},
+      {"id": "E_JE_PUB", "from": "JE", "to": "PUB"},
+      {"id": "E_JE_APT_E", "from": "JE", "to": "APT_E"},
+      {"id": "E_JE_WORKSHOP", "from": "JE", "to": "WORKSHOP"},
+      {"id": "E_JE_SIGN", "from": "JE", "to": "SIGN"},
+      {"id": "E_GEN_TEMP", "from": "GEN", "to": "TEMP"},
+      {"id": "E_TEMP_PUMP", "from": "TEMP", "to": "PUMP"},
+      {"id": "E_TEMP_PUB", "from": "TEMP", "to": "PUB"}
+    ]
+  },
+  "landmarks": [
+    {"ref": {"building": "MARKET"}, "role": "hero"},
+    {"ref": {"building": "APT_W"}, "role": "secondary"},
+    {"ref": {"building": "PUB"}, "role": "secondary"},
+    {"ref": {"building": "PUMP_HOUSE"}, "role": "secondary"},
+    {"ref": {"prop": "VAN"}, "role": "base"}
+  ],
+  "spawn": {
+    "markers": ["SPAWN_1", "SPAWN_2", "SPAWN_3", "SPAWN_4"],
+    "opening_shot": {
+      "from": "SPAWN_1",
+      "yaw_deg": -90,
+      "pitch_deg": 0,
+      "first_job": {"prop": "CABINET_JW"},
+      "max_near_wall_percent": 30
+    }
+  },
+  "extraction": {"zone": "ZONE_VAN"},
+  "audit": {"backdrop": ["Dressing/Skyline", "Dressing/SkylineWindows"]}
+}

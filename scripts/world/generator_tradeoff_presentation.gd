@@ -6,8 +6,7 @@ extends RefCounted
 
 const UiText := preload("res://scripts/ui/ui_text.gd")
 const HeroProps := preload("res://scripts/world/hero_prop_builder.gd")
-const DRESSING_PATH: String = "res://content/world/alder_street_dressing.json"
-const WORLD_PATH: String = "res://content/world/alder_street.json"
+const LocationData := preload("res://scripts/world/location_data.gd")
 const CM_PER_M: float = 100.0
 const REFUSAL_SECONDS: float = 4.0
 
@@ -29,10 +28,7 @@ var _last_view: Dictionary = {}
 
 
 static func load_config() -> Dictionary:
-	var dressing: Variant = JSON.parse_string(FileAccess.get_file_as_string(DRESSING_PATH))
-	if not dressing is Dictionary:
-		return {}
-	return (dressing as Dictionary).get("temporary_supply", {})
+	return LocationData.dressing(LocationData.load_location()).get("temporary_supply", {})
 
 
 func setup(world: Node3D) -> void:
@@ -46,10 +42,8 @@ func setup(world: Node3D) -> void:
 	_refusal_seconds = 0.0
 	if _config.is_empty():
 		return
-	var district: Variant = JSON.parse_string(FileAccess.get_file_as_string(WORLD_PATH))
-	if not district is Dictionary:
-		return
-	for marker: Dictionary in (district as Dictionary).get("markers", []):
+	var district: Dictionary = LocationData.layout(LocationData.load_location(LocationData.ALDER_STREET, false))
+	for marker: Dictionary in district.get("markers", []):
 		if str(marker.get("kind", "")) == "anchor":
 			_anchor_positions[str(marker["id"])] = _cm(marker["pos_cm"])
 	_root = Node3D.new()

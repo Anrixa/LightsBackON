@@ -7,7 +7,7 @@ extends RefCounted
 const TabletPresenter := preload("res://scripts/ui/tablet_presenter.gd")
 const RestorationPresentation := preload("res://scripts/world/restoration_presentation.gd")
 const Soundscape := preload("res://scripts/world/storm_soundscape.gd")
-const DRESSING_PATH: String = "res://content/world/alder_street_dressing.json"
+const LocationData := preload("res://scripts/world/location_data.gd")
 const CM_PER_M: float = 100.0
 
 var _world: Node3D
@@ -25,10 +25,7 @@ var _reduce_motion: bool = false
 
 
 static func load_config() -> Dictionary:
-	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(DRESSING_PATH))
-	if not data is Dictionary:
-		return {}
-	return (data as Dictionary).get("recovery_payoff", {})
+	return LocationData.dressing(LocationData.load_location()).get("recovery_payoff", {})
 
 
 func setup(world: Node3D) -> void:

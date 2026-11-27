@@ -57,8 +57,8 @@ func test_SAVE22_presentation_edit_changes_only_the_full_revision() -> void:
 
 func test_SAVE22_rules_unlisted_and_list_edits_change_both() -> void:
 	var copy: String = _copy_content()
-	for rel: String in ["contracts/c01_alder_street/grid.json", "world/alder_street.json", "offline_solo.json",
-			"save_compat.json"]:
+	for rel: String in ["contracts/c01_alder_street/grid.json", "locations/alder_street/layout.json",
+			"locations/alder_street/location.json", "offline_solo.json", "save_compat.json"]:
 		var full: String = ContentHash.content_revision(copy)
 		var rules: String = ContentHash.rules_revision(copy)
 		_append(copy.path_join(rel))

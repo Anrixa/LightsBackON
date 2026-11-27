@@ -1,7 +1,7 @@
 extends GPUParticles3D
 ## DS08 rain: a box of thin falling streaks that follows the active camera. Particles are emitted in world space
 ## (local_coords off), so walking does not drag the rain along. Purely cosmetic: no flashes (lightning is not in v1),
-## nothing here reads or writes game state. Values come from content/world/look_stormglass.json "rain".
+## nothing here reads or writes game state. Values come from the shared look profile (content/world/look_stormglass.json) "rain".
 
 const PERCENT: float = 100.0
 const VISIBILITY_MARGIN_M: float = 4.0
