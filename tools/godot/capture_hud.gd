@@ -105,7 +105,7 @@ func _initialize() -> void:
 	var f := FileAccess.open(out_dir.path_join("V07_contrast.json"), FileAccess.WRITE)
 	f.store_string(JSON.stringify({"adapter": RenderingServer.get_video_adapter_name(), "renderer": RenderingServer.get_current_rendering_method(),
 		"resolution": [root.size.x, root.size.y], "device": device, "locale": locale,
-		"method": "isolated_text_ink_and_rendered_glyph_components_v2",
+		"method": "isolated_text_ink_and_rendered_glyph_components_v3",
 		"failed": _failed, "probes": _report}, "  ", false))
 	f.close()
 	print("CONTRAST %s: %d probes, %d below AA (%s)" % ["PASS" if _failed == 0 else "FAIL", _report.size(), _failed,
@@ -146,7 +146,25 @@ func _measure(view: Control, label: String, out_dir: String) -> void:
 			await process_frame
 			await RenderingServer.frame_post_draw
 			if control is InputGlyph:
-				results = _score_glyph(control as InputGlyph, p["rect"], normal, bare)
+				var glyph: InputGlyph = control as InputGlyph
+				# Removing the entire glyph exposes its parent button. On an
+				# amber primary button that can match the glyph's own amber
+				# accent, even when the accent is visibly drawn on dark fill.
+				# Capture the same glyph with only its action token replaced
+				# by its backing, preserving all other geometry and ink.
+				var original_tokens: Dictionary = glyph.tokens
+				var masked_tokens: Dictionary = original_tokens.duplicate(true)
+				masked_tokens["colors"]["action"] = original_tokens["colors"]["elevated"]
+				glyph.tokens = masked_tokens
+				glyph.queue_redraw()
+				await process_frame
+				await RenderingServer.frame_post_draw
+				var action_off: Image = root.get_texture().get_image()
+				glyph.tokens = original_tokens
+				glyph.queue_redraw()
+				await process_frame
+				await RenderingServer.frame_post_draw
+				results = _score_glyph(glyph, p["rect"], normal, bare, action_off)
 			else:
 				results.append(score_text(p, normal, bare))
 		else:
@@ -324,7 +342,7 @@ static func score_text(p: Dictionary, shown: Image, behind: Image) -> Dictionary
 ## pixels and nearby actual backing color for each semantic component, rather
 ## than assigning one text color to its entire rectangle. The isolated blank
 ## capture prevents a nearby control from supplying the expected ink.
-func _score_glyph(g: InputGlyph, rect: Rect2, shown: Image, behind: Image) -> Array[Dictionary]:
+func _score_glyph(g: InputGlyph, rect: Rect2, shown: Image, behind: Image, action_off: Image) -> Array[Dictionary]:
 	var kind: String = str(g.glyph_info().get("kind", ""))
 	var code: int = int(g.glyph_info().get("code", -1))
 	var pairs: Array = [["text_muted", "elevated", ICON_MIN]]
@@ -339,7 +357,8 @@ func _score_glyph(g: InputGlyph, rect: Rect2, shown: Image, behind: Image) -> Ar
 	for pair: Array in pairs:
 		var foreground: Color = ThemeTokens.color(g.tokens, pair[0])
 		var backing: Color = ThemeTokens.color(g.tokens, pair[1])
-		var result: Dictionary = score_glyph_component(rect, shown, behind, foreground, backing, float(pair[2]))
+		var isolated: Image = action_off if pair[0] == "action" else behind
+		var result: Dictionary = score_glyph_component(rect, shown, isolated, foreground, backing, float(pair[2]))
 		result["what"] = "%s %s / %s" % [g.action, kind, pair[0]]
 		results.append(result)
 	return results

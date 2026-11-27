@@ -285,6 +285,10 @@ func test_RB02_hud_action_captions_have_real_width_at_all_scales() -> void:
 					hud.set_device(mode)
 					hud.apply(Fixture.worst_hud_view())
 					Fixture.settle(hud)
+					assert_false(hud.crew_card.get_rect().intersects(hud.event_card.get_rect()),
+						"%s %s %s %s: Crew/Event overlap" % [locale, viewport, slider, mode])
+					assert_false(hud.crew_card.get_rect().intersects(hud.reticle.get_rect()),
+						"%s %s %s %s: Crew covers reticle" % [locale, viewport, slider, mode])
 					for id: String in ["Hint_map_meter", "Hint_ping"]:
 						var p: InputPrompt = hud.find_child(id, true, false) as InputPrompt
 						assert_true(p != null, id)
@@ -338,3 +342,26 @@ func test_RB02_glyph_component_requires_own_ink_and_actual_backing() -> void:
 	assert_false(bool(CaptureHud.score_glyph_component(region, behind, behind, Color.WHITE, Color.BLACK, 4.5)["pass"]))
 	assert_false(bool(CaptureHud.score_glyph_component(region, shown, behind, Color.WHITE, Color.RED, 4.5)["pass"]))
 	assert_false(bool(CaptureHud.score_glyph_component(region, shown, shown, Color.WHITE, Color.BLACK, 4.5)["pass"]), "unchanged adjacent ink is not the glyph")
+
+
+## Regression for the native RB02 capture: a mouse accent drawn over dark
+## glyph fill can match the primary button behind the entire glyph.
+func test_RB02_action_only_capture_distinguishes_amber_on_amber() -> void:
+	var amber: Color = ThemeTokens.color(_tokens, "action")
+	var dark: Color = ThemeTokens.color(_tokens, "elevated")
+	var bare: Image = Image.create_empty(30, 30, false, Image.FORMAT_RGB8)
+	bare.fill(amber)
+	var action_off: Image = bare.duplicate() as Image
+	action_off.fill_rect(Rect2i(5, 5, 20, 20), dark)
+	var shown: Image = action_off.duplicate() as Image
+	shown.fill_rect(Rect2i(12, 9, 5, 8), amber)
+	var region: Rect2 = Rect2(0, 0, 30, 30)
+	assert_false(bool(CaptureHud.score_glyph_component(region, shown, bare, amber, dark, 3.0)["pass"]),
+		"whole-glyph suppression exposes the same amber and cannot detect the component")
+	var valid: Dictionary = CaptureHud.score_glyph_component(region, shown, action_off, amber, dark, 3.0)
+	assert_true(bool(valid["pass"]), str(valid))
+	assert_eq(int(valid["ink_pixels"]), 40)
+	assert_false(bool(CaptureHud.score_glyph_component(region, action_off, action_off, amber, dark, 3.0)["pass"]),
+		"missing accent still fails even on an amber button")
+	assert_false(bool(CaptureHud.score_glyph_component(region, shown, shown, amber, dark, 3.0)["pass"]),
+		"unchanged amber cannot satisfy the isolated component probe")
